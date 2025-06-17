@@ -32,13 +32,13 @@ namespace Core
         public IAccountDatabase AccountDatabase { get; init; }
         public IAdminDatabase AdminDatabase { get; init; }
         public IConnectionDatabase ConnectionDatabase { get; init; }
-        public IGatheringDatabase GatheringDatabase { get; init; }
-        public ISnapshotDatabase SnapshotDatabase { get; init; }
+        public IGroupDatabase GatheringDatabase { get; init; }
+        public ISegmentDatabase SnapshotDatabase { get; init; }
         public IDisciplineDatabase DisciplineDatabase { get; init; }
         public IKeyDatabase KeyDatabase { get; init; }
         public IMediaDatabase MediaDatabase { get; init; }
         public IMessageDatabase MessageDatabase { get; init; }
-        public INestDatabase NestDatabase { get; init; }
+        public IProfileDatabase NestDatabase { get; init; }
         public INotificationDatabase NotificationDatabase { get; init; }
         public IMiscellaneousDatabase MiscellaneousDatabase { get; init; }
 
@@ -46,9 +46,9 @@ namespace Core
             => AccountDirector;
         public IConnectionOperations ConnectionOperations
             => ConnectionDirector;
-        public IGatheringOperations GatheringOperations
+        public IGroupOperations GatheringOperations
             => GatheringDirector;
-        public ISnapshotOperations SnapshotOperations
+        public ISegmentOperations SnapshotOperations
             => SnapshotDirector;
         public IDisciplineOperations DisciplineOperations
             => DisciplineDirector;
@@ -58,7 +58,7 @@ namespace Core
             => MediaDirector;
         public IMessageOperations MessageOperations
             => MessageDirector;
-        public INestOperations NestOperations
+        public IProfileOperations NestOperations
             => NestDirector;
         public INotificationOperations NotificationOperations
             => NotificationDirector;
@@ -86,10 +86,10 @@ namespace Core
 
         public static CoreTerminal CreateTerminal(EnvironmentOptions environment, ILogger logger,
             IAccountDatabase accountDatabase, IAdminDatabase adminDatabase, IConnectionDatabase connectionDatabase,
-            IGatheringDatabase gatheringDatabase, ISnapshotDatabase snapshotDatabase,
+            IGroupDatabase gatheringDatabase, ISegmentDatabase snapshotDatabase,
             IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase, IMessageDatabase messageDatabase,
-            INotificationDatabase notificationDatabase, INestDatabase nestDatabase,
+            INotificationDatabase notificationDatabase, IProfileDatabase nestDatabase,
             IMiscellaneousDatabase miscellaneousDatabase,
             INotificationService notificationService, ISocketService socketService)
         {

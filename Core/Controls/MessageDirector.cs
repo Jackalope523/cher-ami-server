@@ -42,33 +42,33 @@ namespace Core.Controls
             return await conversation.ToConversationShard();
         }
 
-        public async Task<ConversationShard> GetGatheringConversationAsync(long userId, long gatheringId)
+        public async Task<ConversationShard> GetGroupConversationAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
             var gathering = await GetGatheringAsync(gatheringId);
 
             // todo checks
 
-            var exists = await Messages.GatheringConversationExists(gathering.Id);
+            var exists = await Messages.GroupConversationExists(gathering.Id);
 
             Conversation conversation = Conversation.None;
 
             if (exists)
             {
-                conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+                conversation = new(await Messages.GetOrCreateGroupConversation(gathering.Id, Time));
             }
 
             return await conversation.ToConversationShard();
         }
 
-        public async Task<ConversationShard> GetOrCreateGatheringConversationAsync(long userId, long gatheringId)
+        public async Task<ConversationShard> GetOrCreateGroupConversationAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
             var gathering = await GetGatheringAsync(gatheringId);
 
             // todo checks
 
-            Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+            Conversation conversation = new(await Messages.GetOrCreateGroupConversation(gathering.Id, Time));
 
             return await conversation.ToConversationShard();
         }
@@ -222,7 +222,7 @@ namespace Core.Controls
             return message;
         }
 
-        public async Task<MessageShard[]> ShareGatheringAsync(long userId, long conversationId, long[] gatheringIds)
+        public async Task<MessageShard[]> ShareSegmentAsync(long userId, long conversationId, long[] gatheringIds)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -240,7 +240,7 @@ namespace Core.Controls
                 Verify(await user.CanView(gathering),
                     new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
 
-                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.ShareGathering, gathering.Id));
+                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Segment, gathering.Id));
             }
 
             _ = conversation.BulkMessageOrNotifyOthersAsync(user, messages);
@@ -250,7 +250,7 @@ namespace Core.Controls
             return messages.ToArray();
         }
 
-        public async Task<MessageShard[]> ShareSnapshotAsync(long userId, long conversationId, long[] snapshotIds)
+        public async Task<MessageShard[]> SharePostAsync(long userId, long conversationId, long[] snapshotIds)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -263,7 +263,7 @@ namespace Core.Controls
 
             foreach (var snapshotId in snapshotIds)
             {
-                var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+                var snapshot = await Snapshots.GetPostAsync(snapshotId);
                 User snapshotOwner = await GetUserAsync(snapshot.User.Id);
                 var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
@@ -272,7 +272,7 @@ namespace Core.Controls
                     await etchedGathering.HasOnGuestList(user),
                     new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
 
-                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Snapshot, snapshot.Id));
+                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Post, snapshot.Id));
             }
 
             _ = conversation.BulkMessageOrNotifyOthersAsync(user, messages);
@@ -282,7 +282,7 @@ namespace Core.Controls
             return messages.ToArray();
         }
 
-        public async Task<MessageShard[]> ShareNestAsync(long userId, long conversationId, long[] nestIds)
+        public async Task<MessageShard[]> ShareProfileAsync(long userId, long conversationId, long[] nestIds)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -300,7 +300,7 @@ namespace Core.Controls
                 FailIf(await user.IsBlockedBy(nest),
                     new UserErrorException(UserErrorCode.CANNOT_VIEW));
 
-                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Nest, nest.Id));
+                messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Profile, nest.Id));
             }
 
             _ = conversation.BulkMessageOrNotifyOthersAsync(user, messages);
@@ -421,7 +421,7 @@ namespace Core.Controls
             _ = conversation.MessageOthersAsync(User.Hollow, message);
         }
 
-        public async Task SummonUserAsync(long userId, long conversationId, long targetId)
+        public async Task InviteUserAsync(long userId, long conversationId, long targetId)
         {
             var user = await GetUserAsync(userId);
             var summoned = await GetUserAsync(targetId);
@@ -438,7 +438,7 @@ namespace Core.Controls
 
             await Messages.AddUsersToConversationAsync(conversation.Id, summoned.Id);
 
-            ActivityMessageShard activityMessage = new(ActivityMessageType.Summoned, ActorId: user.Id, TargetId: summoned.Id);
+            ActivityMessageShard activityMessage = new(ActivityMessageType.Invited, ActorId: user.Id, TargetId: summoned.Id);
             var message = await Messages.AddMessageAsync(conversation.Id, User.Hollow.Id, Time, MessageType.Activity, activityMessage);
 
             _ = conversation.MessageOthersAsync(User.Hollow, message);

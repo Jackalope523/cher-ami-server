@@ -285,7 +285,7 @@ namespace Core.Tests.Entities
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			await environment.UpdateUser(user, nameof(CoreUser.AccountStatus), UserAccountStatus.Limited);
-			user = new(await environment.Terminal.AccountDatabase.FindUserByIdAsync(user.Id));
+			user = new(await environment.Terminal.AccountDatabase.GetUserByIdAsync(user.Id));
 
 			// Act
 			var canView = await user.CanView(gathering);

@@ -1,32 +1,32 @@
 ﻿namespace Repository
 {
-    public class SnapshotStoreCoordinator : ISnapshotDatabase
+    public class SnapshotStoreCoordinator : ISegmentDatabase
     {
-        private readonly ISnapshotDatabase store;
+        private readonly ISegmentDatabase store;
 
         public SnapshotStoreCoordinator(Harbor.Flag flag)
         {
             store = new EFCoreSnapshotStore(flag);
         }
 
-        public async Task<SnapshotShard> AddSnapshotAsync(long gatheringId, long posterId, DateTimeOffset timePosted)
+        public async Task<PostShard> AddPostAsync(long gatheringId, long posterId, DateTimeOffset timePosted)
         { 
-             return await store.AddSnapshotAsync(gatheringId, posterId, timePosted);  
+             return await store.AddPostAsync(gatheringId, posterId, timePosted);  
         }
 
-        public async Task<List<SnapshotShard>> GenerateColumnForUserAsync(long id, DateTimeOffset depthCharge, DateTimeOffset lastDepthCharge)
+        public async Task<List<PostShard>> GenerateColumnForUserAsync(long id, DateTimeOffset depthCharge, DateTimeOffset lastDepthCharge)
         {
            return await store.GenerateColumnForUserAsync(id, depthCharge, lastDepthCharge);   
         }
 
-        public async Task<SnapshotShard> GetSnapshotAsync(long id)
+        public async Task<PostShard> GetPostAsync(long id)
         {
-            return await store.GetSnapshotAsync(id);
+            return await store.GetPostAsync(id);
         }
 
-        public async Task<List<SnapshotShard>> GetSnapshotsByUserAsync(long id)
+        public async Task<List<PostShard>> GetPostsByUserAsync(long id)
         {
-            return await store.GetSnapshotsByUserAsync(id);
+            return await store.GetPostsByUserAsync(id);
         }
 
         public async Task AcclaimSnapshotAsync(long postId, long voterId)
@@ -34,9 +34,9 @@
           await store.AcclaimSnapshotAsync(postId, voterId);
         }
 
-        public async Task<List<SnapshotShard>> GetSnapshotsForGatheringAsync(long id)
+        public async Task<List<PostShard>> GetPostsForSegmentAsync(long id)
         {
-            return await store.GetSnapshotsForGatheringAsync(id);
+            return await store.GetPostsForSegmentAsync(id);
         }
 
         public async Task DeleteSnapshotAcclaimAsync(long snapshotId, long voterId)

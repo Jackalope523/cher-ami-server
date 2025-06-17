@@ -15,19 +15,19 @@ namespace Repository
             return await store.DownloadAssetAsync(asset);
         }
         
-        public async Task<MemoryStream> DownloadSnapshotAsync(long snapshotId, long ownerId)
+        public async Task<MemoryStream> DownloadPostAsync(long snapshotId, long ownerId)
         {
-            return await store.DownloadSnapshotAsync(snapshotId, ownerId);
+            return await store.DownloadPostAsync(snapshotId, ownerId);
         }
 
-        public async Task UploadSnapshotAsync(long snapshotId, long ownerId, MemoryStream image)
+        public async Task UploadPostAsync(long snapshotId, long ownerId, MemoryStream image)
         {
-            await store.UploadSnapshotAsync(snapshotId, ownerId, image);
+            await store.UploadPostAsync(snapshotId, ownerId, image);
         }
 
-        public async Task DeleteSnapshotAsync(long snapshotId, long ownerId)
+        public async Task DeletePostAsync(long snapshotId, long ownerId)
         {
-            await store.DeleteSnapshotAsync(snapshotId, ownerId);
+            await store.DeletePostAsync(snapshotId, ownerId);
         }
 
         public async Task<MemoryStream> DownloadAvatarAsync(long userId)
@@ -45,9 +45,9 @@ namespace Repository
             await store.DeleteAvatarAsync(userId);
         }
 
-        public async Task<MemoryStream> DownloadGatheringHeaderAsync(long gatheringId)
+        public async Task<MemoryStream> DownloadGroupHeaderAsync(long gatheringId)
         {
-            return await store.DownloadGatheringHeaderAsync(gatheringId);
+            return await store.DownloadGroupHeaderAsync(gatheringId);
         }
 
         public async Task UploadGatheringHeaderAsync(long gatheringId, MemoryStream image)

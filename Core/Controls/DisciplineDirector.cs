@@ -119,7 +119,7 @@ namespace Core.Controls
                 // Threshold hit, seal gathering
                 await Terminal.GatheringDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
 
-                await gathering.NotifyGuests(CanaryNotification.GatheringSealed(await gathering.ToGatheringShard()));
+                await gathering.NotifyGuests(CardinalNotification.GatheringSealed(await gathering.ToGatheringShard()));
 
                 // Compute host's standing
                 var status = await host.GatheringReported();
@@ -135,7 +135,7 @@ namespace Core.Controls
         public async Task<List<SnapshotReportType>> GetAvailableReportsForSnapshotAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var targetSnapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
             User targetUser = await GetUserAsync(targetSnapshot.User.Id);
 
             // Verify user can report
@@ -150,7 +150,7 @@ namespace Core.Controls
             SnapshotReportType reportType, string reportDetails)
         {
             var user = await GetUserAsync(userId);
-            var targetSnapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
             User targetUser = await GetUserAsync(targetSnapshot.User.Id);
 
             // Verify user can report

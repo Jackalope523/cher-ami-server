@@ -77,7 +77,7 @@ namespace Core.Tests.Controls
 			byte[] image = { byte.MinValue, 0, 1, 3, byte.MaxValue, 7, 8 };
 
 			// Act
-			await director.AddSnapshotAsync(guest.Id, gathering.Id, new(image));
+			await director.AddPostAsync(guest.Id, gathering.Id, new(image));
 
 			// Assert
 			var serverSnapshots = await director.GetGalleryAsync(guest.Id, gathering.Id);
@@ -205,7 +205,7 @@ namespace Core.Tests.Controls
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			// Act
-			var addSnapshotSync = director.AddSnapshotAsync(sneakyUser.Id, gathering.Id, new(0));
+			var addSnapshotSync = director.AddPostAsync(sneakyUser.Id, gathering.Id, new(0));
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await addSnapshotSync);
@@ -220,7 +220,7 @@ namespace Core.Tests.Controls
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			await director.DeleteSnapshotAsync(host.Id, snapshot.Id);
+			await director.DeletePostAsync(host.Id, snapshot.Id);
 
 			// Assert
 			var serverSnapshots = await director.GetGalleryAsync(host.Id, gathering.Id);
@@ -237,7 +237,7 @@ namespace Core.Tests.Controls
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var removeSnapshotSync = director.DeleteSnapshotAsync(sneakyUser.Id, snapshot.Id);
+			var removeSnapshotSync = director.DeletePostAsync(sneakyUser.Id, snapshot.Id);
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await removeSnapshotSync);

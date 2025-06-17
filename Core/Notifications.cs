@@ -8,25 +8,19 @@ namespace Core.Notifications
     public enum NotificationGroup
     {
         None,
-        SocialInvitations,
-        CompanionActivity,
-        GatheringDiscovery,
-        GatheringReminders,
-        GatheringActivity,
+        SegmentPosts,
+        PostReminders,
     }
 
     public static class NotificationGroupExtensions
     {
-        public static bool CheckEnabled(this NotificationGroup group, NotificationProfile profile)
+        public static bool HasEnabled(this NotificationGroup group, NotificationProfile profile)
         {
             return group switch
             {
                 NotificationGroup.None => true,
-                NotificationGroup.SocialInvitations => profile.SocialInvitations,
-                NotificationGroup.CompanionActivity => profile.CompanionActivity,
-                NotificationGroup.GatheringDiscovery => profile.GatheringDiscovery,
-                NotificationGroup.GatheringReminders => profile.GatheringReminders,
-                NotificationGroup.GatheringActivity => profile.GatheringActivity,
+                NotificationGroup.SegmentPosts => profile.SegmentPosts,
+                NotificationGroup.PostReminders => profile.PostReminders,
                 _ => throw new ArgumentOutOfRangeException(nameof(group), group, null)
             };
         }
@@ -83,7 +77,7 @@ namespace Core.Notifications
         }
     }
 
-    public struct GatheringDeepLink : IDeepLink
+    public struct GroupDeepLink : IDeepLink
     {
         public enum FocusTarget
         {
@@ -93,40 +87,29 @@ namespace Core.Notifications
 
         public string RelativePath { get; private set; }
 
-        public GatheringDeepLink(long gatheringId,
-            FocusTarget? focus = null, string invitedBy = null,
-            bool? immediate = null, bool? @sealed = null)
+        public GroupDeepLink(long groupId,
+            FocusTarget? focus = null, string invitedBy = null)
         {
-            string path = $"gathering/{gatheringId}";
+            string path = $"group/{groupId}";
             
             string options = "";
 
             options += IDeepLink.ParseOption("focus", focus);
             options += IDeepLink.ParseOption("invited_by", invitedBy);
-            options += IDeepLink.ParseOption("immediate", immediate);
-            options += IDeepLink.ParseOption("sealed", @sealed);
 
             RelativePath = IDeepLink.FormatPath(path, options);
         }
     }
 
-    public struct DiscoveryDeepLink : IDeepLink
-    {
-        public string RelativePath => IDeepLink.FormatPath("discovery");
-    }
-
-    public struct NestDeepLink : IDeepLink
+    public struct ProfileDeepLink : IDeepLink
     {
         public string RelativePath { get; private set; }
 
-        public NestDeepLink(long userId,
-            string lastMet = null)
+        public ProfileDeepLink(long userId)
         {
-            string path = $"nest/{userId}";
+            string path = $"profile/{userId}";
 
             string options = "";
-
-            options += IDeepLink.ParseOption("last_met", lastMet);
 
             RelativePath = IDeepLink.FormatPath(path, options);
         }
@@ -144,7 +127,7 @@ namespace Core.Notifications
         }
     }
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
         public string Title { get; set; }
         public string Subtitle { get; set; }
@@ -154,7 +137,7 @@ namespace Core.Notifications
 
         public NotificationGroup Group { get; set; }
 
-        protected CanaryNotification(string title, string body, IDeepLink deepLink = null, string threadId = "")
+        protected CardinalNotification(string title, string body, IDeepLink deepLink = null, string threadId = "")
         {
             Title = title;
             Body = body;
@@ -163,7 +146,7 @@ namespace Core.Notifications
             Group = NotificationGroup.None;
         }
 
-        protected CanaryNotification(string title, string subtitle, string body, IDeepLink deepLink = null, string threadId = "")
+        protected CardinalNotification(string title, string subtitle, string body, IDeepLink deepLink = null, string threadId = "")
             : this(title, body, deepLink, threadId)
         {
             Subtitle = subtitle;
@@ -171,7 +154,7 @@ namespace Core.Notifications
 
         public bool CheckEnabled(NotificationProfile profile)
         {
-            return Group.CheckEnabled(profile);
+            return Group.HasEnabled(profile);
         }
     }
 
@@ -179,27 +162,27 @@ namespace Core.Notifications
     // Social Invitations
     ///////////////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification SocialInvitation(CanaryNotification notification)
+        protected static CardinalNotification SocialInvitation(CardinalNotification notification)
         {
             notification.Group = NotificationGroup.SocialInvitations;
             return notification;
         }
 
-        public static CanaryNotification CompanionshipRequest(UserShard addingUser, string lastMet = null)
+        public static CardinalNotification CompanionshipRequest(UserShard addingUser, string lastMet = null)
             => SocialInvitation(new("Companion Request",
                 $"{addingUser.Name} sent you a companionship request.",
-                new NestDeepLink(addingUser.Id, lastMet),
+                new ProfileDeepLink(addingUser.Id, lastMet),
                 "1"));
 
-        public static CanaryNotification CompanionshipForged(UserShard addingUser)
+        public static CardinalNotification CompanionshipForged(UserShard addingUser)
             => SocialInvitation(new("New Companion",
                 $"Companionship forged with {addingUser.Name} accepted.",
-                new NestDeepLink(addingUser.Id),
+                new ProfileDeepLink(addingUser.Id),
                 "1"));
 
-        public static CanaryNotification GatheringInvitation(UserShard invitingUser, GatheringShard gathering)
+        public static CardinalNotification GatheringInvitation(UserShard invitingUser, GatheringShard gathering)
             => SocialInvitation(new("Gathering Invitation",
                 $"{invitingUser.Name} invited you to {gathering.Title}.",
                 new GatheringDeepLink(gathering.Id, invitedBy: invitingUser.Name),
@@ -210,21 +193,21 @@ namespace Core.Notifications
     // Companion Activity
     ///////////////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification CompanionActivity(CanaryNotification notification)
+        protected static CardinalNotification CompanionActivity(CardinalNotification notification)
         {
             notification.Group = NotificationGroup.CompanionActivity;
             return notification;
         }
 
-        public static CanaryNotification CompanionJoined(UserShard companion, GatheringShard gathering)
+        public static CardinalNotification CompanionJoined(UserShard companion, GatheringShard gathering)
             => CompanionActivity(new(gathering.Title,
                 $"{companion.Name} joined the gathering.",
-                new GatheringDeepLink(gathering.Id, focus: GatheringDeepLink.FocusTarget.guestlist),
+                new GatheringDeepLink(gathering.Id, focus: GroupDeepLink.FocusTarget.guestlist),
                 $"{gathering.Id}:10"));
 
-        public static CanaryNotification CompanionGatheringCreated(UserShard companion, GatheringShard gathering)
+        public static CardinalNotification CompanionGatheringCreated(UserShard companion, GatheringShard gathering)
             => CompanionActivity(new("Companion Gathering",
                 $"{companion.Name} just created {gathering.Title}",
                 new GatheringDeepLink(gathering.Id)));
@@ -234,22 +217,22 @@ namespace Core.Notifications
     // Gathering Discovery
     ////////////////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification GatheringDiscovery(CanaryNotification notification)
+        protected static CardinalNotification GatheringDiscovery(CardinalNotification notification)
         {
             notification.Group = NotificationGroup.GatheringDiscovery;
             return notification;
         }
 
-        public static CanaryNotification NearbyGatherings() // TODO Slot in
+        public static CardinalNotification NearbyGatherings() // TODO Slot in
             => GatheringDiscovery(new("New Gatherings Nearby",
                 "There are new gatherings in your area that you may be interested in.",
                 new DiscoveryDeepLink()));
         // TODO A. Need to actually ensure that they are new (gathering creation time vs last logged in) B. not send multiple
         // ^Advanced profile and filter system
 
-        public static CanaryNotification CompanionMotive(GatheringShard gathering) // TODO Slot in
+        public static CardinalNotification CompanionMotive(GatheringShard gathering) // TODO Slot in
             => GatheringDiscovery(new("Companion Movement",
                 "Your companions are headed somewhere interesting...",
                 new GatheringDeepLink(gathering.Id)));
@@ -259,57 +242,57 @@ namespace Core.Notifications
     // Gathering Reminders
     ////////////////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification GatheringReminders(CanaryNotification notification)
+        protected static CardinalNotification GatheringReminders(CardinalNotification notification)
         {
             notification.Group = NotificationGroup.GatheringReminders;
             return notification;
         }
 
-        public static CanaryNotification GatheringUpcoming(GatheringShard gathering, string relativeTime = "later")
+        public static CardinalNotification GatheringUpcoming(GatheringShard gathering, string relativeTime = "later")
             => GatheringReminders(new(gathering.Title,
                 $"Is starting {relativeTime}.",
                 new GatheringDeepLink(gathering.Id),
                 "20"));
 
-        public static CanaryNotification GatheringImminent(GatheringShard gathering)
+        public static CardinalNotification GatheringImminent(GatheringShard gathering)
             => GatheringReminders(new(gathering.Title,
                 $"Is starting shortly.",
                 new GatheringDeepLink(gathering.Id, immediate: true),
                 "20"));
 
-        public static CanaryNotification GatheringLive(GatheringShard gathering)
+        public static CardinalNotification GatheringLive(GatheringShard gathering)
             => GatheringReminders(new(gathering.Title,
                 $"Is now live!",
                 new GatheringDeepLink(gathering.Id, immediate: true),
                 "20"));
 
-        public static CanaryNotification GatheringCancelled(GatheringShard gathering)
+        public static CardinalNotification GatheringCancelled(GatheringShard gathering)
             => GatheringReminders(new(gathering.Title,
                 $"Was cancelled by the host.",
                 new GatheringDeepLink(gathering.Id),
                 "20"));
 
-        public static CanaryNotification GatheringEdited(GatheringShard gathering)
+        public static CardinalNotification GatheringEdited(GatheringShard gathering)
             => GatheringReminders(new(gathering.Title,
                 $"Was modified by the host.",
                 new GatheringDeepLink(gathering.Id),
                 "21"));
 
-        public static CanaryNotification GatheringUploadClosing(GatheringShard gathering)
+        public static CardinalNotification GatheringUploadClosing(GatheringShard gathering)
             => GatheringReminders(new(gathering.Title,
                 $"Don't forget to post your remaining photos!",
-                new GatheringDeepLink(gathering.Id, focus: GatheringDeepLink.FocusTarget.gallery)));
+                new GatheringDeepLink(gathering.Id, focus: GroupDeepLink.FocusTarget.gallery)));
     }
 
     /////////
     // Gathering Activity
     ///////////////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification GatheringActivity(CanaryNotification notification)
+        protected static CardinalNotification GatheringActivity(CardinalNotification notification)
         {
             notification.Group = NotificationGroup.GatheringActivity;
             return notification;
@@ -317,36 +300,36 @@ namespace Core.Notifications
 
         // Host
 
-        public static CanaryNotification GatheringSealed(GatheringShard gathering)
+        public static CardinalNotification GatheringSealed(GatheringShard gathering)
             => GatheringActivity(new(gathering.Title,
                 $"Was reported too many times and was sealed as a result.",
                 new GatheringDeepLink(gathering.Id, @sealed: true)));
 
-        public static CanaryNotification GatheringHeartbeat(GatheringShard gathering) // TODO Slot in
+        public static CardinalNotification GatheringHeartbeat(GatheringShard gathering) // TODO Slot in
             => GatheringActivity(new(gathering.Title,
                 $"Is the gathering still ongoing?",
                 new GatheringDeepLink(gathering.Id, immediate: true)));
 
-        public static CanaryNotification HostLeavingGatheringArea(GatheringShard gathering)
+        public static CardinalNotification HostLeavingGatheringArea(GatheringShard gathering)
             => GatheringActivity(new(gathering.Title,
                 $"You are leaving the gathering area, gathering will hide itself.",
                 new GatheringDeepLink(gathering.Id)));
 
         // Attendee
 
-        public static CanaryNotification AttendeeLeavingGatheringArea(GatheringShard gathering)
+        public static CardinalNotification AttendeeLeavingGatheringArea(GatheringShard gathering)
             => GatheringActivity(new(gathering.Title,
                 $"You are leaving the gathering area.",
                 new GatheringDeepLink(gathering.Id),
                 "30"));
 
-        public static CanaryNotification GatheringTerminated(GatheringShard gathering)
+        public static CardinalNotification GatheringTerminated(GatheringShard gathering)
             => GatheringActivity(new(gathering.Title,
                 $"Has ended. Thanks for joining!",
                 new GatheringDeepLink(gathering.Id),
                 "30"));
 
-        public static CanaryNotification UserMissedGathering(GatheringShard gathering)
+        public static CardinalNotification UserMissedGathering(GatheringShard gathering)
             => GatheringActivity(new(gathering.Title,
                 "You missed the gathering.",
                 new GatheringDeepLink(gathering.Id),
@@ -357,27 +340,27 @@ namespace Core.Notifications
     // Messages
     /////////////
 
-    public partial class CanaryNotification
+    public partial class CardinalNotification
     {
-        protected static CanaryNotification Message(CanaryNotification notification)
+        protected static CardinalNotification Message(CardinalNotification notification)
         {
             return notification;
         }
 
-        public static CanaryNotification IndividualMessage(ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification IndividualMessage(ConversationShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 ParseMessage(message),
                 new MessageDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
-        public static CanaryNotification GroupMessage(ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification GroupMessage(ConversationShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 conversation.Title,
                 ParseMessage(message),
                 new MessageDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
-        public static CanaryNotification GatheringMessage(GatheringShard gathering, ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification GatheringMessage(GatheringShard gathering, ConversationShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 gathering.Title,
                 ParseMessage(message),
@@ -391,9 +374,9 @@ namespace Core.Notifications
                 MessageType.Text => message.Value.ToString(),
                 MessageType.Photo => "Sent a photo.",
                 MessageType.GatheringInvite => "Invited you to a gathering.",
-                MessageType.ShareGathering => "Shared a gathering.",
-                MessageType.Snapshot => "Shared a snapshot.",
-                MessageType.Nest => "Shared a nest.",
+                MessageType.Segment => "Shared a gathering.",
+                MessageType.Post => "Shared a snapshot.",
+                MessageType.Profile => "Shared a nest.",
                 _ => "",
             };
         }

@@ -11,7 +11,7 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class SnapshotDirector : AbstractDirector, ISnapshotOperations
+    internal class SnapshotDirector : AbstractDirector, ISegmentOperations
 	{
 		#region Initialisation
 
@@ -21,10 +21,10 @@ namespace Core.Controls
 
 		#region Operations
 
-        public async Task<SnapshotShard> GetSnapshotAsync(long userId, long snapshotId)
+        public async Task<PostShard> GetPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var snapshot = await Snapshots.GetPostAsync(snapshotId);
 
             var snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var gathering = await GetGatheringAsync(snapshot.GatheringId);
@@ -83,7 +83,7 @@ namespace Core.Controls
         }
 
 
-        public async Task<SnapshotShard> AddSnapshotAsync(long userId, long gatheringId, MemoryStream image)
+        public async Task<PostShard> AddPostAsync(long userId, long gatheringId, MemoryStream image)
         {
             var userSync = GetUserAsync(userId);
             var targetGatheringSync = GetGatheringAsync(gatheringId);
@@ -93,7 +93,7 @@ namespace Core.Controls
             await user.CanEtch(gathering);
 
             // Try to etch
-            var snapshot = await Snapshots.AddSnapshotAsync(gathering.Id, user.Id, Time);
+            var snapshot = await Snapshots.AddPostAsync(gathering.Id, user.Id, Time);
 
             try
             {
@@ -110,10 +110,10 @@ namespace Core.Controls
             return snapshot;
         }
 
-        public async Task DeleteSnapshotAsync(long userId, long snapshotId)
+        public async Task DeletePostAsync(long userId, long snapshotId)
         {
             var userSync = GetUserAsync(userId);
-            var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var snapshot = await Snapshots.GetPostAsync(snapshotId);
             var gatheringTaken = await GetGatheringAsync(snapshot.GatheringId);
             var user = await userSync;
 
@@ -127,7 +127,7 @@ namespace Core.Controls
         public async Task AcclaimSnapshotAsync(long userId, long snapshotId, SnapshotAcclaim acclaim)
         {
             var userSync = GetUserAsync(userId);
-            var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var snapshot = await Snapshots.GetPostAsync(snapshotId);
             var gatheringTaken = await GetGatheringAsync(snapshot.GatheringId);
             var user = await userSync;
 
@@ -189,15 +189,15 @@ namespace Core.Controls
 
 		#region Favours
 
-		internal async Task<List<SnapshotShard>> RequestGatheringSnapshotsAsync(Gathering gathering)
-            => await Snapshots.GetSnapshotsForGatheringAsync(gathering.Id);
+		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Gathering gathering)
+            => await Snapshots.GetPostsForSegmentAsync(gathering.Id);
 
-		internal async Task<List<SnapshotShard>> RequestVisibleSnapshotsAsync(User user, Gathering gathering)
+		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Gathering gathering)
         {
             // Verify user can see the gathering
             if (!await user.CanView(gathering))
             {
-                return new List<SnapshotShard> { };
+                return new List<PostShard> { };
             }
 
             _ = gathering.Snapshots.Sync();
@@ -222,12 +222,12 @@ namespace Core.Controls
             }
         }
 
-        internal List<SnapshotShard>
-            HideStrangersAsync(List<SnapshotShard> snapshots, List<long> strangers)
+        internal List<PostShard>
+            HideStrangersAsync(List<PostShard> snapshots, List<long> strangers)
         {
-            List<SnapshotShard> collection = new();
+            List<PostShard> collection = new();
 
-            foreach (SnapshotShard snapshot in snapshots)
+            foreach (PostShard snapshot in snapshots)
             {
                 if (strangers.Contains(snapshot.User.Id))
                 {
@@ -244,12 +244,12 @@ namespace Core.Controls
             return collection;
         }
 
-        internal async Task<List<SnapshotShard>>
-            RemoveBlockedSnapshotsAsync(User user, List<SnapshotShard> snapshots)
+        internal async Task<List<PostShard>>
+            RemoveBlockedSnapshotsAsync(User user, List<PostShard> snapshots)
         {
-            List<SnapshotShard> accessibleSnapshots = new();
+            List<PostShard> accessibleSnapshots = new();
 
-            foreach (SnapshotShard snapshot in snapshots)
+            foreach (PostShard snapshot in snapshots)
             {
                 if (user.Id != snapshot.User.Id)
                 {

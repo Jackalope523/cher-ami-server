@@ -100,7 +100,7 @@ namespace Core.Entities
 
         public Synced<List<GatheringReport>> GatheringReports { get; }
 
-        public Synced<List<SnapshotShard>> Snapshots { get; }
+        public Synced<List<PostShard>> Snapshots { get; }
 
         #endregion
 
@@ -184,7 +184,7 @@ namespace Core.Entities
             return new(Id, Title, IsTerminated ? EndTime.Value : StartTime, IsActive, lastActiveTime, FriendlyLocation);
         }
 
-        public TwigShard ToTwigShard()
+        public ProfileSegmentShard ToTwigShard()
         {
             return new(Id, StartTime);
         }
@@ -242,7 +242,7 @@ namespace Core.Entities
             return companions;
         }
 
-        public async Task<List<SnapshotShard>> GetSnapshotsOf(User user)
+        public async Task<List<PostShard>> GetSnapshotsOf(User user)
         {
             return (await Snapshots).Where(snapshot => snapshot.User.Id.Equals(user.Id)).ToList();
         }
@@ -414,7 +414,7 @@ namespace Core.Entities
 
         #region Actions
 
-        public async Task<string> NotifyGuests(CanaryNotification notification, DateTimeOffset? notifyAt = null, bool notifyHost = true)
+        public async Task<string> NotifyGuests(CardinalNotification notification, DateTimeOffset? notifyAt = null, bool notifyHost = true)
         {
             var targets = (await Guests).Concat(await Arrived).ToList();
 

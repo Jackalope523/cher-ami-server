@@ -122,10 +122,10 @@ namespace Core.Controls
             return new(await hashSync, shouldConceal);
         }
 
-        public async Task<MemoryStream> GetSnapshotAsync(long userId, long snapshotId)
+        public async Task<MemoryStream> GetPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var snapshot = await Snapshots.GetPostAsync(snapshotId);
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
@@ -146,10 +146,10 @@ namespace Core.Controls
             return image;
         }
 
-        public async Task<ImageMetadataShard> GetSnapshotMetadataAsync(long userId, long snapshotId)
+        public async Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetSnapshotAsync(snapshotId);
+            var snapshot = await Snapshots.GetPostAsync(snapshotId);
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
@@ -295,7 +295,7 @@ namespace Core.Controls
         {
             try
             {
-                await Media.UploadSnapshotAsync(snapshotId, userId, image);
+                await Media.UploadPostAsync(snapshotId, userId, image);
             }
             catch (Exception ex)
             { throw new UnexpectedFailureException($"Failed to upload snapshot for {snapshotId}", ex, HollowErrorCode.UPLOAD_FAILED); }

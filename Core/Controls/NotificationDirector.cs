@@ -73,7 +73,7 @@ namespace Core.Controls
 			return await Notifications.GetNotificationProfileAsync(user.Id);
 		}
 
-		internal async Task<string> NotifyUserAsync(User user, CanaryNotification notification, DateTimeOffset? notifyAt = null)
+		internal async Task<string> NotifyUserAsync(User user, CardinalNotification notification, DateTimeOffset? notifyAt = null)
 		{
 			string notificationId;
 
@@ -89,7 +89,7 @@ namespace Core.Controls
 			return notificationId;
         }
 
-		internal async Task<string> NotifyUsersAsync(CanaryNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
+		internal async Task<string> NotifyUsersAsync(CardinalNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
 		{
 			var profiles = await Task.WhenAll(users.Select(user => user.NotificationProfile.Value()));
 

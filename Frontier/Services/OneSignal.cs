@@ -33,7 +33,7 @@ namespace Frontier.Services
             instance = new DefaultApi(appConfig);
         }
 
-        public async Task<string> DispatchNotification(CanaryNotification notification, params NotificationProfile[] notificationProfiles)
+        public async Task<string> DispatchNotification(CardinalNotification notification, params NotificationProfile[] notificationProfiles)
         {
             List<string> outgoingIds = RetrieveValidTargets(notification, notificationProfiles);
 
@@ -71,7 +71,7 @@ namespace Frontier.Services
             return returnedId;
         }
 
-        public async Task<string> ScheduleNotification(CanaryNotification notification, DateTimeOffset dispatchAt, params NotificationProfile[] notificationProfiles)
+        public async Task<string> ScheduleNotification(CardinalNotification notification, DateTimeOffset dispatchAt, params NotificationProfile[] notificationProfiles)
         {
             List<string> outgoingIds = RetrieveValidTargets(notification, notificationProfiles);
 
@@ -117,7 +117,7 @@ namespace Frontier.Services
             await instance.CancelNotificationAsync(appId, notificationId);
         }
 
-        public List<string> RetrieveValidTargets(CanaryNotification notification, params NotificationProfile[] notificationProfiles)
+        public List<string> RetrieveValidTargets(CardinalNotification notification, params NotificationProfile[] notificationProfiles)
         {
             List<string> targets = new();
 

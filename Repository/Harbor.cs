@@ -11,10 +11,10 @@ namespace Repository
 
         public IAccountDatabase AccountDatabaseAccess { get; private set; }
         public IConnectionDatabase ConnectionDatabaseAccess { get; private set; }
-        public INestDatabase NestDatabaseAccess { get; private set; }
+        public IProfileDatabase NestDatabaseAccess { get; private set; }
         public INotificationDatabase NotificationDatabaseAccess { get; private set; }
-        public IGatheringDatabase GatheringDatabaseAccess { get; private set; }
-        public ISnapshotDatabase SnapshotDatabaseAccess { get; private set; }
+        public IGroupDatabase GatheringDatabaseAccess { get; private set; }
+        public ISegmentDatabase SnapshotDatabaseAccess { get; private set; }
         public IDisciplineDatabase ReportDatabaseAccess { get; private set; }
         public IAdminDatabase AdminDatabaseAccess { get; private set; }
         public IMediaDatabase MediaDatabaseAccess { get; private set; }

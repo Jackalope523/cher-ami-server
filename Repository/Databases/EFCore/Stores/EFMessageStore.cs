@@ -35,7 +35,7 @@ namespace Repository
                         StorageId = (Guid)value
                     };
                     break;
-                case MessageType.ShareGathering:
+                case MessageType.Segment:
                     toAdd = new GatheringShareMessage()
                     {
                         ConversationId = conversationId,
@@ -53,7 +53,7 @@ namespace Repository
                         GatheringId = (long)value
                     };
                     break;
-                case MessageType.Snapshot:
+                case MessageType.Post:
                     toAdd = new SnapshotMessage()
                     {
                         ConversationId = conversationId,
@@ -62,7 +62,7 @@ namespace Repository
                         SnapshotId = (long)value
                     };
                     break;
-                case MessageType.Nest:
+                case MessageType.Profile:
                     toAdd = new ProfileMessage()
                     {
                         ConversationId = conversationId,
@@ -140,7 +140,7 @@ namespace Repository
                                             SingleAsync());
 
             string? title = conversation.Type == ChatType.Group ? ((GroupChat)conversation).Title : null;
-            long gatheringId = conversation.Type == ChatType.Gathering ? ((GatheringChat)conversation).GatheringId : 0;
+            long gatheringId = conversation.Type == ChatType.Unit ? ((GatheringChat)conversation).GatheringId : 0;
 
             return new CoreConversation(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
         }
@@ -372,7 +372,7 @@ namespace Repository
             return chats.Count != chats.Distinct().Count();
         }
 
-        public async Task<bool> GatheringConversationExists(long gatheringId)
+        public async Task<bool> GroupConversationExists(long gatheringId)
         {
             long chatId = await storeSentry.ExecuteReadAsync(ctx =>
                 ctx.GatheringChats.
@@ -383,7 +383,7 @@ namespace Repository
             return chatId != 0;
         }
 
-        public async Task<CoreConversation> GetOrCreateGatheringConversation(long gatheringId, DateTimeOffset currentTime)
+        public async Task<CoreConversation> GetOrCreateGroupConversation(long gatheringId, DateTimeOffset currentTime)
         {
             CoreConversation? conversation = await storeSentry.ExecuteReadAsync(ctx =>
                ctx.GatheringChats.
@@ -396,7 +396,7 @@ namespace Repository
                 return conversation;
             }
 
-            GatheringChat toAdd = new() { Type = ChatType.Gathering, CreatedAt = currentTime, GatheringId = gatheringId };
+            GatheringChat toAdd = new() { Type = ChatType.Unit, CreatedAt = currentTime, GatheringId = gatheringId };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.GatheringChats.Add(toAdd));
 

@@ -88,7 +88,7 @@ namespace Repository.Tests
         [Fact]
         public async Task FindUserByIdAsync_SUCCESS()
         {
-            CoreUser found = await store.FindUserByIdAsync(subject.Id);
+            CoreUser found = await store.GetUserByIdAsync(subject.Id);
 
             Assert.NotNull(found);
 
@@ -116,7 +116,7 @@ namespace Repository.Tests
         [Fact]
         public async Task FindUserByIdAsync_UserNotFound()
         {
-            Func<Task> action = async () => await store.FindUserByIdAsync(long.MaxValue);
+            Func<Task> action = async () => await store.GetUserByIdAsync(long.MaxValue);
 
             await Assert.ThrowsAsync<DatabaseReadException>(action);
         }     
@@ -124,7 +124,7 @@ namespace Repository.Tests
         [Fact]
         public async Task FindUserByPhoneNumberAsync_SUCCESS()
         { 
-            CoreUser found = await store.FindUserByPhoneNumberAsync(subject.PhoneNumber);
+            CoreUser found = await store.GetUserByPhoneNumberAsync(subject.PhoneNumber);
 
             Assert.NotNull(found);
 
@@ -152,14 +152,14 @@ namespace Repository.Tests
         [Fact]
         public async Task FindUserByPhoneNumberAsync_UserNotFound()
         {
-            Func<Task> action = async () => await store.FindUserByPhoneNumberAsync("");
+            Func<Task> action = async () => await store.GetUserByPhoneNumberAsync("");
             await Assert.ThrowsAsync<DatabaseReadException>(action);
         }
 
         [Fact]
         public async Task FindUserByEmailAsync_SUCCESS()
         {
-            CoreUser found = await store.FindUserByEmailAsync(subject.Email);
+            CoreUser found = await store.GetUserByEmailAsync(subject.Email);
 
             Assert.NotNull(found);
 
@@ -187,7 +187,7 @@ namespace Repository.Tests
         [Fact]
         public async Task FindUserByEmailAsync_UserNotFound()
         {
-            Func<Task> action = async () => await store.FindUserByEmailAsync("");
+            Func<Task> action = async () => await store.GetUserByEmailAsync("");
 
             await Assert.ThrowsAsync<DatabaseReadException>(action);     
         }

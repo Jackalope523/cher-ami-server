@@ -20,13 +20,13 @@ namespace Core.Controls
 
 		protected IAccountDatabase Accounts { get; private set; }
 		protected IConnectionDatabase Connections { get; private set; }
-		protected IGatheringDatabase Gatherings { get; private set; }
-		protected ISnapshotDatabase Snapshots { get; private set; }
+		protected IGroupDatabase Gatherings { get; private set; }
+		protected ISegmentDatabase Snapshots { get; private set; }
 		protected IDisciplineDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
 		protected IMediaDatabase Media { get; private set; }
 		protected IMessageDatabase Messages { get; private set; }
-		protected INestDatabase Nests { get; private set; }
+		protected IProfileDatabase Nests { get; private set; }
 		protected INotificationDatabase Notifications { get; private set; }
         protected IMiscellaneousDatabase Miscellaneous { get; private set; }
 
@@ -60,7 +60,7 @@ namespace Core.Controls
 
 		protected async Task<User> GetUserAsync(long userId)
         {
-            User user = new(await Accounts.FindUserByIdAsync(userId));
+            User user = new(await Accounts.GetUserByIdAsync(userId));
 			
 			// Fail if user account is locked
 			FailIf(user.IsLocked,
@@ -75,7 +75,7 @@ namespace Core.Controls
 
 		protected async Task<User> GetUserUnsafeAsync(long userId)
         {
-            return new(await Accounts.FindUserByIdAsync(userId));
+            return new(await Accounts.GetUserByIdAsync(userId));
         }
 
         protected async Task<Gathering> GetGatheringAsync(long gatheringId)

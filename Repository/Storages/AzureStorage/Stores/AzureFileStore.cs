@@ -23,17 +23,17 @@ namespace Repository
             return await sentry.DownloadBlobAsync("assets", asset + imageFileSuffix);
         }
 
-        public async Task UploadSnapshotAsync(long snapshotId, long ownerId, MemoryStream image)
+        public async Task UploadPostAsync(long snapshotId, long ownerId, MemoryStream image)
         {
             await sentry.UploadBlobAsync(userContainerPrefix + ownerId.ToString(), snapshotId.ToString() + imageFileSuffix, image);
         }
 
-        public async Task<MemoryStream> DownloadSnapshotAsync(long snapshotId, long ownerId)
+        public async Task<MemoryStream> DownloadPostAsync(long snapshotId, long ownerId)
         {
             return await sentry.DownloadBlobAsync(userContainerPrefix + ownerId.ToString(), snapshotId.ToString() + imageFileSuffix);
         }
 
-        public async Task DeleteSnapshotAsync(long snapshotId, long ownerId)
+        public async Task DeletePostAsync(long snapshotId, long ownerId)
         {
             await sentry.DeleteBlobAsync(userContainerPrefix + ownerId.ToString(), snapshotId.ToString() + imageFileSuffix);
         }
@@ -53,7 +53,7 @@ namespace Repository
             await sentry.DeleteBlobAsync(userContainerPrefix + userId.ToString(), "avatar" + imageFileSuffix);
         }
 
-        public async Task<MemoryStream> DownloadGatheringHeaderAsync(long gatheringId)
+        public async Task<MemoryStream> DownloadGroupHeaderAsync(long gatheringId)
         {
             return await sentry.DownloadBlobAsync(gatheringContainerPrefix + gatheringId.ToString(), "hero" + imageFileSuffix);
         }

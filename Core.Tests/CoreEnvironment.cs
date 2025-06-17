@@ -107,7 +107,7 @@ namespace Core.Tests
 				userStub.Name, userStub.DateOfBirth, DateTimeOffset.UtcNow,
 				CharacterVector.Default(userStub.GetAge()).ToCharacter(), userStub.NotificationId);
 
-			var user = await Terminal.AccountDatabase.FindUserByPhoneNumberAsync(userStub.PhoneNumber);
+			var user = await Terminal.AccountDatabase.GetUserByPhoneNumberAsync(userStub.PhoneNumber);
 
 			return new(user);
 		}
@@ -298,28 +298,28 @@ namespace Core.Tests
 		// Snapshot Helpers
 		////////////////////
 
-		internal async Task<SnapshotShard> GenerateSnapshotAsync(Gathering etchedGathering, User etcher)
+		internal async Task<PostShard> GenerateSnapshotAsync(Gathering etchedGathering, User etcher)
 		{
 			return await GenerateSnapshotUnsafeAsync(etchedGathering, etcher, testSnapshotTime);
 		}
 
-		internal async Task<SnapshotShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, SnapshotShard snapshot)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, PostShard snapshot)
 		{
 			return await Terminal.SnapshotDatabase.AddSnapshotAsync(etchedGathering.Id, etcher.Id, snapshot.TimeTaken);
 		}
 
-		internal async Task<SnapshotShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, DateTimeOffset timeTaken)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, DateTimeOffset timeTaken)
 		{
-			return await Terminal.SnapshotDatabase.AddSnapshotAsync(etchedGathering.Id, etcher.Id, timeTaken);
+			return await Terminal.SnapshotDatabase.AddPostAsync(etchedGathering.Id, etcher.Id, timeTaken);
 		}
 
 		///////////
 		// Notification Helpers
 		/////////////////////////
 
-		internal List<CanaryNotification> GetUserMessages(User user)
+		internal List<CardinalNotification> GetUserMessages(User user)
 		{
-			ConcurrentBag<CanaryNotification> userMessages;
+			ConcurrentBag<CardinalNotification> userMessages;
 			var exists = NotificationServiceStub.messages.TryGetValue(user.Id.ToString(), out userMessages);
 			return exists ? userMessages.ToList() : new();
 		}

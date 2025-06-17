@@ -148,7 +148,7 @@ namespace Repository.Tests
             Assert.NotNull(retrieved);
             Assert.Equal(9, retrieved.Count);
 
-            SnapshotShard e1Snapshot = retrieved.Find(snapshot => snapshot.Id.Equals(e1.Id));
+            PostShard e1Snapshot = retrieved.Find(snapshot => snapshot.Id.Equals(e1.Id));
             Assert.NotNull(e1Snapshot);
             //Assert.Equal(e1.OwnerId, e1Snapshot.UserId);
             Assert.Equal(e1.GatheringId, e1Snapshot.GatheringId);

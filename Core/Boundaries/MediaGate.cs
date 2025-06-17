@@ -20,13 +20,13 @@ namespace Core.Boundaries
         Task UploadAvatarAsync(long userId, MemoryStream image);
         Task DeleteAvatarAsync(long userId);
 
-        Task<MemoryStream> DownloadGatheringHeaderAsync(long gatheringId);
-        Task UploadGatheringHeaderAsync(long gatheringId, MemoryStream image);
-        Task DeleteGatheringHeaderAsync(long gatheringId);
+        Task<MemoryStream> DownloadGroupHeaderAsync(long groupId);
+        Task UploadGroupHeaderAsync(long groupId, MemoryStream image);
+        Task DeleteGroupHeaderAsync(long groupId);
 
-        Task<MemoryStream> DownloadSnapshotAsync(long snapshotId, long ownerId);
-        Task UploadSnapshotAsync(long snapshotId, long ownerId, MemoryStream image);
-        Task DeleteSnapshotAsync(long snapshotId, long ownerId);
+        Task<MemoryStream> DownloadPostAsync(long postId, long ownerId);
+        Task UploadPostAsync(long postId, long ownerId, MemoryStream image);
+        Task DeletePostAsync(long postId, long ownerId);
 
         Task<MemoryStream> DownloadPhotoAsync(long conversationId, Guid photoId);
         Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image);
@@ -44,11 +44,11 @@ namespace Core.Boundaries
         Task<MemoryStream> GetAvatarAsync(long userId, long targetId);
         Task<ImageMetadataShard> GetAvatarMetadataAsync(long userId, long targetId);
 
-        Task<MemoryStream> GetHeaderAsync(long userId, long gatheringId);
-        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long gatheringId);
+        Task<MemoryStream> GetHeaderAsync(long userId, long groupId);
+        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long groupId);
 
-        Task<MemoryStream> GetSnapshotAsync(long userId, long snapshotId);
-        Task<ImageMetadataShard> GetSnapshotMetadataAsync(long userId, long snapshotId);
+        Task<MemoryStream> GetPostAsync(long userId, long postId);
+        Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId);
 
         Task<MemoryStream> GetGroupChatHeaderAsync(long userId, long conversationId);
         Task<ImageMetadataShard> GetGroupChatHeaderMetadataAsync(long userId, long conversationId);

@@ -2,13 +2,13 @@
 
 namespace Repository
 {
-    public class EFCoreSnapshotStore : QueryStore, ISnapshotDatabase
+    public class EFCoreSnapshotStore : QueryStore, ISegmentDatabase
     {   
         public EFCoreSnapshotStore(Harbor.Flag flag) : base(flag)
         {
         }
 
-        public async Task<SnapshotShard> AddSnapshotAsync(long gatheringId, long posterId, DateTimeOffset timePosted)
+        public async Task<PostShard> AddPostAsync(long gatheringId, long posterId, DateTimeOffset timePosted)
         { 
             Snapshot toAdd = new() 
             { 
@@ -27,7 +27,7 @@ namespace Repository
             return new SnapshotShard ( toAdd.Id, toAdd.GatheringId, new UserShard(toAdd.OwnerId, ownerName), toAdd.PostedAt, 0);
         }
 
-        public async Task<List<SnapshotShard>> GenerateColumnForUserAsync(long id, DateTimeOffset depthCharge, DateTimeOffset lastDepthCharge)
+        public async Task<List<PostShard>> GenerateColumnForUserAsync(long id, DateTimeOffset depthCharge, DateTimeOffset lastDepthCharge)
         {
             // Get List of Companions.
             Task<List<long>> appreciating = storeSentry.ExecuteReadAsync(ctx => 
@@ -44,7 +44,7 @@ namespace Repository
             List<long> owners = (await appreciating).Intersect(await appreciatingMe).Append(id).ToList();
 
             // Get unseen posts by companions from certain depth.
-            List<SnapshotShard> companionSnapshots = await storeSentry.ExecuteReadAsync(ctx =>
+            List<PostShard> companionSnapshots = await storeSentry.ExecuteReadAsync(ctx =>
               ctx.Snapshots.
               Where(p => owners.Contains(p.OwnerId) && p.PostedAt >= depthCharge && p.PostedAt <= lastDepthCharge).
               Join(
@@ -58,7 +58,7 @@ namespace Repository
 
             List<long> sitesToBeExplored = new();
             List<long> previouslyExtractedSnapshots = new();
-            foreach (SnapshotShard s in companionSnapshots)
+            foreach (PostShard s in companionSnapshots)
             {
                 companionSnapshotsPositiveRatings.Add(storeSentry.ExecuteReadAsync(ctx => 
                     ctx.SnapshotLinks.
@@ -72,7 +72,7 @@ namespace Repository
             }
 
             // Get remaining companion posts from same gatherings as others even if outside time range.
-            List<SnapshotShard> nettedSnapshots = await storeSentry.ExecuteReadAsync(ctx => 
+            List<PostShard> nettedSnapshots = await storeSentry.ExecuteReadAsync(ctx => 
                 ctx.Snapshots.
                 Where(p => owners.Contains(p.OwnerId) && !previouslyExtractedSnapshots.Contains(p.Id) && sitesToBeExplored.Contains(p.GatheringId)).
                 Join(
@@ -84,7 +84,7 @@ namespace Repository
 
             List<Task<int>> nettedSnapshotsPositiveRatings = new();
 
-            foreach (SnapshotShard s in nettedSnapshots)
+            foreach (PostShard s in nettedSnapshots)
             {
                 nettedSnapshotsPositiveRatings.Add(storeSentry.ExecuteReadAsync(ctx =>
                     ctx.SnapshotLinks.
@@ -106,11 +106,11 @@ namespace Repository
 
         }
 
-        public async Task<SnapshotShard> GetSnapshotAsync(long id)
+        public async Task<PostShard> GetPostAsync(long id)
         {
             Task<int> appreciates = storeSentry.ExecuteReadAsync(ctx => ctx.SnapshotLinks.Where(l => l.SnapshotId == id && l.Type == SnapshotLink.SnapshotLinkType.Appreciate).CountAsync());
 
-            SnapshotShard snapshot = await storeSentry.ExecuteReadAsync(ctx => 
+            PostShard snapshot = await storeSentry.ExecuteReadAsync(ctx => 
             ctx.Snapshots.
             Where(p => p.Id == id).
             Select(p => new SnapshotShard(p.Id, p.GatheringId, new UserShard(p.OwnerId, null), p.PostedAt, 0)).
@@ -125,9 +125,9 @@ namespace Repository
             return snapshot with { User = new UserShard(snapshot.User.Id, await name), Acclaim = await appreciates };
         }
 
-        public async Task<List<SnapshotShard>> GetSnapshotsByUserAsync(long id)
+        public async Task<List<PostShard>> GetPostsByUserAsync(long id)
         {
-            List<SnapshotShard> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
+            List<PostShard> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
                  ctx.Snapshots.Where(p => p.OwnerId == id).
                  Select(a => new SnapshotShard(a.Id, a.GatheringId, new UserShard(a.OwnerId, null), a.PostedAt, 0)).
                  ToListAsync());
@@ -226,9 +226,9 @@ namespace Repository
             await storeSentry.ExecuteWriteAsync(query);
         }
 
-        public async Task<List<SnapshotShard>> GetSnapshotsForGatheringAsync(long id)
+        public async Task<List<PostShard>> GetPostsForSegmentAsync(long id)
         {
-            List<SnapshotShard> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
+            List<PostShard> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
                  ctx.Snapshots.Where(p => p.GatheringId == id).
                  Select(a => new SnapshotShard(a.Id, a.GatheringId, new UserShard(a.OwnerId, null), a.PostedAt, 0)).
                  ToListAsync());

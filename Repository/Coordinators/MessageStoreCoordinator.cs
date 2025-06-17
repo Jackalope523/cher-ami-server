@@ -31,9 +31,9 @@ namespace Repository
             return store.DeleteConversationAsync(conversationId);
         }
 
-        public Task<bool> GatheringConversationExists(long gatheringId)
+        public Task<bool> GroupConversationExists(long gatheringId)
         {
-            return store.GatheringConversationExists(gatheringId);
+            return store.GroupConversationExists(gatheringId);
         }
 
         public Task<CoreConversation> GetConversationAsync(long conversationId)
@@ -66,9 +66,9 @@ namespace Repository
             return store.GetMessagesForConversationAsync(conversationId, pageNumber);
         }
 
-        public Task<CoreConversation> GetOrCreateGatheringConversation(long gatheringId, DateTimeOffset currentTime)
+        public Task<CoreConversation> GetOrCreateGroupConversation(long gatheringId, DateTimeOffset currentTime)
         {
-            return store.GetOrCreateGatheringConversation(gatheringId, currentTime);
+            return store.GetOrCreateGroupConversation(gatheringId, currentTime);
         }
 
         public Task<CoreConversation> GetOrCreateIndividualConversationBetween(long userIdA, long userIdB, DateTimeOffset currentTime)

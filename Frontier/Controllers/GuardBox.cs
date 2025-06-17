@@ -9,20 +9,20 @@ namespace Frontier.Controllers
 
 		public IAccountOperations accounts;
 		public IConnectionOperations connections;
-		public IGatheringOperations gatherings;
-		public ISnapshotOperations snapshots;
+		public IGroupOperations gatherings;
+		public ISegmentOperations snapshots;
 		public IKeyOperations keys;
 		public IDisciplineOperations reports;
 		public IMediaOperations media;
 		public IMessageOperations messages;
-		public INestOperations nests;
+		public IProfileOperations nests;
 		public INotificationOperations notifications;
         public IMiscellaneousOperations miscellaneous;
 
         public GuardBox(EnvironmentOptions environment, ILogger logger,
 			IAccountOperations accountOperations, IConnectionOperations connectionOperations,
-			INestOperations nestOperations, IGatheringOperations gatheringOperations,
-			ISnapshotOperations snapshotOperations, IKeyOperations keyOperations,
+			IProfileOperations nestOperations, IGroupOperations gatheringOperations,
+			ISegmentOperations snapshotOperations, IKeyOperations keyOperations,
 			IDisciplineOperations disciplineOperations,IMediaOperations mediaOperations,
 			IMessageOperations messageOperations,
 			INotificationOperations notificationOperations, IMiscellaneousOperations miscellaneousOperations)

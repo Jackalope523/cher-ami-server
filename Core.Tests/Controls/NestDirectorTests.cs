@@ -30,7 +30,7 @@ namespace Core.Tests.Controls
 			var ongoingGathering = await environment.GenerateUpcomingGatheringAsync(host, user);
 
 			// Act
-			var nest = await director.GetNestAsync(user.Id, user.Id);
+			var nest = await director.GetProfileAsync(user.Id, user.Id);
 
 			// Assert
 			Assert.Equal(3, nest.Twigs.Count);
@@ -54,7 +54,7 @@ namespace Core.Tests.Controls
 			var ongoingGathering = await environment.GenerateUpcomingGatheringAsync(host, companion);
 
 			// Act
-			var nest = await director.GetNestAsync(user.Id, companion.Id);
+			var nest = await director.GetProfileAsync(user.Id, companion.Id);
 
             // Assert
             Assert.Equal(4, nest.Twigs.Count);
@@ -71,7 +71,7 @@ namespace Core.Tests.Controls
 			var unattendedGathering = await environment.GeneratePastGatheringAsync(randomUser);
 
 			// Act
-			var nest = await director.GetNestAsync(user.Id, randomUser.Id);
+			var nest = await director.GetProfileAsync(user.Id, randomUser.Id);
 
             // Assert
             Assert.Equal(2, nest.Twigs.Count);
@@ -86,7 +86,7 @@ namespace Core.Tests.Controls
 			await environment.ForceEnemiesAsync(user, enemy);
 
 			// Act
-			var nest = director.GetNestAsync(user.Id, enemy.Id);
+			var nest = director.GetProfileAsync(user.Id, enemy.Id);
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await nest);

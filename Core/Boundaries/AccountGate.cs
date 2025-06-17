@@ -8,27 +8,21 @@ namespace Core.Boundaries
 	#region Schemas
 
 	public enum UserAccountStatus
-	{ Active, Impotent, Limited, Suspended, Blacklisted }
+	{ Active, Limited, Suspended, Blacklisted }
 
-	public record CoreUser(long Id, string PhoneNumber, string Email, string Name, string Code,
-		DateTimeOffset DateOfBirth, bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
+	public record CoreUser(long Id, string PhoneNumber, string Email, string NormalisedEmail,
+		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
+		bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
 		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
-		DateTimeOffset JoinDate, int Reputation, CharacterShard Character, DateTimeOffset TimeOfUserAgreement,
-		Guid NotificationId)
+		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)
 		: CoreOnlyData();
 
-	public record AccountShard(long Id, string PhoneNumber, string Email, string Name, string Code,
-        DateTimeOffset DateOfBirth, bool IsPhoneConfirmed, bool IsEmailConfirmed,
-		UserAccountStatus AccountStatus, DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement,
-		Guid NotificationId);
+	public record AccountShard(long Id, string PhoneNumber, string Email,
+		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
+		bool IsPhoneConfirmed, bool IsEmailConfirmed, UserAccountStatus AccountStatus,
+		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId);
 
     public record UserShard(long Id, string Name);
-
-    public record CharacterShard(int Age, int Extraversion, int Athleticism, int Chaoticness,
-		int Competitiveness, int Industriousness, int NightOwl, int Openness);
-
-    public record LocationShard(double Latitude, double Longitude, double Radius);
-    public record HauntShard(double Latitude, double Longitude, double Radius, int Stability);
 	
     #endregion
 
@@ -36,23 +30,17 @@ namespace Core.Boundaries
 
     public interface IAccountDatabase
 	{
-		Task<bool> UserExistsAsync(string phoneNumber);
+		Task<bool> PhoneNumberExistsAsync(string phoneNumber);
+		Task<bool> EmailExistsAsync(string normalisedEmail);
 
-		Task<CoreUser> FindUserByIdAsync(long userId);
-        Task<CoreUser> FindUserByPhoneNumberAsync(string phoneNumber);
-		Task<CoreUser> FindUserByEmailAsync(string normalisedEmail);
+		Task<CoreUser> GetUserByIdAsync(long userId);
+        Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber);
+		Task<CoreUser> GetUserByEmailAsync(string normalisedEmail);
+
 		Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail,
-			string name, DateTimeOffset dateOfBirth, DateTimeOffset joinDate, CharacterShard character, Guid notificationId);
+			string title, string firstName, string lastName,
+			DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
 		Task UpdateUserAsync(long userId, List<(string Property, object Value)> edits);
-
-		Task<LocationShard> GetRecentLocationAsync(long userId);
-		Task UpdateRecentLocationAsync(long userId, double latitude, double longitude, double radius);
-
-		Task<HauntShard> GetUserHauntAsync(long userId);
-		Task UpdateHauntAsync(long userId, double latitude, double longitude, double radius, int stability);
-
-		Task<string> RerollUserCodeAsync(long userId);
-		Task<CoreUser> FindUserByCodeAsync(string code);
 
 		Task SoftDeleteAsync(long userId);
         Task HardDeleteAsync(long userId);
@@ -67,18 +55,17 @@ namespace Core.Boundaries
 		Task<AccountShard> GetAccountShardAsync(long userId);
 		Task<UserShard> GetUserShardAsync(long userId);
 
-		Task CreateUserAsync(string phoneNumber, string email, string name,
+		Task CreateUserAsync(string phoneNumber, string email,
+			string title, string firstName, string lastName,
 			DateTimeOffset dateOfBirth);
 		Task EditUserAsync(long userId,
-			string phoneNumber = null, string email = null, string name = null,
-			bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
+			string phoneNumber = null, string email = null,
+			string title = null, string firstName = null, string lastName = null,
+			DateTimeOffset? dateOfBirth = null, bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null);
-		Task UpdateUserAgreementAsync(long userId);
-		Task<string> RerollCodeAsync(long userId);
 		Task EditAvatarAsync(long userId, MemoryStream image);
+		Task UpdateUserAgreementAsync(long userId);
 		Task DeleteUserAsync(long userId);
-
-		Task UpdateUserLocationAsync(long userId, double latitude, double longitude);
 	}
 
 	public interface IEmailService

@@ -226,7 +226,7 @@ namespace Repository
                ExecuteDeleteAsync());
         }
 
-        public async Task<CoreUser> FindUserByIdAsync(long id) 
+        public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
             CoreUser user;
             try 
@@ -271,7 +271,7 @@ namespace Repository
 
             return user;
         }
-        public async Task<CoreUser> FindUserByPhoneNumberAsync(string phoneNumber) 
+        public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
             CoreUser user;
             try
@@ -316,7 +316,7 @@ namespace Repository
 
             return user;
         }
-        public async Task<CoreUser> FindUserByEmailAsync(string email) 
+        public async Task<CoreUser> GetUserByEmailAsync(string email) 
         { 
             CoreUser user;
             try

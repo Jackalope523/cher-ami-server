@@ -16,19 +16,19 @@ namespace Repository
             return await store.CreateUserAsync(phoneNumber, email, normalisedEmail, name, dateOfBirth, joinDate, character, notificationId);
         }
 
-        public async Task<CoreUser> FindUserByIdAsync(long id) 
+        public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
-            return await store.FindUserByIdAsync(id);
+            return await store.GetUserByIdAsync(id);
         }
 
-        public async Task<CoreUser> FindUserByPhoneNumberAsync(string phoneNumber) 
+        public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
-            return await store.FindUserByPhoneNumberAsync(phoneNumber);
+            return await store.GetUserByPhoneNumberAsync(phoneNumber);
         }
 
-        public async Task<CoreUser> FindUserByEmailAsync(string email) 
+        public async Task<CoreUser> GetUserByEmailAsync(string email) 
         {
-            return await store.FindUserByEmailAsync(email);
+            return await store.GetUserByEmailAsync(email);
         }
 
         public async Task<HauntShard> GetUserHauntAsync(long id)

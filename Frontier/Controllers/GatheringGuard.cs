@@ -234,7 +234,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await snapshots.GetSnapshotAsync(user.Id, snapshotId);
+                return await snapshots.GetPostAsync(user.Id, snapshotId);
             });
         }
 
@@ -260,7 +260,7 @@ namespace Frontier.Controllers
                 using var stream = new MemoryStream();
                 await snapshot.Image.CopyToAsync(stream);
 
-                return await snapshots.AddSnapshotAsync(user.Id, gatheringId, stream);
+                return await snapshots.AddPostAsync(user.Id, gatheringId, stream);
 			});
 		}
 
@@ -269,7 +269,7 @@ namespace Frontier.Controllers
 		{
 			return await Execute(async user =>
 			{
-				await snapshots.DeleteSnapshotAsync(user.Id, snapshotId);
+				await snapshots.DeletePostAsync(user.Id, snapshotId);
 			});
 		}
 

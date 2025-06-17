@@ -17,12 +17,12 @@ namespace Core.Entities
     {
         #region Olive Branches
 
-        public static async Task<string> NotifyAll(CanaryNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
+        public static async Task<string> NotifyAll(CardinalNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
         {
             return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, users);
         }
 
-        public static async Task<string> NotifyAll(CanaryNotification notification, params User[] users)
+        public static async Task<string> NotifyAll(CardinalNotification notification, params User[] users)
         {
             return await NotifyAll(notification, null, users);
         }
@@ -126,7 +126,7 @@ namespace Core.Entities
 
         public static async Task<User> GetUserAsync(long id)
         {
-            return new(await Terminal.AccountDatabase.FindUserByIdAsync(id));
+            return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
         }
 
         public User()
@@ -432,7 +432,7 @@ namespace Core.Entities
 				new UserErrorException(GatheringErrorCode.NOT_GUEST));
 		}
 
-		public bool Taken(SnapshotShard snapshot)
+		public bool Taken(PostShard snapshot)
         {
             return snapshot.User.Id.Equals(Id);
 		}
@@ -493,14 +493,14 @@ namespace Core.Entities
             return availableReportTypes.ToList();
         }
 
-        public async Task<bool> CanReport(SnapshotShard snapshot, User snapshotAuthor, SnapshotReportType reportType)
+        public async Task<bool> CanReport(PostShard snapshot, User snapshotAuthor, SnapshotReportType reportType)
         {
             var availableReports = await AvailableReportTypes(snapshot, snapshotAuthor);
 
             return availableReports.Contains(reportType);
         }
 
-        public async Task<List<SnapshotReportType>> AvailableReportTypes(SnapshotShard snapshot, User snapshotAuthor)
+        public async Task<List<SnapshotReportType>> AvailableReportTypes(PostShard snapshot, User snapshotAuthor)
         {
             // Gather recent reports by user against target 
             var reportedTypesByUser = (await snapshotAuthor.SnapshotReports)
@@ -604,17 +604,17 @@ namespace Core.Entities
 
 		#region Actions
 
-        public async Task<string> Notify(CanaryNotification notification, DateTimeOffset? notifyAt = null)
+        public async Task<string> Notify(CardinalNotification notification, DateTimeOffset? notifyAt = null)
         {
              return await Terminal.NotificationDirector.NotifyUserAsync(this, notification, notifyAt);
         }
 
-        public async Task<string> NotifyFollowers(CanaryNotification notification, DateTimeOffset? notifyAt = null)
+        public async Task<string> NotifyFollowers(CardinalNotification notification, DateTimeOffset? notifyAt = null)
         {
             return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, (await Followers).ToArray());
         }
 
-        public async Task<string> NotifyCompanions(CanaryNotification notification, DateTimeOffset? notifyAt = null)
+        public async Task<string> NotifyCompanions(CardinalNotification notification, DateTimeOffset? notifyAt = null)
         {
             return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, (await Companions).ToArray());
         }

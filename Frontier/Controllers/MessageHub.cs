@@ -34,21 +34,21 @@ namespace Frontier.Controllers
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareGatheringAsync(user.Id, conversationId, gatheringIds);
+            return await messages.ShareSegmentAsync(user.Id, conversationId, gatheringIds);
         }
 
         public async Task<MessageShard[]> ShareSnapshot(long conversationId, long[] snapshotIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareSnapshotAsync(user.Id, conversationId, snapshotIds);
+            return await messages.SharePostAsync(user.Id, conversationId, snapshotIds);
         }
 
         public async Task<MessageShard[]> ShareNest(long conversationId, long[] nestIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareNestAsync(user.Id, conversationId, nestIds);
+            return await messages.ShareProfileAsync(user.Id, conversationId, nestIds);
         }
     }
 }

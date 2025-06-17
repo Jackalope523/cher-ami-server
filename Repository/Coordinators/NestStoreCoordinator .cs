@@ -1,8 +1,8 @@
 ﻿namespace Repository
 {
-    public class NestStoreCoordinator : INestDatabase
+    public class NestStoreCoordinator : IProfileDatabase
     {
-        private readonly INestDatabase store;
+        private readonly IProfileDatabase store;
 
         public NestStoreCoordinator(Harbor.Flag flag)
         {

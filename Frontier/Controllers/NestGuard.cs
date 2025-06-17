@@ -26,7 +26,7 @@ namespace Frontier.Controllers
         public async Task<IActionResult> GetNest(long targetId)
 		{
 			return await Execute(async user =>
-				await nests.GetNestAsync(user.Id, targetId));
+				await nests.GetProfileAsync(user.Id, targetId));
 		}
 
 		[HttpGet("companions")]

@@ -122,7 +122,7 @@ namespace Frontier.Controllers
 
                 ThrowIfUnverified(user);
 
-                var imageStream = await media.GetSnapshotAsync(user.Id, snapshotId);
+                var imageStream = await media.GetPostAsync(user.Id, snapshotId);
 
                 if (imageStream != null)
                 {
@@ -141,7 +141,7 @@ namespace Frontier.Controllers
         [HttpGet("snapshots/{snapshotId}/metadata")]
         public async Task<IActionResult> GetSnapshotMetadata(long snapshotId)
         {
-            return await Execute(async user => await media.GetSnapshotMetadataAsync(user.Id, snapshotId));
+            return await Execute(async user => await media.GetPostMetadataAsync(user.Id, snapshotId));
         }
 
         [HttpGet("conversation/{conversationId}")]

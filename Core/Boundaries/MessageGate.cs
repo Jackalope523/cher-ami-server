@@ -11,7 +11,7 @@ namespace Core.Boundaries
 	{
 		Individual,
 		Group,
-		Gathering,
+		Unit,
 		Broadcast,
 	}
 
@@ -26,24 +26,23 @@ namespace Core.Boundaries
 		Activity,
 		Text,
 		Photo,
-		ShareGathering,
-		GatheringInvite,
-		Snapshot,
-		Nest,
+		Segment,
+		Post,
+		Profile,
 	}
 
 	public enum ActivityMessageType
 	{
         Initiated = 0, Edited = 1,
-        Joined = 10, Left = 11, Summoned = 12, Kicked = 13,
+        Joined = 10, Left = 11, Invited = 12, Kicked = 13,
     }
 
 	public record ActivityMessageShard(ActivityMessageType Activity, long? ActorId = null, long? TargetId = null, string Info = null);
 
-    public record CoreConversation(long Id, ChatType Type, DateTimeOffset DateCreated, string Title = default, long? GatheringId = null)
+    public record CoreConversation(long Id, ChatType Type, DateTimeOffset DateCreated, string Title = default, long? GroupId = null)
 		: CoreOnlyData();
 	public record ConversationShard(long Id, ChatType Type, int LastPage, string Title = default,
-		long? GatheringId = null, bool? Muted = null, int? Unread = null);
+		long? GroupId = null, bool? Muted = null, int? Unread = null);
 
 	public record CoreMembership(long UserId, MembershipType Type, DateTimeOffset LastSeen, bool Muted)
 		: CoreOnlyData();
@@ -63,8 +62,8 @@ namespace Core.Boundaries
 		Task<bool> IndividualConversationBetweenExists(long userIdA, long userIdB);
 		Task<CoreConversation> GetOrCreateIndividualConversationBetween(long userIdA, long userIdB, DateTimeOffset currentTime);
 
-		Task<bool> GatheringConversationExists(long gatheringId);
-		Task<CoreConversation> GetOrCreateGatheringConversation(long gatheringId, DateTimeOffset currentTime);
+		Task<bool> GroupConversationExists(long groupId);
+		Task<CoreConversation> GetOrCreateGroupConversation(long groupId, DateTimeOffset currentTime);
 
 		Task<long> CreateGroupChatConversationAsync(DateTimeOffset currentTime, string title = default);
 
@@ -91,8 +90,8 @@ namespace Core.Boundaries
 
 		Task<ConversationShard> GetConversationWithAsync(long userId, long targetId);
 		Task<ConversationShard> GetOrCreateConversationWithAsync(long userId, long targetId);
-		Task<ConversationShard> GetGatheringConversationAsync(long userId, long gatheringId);
-		Task<ConversationShard> GetOrCreateGatheringConversationAsync(long userId, long gatheringId);
+		Task<ConversationShard> GetGroupConversationAsync(long userId, long groupId);
+		Task<ConversationShard> GetOrCreateGroupConversationAsync(long userId, long groupId);
 
 		Task<ConversationShard> GetConversationAsync(long userId, long conversationId);
 		Task<List<MembershipShard>> GetMembersAsync(long userId, long conversationId);
@@ -102,11 +101,10 @@ namespace Core.Boundaries
 		Task UserComposingAsync(long userId, long conversationId, bool isComposing);
 		Task<MessageShard> SendTextAsync(long userId, long conversationId, string text);
 		Task<MessageShard> SendPhotoAsync(long userId, long conversationId, MemoryStream photo);
-		Task<MessageShard> InviteToGatheringAsync(long userId, long conversationId, long gatheringId);
 
-		Task<MessageShard[]> ShareGatheringAsync(long userId, long conversationId, long[] gatheringIds);
-		Task<MessageShard[]> ShareSnapshotAsync(long userId, long conversationId, long[] snapshotIds);
-		Task<MessageShard[]> ShareNestAsync(long userId, long conversationId, long[] nestIds);
+		Task<MessageShard[]> ShareSegmentAsync(long userId, long conversationId, long[] segmentIds);
+		Task<MessageShard[]> SharePostAsync(long userId, long conversationId, long[] postIds);
+		Task<MessageShard[]> ShareProfileAsync(long userId, long conversationId, long[] profileIds);
 
 		Task<ConversationShard> CreateGroupChatAsync(long userId, params long[] participantIds);
 		Task EditGroupChatAsync(long userId, long conversationId,
@@ -114,7 +112,7 @@ namespace Core.Boundaries
 		Task DeleteGroupChatAsync(long userId, long conversationId);
 
 		Task LeaveGroupChatAsync(long userId, long conversationId);
-		Task SummonUserAsync(long userId, long conversationId, long targetId);
+		Task InviteUserAsync(long userId, long conversationId, long targetId);
 		Task KickUserAsync(long userId, long conversationId, long targetId);
 	}
 

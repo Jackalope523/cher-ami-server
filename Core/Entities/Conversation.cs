@@ -196,11 +196,11 @@ namespace Core.Entities
 
                 var shard = await ToConversationShard();
 
-                CanaryNotification notification = Type switch
+                CardinalNotification notification = Type switch
                 {
-                    ChatType.Individual => CanaryNotification.IndividualMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Group => CanaryNotification.GroupMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Gathering => CanaryNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), message),
+                    ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), message),
+                    ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), message),
+                    ChatType.Unit => CardinalNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), message),
                     _ => throw new UnexpectedFailureException("ConversationType does not exist"),
                 };
 
@@ -230,11 +230,11 @@ namespace Core.Entities
 
                 if (messages.Any())
                 {
-                    CanaryNotification notification = Type switch
+                    CardinalNotification notification = Type switch
                     {
-                        ChatType.Individual => CanaryNotification.IndividualMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Group => CanaryNotification.GroupMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Gathering => CanaryNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), messages.First()),
+                        ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), messages.First()),
+                        ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), messages.First()),
+                        ChatType.Unit => CardinalNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), messages.First()),
                         _ => throw new UnexpectedFailureException("ConversationType does not exist"),
                     };
 

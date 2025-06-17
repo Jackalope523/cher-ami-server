@@ -26,10 +26,10 @@ namespace Core
 
 		public static DebugTerminal CreateDebugTerminal(ILogger logger,
             IAccountDatabase accountDatabase, IAdminDatabase adminDatabase, IConnectionDatabase connectionDatabase,
-            IGatheringDatabase gatheringDatabase, ISnapshotDatabase snapshotDatabase,
+            IGroupDatabase gatheringDatabase, ISegmentDatabase snapshotDatabase,
             IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase, IMessageDatabase messageDatabase,
-			INotificationDatabase notificationDatabase, INestDatabase nestDatabase,
+			INotificationDatabase notificationDatabase, IProfileDatabase nestDatabase,
 			IMiscellaneousDatabase miscellaneousDatabase,
             INotificationService notificationService, ISocketService socketService,
 			IDebugDatabase debugDatabase)

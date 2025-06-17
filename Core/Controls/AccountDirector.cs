@@ -267,7 +267,7 @@ namespace Core.Controls
 
             try
             {
-                user = new(await Accounts.FindUserByPhoneNumberAsync(phoneNumber));
+                user = new(await Accounts.GetUserByPhoneNumberAsync(phoneNumber));
             }
             catch
             { throw new UserErrorException(AccountErrorCode.NOT_FOUND); }
@@ -300,7 +300,7 @@ namespace Core.Controls
 			try
 			{
                 // Throws an exception if there is no user
-                await Accounts.FindUserByEmailAsync(normalisedEmail);
+                await Accounts.GetUserByEmailAsync(normalisedEmail);
 				emailTaken = true;
 			}
 			catch { }

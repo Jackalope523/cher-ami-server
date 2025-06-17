@@ -67,7 +67,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetGatheringConversationAsync(user.Id, gatheringId);
+                return await messages.GetGroupConversationAsync(user.Id, gatheringId);
             });
         }
 
@@ -76,7 +76,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetOrCreateGatheringConversationAsync(user.Id, gatheringId);
+                return await messages.GetOrCreateGroupConversationAsync(user.Id, gatheringId);
             });
         }
 
@@ -159,7 +159,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                await messages.SummonUserAsync(user.Id, conversationId, target_id);
+                await messages.InviteUserAsync(user.Id, conversationId, target_id);
             });
         }
 

@@ -15,7 +15,7 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class GatheringDirector : AbstractDirector, IGatheringOperations
+    internal class GatheringDirector : AbstractDirector, IGroupOperations
 	{
 		#region Initialisation
 
@@ -37,21 +37,21 @@ namespace Core.Controls
 			return await targetGathering.ToGatheringShard();
 		}
 
-		public async Task<List<TwigShard>> GetUpcomingGatheringsAsync(long userId)
+		public async Task<List<ProfileSegmentShard>> GetUpcomingGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
 			return (await user.UpcomingGatherings).ConvertAll(g => g.ToTwigShard());
 		}
 
-		public async Task<List<TwigShard>> GetOngoingGatheringsAsync(long userId)
+		public async Task<List<ProfileSegmentShard>> GetOngoingGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
 			return (await user.OngoingGatherings).ConvertAll(g => g.ToTwigShard());
 		}
 
-		public async Task<List<TwigShard>> GetPastGatheringsAsync(long userId)
+		public async Task<List<ProfileSegmentShard>> GetPastGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
@@ -172,7 +172,7 @@ namespace Core.Controls
 			}
 
             // Notify companions of gathering
-            _ = user.NotifyCompanions(CanaryNotification.CompanionGatheringCreated(user.ToUserShard(), await newGathering.ToGatheringShard()));
+            _ = user.NotifyCompanions(CardinalNotification.CompanionGatheringCreated(user.ToUserShard(), await newGathering.ToGatheringShard()));
 			
 			return await newGathering.ToGatheringShard();
 		}
@@ -285,7 +285,7 @@ namespace Core.Controls
 				// Push update
 				await Gatherings.UpdateGatheringAsync(originalGathering.Id, edits);
 
-				_ = originalGathering.NotifyGuests(CanaryNotification.GatheringEdited(await originalGathering.ToGatheringShard()), notifyHost: false);
+				_ = originalGathering.NotifyGuests(CardinalNotification.GatheringEdited(await originalGathering.ToGatheringShard()), notifyHost: false);
 
 				// Reschedule notifications if required
 				if (IsNotNull(startTime))
@@ -294,9 +294,9 @@ namespace Core.Controls
 				}
 			}
 
-            if (editMessages.Any() && await Messages.GatheringConversationExists(originalGathering.Id))
+            if (editMessages.Any() && await Messages.GroupConversationExists(originalGathering.Id))
             {
-				Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(originalGathering.Id, Time));
+				Conversation conversation = new(await Messages.GetOrCreateGroupConversation(originalGathering.Id, Time));
 
                 foreach (var value in editMessages)
                 {
@@ -334,7 +334,7 @@ namespace Core.Controls
 			_ = Terminal.AccountDirector.UpdateAllAsync(participants, user => new() { (nameof(CoreUser.Character), user.Character) });
 
 			// Schedule photo reminder for attendees
-			_ = User.NotifyAll(CanaryNotification.GatheringUploadClosing(await gathering.ToGatheringShard()), notifyAt: Time + OneDay * 0.7, users: (await gathering.Left).ToArray());
+			_ = User.NotifyAll(CardinalNotification.GatheringUploadClosing(await gathering.ToGatheringShard()), notifyAt: Time + OneDay * 0.7, users: (await gathering.Left).ToArray());
         }
 
 		public async Task CancelGatheringAsync(long userId, long gatheringId)
@@ -353,7 +353,7 @@ namespace Core.Controls
             // Try to cancel gathering
             await Gatherings.CancelGatheringAsync(gathering.Id);
 
-            _ = gathering.NotifyGuests(CanaryNotification.GatheringCancelled(await gathering.ToGatheringShard()), notifyHost: false);
+            _ = gathering.NotifyGuests(CardinalNotification.GatheringCancelled(await gathering.ToGatheringShard()), notifyHost: false);
 
 			// Cancel scheduled notifications
 			_ = CancelScheduledNotifications(gathering);
@@ -435,13 +435,13 @@ namespace Core.Controls
 
 				var activeCompanions = activeGuests.Intersect(userCompanions);
 
-				_ = User.NotifyAll(CanaryNotification.CompanionJoined(user.ToUserShard(), await gathering.ToGatheringShard()), users: activeCompanions.ToArray());
+				_ = User.NotifyAll(CardinalNotification.CompanionJoined(user.ToUserShard(), await gathering.ToGatheringShard()), users: activeCompanions.ToArray());
             }
 
 			// Add member to chat
-			if (await Messages.GatheringConversationExists(gathering.Id))
+			if (await Messages.GroupConversationExists(gathering.Id))
 			{
-				Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+				Conversation conversation = new(await Messages.GetOrCreateGroupConversation(gathering.Id, Time));
 
 				await Messages.AddUsersToConversationAsync(conversation.Id, user.Id);
 
@@ -473,7 +473,7 @@ namespace Core.Controls
 			await Gatherings.DeleteUserStateAsync(user.Id, gathering.Id);
 
             // Delete any snapshots
-            foreach (SnapshotShard snapshot in await gathering.Snapshots)
+            foreach (PostShard snapshot in await gathering.Snapshots)
             {
                 if (user.Taken(snapshot))
                 { _ = Snapshots.SoftDeleteAsync(snapshot.Id); }
@@ -483,9 +483,9 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, user);
 
             // Remove member from chat
-            if (await Messages.GatheringConversationExists(gathering.Id))
+            if (await Messages.GroupConversationExists(gathering.Id))
             {
-                Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+                Conversation conversation = new(await Messages.GetOrCreateGroupConversation(gathering.Id, Time));
 
                 await Messages.RemoveUserFromConversationAsync(conversation.Id, user.Id);
 
@@ -636,7 +636,7 @@ namespace Core.Controls
 			await Gatherings.SetUserStateAsync(target.Id, gathering.Id, GatheringBond.Kicked, Time);
 
 			// Remove target user's snapshots from gathering
-			foreach (SnapshotShard snapshot in await gathering.Snapshots)
+			foreach (PostShard snapshot in await gathering.Snapshots)
 			{
 				if (target.Taken(snapshot))
 				{ _ = Snapshots.SoftDeleteAsync(snapshot.Id); }
@@ -646,9 +646,9 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, target);
 
             // Remove member from chat
-            if (await Messages.GatheringConversationExists(gathering.Id))
+            if (await Messages.GroupConversationExists(gathering.Id))
             {
-                var conversation = await Messages.GetOrCreateGatheringConversation(gathering.Id, Time);
+                var conversation = await Messages.GetOrCreateGroupConversation(gathering.Id, Time);
 
                 await Messages.RemoveUserFromConversationAsync(conversation.Id, target.Id);
             }
@@ -885,10 +885,10 @@ namespace Core.Controls
 
             if (scheduleUpcoming)
             {
-                upcomingIdSync = gathering.NotifyGuests(CanaryNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
+                upcomingIdSync = gathering.NotifyGuests(CardinalNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
             }
 
-            var imminentIdSync = gathering.NotifyGuests(CanaryNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
+            var imminentIdSync = gathering.NotifyGuests(CardinalNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
 
 			// Await scheduling
 			string upcomingNotificationId = await upcomingIdSync, imminentNotificationId = await imminentIdSync;
@@ -908,10 +908,10 @@ namespace Core.Controls
 
             if (scheduleUpcoming)
             {
-                upcomingIdSync = guest.Notify(CanaryNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
+                upcomingIdSync = guest.Notify(CardinalNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
             }
 
-            var imminentIdSync = guest.Notify(CanaryNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
+            var imminentIdSync = guest.Notify(CardinalNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
 
             // Await scheduling
             string upcomingNotificationId = await upcomingIdSync, imminentNotificationId = await imminentIdSync;

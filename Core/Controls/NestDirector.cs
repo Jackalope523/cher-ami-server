@@ -370,7 +370,7 @@ namespace Core.Controls
 
             foreach (var card in agenda.Cards)
             {
-                Gathering gathering = await GetGatheringAsync(card.GatheringId);
+                Segment gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { viewableGatherings.Cards.Add(card); }
@@ -386,7 +386,7 @@ namespace Core.Controls
 
             foreach (var card in nest.Twigs)
             {
-                Gathering gathering = await GetGatheringAsync(card.GatheringId);
+                Segment gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { visibleNest.Twigs.Add(card); }

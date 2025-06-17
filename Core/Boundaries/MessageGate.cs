@@ -16,10 +16,7 @@ namespace Core.Boundaries
 	}
 
 	public enum MembershipType
-	{
-		Regular,
-		Owner,
-	}
+	{ Regular, Owner }
 
 	public enum MessageType
 	{

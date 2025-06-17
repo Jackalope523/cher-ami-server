@@ -8,7 +8,7 @@ namespace Core.Boundaries
 	#region Schemas
 
     public enum SegmentType
-    { Digital, Newspaper }
+    { Digital, Newspaper, Magazine }
 
 	public record CoreSegment(long Id, long GroupId, SegmentType Type, string Title, DateTimeOffset TimeOpened, DateTimeOffset TimeClosed)
         : CoreOnlyData();

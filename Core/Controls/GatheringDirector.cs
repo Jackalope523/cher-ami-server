@@ -116,7 +116,7 @@ namespace Core.Controls
 				new UserErrorException(GatheringErrorCode.LOCATION_DISABLED));
 
 			// Create gathering
-			Gathering gatheringStub = new()
+			Segment gatheringStub = new()
 			{
 				Title = gatheringName,
 				Description = gatheringDescription,
@@ -140,7 +140,7 @@ namespace Core.Controls
 			{ throw new UserErrorException(GatheringErrorCode.CONFLICT, new { conflict.Id }); }
 
 			// Try to create a gathering
-			Gathering newGathering = new(await Gatherings.CreateGatheringAsync(user.Id,
+			Segment newGathering = new(await Gatherings.CreateGatheringAsync(user.Id,
 				gatheringStub.Title, gatheringStub.Description, gatheringStub.StartTime,
 				gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
 				gatheringStub.GroupMinimum, gatheringStub.GroupMaximum, user.Character.ToCharacter(),
@@ -206,7 +206,7 @@ namespace Core.Controls
                 IsNotNull(radius) || IsNotNull(isDynamic)),
 				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_STARTED));
 
-			Gathering editedGathering = new(originalGathering.ToCoreGathering())
+			Segment editedGathering = new(originalGathering.ToCoreGathering())
 			{
                 Title = string.IsNullOrEmpty(gatheringName) ? originalGathering.Title : gatheringName,
                 Description = string.IsNullOrEmpty(gatheringDescription) ? originalGathering.Description : gatheringDescription,
@@ -419,7 +419,7 @@ namespace Core.Controls
 				// Try to add user to the gathering
 				await Gatherings.SetUserStateAsync(user.Id, gathering.Id, GatheringBond.Guest, Time);
 				await Gatherings.SetUserStateAsync(user.Id, gathering.Id, GatheringBond.Arrived, Time);
-                await Gatherings.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Decay), Gathering.InitialDecay) });
+                await Gatherings.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Decay), Segment.InitialDecay) });
             }
 			else
 			{
@@ -674,25 +674,25 @@ namespace Core.Controls
 
 		#region Favours
 
-		internal async Task<List<Gathering>> RequestPastGatheringsForUserAsync(User user)
+		internal async Task<List<Segment>> RequestPastGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindPastGatheringsForUserAsync(user.Id))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 
-		internal async Task<List<Gathering>> RequestOngoingGatheringsForUserAsync(User user)
+		internal async Task<List<Segment>> RequestOngoingGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindOngoingGatheringsForUserAsync(user.Id, Time))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 
-		internal async Task<List<Gathering>> RequestUpcomingGatheringsForUserAsync(User user)
+		internal async Task<List<Segment>> RequestUpcomingGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindUpcomingGatheringsForUserAsync(user.Id, Time))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 		
-		internal async Task<List<(User User, GatheringBond State)>> RequestAllUsersFromGatheringAsync(Gathering gathering)
+		internal async Task<List<(User User, GatheringBond State)>> RequestAllUsersFromGatheringAsync(Segment gathering)
 		{
 			var users = await Gatherings.GetAllUsersAsync(gathering.Id);
 
@@ -701,7 +701,7 @@ namespace Core.Controls
 		}
 
 		internal async Task<List<(User User, DateTimeOffset Joined, DateTimeOffset? Left)>>
-			RequestGuestHistoryAsync(Gathering gathering)
+			RequestGuestHistoryAsync(Segment gathering)
 		{
 			var guests = await Gatherings.GetGuestHistoryAsync(gathering.Id);
 
@@ -716,7 +716,7 @@ namespace Core.Controls
 
 			foreach (CoreGathering coreGathering in gatherings)
 			{
-				Gathering gathering = new(coreGathering);
+				Segment gathering = new(coreGathering);
 
 				if (await user.CanJoin(gathering))
 				{ accessibleGatherings.Add(await gathering.ToGatheringShard(user)); }
@@ -732,7 +732,7 @@ namespace Core.Controls
 
             foreach (CoreGathering coreGathering in gatherings)
 			{
-				Gathering gathering = new(coreGathering);
+				Segment gathering = new(coreGathering);
 
 				gathering.RelativeAngle = CharacterVector.AngleBetweenAffected(user.Character, gathering.Character);
 
@@ -757,7 +757,7 @@ namespace Core.Controls
 				// Add if not default
 				if (!pair.Equals(default))
 				{
-					Gathering gath = new(gathering);
+					Segment gath = new(gathering);
 					list.Add(await gath.ToGatheringShard());
 				}
 			}
@@ -765,7 +765,7 @@ namespace Core.Controls
 			return list;
 		}
 
-		internal async Task<bool> RequestUserIsAuthorisedGuest(User user, Gathering gathering)
+		internal async Task<bool> RequestUserIsAuthorisedGuest(User user, Segment gathering)
 		{
 			return await Gatherings.UserIsAuthorizedGuest(user.Id, gathering.Id);
 		}
@@ -796,7 +796,7 @@ namespace Core.Controls
             };
         }
 
-		private async Task RescheduleSchedule(Gathering gathering)
+		private async Task RescheduleSchedule(Segment gathering)
 		{
             // Cancel scheduled notifications
             await CancelScheduledNotifications(gathering);
@@ -805,7 +805,7 @@ namespace Core.Controls
             await ScheduleNotifications(gathering);
         }
 
-		private async Task CancelScheduledNotifications(Gathering gathering)
+		private async Task CancelScheduledNotifications(Segment gathering)
 		{
 			var (HostSchedule, GuestSchedules) = await Notifications.GetGatheringNotificationScheduleAsync(gathering.Id);
 
@@ -825,7 +825,7 @@ namespace Core.Controls
 			await Notifications.ClearGatheringNotificationScheduleAsync(gathering.Id);
 		}
 
-        private async Task CancelScheduledNotificationsForGuest(Gathering gathering, User guest)
+        private async Task CancelScheduledNotificationsForGuest(Segment gathering, User guest)
         {
             var (_, GuestSchedules) = await Notifications.GetGatheringNotificationScheduleAsync(gathering.Id);
 
@@ -851,7 +851,7 @@ namespace Core.Controls
             }
         }
 
-        private async Task CancelScheduledNotificationBatch(Gathering gathering, List<GuestNotificationSchedule> schedules)
+        private async Task CancelScheduledNotificationBatch(Segment gathering, List<GuestNotificationSchedule> schedules)
         {
 			// Flatten batches
 			// TODO
@@ -873,7 +873,7 @@ namespace Core.Controls
             }
         }
 
-        private async Task ScheduleNotifications(Gathering gathering)
+        private async Task ScheduleNotifications(Segment gathering)
 		{
             // TODO Should make this a bit more intelligent.
 
@@ -899,7 +899,7 @@ namespace Core.Controls
 			{ await Notifications.UpdateGatheringGuestNotificationSchedulesAsync(gathering.Id, schedules.ToArray()); }
         }
 
-		private async Task ScheduleNotificationsForGuest(Gathering gathering, User guest)
+		private async Task ScheduleNotificationsForGuest(Segment gathering, User guest)
 		{
 			var shard = await gathering.ToGatheringShard();
 

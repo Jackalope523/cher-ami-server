@@ -78,7 +78,7 @@ namespace Core.Controls
             return new(await Accounts.GetUserByIdAsync(userId));
         }
 
-        protected async Task<Gathering> GetGatheringAsync(long gatheringId)
+        protected async Task<Segment> GetGatheringAsync(long gatheringId)
         {
             return new(await Gatherings.FindGatheringAsync(gatheringId));
         }

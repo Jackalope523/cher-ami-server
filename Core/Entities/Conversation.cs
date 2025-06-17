@@ -37,7 +37,7 @@ namespace Core.Entities
         public DateTimeOffset DateCreated { get; init; }
         public string Title { get; set; }
 
-        public long? GatheringId { get; init; }
+        public long? GroupId { get; init; }
 
         ////////
         // Synced Properties
@@ -47,7 +47,7 @@ namespace Core.Entities
         public Synced<List<(User User, CoreMembership Membership)>> Members { get; }
         public PagedSync<List<MessageShard>> Messages { get; }
 
-        public Synced<Gathering> Gathering { get; }
+        public Synced<Group> Group { get; }
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace Core.Entities
             Members = new(() => Terminal.MessageDirector.RequestConversationMembersAsync(this));
             Messages = new((int page) => Terminal.MessageDirector.RequestConversationMessagesAsync(this, page));
 
-            Gathering = new(() => GatheringId.HasValue ? Entities.Gathering.GetGatheringAsync(GatheringId.Value) : Task.FromResult(Entities.Gathering.None));
+            Group = new(() => GroupId.HasValue ? Entities.Group.GetGroupAsync(GroupId.Value) : Task.FromResult(Entities.Group.None));
         }
 
         public Conversation(CoreConversation fromConversation) : this()
@@ -68,7 +68,7 @@ namespace Core.Entities
             Type = fromConversation.Type;
             DateCreated = fromConversation.DateCreated;
             Title = fromConversation.Title;
-            GatheringId = fromConversation.GatheringId;
+            GroupId = fromConversation.GroupId;
         }
 
         public CoreConversation ToCoreConversation()
@@ -78,7 +78,7 @@ namespace Core.Entities
 
         public async Task<ConversationShard> ToConversationShard()
         {
-            return new(Id, Type, await PageCount, Title, GatheringId);
+            return new(Id, Type, await PageCount, Title, GroupId);
         }
 
         public async Task<ConversationShard> ToConversationShard(User relativeTo)
@@ -91,7 +91,7 @@ namespace Core.Entities
             var lastSeen = userMembership.Membership.LastSeen;
             var unreadCount = await Terminal.MessageDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
-            return new(Id, Type, await PageCount, Title, GatheringId,
+            return new(Id, Type, await PageCount, Title, GroupId,
                 Muted: userMembership.Membership.Muted,
                 Unread: unreadCount);
         }
@@ -101,7 +101,7 @@ namespace Core.Entities
             var lastSeen = relativeTo.LastSeen;
             var unreadCount = await Terminal.MessageDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
-            return new(Id, Type, await PageCount, Title, GatheringId,
+            return new(Id, Type, await PageCount, Title, GroupId,
                 Muted: relativeTo.Muted,
                 Unread: unreadCount);
         }
@@ -200,7 +200,7 @@ namespace Core.Entities
                 {
                     ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), message),
                     ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Unit => CardinalNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), message),
+                    ChatType.Unit => CardinalNotification.UnitMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), message),
                     _ => throw new UnexpectedFailureException("ConversationType does not exist"),
                 };
 
@@ -234,7 +234,7 @@ namespace Core.Entities
                     {
                         ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), messages.First()),
                         ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Unit => CardinalNotification.GatheringMessage(await (await Gathering).ToGatheringShard(), shard, sender.ToUserShard(), messages.First()),
+                        ChatType.Unit => CardinalNotification.UnitMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), messages.First()),
                         _ => throw new UnexpectedFailureException("ConversationType does not exist"),
                     };
 

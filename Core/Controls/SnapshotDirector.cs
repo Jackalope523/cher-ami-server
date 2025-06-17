@@ -189,10 +189,10 @@ namespace Core.Controls
 
 		#region Favours
 
-		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Gathering gathering)
+		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Segment gathering)
             => await Snapshots.GetPostsForSegmentAsync(gathering.Id);
 
-		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Gathering gathering)
+		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Segment gathering)
         {
             // Verify user can see the gathering
             if (!await user.CanView(gathering))

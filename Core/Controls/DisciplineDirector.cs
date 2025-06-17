@@ -187,7 +187,7 @@ namespace Core.Controls
             RequestAllReportsAsync(User user)
             => await Reports.GetReportsForUserAsync(user.Id);
 
-        internal async Task<List<GatheringReport>> RequestGatheringReportsAsync(Gathering gathering)
+        internal async Task<List<GatheringReport>> RequestGatheringReportsAsync(Segment gathering)
             => await Reports.GetReportsForGatheringAsync(gathering.Id);
 
 		#endregion

@@ -99,9 +99,9 @@ namespace Core.Entities
         public Synced<Distance> HauntRadius { get; }
         public Synced<int> HauntStability { get; }
 
-        public Synced<List<Gathering>> PastGatherings { get; }
-        public Synced<List<Gathering>> OngoingGatherings { get; }
-        public Synced<List<Gathering>> UpcomingGatherings { get; }
+        public Synced<List<Segment>> PastGatherings { get; }
+        public Synced<List<Segment>> OngoingGatherings { get; }
+        public Synced<List<Segment>> UpcomingGatherings { get; }
 
         public Synced<List<User>> Companions { get; }
         public Synced<List<User>> Following { get; }
@@ -265,7 +265,7 @@ namespace Core.Entities
             Reputation = (int) (MathF.Atan(reputationRaw * normal) * (MaximumReputation / ReputationIntensity) + (MaximumReputation / 2));
         }
 
-        public void CalculateCharacter(Gathering gatheringAttended, TimeSpan timeAttended)
+        public void CalculateCharacter(Segment gatheringAttended, TimeSpan timeAttended)
         {
             // Modified by time spent
             float modifier = (float) (Math.Log10(3 * timeAttended.TotalMinutes + 3) / 15d);
@@ -273,18 +273,18 @@ namespace Core.Entities
             Character = Character.MoveTowards(gatheringAttended.Character, modifier);
         }
 
-        public async Task<Gathering> NextGathering()
+        public async Task<Segment> NextGathering()
         {
             var upcoming = await UpcomingGatherings;
             upcoming.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
-            return upcoming.Count != 0 ? upcoming.First() : Gathering.None;
+            return upcoming.Count != 0 ? upcoming.First() : Segment.None;
         }
 
-        public async Task<Gathering> LastGathering()
+        public async Task<Segment> LastGathering()
         {
             var previous = await PastGatherings;
             previous.Sort((a, b) => a.StartTime.CompareTo(b.StartTime));
-            return previous.Count != 0 ? previous.Last() : Gathering.None;
+            return previous.Count != 0 ? previous.Last() : Segment.None;
         }
 
 		#endregion
@@ -344,7 +344,7 @@ namespace Core.Entities
             return (await Connections).Count > 0;
         }
 
-		public async Task<bool> CanView(Gathering gathering)
+		public async Task<bool> CanView(Segment gathering)
 		{
             // Note: This is efficient with multiple gatherings. For multiple users, see Gathering.IsVisibleTo
 
@@ -380,7 +380,7 @@ namespace Core.Entities
 			return true;
 		}
 
-		public async Task<bool> CanJoin(Gathering gathering)
+		public async Task<bool> CanJoin(Segment gathering)
 		{
 			// Check if gathering is joinable
 			if (!gathering.IsOpen)
@@ -404,7 +404,7 @@ namespace Core.Entities
             return true;
 		}
 
-		public async Task<bool> CanCheckIn(Gathering gathering)
+		public async Task<bool> CanCheckIn(Segment gathering)
 		{
 			// Check if currently at another gathering
 			if (await IsAtGathering())
@@ -425,7 +425,7 @@ namespace Core.Entities
             return true;
 		}
 
-        public async Task CanEtch(Gathering gathering)
+        public async Task CanEtch(Segment gathering)
 		{
 			// Verify user can etch into the gathering
 			Verify(await gathering.HasOnGuestList(this) || gathering.IsModifiableBy(this),
@@ -471,14 +471,14 @@ namespace Core.Entities
             return availableReportTypes.ToList();
         }
 
-        public async Task<bool> CanReport(Gathering gathering, GatheringReportType reportType)
+        public async Task<bool> CanReport(Segment gathering, GatheringReportType reportType)
         {
             var availableReports = await AvailableReportTypes(gathering);
 
             return availableReports.Contains(reportType);
         }
 
-        public async Task<List<GatheringReportType>> AvailableReportTypes(Gathering gathering)
+        public async Task<List<GatheringReportType>> AvailableReportTypes(Segment gathering)
         {
             // Gather recent reports by user against target 
             var reportedTypesByUser = (await gathering.GatheringReports)

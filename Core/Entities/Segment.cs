@@ -13,7 +13,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class Gathering
+    internal class Segment
     {
 		#region Variables
 
@@ -33,7 +33,7 @@ namespace Core.Entities
         public static readonly TimeSpan MaximumAutoStart = TimeSpan.FromMinutes(5);
         public static readonly TimeSpan MaximumCreationAdvance = TimeSpan.FromDays(14);
 
-        public static Gathering None
+        public static Segment None
             => new() { Id = 0, Exists = false };
 
 		///////
@@ -106,12 +106,12 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<Gathering> GetGatheringAsync(long id)
+        public static async Task<Segment> GetSegmentAsync(long id)
         {
             return new(await Terminal.GatheringDatabase.FindGatheringAsync(id));
         }
 
-        public Gathering()
+        public Segment()
         {
             Host = new(() => User.GetUserAsync(HostId));
 
@@ -126,7 +126,7 @@ namespace Core.Entities
             Snapshots = new(() => Terminal.SnapshotDirector.RequestGatheringSnapshotsAsync(this));
         }
 
-        public Gathering(CoreGathering fromGathering) : this()
+        public Segment(CoreGathering fromGathering) : this()
         {
             Id = fromGathering.Id;
             HostId = fromGathering.HostId;
@@ -432,7 +432,7 @@ namespace Core.Entities
 
 		public override bool Equals(object obj)
 		{
-			return obj is Gathering other &&
+			return obj is Segment other &&
                 Exists == other.Exists &&
                 Id.Equals(other.Id);
 		}

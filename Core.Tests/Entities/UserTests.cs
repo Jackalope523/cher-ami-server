@@ -92,7 +92,7 @@ namespace Core.Tests.Entities
 			var returnedGathering = await user.NextGathering();
 
 			// Assert
-			Assert.Equal(Gathering.None, returnedGathering);
+			Assert.Equal(Segment.None, returnedGathering);
 		}
 
 		/////

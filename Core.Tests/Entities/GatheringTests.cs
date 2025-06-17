@@ -20,7 +20,7 @@ namespace Core.Tests.Entities
 		public void ValidateAndNormalise_ValidGathering_ReturnsTrue()
 		{
 			// Arrange
-			var validGathering = new Gathering
+			var validGathering = new Segment
 			{
 				Title = "Valid Gathering",
 				Description = "A valid gathering description",
@@ -40,10 +40,10 @@ namespace Core.Tests.Entities
 		public void ValidateAndNormalise_InvalidGathering_ReturnsFalse()
 		{
 			// Arrange
-			var invalidGathering = new Gathering
+			var invalidGathering = new Segment
 			{
 				Title = "Invalid Gathering",
-				Description = "A".PadLeft(Gathering.MaximumDescLength + 1),
+				Description = "A".PadLeft(Segment.MaximumDescLength + 1),
 				StartTime = DateTimeOffset.Now - TimeSpan.FromDays(8),
 				GroupMinimum = 5,
 				GroupMaximum = 2

@@ -8,17 +8,17 @@ namespace Core.Boundaries
     #region Schemas
 
     public enum GroupPlan
-    { DigitalOnly, Newspaper_30, Newspaper_60 }
+    { None, Digital, Newspaper_30, Newspaper_60, Magazine_30 }
 
     public enum SegmentFrequency
     { Monthly }
 
-    public record CoreGroup(long Id, long HostId, string InviteCode, string Title,
+    public record CoreGroup(long Id, long OwnerId, string InviteCode, string Title,
         DateTimeOffset DateCreated, GroupPlan Plan, SegmentFrequency Frequency,
         bool IsPendingDeletion)
         : CoreOnlyData();
 
-    public record GroupShard(long Id, long HostId, string InviteCode, string Title,
+    public record GroupShard(long Id, long OwnerId, string InviteCode, string Title,
         DateTimeOffset DateCreated, GroupPlan Plan, SegmentFrequency Frequency);
 
     public record CoreGroupMembership(long UserId, DateTimeOffset DateJoined)

@@ -360,9 +360,9 @@ namespace Core.Notifications
                 new MessageDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
-        public static CardinalNotification GatheringMessage(GatheringShard gathering, ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification UnitMessage(GroupShard group, ConversationShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
-                gathering.Title,
+                group.Title,
                 ParseMessage(message),
                 new MessageDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
@@ -373,10 +373,9 @@ namespace Core.Notifications
             {
                 MessageType.Text => message.Value.ToString(),
                 MessageType.Photo => "Sent a photo.",
-                MessageType.GatheringInvite => "Invited you to a gathering.",
-                MessageType.Segment => "Shared a gathering.",
-                MessageType.Post => "Shared a snapshot.",
-                MessageType.Profile => "Shared a nest.",
+                MessageType.Segment => "Shared a segment.",
+                MessageType.Post => "Shared a post.",
+                MessageType.Profile => "Shared a profile.",
                 _ => "",
             };
         }

@@ -211,13 +211,13 @@ namespace Core.Controls
                     // Check if user is in the gathering radius
                     if (GeoLocation.AreInRange(await user.LastKnownLocation, current.Location, current.Radius))
                     {
-                        await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Gathering.InitialDecay) });
+                        await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Segment.InitialDecay) });
                     }
                 }
             }
             // Check if user is on their way to an gathering
             else if (!await userIsAtGathering &&
-                !nextGathering.Equals(Gathering.None))
+                !nextGathering.Equals(Segment.None))
             {
                 // Check if user is close enough to be arrived
                 if (nextGathering.IsOngoing &&
@@ -225,7 +225,7 @@ namespace Core.Controls
                 {
                     Log.LogWarning("Guest {name} entered gathering {title} area, marking as arrived...", user.Name, nextGathering.Title);
                     await Gatherings.SetUserStateAsync(user.Id, nextGathering.Id, GatheringBond.Arrived, Time);
-                    await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Gathering.InitialDecay) });
+                    await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Segment.InitialDecay) });
                 }
             }
         }

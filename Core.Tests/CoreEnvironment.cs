@@ -161,9 +161,9 @@ namespace Core.Tests
 		// Gathering Helpers
 		//////////////////
 
-		internal Gathering CreateTestGathering(User host)
+		internal Segment CreateTestGathering(User host)
 		{
-			Gathering gatheringStub = new()
+			Segment gatheringStub = new()
 			{
 				Title = testGatheringName,
 				Description = testGatheringDescription,
@@ -183,7 +183,7 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<Gathering> GenerateGatheringUnsafeAsync(Gathering gatheringStub, User host)
+		internal async Task<Segment> GenerateGatheringUnsafeAsync(Segment gatheringStub, User host)
 		{
 			return new(await Terminal.GatheringDatabase.CreateGatheringAsync(host.Id, gatheringStub.Title, gatheringStub.Description,
 				gatheringStub.StartTime, gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
@@ -191,14 +191,14 @@ namespace Core.Tests
 				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic, gatheringStub.DegreeOfPrivacy, gatheringStub.StartTime));
 		}
 
-		internal async Task<Gathering> GenerateUpcomingGatheringAsync(User host)
+		internal async Task<Segment> GenerateUpcomingGatheringAsync(User host)
 		{
 			var gatheringStub = CreateTestGathering(host);
 
 			return await GenerateGatheringUnsafeAsync(gatheringStub, host);
 		}
 
-		internal async Task<Gathering> GenerateUpcomingGatheringAsync(User host, params User[] guests)
+		internal async Task<Segment> GenerateUpcomingGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = await GenerateUpcomingGatheringAsync(host);
 
@@ -210,7 +210,7 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<Gathering> GenerateOngoingGatheringAsync(User host, params User[] guests)
+		internal async Task<Segment> GenerateOngoingGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
 			gatheringStub.StartTime = DateTime.Now - TimeSpan.FromHours(2);
@@ -226,7 +226,7 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<Gathering> GeneratePastGatheringAsync(User host, params User[] guests)
+		internal async Task<Segment> GeneratePastGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
 			gatheringStub.StartTime = DateTime.Now - TimeSpan.FromHours(2);
@@ -244,7 +244,7 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<Gathering> GenerateUniqueGatheringAsync(User host, params User[] guests)
+		internal async Task<Segment> GenerateUniqueGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
 			gatheringStub.Location = new() { Latitude = SafeAdd(ref uniqueGatheringDegree, 1), Longitude = SafeAdd(ref uniqueGatheringDegree, 1) };
@@ -262,7 +262,7 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<List<Gathering>> GenerateMultipleUniqueGatheringAsync(params User[] hosts)
+		internal async Task<List<Segment>> GenerateMultipleUniqueGatheringAsync(params User[] hosts)
 		{
 			double currentDegree = SafeAdd(ref uniqueGatheringDegree, 1);
 			GeoLocation location = new() { Latitude = currentDegree, Longitude = currentDegree };
@@ -270,7 +270,7 @@ namespace Core.Tests
 			if (uniqueGatheringDegree > 80)
 			{ uniqueGatheringDegree = -89.5; }
 
-			List<Gathering> gatherings = new();
+			List<Segment> gatherings = new();
 
 			foreach (var host in hosts)
 			{
@@ -283,14 +283,14 @@ namespace Core.Tests
 			return gatherings;
 		}
 
-		internal async Task AddUserToGatheringAsync(Gathering gathering, User user, GatheringBond state)
+		internal async Task AddUserToGatheringAsync(Segment gathering, User user, GatheringBond state)
 		{
 			await Terminal.GatheringDatabase.SetUserStateAsync(user.Id, gathering.Id, state, DateTimeOffset.UtcNow);
 		}
 
-		internal async Task SetGatheringState(Gathering gathering, GatheringState state)
+		internal async Task SetGatheringState(Segment gathering, GatheringState state)
 		{
-			await Terminal.GatheringDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Gathering.State), state) });
+			await Terminal.GatheringDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Segment.State), state) });
 			gathering.State = state;
 		}
 
@@ -298,17 +298,17 @@ namespace Core.Tests
 		// Snapshot Helpers
 		////////////////////
 
-		internal async Task<PostShard> GenerateSnapshotAsync(Gathering etchedGathering, User etcher)
+		internal async Task<PostShard> GenerateSnapshotAsync(Segment etchedGathering, User etcher)
 		{
 			return await GenerateSnapshotUnsafeAsync(etchedGathering, etcher, testSnapshotTime);
 		}
 
-		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, PostShard snapshot)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Segment etchedGathering, User etcher, PostShard snapshot)
 		{
 			return await Terminal.SnapshotDatabase.AddSnapshotAsync(etchedGathering.Id, etcher.Id, snapshot.TimeTaken);
 		}
 
-		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Gathering etchedGathering, User etcher, DateTimeOffset timeTaken)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Segment etchedGathering, User etcher, DateTimeOffset timeTaken)
 		{
 			return await Terminal.SnapshotDatabase.AddPostAsync(etchedGathering.Id, etcher.Id, timeTaken);
 		}

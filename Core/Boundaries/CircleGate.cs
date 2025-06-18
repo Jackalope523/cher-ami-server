@@ -32,10 +32,10 @@ namespace Core.Boundaries
     public record CircleMembershipShard(long UserId, DateTimeOffset DateJoined, CircleMembershipType Type);
 
 
-    public record CoreRecipient(long Id, long ManagerId, bool IsMyself, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null)
+    public record CoreRecipient(long Id, long ManagerId, bool IsManager, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null)
         : CoreOnlyData();
 
-    public record RecipientShard(long Id, long ManagerId, bool IsMyself, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
+    public record RecipientShard(long Id, long ManagerId, bool IsManager, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
 
 
     public record Address(string Street, string ApartmentOrSuite,

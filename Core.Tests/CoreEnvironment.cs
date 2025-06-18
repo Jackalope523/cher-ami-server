@@ -67,7 +67,7 @@ namespace Core.Tests
                 new UserHook(harbor.AccountDatabaseAccess, generatedUserIds),
 				harbor.AdminDatabaseAccess,
 				harbor.ConnectionDatabaseAccess,
-                harbor.GroupDatabaseAccess,
+                harbor.CircleDatabaseAccess,
                 harbor.IssueDatabaseAccess,
                 harbor.ReportDatabaseAccess,
 				harbor.KeyDatabaseAccess,
@@ -185,7 +185,7 @@ namespace Core.Tests
 
 		internal async Task<Issue> GenerateGatheringUnsafeAsync(Issue gatheringStub, User host)
 		{
-			return new(await Terminal.GroupDatabase.CreateGatheringAsync(host.Id, gatheringStub.Title, gatheringStub.Description,
+			return new(await Terminal.CircleDatabase.CreateGatheringAsync(host.Id, gatheringStub.Title, gatheringStub.Description,
 				gatheringStub.StartDate, gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
 				gatheringStub.GroupMinimum, gatheringStub.GroupMaximum, host.Character.ToCharacter(),
 				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic, gatheringStub.DegreeOfPrivacy, gatheringStub.StartDate));
@@ -204,7 +204,7 @@ namespace Core.Tests
 
 			foreach (var guest in guests)
             {
-				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Guest, DateTimeOffset.UtcNow);
+				await Terminal.CircleDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Guest, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
@@ -216,11 +216,11 @@ namespace Core.Tests
 			gatheringStub.StartDate = DateTime.Now - TimeSpan.FromHours(2);
 
 			gatheringStub = await GenerateGatheringUnsafeAsync(gatheringStub, host);
-			await Terminal.GroupDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+			await Terminal.CircleDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.CircleDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
@@ -232,14 +232,14 @@ namespace Core.Tests
 			gatheringStub.StartDate = DateTime.Now - TimeSpan.FromHours(2);
 
 			gatheringStub = await GenerateGatheringUnsafeAsync(gatheringStub, host);
-			await Terminal.GroupDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+			await Terminal.CircleDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.CircleDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
-			await Terminal.GroupDatabase.TerminateGatheringAsync(gatheringStub.Id, DateTimeOffset.UtcNow);
+			await Terminal.CircleDatabase.TerminateGatheringAsync(gatheringStub.Id, DateTimeOffset.UtcNow);
 
 			return gatheringStub;
 		}
@@ -256,7 +256,7 @@ namespace Core.Tests
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.CircleDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
@@ -285,12 +285,12 @@ namespace Core.Tests
 
 		internal async Task AddUserToGatheringAsync(Issue gathering, User user, GatheringBond state)
 		{
-			await Terminal.GroupDatabase.SetUserStateAsync(user.Id, gathering.Id, state, DateTimeOffset.UtcNow);
+			await Terminal.CircleDatabase.SetUserStateAsync(user.Id, gathering.Id, state, DateTimeOffset.UtcNow);
 		}
 
 		internal async Task SetGatheringState(Issue gathering, GatheringState state)
 		{
-			await Terminal.GroupDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Issue.State), state) });
+			await Terminal.CircleDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Issue.State), state) });
 			gathering.State = state;
 		}
 

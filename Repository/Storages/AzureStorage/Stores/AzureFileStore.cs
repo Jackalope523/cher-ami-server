@@ -53,7 +53,7 @@ namespace Repository
             await sentry.DeleteBlobAsync(userContainerPrefix + userId.ToString(), "avatar" + imageFileSuffix);
         }
 
-        public async Task<MemoryStream> DownloadGroupHeaderAsync(long gatheringId)
+        public async Task<MemoryStream> DownloadCircleHeaderAsync(long gatheringId)
         {
             return await sentry.DownloadBlobAsync(gatheringContainerPrefix + gatheringId.ToString(), "hero" + imageFileSuffix);
         }

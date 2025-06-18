@@ -76,7 +76,7 @@ namespace Core.Notifications
         }
     }
 
-    public struct GroupDeepLink : IDeepLink
+    public struct CircleDeepLink : IDeepLink
     {
         public enum FocusTarget
         {
@@ -86,10 +86,10 @@ namespace Core.Notifications
 
         public string RelativePath { get; private set; }
 
-        public GroupDeepLink(long groupId,
+        public CircleDeepLink(long circleId,
             FocusTarget? focus = null, string invitedBy = null)
         {
-            string path = $"group/{groupId}";
+            string path = $"circle/{circleId}";
             
             string options = "";
 
@@ -114,13 +114,13 @@ namespace Core.Notifications
         }
     }
 
-    public struct MessageDeepLink : IDeepLink
+    public struct ChatDeepLink : IDeepLink
     {
         public string RelativePath { get; private set; }
 
-        public MessageDeepLink(long chatId)
+        public ChatDeepLink(long chatId)
         {
-            string path = $"chat/{conversationId}";
+            string path = $"chat/{chatId}";
 
             RelativePath = IDeepLink.FormatPath(path);
         }
@@ -157,182 +157,59 @@ namespace Core.Notifications
         }
     }
 
-    /////////
-    // Social Invitations
-    ///////////////////////
+    //////
+    // Issue Posts
+    ////////////////
 
     public partial class CardinalNotification
     {
-        protected static CardinalNotification SocialInvitation(CardinalNotification notification)
+        protected static CardinalNotification IssuePost(CardinalNotification notification)
         {
-            notification.Group = NotificationGroup.SocialInvitations;
+            notification.Group = NotificationGroup.IssuePosts;
             return notification;
         }
 
         public static CardinalNotification CompanionshipRequest(UserShard addingUser, string lastMet = null)
-            => SocialInvitation(new("Companion Request",
+            => IssuePost(new("Companion Request",
                 $"{addingUser.Name} sent you a companionship request.",
                 new ProfileDeepLink(addingUser.Id, lastMet),
                 "1"));
 
         public static CardinalNotification CompanionshipForged(UserShard addingUser)
-            => SocialInvitation(new("New Companion",
+            => IssuePost(new("New Companion",
                 $"Companionship forged with {addingUser.Name} accepted.",
                 new ProfileDeepLink(addingUser.Id),
                 "1"));
 
         public static CardinalNotification GatheringInvitation(UserShard invitingUser, GatheringShard gathering)
-            => SocialInvitation(new("Gathering Invitation",
+            => IssuePost(new("Gathering Invitation",
                 $"{invitingUser.Name} invited you to {gathering.Title}.",
                 new GatheringDeepLink(gathering.Id, invitedBy: invitingUser.Name),
                 $"{gathering.Id}:1"));
     }
 
-    /////////
-    // Companion Activity
-    ///////////////////////
+    ///////
+    // Issue Reminders
+    ////////////////////
 
     public partial class CardinalNotification
     {
-        protected static CardinalNotification CompanionActivity(CardinalNotification notification)
+        protected static CardinalNotification IssueReminder(CardinalNotification notification)
         {
-            notification.Group = NotificationGroup.CompanionActivity;
+            notification.Group = NotificationGroup.IssueReminders;
             return notification;
         }
 
         public static CardinalNotification CompanionJoined(UserShard companion, GatheringShard gathering)
-            => CompanionActivity(new(gathering.Title,
+            => IssueReminder(new(gathering.Title,
                 $"{companion.Name} joined the gathering.",
-                new GatheringDeepLink(gathering.Id, focus: GroupDeepLink.FocusTarget.guestlist),
+                new GatheringDeepLink(gathering.Id, focus: CircleDeepLink.FocusTarget.guestlist),
                 $"{gathering.Id}:10"));
 
         public static CardinalNotification CompanionGatheringCreated(UserShard companion, GatheringShard gathering)
-            => CompanionActivity(new("Companion Gathering",
+            => IssueReminder(new("Companion Gathering",
                 $"{companion.Name} just created {gathering.Title}",
                 new GatheringDeepLink(gathering.Id)));
-    }
-
-    //////////
-    // Gathering Discovery
-    ////////////////////////
-
-    public partial class CardinalNotification
-    {
-        protected static CardinalNotification GatheringDiscovery(CardinalNotification notification)
-        {
-            notification.Group = NotificationGroup.GatheringDiscovery;
-            return notification;
-        }
-
-        public static CardinalNotification NearbyGatherings() // TODO Slot in
-            => GatheringDiscovery(new("New Gatherings Nearby",
-                "There are new gatherings in your area that you may be interested in.",
-                new DiscoveryDeepLink()));
-        // TODO A. Need to actually ensure that they are new (gathering creation time vs last logged in) B. not send multiple
-        // ^Advanced profile and filter system
-
-        public static CardinalNotification CompanionMotive(GatheringShard gathering) // TODO Slot in
-            => GatheringDiscovery(new("Companion Movement",
-                "Your companions are headed somewhere interesting...",
-                new GatheringDeepLink(gathering.Id)));
-    }
-
-    //////////
-    // Gathering Reminders
-    ////////////////////////
-
-    public partial class CardinalNotification
-    {
-        protected static CardinalNotification GatheringReminders(CardinalNotification notification)
-        {
-            notification.Group = NotificationGroup.GatheringReminders;
-            return notification;
-        }
-
-        public static CardinalNotification GatheringUpcoming(GatheringShard gathering, string relativeTime = "later")
-            => GatheringReminders(new(gathering.Title,
-                $"Is starting {relativeTime}.",
-                new GatheringDeepLink(gathering.Id),
-                "20"));
-
-        public static CardinalNotification GatheringImminent(GatheringShard gathering)
-            => GatheringReminders(new(gathering.Title,
-                $"Is starting shortly.",
-                new GatheringDeepLink(gathering.Id, immediate: true),
-                "20"));
-
-        public static CardinalNotification GatheringLive(GatheringShard gathering)
-            => GatheringReminders(new(gathering.Title,
-                $"Is now live!",
-                new GatheringDeepLink(gathering.Id, immediate: true),
-                "20"));
-
-        public static CardinalNotification GatheringCancelled(GatheringShard gathering)
-            => GatheringReminders(new(gathering.Title,
-                $"Was cancelled by the host.",
-                new GatheringDeepLink(gathering.Id),
-                "20"));
-
-        public static CardinalNotification GatheringEdited(GatheringShard gathering)
-            => GatheringReminders(new(gathering.Title,
-                $"Was modified by the host.",
-                new GatheringDeepLink(gathering.Id),
-                "21"));
-
-        public static CardinalNotification GatheringUploadClosing(GatheringShard gathering)
-            => GatheringReminders(new(gathering.Title,
-                $"Don't forget to post your remaining photos!",
-                new GatheringDeepLink(gathering.Id, focus: GroupDeepLink.FocusTarget.gallery)));
-    }
-
-    /////////
-    // Gathering Activity
-    ///////////////////////
-
-    public partial class CardinalNotification
-    {
-        protected static CardinalNotification GatheringActivity(CardinalNotification notification)
-        {
-            notification.Group = NotificationGroup.GatheringActivity;
-            return notification;
-        }
-
-        // Host
-
-        public static CardinalNotification GatheringSealed(GatheringShard gathering)
-            => GatheringActivity(new(gathering.Title,
-                $"Was reported too many times and was sealed as a result.",
-                new GatheringDeepLink(gathering.Id, @sealed: true)));
-
-        public static CardinalNotification GatheringHeartbeat(GatheringShard gathering) // TODO Slot in
-            => GatheringActivity(new(gathering.Title,
-                $"Is the gathering still ongoing?",
-                new GatheringDeepLink(gathering.Id, immediate: true)));
-
-        public static CardinalNotification HostLeavingGatheringArea(GatheringShard gathering)
-            => GatheringActivity(new(gathering.Title,
-                $"You are leaving the gathering area, gathering will hide itself.",
-                new GatheringDeepLink(gathering.Id)));
-
-        // Attendee
-
-        public static CardinalNotification AttendeeLeavingGatheringArea(GatheringShard gathering)
-            => GatheringActivity(new(gathering.Title,
-                $"You are leaving the gathering area.",
-                new GatheringDeepLink(gathering.Id),
-                "30"));
-
-        public static CardinalNotification GatheringTerminated(GatheringShard gathering)
-            => GatheringActivity(new(gathering.Title,
-                $"Has ended. Thanks for joining!",
-                new GatheringDeepLink(gathering.Id),
-                "30"));
-
-        public static CardinalNotification UserMissedGathering(GatheringShard gathering)
-            => GatheringActivity(new(gathering.Title,
-                "You missed the gathering.",
-                new GatheringDeepLink(gathering.Id),
-                "20"));
     }
 
     //////
@@ -349,14 +226,14 @@ namespace Core.Notifications
         public static CardinalNotification IndividualMessage(ChatShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 ParseMessage(message),
-                new MessageDeepLink(conversation.Id),
+                new ChatDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
-        public static CardinalNotification GroupMessage(GroupShard group, ChatShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification CircleMessage(CircleShard circle, ChatShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
-                group.Title,
+                circle.Title,
                 ParseMessage(message),
-                new MessageDeepLink(conversation.Id),
+                new ChatDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
         private static string ParseMessage(MessageShard message)

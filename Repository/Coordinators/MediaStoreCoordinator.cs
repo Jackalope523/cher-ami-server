@@ -45,9 +45,9 @@ namespace Repository
             await store.DeleteAvatarAsync(userId);
         }
 
-        public async Task<MemoryStream> DownloadGroupHeaderAsync(long gatheringId)
+        public async Task<MemoryStream> DownloadCircleHeaderAsync(long gatheringId)
         {
-            return await store.DownloadGroupHeaderAsync(gatheringId);
+            return await store.DownloadCircleHeaderAsync(gatheringId);
         }
 
         public async Task UploadGatheringHeaderAsync(long gatheringId, MemoryStream image)

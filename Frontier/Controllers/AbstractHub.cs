@@ -20,7 +20,7 @@ namespace Frontier.Controllers
 		public IAccountOperations accounts;
 		public IChatOperations chats;
 		public IConnectionOperations connections;
-		public IGroupOperations groups;
+		public ICircleOperations circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;
@@ -43,7 +43,7 @@ namespace Frontier.Controllers
 			accounts = box.accounts;
 			chats = box.chat;
 			connections = box.connections;
-			groups = box.groups;
+			circles = box.circles;
 			issues = box.issues;
 			keys = box.keys;
 			media = box.media;

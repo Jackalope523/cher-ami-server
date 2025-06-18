@@ -15,11 +15,11 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class GroupDirector : AbstractDirector, IGroupOperations
+    internal class CircleDirector : AbstractDirector, ICircleOperations
 	{
 		#region Initialisation
 
-		public GroupDirector(CoreTerminal terminal) : base(terminal) { }
+		public CircleDirector(CoreTerminal terminal) : base(terminal) { }
 
 		#endregion
 
@@ -294,9 +294,9 @@ namespace Core.Controls
 				}
 			}
 
-            if (editMessages.Any() && await Messages.GroupChatExists(originalGathering.Id))
+            if (editMessages.Any() && await Messages.CircleChatExists(originalGathering.Id))
             {
-				Chat conversation = new(await Messages.GetOrCreateGroupChat(originalGathering.Id, Time));
+				Chat conversation = new(await Messages.GetOrCreateCircleChat(originalGathering.Id, Time));
 
                 foreach (var value in editMessages)
                 {
@@ -439,9 +439,9 @@ namespace Core.Controls
             }
 
 			// Add member to chat
-			if (await Messages.GroupChatExists(gathering.Id))
+			if (await Messages.CircleChatExists(gathering.Id))
 			{
-				Chat conversation = new(await Messages.GetOrCreateGroupChat(gathering.Id, Time));
+				Chat conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
 
 				await Messages.AddUsersToChatAsync(conversation.Id, user.Id);
 
@@ -483,9 +483,9 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, user);
 
             // Remove member from chat
-            if (await Messages.GroupChatExists(gathering.Id))
+            if (await Messages.CircleChatExists(gathering.Id))
             {
-                Chat conversation = new(await Messages.GetOrCreateGroupChat(gathering.Id, Time));
+                Chat conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
 
                 await Messages.RemoveUserFromChatAsync(conversation.Id, user.Id);
 
@@ -646,9 +646,9 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, target);
 
             // Remove member from chat
-            if (await Messages.GroupChatExists(gathering.Id))
+            if (await Messages.CircleChatExists(gathering.Id))
             {
-                var conversation = await Messages.GetOrCreateGroupChat(gathering.Id, Time);
+                var conversation = await Messages.GetOrCreateCircleChat(gathering.Id, Time);
 
                 await Messages.RemoveUserFromChatAsync(conversation.Id, target.Id);
             }

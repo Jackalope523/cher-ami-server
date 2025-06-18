@@ -9,7 +9,7 @@ namespace Core.Boundaries
 
 	public enum ChatType
 	{
-		Group,
+		Circle,
 		Individual,
 		Broadcast,
 	}
@@ -35,10 +35,11 @@ namespace Core.Boundaries
 
 	public record ActivityMessageShard(ActivityMessageType Activity, long? ActorId = null, long? TargetId = null, string Info = null);
 
-    public record CoreChat(long Id, ChatType Type, DateTimeOffset DateCreated, string Title = default, long? GroupId = null)
+    public record CoreChat(long Id, ChatType Type, DateTimeOffset DateCreated, string Title = default,
+		long? CircleId = null)
 		: CoreOnlyData();
 	public record ChatShard(long Id, ChatType Type, int LastPage, string Title = default,
-		long? GroupId = null, bool? Muted = null, int? Unread = null);
+		long? CircleId = null, bool? Muted = null, int? Unread = null);
 
 	public record CoreMembership(long UserId, ChatMembershipType Type, DateTimeOffset LastSeen, bool Muted)
 		: CoreOnlyData();
@@ -58,8 +59,7 @@ namespace Core.Boundaries
 		Task<bool> IndividualChatBetweenExists(long userIdA, long userIdB);
 		Task<CoreChat> GetOrCreateIndividualChatBetween(long userIdA, long userIdB, DateTimeOffset currentTime);
 
-		Task<bool> GroupChatExists(long groupId);
-		Task<CoreChat> GetOrCreateGroupChat(long groupId, DateTimeOffset currentTime);
+		Task<CoreChat> GetOrCreateCircleChat(long circleId, DateTimeOffset currentTime);
 
 		Task<List<CoreChat>> GetChatsForUserAsync(long userId);
 		Task<List<CoreMembership>> GetChatMembersAsync(long chatId);
@@ -84,7 +84,7 @@ namespace Core.Boundaries
 
 		Task<ChatShard> GetChatWithAsync(long userId, long targetId);
 		Task<ChatShard> GetOrCreateChatWithAsync(long userId, long targetId);
-		Task<ChatShard> GetGroupChatAsync(long userId, long groupId);
+		Task<ChatShard> GetCircleChatAsync(long userId, long circleId);
 
 		Task<ChatShard> GetChatAsync(long userId, long chatId);
 		Task<List<MembershipShard>> GetMembersAsync(long userId, long chatId);

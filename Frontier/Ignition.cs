@@ -169,7 +169,7 @@ namespace Frontier
 
                 harbor.AccountDatabaseAccess,
                 harbor.ConnectionDatabaseAccess,
-                harbor.GroupDatabaseAccess,
+                harbor.CircleDatabaseAccess,
                 harbor.IssueDatabaseAccess,
                 harbor.ReportDatabaseAccess,
                 harbor.KeyDatabaseAccess,
@@ -189,7 +189,7 @@ namespace Frontier
                 terminal.AccountOperations,
                 terminal.ConnectionOperations,
                 terminal.ProfileOperations,
-                terminal.GroupOperations,
+                terminal.CircleOperations,
                 terminal.IssueOperations,
                 terminal.KeyOperations,
                 terminal.ReportOperations,

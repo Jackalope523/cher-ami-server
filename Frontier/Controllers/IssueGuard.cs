@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Frontier.Manifests;
-using Core.Boundaries;
-using Microsoft.Extensions.Logging;
 using System.IO;
 
 namespace Frontier.Controllers
@@ -31,15 +27,15 @@ namespace Frontier.Controllers
             );
         }
 
-		[HttpGet("group/{groupId}")]
-        public async Task<IActionResult> GetGroupIssues(long groupId)
+		[HttpGet("circle/{circleId}")]
+        public async Task<IActionResult> GetCircleIssues(long circleId)
         {
 			// Verify parameters
             if (!ModelState.IsValid)
             { return MissingInformation(); }
 
 			return await Execute(async user =>
-				await issues.GetIssuesForGroupAsync(user.Id, groupId)
+				await issues.GetIssuesForCircleAsync(user.Id, circleId)
             );
         }
 

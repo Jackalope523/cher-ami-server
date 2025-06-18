@@ -55,12 +55,12 @@ namespace Frontier.Controllers
             });
         }
 
-        [HttpGet("group/{groupId}")]
-        public async Task<IActionResult> GetGroupChat(long groupId)
+        [HttpGet("circle/{circleId}")]
+        public async Task<IActionResult> GetCircleChat(long circleId)
         {
             return await Execute(async user =>
             {
-                return await chats.GetGroupChatAsync(user.Id, groupId);
+                return await chats.GetCircleChatAsync(user.Id, circleId);
             });
         }
 

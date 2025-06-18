@@ -82,8 +82,8 @@ namespace Frontier.Controllers
             return await Execute(async user => await media.GetAvatarMetadataAsync(user.Id, userId));
         }
 
-		[HttpGet("headers/{groupId}")]
-		public async Task<IActionResult> GetHeader(long groupId)
+		[HttpGet("headers/{circleId}")]
+		public async Task<IActionResult> GetHeader(long circleId)
         {
 			return await ExecuteUnsafe(async () =>
 			{
@@ -91,7 +91,7 @@ namespace Frontier.Controllers
 
 				ThrowIfUnverified(user);
 
-				var imageStream = await media.GetHeaderAsync(user.Id, groupId);
+				var imageStream = await media.GetHeaderAsync(user.Id, circleId);
 
 				if (imageStream != null)
 				{
@@ -103,14 +103,14 @@ namespace Frontier.Controllers
 					};
 				}
 				
-				throw new UnexpectedFailureException($"Could not download image. group:{groupId}");
+				throw new UnexpectedFailureException($"Could not download image. circle:{circleId}");
 			});
         }
 
-        [HttpGet("headers/{groupId}/metadata")]
-        public async Task<IActionResult> GetHeaderMetadata(long groupId)
+        [HttpGet("headers/{circleId}/metadata")]
+        public async Task<IActionResult> GetHeaderMetadata(long circleId)
         {
-            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, groupId));
+            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, circleId));
         }
 
         [HttpGet("posts/{postId}")]

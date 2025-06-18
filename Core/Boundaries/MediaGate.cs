@@ -20,9 +20,9 @@ namespace Core.Boundaries
         Task UploadAvatarAsync(long userId, MemoryStream image);
         Task DeleteAvatarAsync(long userId);
 
-        Task<MemoryStream> DownloadGroupHeaderAsync(long groupId);
-        Task UploadGroupHeaderAsync(long groupId, MemoryStream image);
-        Task DeleteGroupHeaderAsync(long groupId);
+        Task<MemoryStream> DownloadCircleHeaderAsync(long circleId);
+        Task UploadCircleHeaderAsync(long circleId, MemoryStream image);
+        Task DeleteCircleHeaderAsync(long circleId);
 
         Task<MemoryStream> DownloadPostAsync(long postId, long ownerId);
         Task UploadPostAsync(long postId, long ownerId, MemoryStream image);
@@ -40,8 +40,8 @@ namespace Core.Boundaries
         Task<MemoryStream> GetAvatarAsync(long userId, long targetId);
         Task<ImageMetadataShard> GetAvatarMetadataAsync(long userId, long targetId);
 
-        Task<MemoryStream> GetHeaderAsync(long userId, long groupId);
-        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long groupId);
+        Task<MemoryStream> GetHeaderAsync(long userId, long circleId);
+        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long circleId);
 
         Task<MemoryStream> GetPostAsync(long userId, long postId);
         Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId);

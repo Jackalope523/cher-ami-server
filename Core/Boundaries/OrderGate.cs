@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace Core.Boundaries
@@ -48,7 +47,7 @@ namespace Core.Boundaries
         Task<CorePaymentMethod> AddPaymentMethodAsync(long userId,);
         Task DeletePaymentMethodAsync(long paymentId);
 
-        Task<List<CoreOrder>> GetOrdersForGroupAsync(long groupId);
+        Task<List<CoreOrder>> GetOrdersForCircleAsync(long circleId);
         Task<List<CoreOrder>> GetOrdersForIssueAsync(long issueId);
     }
 
@@ -59,7 +58,7 @@ namespace Core.Boundaries
         Task<PaymentMethodShard> AddPaymentMethodAsync(long userId,);
         Task RemovePaymentMethodAsync(long userId, long paymentId);
 
-        Task<List<OrderShard>> GetOrdersForGroupAsync(long userId, long groupId);
+        Task<List<OrderShard>> GetOrdersForCircleAsync(long userId, long circleId);
         Task<List<OrderShard>> GetOrdersForIssueAsync(long userId, long issueId);
     }
 

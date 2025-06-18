@@ -12,7 +12,7 @@ namespace Repository
         public IAccountDatabase AccountDatabaseAccess { get; private set; }
         public IChatDatabase ChatDatabaseAccess { get; private set; }
         public IConnectionDatabase ConnectionDatabaseAccess { get; private set; }
-        public IGroupDatabase GroupDatabaseAccess { get; private set; }
+        public ICircleDatabase CircleDatabaseAccess { get; private set; }
         public IIssueDatabase IssueDatabaseAccess { get; private set; }
         public IKeyDatabase KeyDatabaseAccess { get; private set; }
         public IMediaDatabase MediaDatabaseAccess { get; private set; }
@@ -28,7 +28,7 @@ namespace Repository
             AccountDatabaseAccess = new AccountStoreCoordinator(flag);
             ChatDatabaseAccess = new MessageStoreCoordinator(flag);
             ConnectionDatabaseAccess = new ConnectionStoreCoordinator(flag);
-            GroupDatabaseAccess = new GatheringStoreCoordinator(flag);
+            CircleDatabaseAccess = new GatheringStoreCoordinator(flag);
             IssueDatabaseAccess = new SnapshotStoreCoordinator(flag);
             KeyDatabaseAccess = new KeyStoreCoordinator();
             MediaDatabaseAccess = new MediaStoreCoordinator(flag);

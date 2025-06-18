@@ -30,7 +30,7 @@ namespace Core.Entities
 
         // Core
 		public long Id { get; init; }
-        public long GroupId { get; init; }
+        public long CircleId { get; init; }
         public string Title { get; set; }
         public IssueType Type { get; set; }
         public DateTimeOffset StartDate { get; set; }
@@ -47,7 +47,7 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
         
-        public Synced<Group> Group { get; }
+        public Synced<Circle> Circle { get; }
 
         public Synced<List<PostShard>> Posts { get; }
 
@@ -59,12 +59,12 @@ namespace Core.Entities
 
         public static async Task<Issue> GetIssueAsync(long id)
         {
-            return new(await Terminal.GroupDatabase.FindGatheringAsync(id));
+            return new(await Terminal.IssueDatabase.GetIssueAsync(id));
         }
 
         public Issue()
         {
-            Group = new(() => User.GetUserAsync(HostId));
+            Circle = new(() => Entities.Circle.GetCircleAsync(CircleId));
             Posts = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
             Orders = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
         }
@@ -72,7 +72,7 @@ namespace Core.Entities
         public Issue(CoreIssue fromIssue) : this()
         {
             Id = fromIssue.Id;
-            GroupId = fromIssue.GroupId;
+            CircleId = fromIssue.CircleId;
             Title = fromIssue.Title;
             Type = fromIssue.Type;
             StartDate = fromIssue.StartDate;
@@ -81,13 +81,13 @@ namespace Core.Entities
 
         public CoreIssue ToCoreIssue()
         {
-            return new(Id, GroupId, Type,
+            return new(Id, CircleId, Type,
                 Title, StartDate, EndDate);
         }
 
         public IssueShard ToIssueShard()
         {
-            return new(Id, GroupId, Type,
+            return new(Id, CircleId, Type,
                 Title, StartDate, EndDate);
         }
 
@@ -128,7 +128,7 @@ namespace Core.Entities
 
 		public async Task<bool> IsVisibleTo(User user)
 		{
-            return await (await Group).HasMember(user);
+            return await (await Circle).HasMember(user);
 		}
 
 		#endregion

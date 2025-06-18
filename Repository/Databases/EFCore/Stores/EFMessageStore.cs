@@ -140,7 +140,7 @@ namespace Repository
                                             SingleAsync());
 
             string? title = conversation.Type == ChatType.OldGC ? ((GroupChat)conversation).Title : null;
-            long gatheringId = conversation.Type == ChatType.Group ? ((GatheringChat)conversation).GatheringId : 0;
+            long gatheringId = conversation.Type == ChatType.Circle ? ((GatheringChat)conversation).GatheringId : 0;
 
             return new CoreChat(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
         }
@@ -372,7 +372,7 @@ namespace Repository
             return chats.Count != chats.Distinct().Count();
         }
 
-        public async Task<bool> GroupChatExists(long gatheringId)
+        public async Task<bool> CircleChatExists(long gatheringId)
         {
             long chatId = await storeSentry.ExecuteReadAsync(ctx =>
                 ctx.GatheringChats.
@@ -383,7 +383,7 @@ namespace Repository
             return chatId != 0;
         }
 
-        public async Task<CoreChat> GetOrCreateGroupChat(long gatheringId, DateTimeOffset currentTime)
+        public async Task<CoreChat> GetOrCreateCircleChat(long gatheringId, DateTimeOffset currentTime)
         {
             CoreChat? conversation = await storeSentry.ExecuteReadAsync(ctx =>
                ctx.GatheringChats.
@@ -396,7 +396,7 @@ namespace Repository
                 return conversation;
             }
 
-            GatheringChat toAdd = new() { Type = ChatType.Group, CreatedAt = currentTime, GatheringId = gatheringId };
+            GatheringChat toAdd = new() { Type = ChatType.Circle, CreatedAt = currentTime, GatheringId = gatheringId };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.GatheringChats.Add(toAdd));
 

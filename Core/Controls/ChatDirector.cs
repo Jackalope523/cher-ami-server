@@ -42,20 +42,20 @@ namespace Core.Controls
             return await conversation.ToChatShard();
         }
 
-        public async Task<ChatShard> GetGroupChatAsync(long userId, long gatheringId)
+        public async Task<ChatShard> GetCircleChatAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
             var gathering = await GetGatheringAsync(gatheringId);
 
             // todo checks
 
-            var exists = await Messages.GroupChatExists(gathering.Id);
+            var exists = await Messages.CircleChatExists(gathering.Id);
 
             Chat conversation = Chat.None;
 
             if (exists)
             {
-                conversation = new(await Messages.GetOrCreateGroupChat(gathering.Id, Time));
+                conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
             }
 
             return await conversation.ToChatShard();
@@ -68,7 +68,7 @@ namespace Core.Controls
 
             // todo checks
 
-            Chat conversation = new(await Messages.GetOrCreateGroupChat(gathering.Id, Time));
+            Chat conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
 
             return await conversation.ToChatShard();
         }

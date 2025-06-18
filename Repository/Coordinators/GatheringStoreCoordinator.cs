@@ -3,9 +3,9 @@
 
 namespace Repository
 {
-    public class GatheringStoreCoordinator : IGroupDatabase
+    public class GatheringStoreCoordinator : ICircleDatabase
     {
-        private readonly IGroupDatabase store;
+        private readonly ICircleDatabase store;
 
         public GatheringStoreCoordinator(Harbor.Flag flag)
         {

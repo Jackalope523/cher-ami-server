@@ -445,7 +445,7 @@ namespace Repository
                .HasDiscriminator<ChatType>("Type")
                .HasValue<PrivateChat>(ChatType.Individual)
                .HasValue<GroupChat>(ChatType.OldGC)
-               .HasValue<GatheringChat>(ChatType.Group)
+               .HasValue<GatheringChat>(ChatType.Circle)
                .HasValue<BroadcastChat>(ChatType.Broadcast);
 
             modelBuilder.Entity<BroadcastChat>()

@@ -31,7 +31,7 @@ namespace Core
         public IAccountDatabase AccountDatabase { get; init; }
         public IChatDatabase ChatDatabase { get; init; }
         public IConnectionDatabase ConnectionDatabase { get; init; }
-        public IGroupDatabase GroupDatabase { get; init; }
+        public ICircleDatabase CircleDatabase { get; init; }
         public IIssueDatabase IssueDatabase { get; init; }
         public IKeyDatabase KeyDatabase { get; init; }
         public IMediaDatabase MediaDatabase { get; init; }
@@ -46,8 +46,8 @@ namespace Core
             => ChatDirector;
         public IConnectionOperations ConnectionOperations
             => ConnectionDirector;
-        public IGroupOperations GroupOperations
-            => GroupDirector;
+        public ICircleOperations CircleOperations
+            => CircleDirector;
         public IIssueOperations IssueOperations
             => IssueDirector;
         public IKeyOperations KeyOperations
@@ -69,7 +69,7 @@ namespace Core
         internal AccountDirector AccountDirector { get; private set; }
         internal ConnectionDirector ConnectionDirector { get; private set; }
         internal ChatDirector ChatDirector { get; private set; }
-        internal GroupDirector GroupDirector { get; private set; }
+        internal CircleDirector CircleDirector { get; private set; }
         internal IssueDirector IssueDirector { get; private set; }
         internal KeyDirector KeyDirector { get; private set; }
         internal MediaDirector MediaDirector { get; private set; }
@@ -84,7 +84,7 @@ namespace Core
 
         public static CoreTerminal CreateTerminal(EnvironmentOptions environment, ILogger logger,
             IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
-            IGroupDatabase groupDatabase, IIssueDatabase issueDatabase,
+            ICircleDatabase circleDatabase, IIssueDatabase issueDatabase,
             IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
             INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
@@ -101,7 +101,7 @@ namespace Core
                     AccountDatabase = accountDatabase,
                     ChatDatabase = chatDatabase,
                     ConnectionDatabase = connectionDatabase,
-                    GroupDatabase = groupDatabase,
+                    CircleDatabase = circleDatabase,
                     IssueDatabase = issueDatabase,
                     KeyDatabase = keyDatabase,
                     MediaDatabase = mediaDatabase,
@@ -128,7 +128,7 @@ namespace Core
             AccountDirector = new AccountDirector(this);
             ChatDirector = new ChatDirector(this);
             ConnectionDirector = new ConnectionDirector(this);
-            GroupDirector = new GroupDirector(this);
+            CircleDirector = new CircleDirector(this);
             IssueDirector = new IssueDirector(this);
             KeyDirector = new KeyDirector(this);
             MediaDirector = new MediaDirector(this);

@@ -3,7 +3,7 @@ using NetTopologySuite.Geometries;
 
 namespace Repository
 {
-    public class EFCoreGatheringStore : QueryStore, IGroupDatabase
+    public class EFCoreGatheringStore : QueryStore, ICircleDatabase
     {
         public EFCoreGatheringStore(Harbor.Flag flag) : base(flag)
         {

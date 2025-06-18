@@ -81,7 +81,7 @@ namespace Core.Entities
 
         public Synced<NotificationProfile> NotificationProfile { get; }
 
-        public Synced<List<Group>> Groups { get; }
+        public Synced<List<Circle>> Circles { get; }
 
         public Synced<CorePaymentMethod> PaymentMethod { get; }
 
@@ -109,7 +109,7 @@ namespace Core.Entities
         {
             NotificationProfile = new(() => Terminal.NotificationDirector.RequestNotificationProfileAsync(this));
 
-            Groups = new(() => Terminal.GroupDirector.RequestUpcomingGatheringsForUserAsync(this));
+            Circles = new(() => Terminal.CircleDirector.RequestUpcomingGatheringsForUserAsync(this));
             PaymentMethod = new(() => Terminal);
 
             Blocking = new(() => Terminal.ProfileDirector.RequestBlockedUsersAsync(this));
@@ -117,7 +117,7 @@ namespace Core.Entities
 
             ReportsSync = new(() => Terminal.ReportDirector.RequestAllReportsAsync(this));
             UserReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).UserReports);
-            PostReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).GatheringReports);
+            PostReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).PostReports);
 
             Connections = new(() => Terminal.ConnectionDirector.RequestUserConnectionsAsync(this));
 
@@ -131,8 +131,8 @@ namespace Core.Entities
             Email = fromUser.Email;
             Email = fromUser.Email;
             Title = fromUser.Title;
-            GivenName = fromUser.FirstName;
-            FamilyName = fromUser.LastName;
+            GivenName = fromUser.GivenName;
+            FamilyName = fromUser.FamilyName;
             DateOfBirth = fromUser.DateOfBirth;
             JoinDate = fromUser.JoinDate;
             IsPhoneConfirmed = fromUser.IsPhoneConfirmed;
@@ -192,18 +192,6 @@ namespace Core.Entities
             return issues.Equals("");
         }
 
-        public int GetAge()
-        {
-            int age = Time.Year - DateOfBirth.Year;
-
-            if (Time < DateOfBirth.AddYears(age))
-            {
-                age--;
-            }
-
-            return age;
-        }
-
         public void GenerateSecurityStamp()
         {
             SecurityStamp = Convert.ToBase64String(RandomNumberGenerator.GetBytes(20));
@@ -212,13 +200,6 @@ namespace Core.Entities
 		#endregion
 
 		#region Checks
-
-        public async Task<bool> IsNeutralOrUnrequitedWith(User otherUser)
-        {
-            return !await IsFollowing(otherUser) &&
-                !await IsBlockedBy(otherUser) &&
-                !await IsBlocking(otherUser);
-        }
 
         public async Task<bool> IsBlocking(User otherUser)
         {
@@ -271,10 +252,6 @@ namespace Core.Entities
             // Check if user is blocked by or blocking gathering host
             if (await IsBlockedBy(await gathering.Host) || await IsBlocking(await gathering.Host))
 			{ return false; }
-
-            // Check if user is within degree of privacy
-            if (gathering.DegreeOfPrivacy < 3 && !await Terminal.GroupDirector.RequestUserIsAuthorisedGuest(this, gathering))
-            { return false; }
 
 			return true;
 		}
@@ -414,19 +391,19 @@ namespace Core.Entities
 		#endregion
 	}
 
-    internal class GroupMember : User
+    internal class CircleMember : User
     {
         public DateTimeOffset DateJoined { get; set; }
-        public GroupMembershipType MembershipType { get; set; }
+        public CircleMembershipType MembershipType { get; set; }
 
-        public static async Task<GroupMember> GetMemberAsync(long id)
+        public static async Task<CircleMember> GetMemberAsync(long id)
         {
             return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
         }
 
-        public static async Task<GroupMember> FromMembershipAsync(CoreGroupMembership membership)
+        public static async Task<CircleMember> FromMembershipAsync(CoreCircleMembership membership)
         {
-            GroupMember user = new(await Terminal.AccountDatabase.GetUserByIdAsync(membership.UserId))
+            CircleMember user = new(await Terminal.AccountDatabase.GetUserByIdAsync(membership.UserId))
             {
                 DateJoined = membership.DateJoined,
                 MembershipType = membership.Type
@@ -435,7 +412,7 @@ namespace Core.Entities
             return user;
         }
 
-        public GroupMembershipShard ToGroupMembershipShard()
+        public CircleMembershipShard ToCircleMembershipShard()
         {
             return new(Id, DateJoined, MembershipType);
         }

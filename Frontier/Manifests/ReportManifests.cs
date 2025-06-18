@@ -11,7 +11,7 @@ namespace Frontier.Manifests
 
         public string ReportDetails { get; set; }
 
-        public long? GroupId { get; set; }
+        public long? CircleId { get; set; }
     }
 
     public class PostReportManifest

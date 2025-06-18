@@ -12,7 +12,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class Group
+    internal class Circle
     {
         #region Variables
 
@@ -22,7 +22,7 @@ namespace Core.Entities
 
         public const int MaximumTitleLength = 30;
 
-        public static Group None
+        public static Circle None
             => new() { Id = -1, Exists = false };
 
         ///////
@@ -33,12 +33,12 @@ namespace Core.Entities
         public string Title { get; set; }
         public string InviteCode { get; set; }
         public DateTimeOffset DateCreated { get; set; }
-        public GroupPlan Plan { get; set; }
+        public CirclePlan Plan { get; set; }
         public IssueSchedule Schedule { get; set; }
         public bool IsDeleted { get; set; }
 
         public bool IsActive
-            => !Plan.Equals(GroupPlan.None);
+            => !Plan.Equals(CirclePlan.None);
 
         public bool Exists { get; set; } = true;
 
@@ -46,7 +46,7 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
         
-        public Synced<List<GroupMember>> Members { get; }
+        public Synced<List<CircleMember>> Members { get; }
         public Synced<List<CoreRecipient>> Recipients { get; }
 
         public Synced<List<Issue>> Issues { get; }
@@ -55,36 +55,37 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<Group> GetGroupAsync(long id)
+        public static async Task<Circle> GetCircleAsync(long id)
         {
-            return new(await Terminal.GroupDatabase.GetGroupAsync(id));
+            return new(await Terminal.CircleDatabase.GetCircleAsync(id));
         }
 
-        public Group()
+        public Circle()
         {
-            Members = new(() => Terminal.GroupDirector.RequestAllUsersFromGatheringAsync(this));
+            Members = new(() => Terminal.CircleDirector.RequestAllUsersFromGatheringAsync(this));
 
             Issues = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
         }
 
-        public Group(CoreGroup fromGroup) : this()
+        public Circle(CoreCircle fromCircle) : this()
         {
-            Id = fromGroup.Id;
-            InviteCode = fromGroup.InviteCode;
-            Title = fromGroup.Title;
-            DateCreated = fromGroup.DateCreated;
-            Plan = fromGroup.Plan;
-            Schedule = fromGroup.Schedule;
-            IsDeleted = fromGroup.IsPendingDeletion;
+            Id = fromCircle.Id;
+            InviteCode = fromCircle.InviteCode;
+            Title = fromCircle.Title;
+            DateCreated = fromCircle.DateCreated;
+            Plan = fromCircle.Plan;
+            Schedule = fromCircle.Schedule;
+            IsDeleted = fromCircle.IsPendingDeletion;
         }
 
-        public CoreGroup ToCoreGroup()
+        public CoreCircle ToCoreCircle()
         {
             return new(Id, InviteCode, Title,
-                DateCreated, Plan, Schedule, IsDeleted);
+                DateCreated, Plan, Schedule,
+                IsDeleted);
         }
 
-        public GroupShard ToGroupShard()
+        public CircleShard ToCircleShard()
         {
             return new(Id, InviteCode, Title,
                 DateCreated, Plan, Schedule);
@@ -116,7 +117,7 @@ namespace Core.Entities
 
         public async Task<bool> IsModifiableBy(User user)
         {
-            var admins = (await Members).Where(member => member.MembershipType.Equals(GroupMembershipType.Owner));
+            var admins = (await Members).Where(member => member.MembershipType.Equals(CircleMembershipType.Owner));
 
             if (admins.Contains(user))
 			{ return true; }
@@ -143,7 +144,7 @@ namespace Core.Entities
 
 		public override bool Equals(object obj)
 		{
-			return obj is Group other &&
+			return obj is Circle other &&
                 Exists == other.Exists &&
                 Id.Equals(other.Id);
 		}

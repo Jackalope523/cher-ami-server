@@ -11,11 +11,11 @@ namespace Core.Tests.Controls
 {
     public class GatheringDirectorTests : CoreTest
     {
-		private GroupDirector director;
+		private CircleDirector director;
 
         public GatheringDirectorTests()
         {
-			director = environment.Terminal.GroupDirector;
+			director = environment.Terminal.CircleDirector;
         }
 
 		[Fact]

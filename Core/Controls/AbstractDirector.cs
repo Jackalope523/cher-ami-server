@@ -20,7 +20,7 @@ namespace Core.Controls
 
 		protected IAccountDatabase Accounts { get; private set; }
 		protected IConnectionDatabase Connections { get; private set; }
-		protected IGroupDatabase Gatherings { get; private set; }
+		protected ICircleDatabase Gatherings { get; private set; }
 		protected IIssueDatabase Snapshots { get; private set; }
 		protected IReportDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
@@ -43,7 +43,7 @@ namespace Core.Controls
 			
 			Accounts = Terminal.AccountDatabase;
 			Connections = Terminal.ConnectionDatabase;
-			Gatherings = Terminal.GroupDatabase;
+			Gatherings = Terminal.CircleDatabase;
 			Snapshots = Terminal.IssueDatabase;
 			Reports = Terminal.ReportDatabase;
 			Keys = Terminal.KeyDatabase;

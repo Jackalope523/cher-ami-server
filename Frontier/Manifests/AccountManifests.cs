@@ -42,6 +42,8 @@ namespace Frontier.Manifests
 
 		[Required]
 		public DateTime DateOfBirth { get; set; }
+
+		public string CircleCode { get; set; }
     }
 
     public class AccountEditManifest

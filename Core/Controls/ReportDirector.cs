@@ -117,7 +117,7 @@ namespace Core.Controls
                 var host = await GetUserAsync(gathering.HostId);
 
                 // Threshold hit, seal gathering
-                await Terminal.GroupDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
+                await Terminal.CircleDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
 
                 await gathering.NotifyGuests(CardinalNotification.GatheringSealed(await gathering.ToIssueShard()));
 

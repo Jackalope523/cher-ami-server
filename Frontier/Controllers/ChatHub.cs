@@ -30,11 +30,11 @@ namespace Frontier.Controllers
             return await chats.SendTextAsync(user.Id, chatId, text);
         }
 
-        public async Task<MessageShard[]> ShareIssue(long chatId, long[] groupIds)
+        public async Task<MessageShard[]> ShareIssue(long chatId, long[] circleIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await chats.ShareIssueAsync(user.Id, chatId, groupIds);
+            return await chats.ShareIssueAsync(user.Id, chatId, circleIds);
         }
 
         public async Task<MessageShard[]> SharePost(long chatId, long[] postIds)

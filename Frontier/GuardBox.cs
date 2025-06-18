@@ -10,7 +10,7 @@ namespace Frontier.Controllers
 		public IAccountOperations accounts;
 		public IChatOperations chat;
 		public IConnectionOperations connections;
-		public IGroupOperations groups;
+		public ICircleOperations circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;
@@ -21,7 +21,7 @@ namespace Frontier.Controllers
 
         public GuardBox(EnvironmentOptions environment, ILogger logger,
 			IAccountOperations accountOperations, IConnectionOperations connectionOperations,
-			IProfileOperations profileOperations, IGroupOperations groupOperations,
+			IProfileOperations profileOperations, ICircleOperations circleOperations,
 			IIssueOperations issueOperations, IKeyOperations keyOperations,
 			IReportOperations reportOperations,IMediaOperations mediaOperations,
 			IChatOperations chatOperations,
@@ -33,7 +33,7 @@ namespace Frontier.Controllers
 			accounts = accountOperations;
 			chat = chatOperations;
 			connections = connectionOperations;
-			groups = groupOperations;
+			circles = circleOperations;
 			issues = issueOperations;
 			keys = keyOperations;
 			media = mediaOperations;

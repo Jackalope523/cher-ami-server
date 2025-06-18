@@ -31,9 +31,9 @@ namespace Repository
             return store.DeleteConversationAsync(conversationId);
         }
 
-        public Task<bool> GroupChatExists(long gatheringId)
+        public Task<bool> CircleChatExists(long gatheringId)
         {
-            return store.GroupChatExists(gatheringId);
+            return store.CircleChatExists(gatheringId);
         }
 
         public Task<CoreChat> GetChatAsync(long chatId)
@@ -66,9 +66,9 @@ namespace Repository
             return store.GetMessagesForConversationAsync(conversationId, pageNumber);
         }
 
-        public Task<CoreChat> GetOrCreateGroupChat(long gatheringId, DateTimeOffset currentTime)
+        public Task<CoreChat> GetOrCreateCircleChat(long gatheringId, DateTimeOffset currentTime)
         {
-            return store.GetOrCreateGroupChat(gatheringId, currentTime);
+            return store.GetOrCreateCircleChat(gatheringId, currentTime);
         }
 
         public Task<CoreChat> GetOrCreateIndividualChatBetween(long userIdA, long userIdB, DateTimeOffset currentTime)

@@ -10,10 +10,10 @@ namespace Core.Boundaries
     public enum IssueType
     { Digital, Newspaper, Magazine }
 
-	public record CoreIssue(long Id, long GroupId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate)
+	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate)
         : CoreOnlyData();
 
-    public record IssueShard(long Id, long GroupId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate);
+    public record IssueShard(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate);
 
     public record PostShard(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
 
@@ -27,7 +27,7 @@ namespace Core.Boundaries
     {
         Task<CoreIssue> GetIssueAsync(long issueId);
 
-        Task<List<CoreIssue>> GetIssuesForGroupAsync(long groupId);
+        Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId);
         Task<List<PostShard>> GetPostsForIssueAsync(long issueId);
 
         Task<PostShard> GetPostAsync(long postId);
@@ -41,7 +41,7 @@ namespace Core.Boundaries
     {
         Task<IssueShard> GetIssueAsync(long userId, long issueId);
 
-        Task<List<IssueShard>> GetIssuesForGroupAsync(long userId, long groupId);
+        Task<List<IssueShard>> GetIssuesForCircleAsync(long userId, long CircleId);
         Task<GalleryShard> GetPostsForIssueAsync(long userId, long issueId);
 
         Task<PostShard> GetPostAsync(long userId, long postId);

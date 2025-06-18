@@ -37,7 +37,7 @@ namespace Core.Entities
         public DateTimeOffset DateCreated { get; init; }
         public string Title { get; set; }
 
-        public long? GroupId { get; init; }
+        public long? CircleId { get; init; }
 
         ////////
         // Synced Properties
@@ -47,7 +47,7 @@ namespace Core.Entities
         public Synced<List<(User User, CoreMembership Membership)>> Members { get; }
         public PagedSync<List<MessageShard>> Messages { get; }
 
-        public Synced<Group> Group { get; }
+        public Synced<Circle> Circle { get; }
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace Core.Entities
             Members = new(() => Terminal.ChatDirector.RequestChatMembersAsync(this));
             Messages = new((int page) => Terminal.ChatDirector.RequestChatMessagesAsync(this, page));
 
-            Group = new(() => GroupId.HasValue ? Entities.Group.GetGroupAsync(GroupId.Value) : Task.FromResult(Entities.Group.None));
+            Circle = new(() => CircleId.HasValue ? Entities.Circle.GetCircleAsync(CircleId.Value) : Task.FromResult(Entities.Circle.None));
         }
 
         public Chat(CoreChat fromChat) : this()
@@ -68,7 +68,7 @@ namespace Core.Entities
             Type = fromChat.Type;
             DateCreated = fromChat.DateCreated;
             Title = fromChat.Title;
-            GroupId = fromChat.GroupId;
+            CircleId = fromChat.CircleId;
         }
 
         public CoreChat ToCoreChat()
@@ -78,7 +78,7 @@ namespace Core.Entities
 
         public async Task<ChatShard> ToChatShard()
         {
-            return new(Id, Type, await PageCount, Title, GroupId);
+            return new(Id, Type, await PageCount, Title, CircleId);
         }
 
         public async Task<ChatShard> ToChatShard(User relativeTo)
@@ -91,7 +91,7 @@ namespace Core.Entities
             var lastSeen = userMembership.Membership.LastSeen;
             var unreadCount = await Terminal.ChatDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
-            return new(Id, Type, await PageCount, Title, GroupId,
+            return new(Id, Type, await PageCount, Title, CircleId,
                 Muted: userMembership.Membership.Muted,
                 Unread: unreadCount);
         }
@@ -101,7 +101,7 @@ namespace Core.Entities
             var lastSeen = relativeTo.LastSeen;
             var unreadCount = await Terminal.ChatDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
-            return new(Id, Type, await PageCount, Title, GroupId,
+            return new(Id, Type, await PageCount, Title, CircleId,
                 Muted: relativeTo.Muted,
                 Unread: unreadCount);
         }
@@ -199,7 +199,7 @@ namespace Core.Entities
                 CardinalNotification notification = Type switch
                 {
                     ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Group => CardinalNotification.GroupMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), message),
+                    ChatType.Circle => CardinalNotification.CircleMessage((await Circle).ToCircleShard(), shard, sender.ToUserShard(), message),
                     _ => throw new UnexpectedFailureException("ChatType does not exist"),
                 };
 
@@ -232,7 +232,7 @@ namespace Core.Entities
                     CardinalNotification notification = Type switch
                     {
                         ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Group => CardinalNotification.GroupMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), messages.First()),
+                        ChatType.Circle => CardinalNotification.CircleMessage((await Circle).ToCircleShard(), shard, sender.ToUserShard(), messages.First()),
                         _ => throw new UnexpectedFailureException("ChatType does not exist"),
                     };
 

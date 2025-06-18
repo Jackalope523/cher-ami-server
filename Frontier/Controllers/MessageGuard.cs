@@ -31,7 +31,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetConversationsAsync(user.Id);
+                return await messages.GetChatsAsync(user.Id);
             });
         }
 
@@ -49,7 +49,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetConversationWithAsync(user.Id, targetId);
+                return await messages.GetChatWithAsync(user.Id, targetId);
             });
         }
 
@@ -58,7 +58,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetOrCreateConversationWithAsync(user.Id, targetId);
+                return await messages.GetOrCreateChatWithAsync(user.Id, targetId);
             });
         }
 
@@ -67,7 +67,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user =>
             {
-                return await messages.GetGroupConversationAsync(user.Id, gatheringId);
+                return await messages.GetGroupChatAsync(user.Id, gatheringId);
             });
         }
 
@@ -81,7 +81,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("{conversationId}")]
-        public async Task<IActionResult> GetConversation(long conversationId)
+        public async Task<IActionResult> GetConversation(long chatId)
         {
             return await Execute(async user =>
             {
@@ -90,7 +90,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("{conversationId}/messages")]
-		public async Task<IActionResult> GetConversationMessages(long conversationId, int page_number)
+		public async Task<IActionResult> GetConversationMessages(long chatId, int page_number)
         {
             return await Execute(async user =>
             {
@@ -99,7 +99,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("{conversationId}/members")]
-		public async Task<IActionResult> GetConversationMembers(long conversationId)
+		public async Task<IActionResult> GetConversationMembers(long chatId)
         {
             return await Execute(async user =>
             {
@@ -120,7 +120,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPost("{conversationId}")]
-		public async Task<IActionResult> EditGroupChat(long conversationId, [FromForm] GroupChatEditManifest details)
+		public async Task<IActionResult> EditGroupChat(long chatId, [FromForm] GroupChatEditManifest details)
         {
             return await Execute(async user =>
             {
@@ -137,7 +137,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPut("{conversationId}")]
-		public async Task<IActionResult> LeaveGroupChat(long conversationId)
+		public async Task<IActionResult> LeaveGroupChat(long chatId)
         {
             return await Execute(async user =>
             {
@@ -146,7 +146,7 @@ namespace Frontier.Controllers
         }
 
         [HttpDelete("{conversationId}")]
-		public async Task<IActionResult> DeleteGroupChat(long conversationId)
+		public async Task<IActionResult> DeleteGroupChat(long chatId)
         {
             return await Execute(async user =>
             {
@@ -155,7 +155,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPost("{conversationId}/members")]
-        public async Task<IActionResult> SummonUser(long conversationId, long target_id)
+        public async Task<IActionResult> SummonUser(long chatId, long target_id)
         {
             return await Execute(async user =>
             {
@@ -164,7 +164,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPut("{conversationId}/members")]
-        public async Task<IActionResult> KickUser(long conversationId, long target_id)
+        public async Task<IActionResult> KickUser(long chatId, long target_id)
         {
             return await Execute(async user =>
             {
@@ -173,7 +173,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPost("{conversationId}/photo")]
-        public async Task<IActionResult> SendPhoto(long conversationId, [FromForm] ImageManifest photo)
+        public async Task<IActionResult> SendPhoto(long chatId, [FromForm] ImageManifest photo)
         {
             // Verify parameters
             if (photo == null || !ModelState.IsValid ||

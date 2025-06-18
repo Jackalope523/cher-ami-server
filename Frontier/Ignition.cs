@@ -190,13 +190,13 @@ namespace Frontier
 
                 terminal.AccountOperations,
                 terminal.ConnectionOperations,
-                terminal.NestOperations,
-                terminal.GatheringOperations,
-                terminal.SnapshotOperations,
+                terminal.ProfileOperations,
+                terminal.GroupOperations,
+                terminal.IssueOperations,
                 terminal.KeyOperations,
                 terminal.DisciplineOperations,
                 terminal.MediaOperations,
-                terminal.MessageOperations,
+                terminal.ChatOperations,
                 terminal.NotificationOperations,
                 terminal.MiscellaneousOperations
             );

@@ -82,7 +82,7 @@ namespace Repository.Tests
             Snapshot testSnapshot = new SnapshotFactory().Create(subject, testGathering);
             sentry.ExecuteWrite(ctx => ctx.Snapshots.Add(testSnapshot));
 
-            PostShard retrieved = (await snapshotStore.GetPostsForSegmentAsync(testGathering.Id)).First();
+            PostShard retrieved = (await snapshotStore.GetPostsForIssueAsync(testGathering.Id)).First();
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);

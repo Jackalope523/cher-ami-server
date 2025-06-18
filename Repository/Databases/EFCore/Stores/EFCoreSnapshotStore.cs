@@ -2,7 +2,7 @@
 
 namespace Repository
 {
-    public class EFCoreSnapshotStore : QueryStore, ISegmentDatabase
+    public class EFCoreSnapshotStore : QueryStore, IIssueDatabase
     {   
         public EFCoreSnapshotStore(Harbor.Flag flag) : base(flag)
         {
@@ -226,7 +226,7 @@ namespace Repository
             await storeSentry.ExecuteWriteAsync(query);
         }
 
-        public async Task<List<PostShard>> GetPostsForSegmentAsync(long id)
+        public async Task<List<PostShard>> GetPostsForIssueAsync(long id)
         {
             List<PostShard> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
                  ctx.Snapshots.Where(p => p.GatheringId == id).

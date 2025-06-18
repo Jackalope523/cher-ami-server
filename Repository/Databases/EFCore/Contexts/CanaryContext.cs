@@ -444,8 +444,8 @@ namespace Repository
             modelBuilder.Entity<Chat>()
                .HasDiscriminator<ChatType>("Type")
                .HasValue<PrivateChat>(ChatType.Individual)
-               .HasValue<GroupChat>(ChatType.Group)
-               .HasValue<GatheringChat>(ChatType.Unit)
+               .HasValue<GroupChat>(ChatType.OldGC)
+               .HasValue<GatheringChat>(ChatType.Group)
                .HasValue<BroadcastChat>(ChatType.Broadcast);
 
             modelBuilder.Entity<BroadcastChat>()
@@ -467,7 +467,7 @@ namespace Repository
                 .HasValue<ActivityMessage>(MessageType.Activity)
                 .HasValue<ProfileMessage>(MessageType.Profile)
                 .HasValue<GatheringInviteMessage>(MessageType.GatheringInvite)
-                .HasValue<GatheringShareMessage>(MessageType.Segment);
+                .HasValue<GatheringShareMessage>(MessageType.Issue);
 
             modelBuilder.Entity<GatheringInviteMessage>()
                 .Property(g => g.GatheringId)
@@ -497,7 +497,7 @@ namespace Repository
                     Id = -2,
                     UserId = -2,
                     ConversationId = -2,
-                    Type = MembershipType.Owner,
+                    Type = ChatMembershipType.Owner,
                     Muted = false,
                 });
 

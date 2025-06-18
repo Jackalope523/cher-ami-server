@@ -28,13 +28,9 @@ namespace Core.Boundaries
         Task UploadPostAsync(long postId, long ownerId, MemoryStream image);
         Task DeletePostAsync(long postId, long ownerId);
 
-        Task<MemoryStream> DownloadPhotoAsync(long conversationId, Guid photoId);
-        Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image);
-        Task DeletePhotoAsync(long conversationId, Guid photoId);
-
-        Task<MemoryStream> DownloadGroupChatHeaderAsync(long conversationId);
-        Task UploadGroupChatHeaderAsync(long conversationId, MemoryStream image);
-        Task DeleteGroupChatHeaderAsync(long conversationId);
+        Task<MemoryStream> DownloadPhotoAsync(long chatId, Guid photoId);
+        Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image);
+        Task DeletePhotoAsync(long chatId, Guid photoId);
     }
 
     public interface IMediaOperations
@@ -50,11 +46,8 @@ namespace Core.Boundaries
         Task<MemoryStream> GetPostAsync(long userId, long postId);
         Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId);
 
-        Task<MemoryStream> GetGroupChatHeaderAsync(long userId, long conversationId);
-        Task<ImageMetadataShard> GetGroupChatHeaderMetadataAsync(long userId, long conversationId);
-
-        Task<MemoryStream> GetPhotoAsync(long userId, long conversationId, Guid photoId);
-        Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long conversationId, Guid photoId);
+        Task<MemoryStream> GetPhotoAsync(long userId, long chatId, Guid photoId);
+        Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId);
     }
 
     #endregion

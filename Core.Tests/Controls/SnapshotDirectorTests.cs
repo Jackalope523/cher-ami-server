@@ -10,11 +10,11 @@ namespace Core.Tests.Controls
 {
     public class SnapshotDirectorTests : CoreTest
     {
-		private SnapshotDirector director;
+		private IssueDirector director;
 
         public SnapshotDirectorTests()
         {
-			director = environment.Terminal.SnapshotDirector;
+			director = environment.Terminal.IssueDirector;
         }
 
 		[Fact]
@@ -27,7 +27,7 @@ namespace Core.Tests.Controls
 			await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var serverSnapshots = await director.GetGalleryAsync(host.Id, gathering.Id);
+			var serverSnapshots = await director.GetPostsForIssueAsync(host.Id, gathering.Id);
 
 			// Assert
 			Assert.Equal(2, serverSnapshots.Snapshots.Count);
@@ -44,7 +44,7 @@ namespace Core.Tests.Controls
 			await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var serverSnapshots = await director.GetGalleryAsync(guest.Id, gathering.Id);
+			var serverSnapshots = await director.GetPostsForIssueAsync(guest.Id, gathering.Id);
 
 			// Assert
 			Assert.Equal(2, serverSnapshots.Snapshots.Count);
@@ -61,7 +61,7 @@ namespace Core.Tests.Controls
 			await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var serverSnapshots = director.GetGalleryAsync(sneakyUser.Id, gathering.Id);
+			var serverSnapshots = director.GetPostsForIssueAsync(sneakyUser.Id, gathering.Id);
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await serverSnapshots);
@@ -80,7 +80,7 @@ namespace Core.Tests.Controls
 			await director.AddPostAsync(guest.Id, gathering.Id, new(image));
 
 			// Assert
-			var serverSnapshots = await director.GetGalleryAsync(guest.Id, gathering.Id);
+			var serverSnapshots = await director.GetPostsForIssueAsync(guest.Id, gathering.Id);
 			Assert.Single(serverSnapshots.Snapshots);
 
 			var snapshot = serverSnapshots.Snapshots[0];
@@ -104,7 +104,7 @@ namespace Core.Tests.Controls
             var okSnapshot = await environment.GenerateSnapshotAsync(ongoingGathering, user);
 
             // Act
-            var gallery = await director.GetGalleryAsync(user.Id, attendedGathering.Id);
+            var gallery = await director.GetPostsForIssueAsync(user.Id, attendedGathering.Id);
 
             // Assert
             Assert.Equal(2, gallery.Snapshots.Count);
@@ -133,7 +133,7 @@ namespace Core.Tests.Controls
             var unattendedGatheringCompanionSnapshot = await environment.GenerateSnapshotAsync(unattendedGathering, companion);
 
             // Act
-            var gallery = await director.GetGalleryAsync(user.Id, mutuallyAttendedGathering.Id);
+            var gallery = await director.GetPostsForIssueAsync(user.Id, mutuallyAttendedGathering.Id);
 
             // Assert
             Assert.Equal(2, gallery.Snapshots.Count);
@@ -153,7 +153,7 @@ namespace Core.Tests.Controls
             var unattendedGatheringSnapshot = await environment.GenerateSnapshotAsync(unattendedGathering, randomUser);
 
             // Act
-            var gallery = await director.GetGalleryAsync(user.Id, unattendedGathering.Id);
+            var gallery = await director.GetPostsForIssueAsync(user.Id, unattendedGathering.Id);
 
             // Assert
             Assert.Empty(gallery.Snapshots);
@@ -173,7 +173,7 @@ namespace Core.Tests.Controls
             var unattendedGatheringSnapshot = await environment.GenerateSnapshotAsync(unattendedGathering, randomUser);
 
             // Act
-            var gallery = await director.GetGalleryAsync(user.Id, mutuallyAttendedGathering.Id);
+            var gallery = await director.GetPostsForIssueAsync(user.Id, mutuallyAttendedGathering.Id);
 
             // Assert
             Assert.Single(gallery.Snapshots);
@@ -190,7 +190,7 @@ namespace Core.Tests.Controls
             var randomGathering = await environment.GeneratePastGatheringAsync(enemy);
 
             // Act
-            var nest = director.GetGalleryAsync(user.Id, randomGathering.Id);
+            var nest = director.GetPostsForIssueAsync(user.Id, randomGathering.Id);
 
             // Assert
             await Assert.ThrowsAnyAsync<HollowException>(async () => await nest);
@@ -223,7 +223,7 @@ namespace Core.Tests.Controls
 			await director.DeletePostAsync(host.Id, snapshot.Id);
 
 			// Assert
-			var serverSnapshots = await director.GetGalleryAsync(host.Id, gathering.Id);
+			var serverSnapshots = await director.GetPostsForIssueAsync(host.Id, gathering.Id);
 			Assert.Empty(serverSnapshots.Snapshots);
 		}
 
@@ -257,7 +257,7 @@ namespace Core.Tests.Controls
 			await director.AcclaimSnapshotAsync(guest.Id, coolSnapshot.Id, SnapshotAcclaim.Acclaim);
 
 			// Assert
-			var serverSnapshots = await director.GetGalleryAsync(host.Id, gathering.Id);
+			var serverSnapshots = await director.GetPostsForIssueAsync(host.Id, gathering.Id);
 			
 			var serverCoolSnapshot = serverSnapshots.Snapshots.Find(snapshot => snapshot.Id.Equals(coolSnapshot.Id));
 			Assert.Equal(1, serverCoolSnapshot.Acclaim);

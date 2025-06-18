@@ -13,5 +13,10 @@
         {
             await store.DrainDatabaseAsync();
         }
+
+        public async Task VoidUserAsync(long userId)
+        {
+            await store.VoidUserAsync(userId);
+        }
     }
 }

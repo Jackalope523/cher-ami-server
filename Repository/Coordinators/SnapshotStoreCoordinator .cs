@@ -1,8 +1,8 @@
 ﻿namespace Repository
 {
-    public class SnapshotStoreCoordinator : ISegmentDatabase
+    public class SnapshotStoreCoordinator : IIssueDatabase
     {
-        private readonly ISegmentDatabase store;
+        private readonly IIssueDatabase store;
 
         public SnapshotStoreCoordinator(Harbor.Flag flag)
         {
@@ -34,9 +34,9 @@
           await store.AcclaimSnapshotAsync(postId, voterId);
         }
 
-        public async Task<List<PostShard>> GetPostsForSegmentAsync(long id)
+        public async Task<List<PostShard>> GetPostsForIssueAsync(long id)
         {
-            return await store.GetPostsForSegmentAsync(id);
+            return await store.GetPostsForIssueAsync(id);
         }
 
         public async Task DeleteSnapshotAcclaimAsync(long snapshotId, long voterId)

@@ -20,11 +20,11 @@ namespace Frontier.Controllers
 		public IAccountOperations accounts;
 		public IConnectionOperations connections;
 		public IGroupOperations gatherings;
-		public ISegmentOperations snapshots;
+		public IIssueOperations snapshots;
 		public IDisciplineOperations reports;
 		public IKeyOperations keys;
 		public IMediaOperations media;
-		public IMessageOperations messages;
+		public IChatOperations messages;
 		public IProfileOperations nests;
 		public INotificationOperations notifications;
 		public IMiscellaneousOperations miscellaneous;

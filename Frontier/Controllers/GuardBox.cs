@@ -10,11 +10,11 @@ namespace Frontier.Controllers
 		public IAccountOperations accounts;
 		public IConnectionOperations connections;
 		public IGroupOperations gatherings;
-		public ISegmentOperations snapshots;
+		public IIssueOperations snapshots;
 		public IKeyOperations keys;
 		public IDisciplineOperations reports;
 		public IMediaOperations media;
-		public IMessageOperations messages;
+		public IChatOperations messages;
 		public IProfileOperations nests;
 		public INotificationOperations notifications;
         public IMiscellaneousOperations miscellaneous;
@@ -22,9 +22,9 @@ namespace Frontier.Controllers
         public GuardBox(EnvironmentOptions environment, ILogger logger,
 			IAccountOperations accountOperations, IConnectionOperations connectionOperations,
 			IProfileOperations nestOperations, IGroupOperations gatheringOperations,
-			ISegmentOperations snapshotOperations, IKeyOperations keyOperations,
+			IIssueOperations snapshotOperations, IKeyOperations keyOperations,
 			IDisciplineOperations disciplineOperations,IMediaOperations mediaOperations,
-			IMessageOperations messageOperations,
+			IChatOperations messageOperations,
 			INotificationOperations notificationOperations, IMiscellaneousOperations miscellaneousOperations)
 		{
 			env = environment;

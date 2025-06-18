@@ -68,12 +68,12 @@ namespace Repository
             await sentry.DeleteBlobAsync(gatheringContainerPrefix + gatheringId.ToString(), "hero" + imageFileSuffix);
         }
 
-        public async Task<MemoryStream> DownloadPhotoAsync(long conversationId, Guid photoId)
+        public async Task<MemoryStream> DownloadPhotoAsync(long chatId, Guid photoId)
         {
             return await sentry.DownloadBlobAsync(conversationContainerPrefix + conversationId.ToString(), photoId.ToString() + imageFileSuffix);
         }
 
-        public async Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image)
+        public async Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image)
         {
             Guid photoId = Guid.NewGuid();
 
@@ -82,22 +82,22 @@ namespace Repository
             return photoId;
         }
 
-        public async Task DeletePhotoAsync(long conversationId, Guid photoId)
+        public async Task DeletePhotoAsync(long chatId, Guid photoId)
         {
             await sentry.DeleteBlobAsync(conversationContainerPrefix + conversationId.ToString(), photoId.ToString() + imageFileSuffix);
         }
 
-        public async Task<MemoryStream> DownloadGroupChatHeaderAsync(long conversationId)
+        public async Task<MemoryStream> DownloadGroupChatHeaderAsync(long chatId)
         {
             return await sentry.DownloadBlobAsync(conversationContainerPrefix + conversationId.ToString(), "header" + imageFileSuffix);
         }
 
-        public async Task UploadGroupChatHeaderAsync(long conversationId, MemoryStream image)
+        public async Task UploadGroupChatHeaderAsync(long chatId, MemoryStream image)
         {
             await sentry.UploadBlobAsync(conversationContainerPrefix + conversationId.ToString(), "header" + imageFileSuffix, image);
         }
 
-        public async Task DeleteGroupChatHeaderAsync(long conversationId)
+        public async Task DeleteGroupChatHeaderAsync(long chatId)
         {
             await sentry.DeleteBlobAsync(conversationContainerPrefix + conversationId.ToString(), "header" + imageFileSuffix);
         }

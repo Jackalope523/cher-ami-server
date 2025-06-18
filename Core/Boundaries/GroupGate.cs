@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -10,21 +11,36 @@ namespace Core.Boundaries
     public enum GroupPlan
     { None, Digital, Newspaper_30, Newspaper_60, Magazine_30 }
 
-    public enum SegmentFrequency
+    public enum IssueSchedule
     { Monthly }
 
-    public record CoreGroup(long Id, long OwnerId, string InviteCode, string Title,
-        DateTimeOffset DateCreated, GroupPlan Plan, SegmentFrequency Frequency,
+    public record CoreGroup(long Id, string InviteCode, string Title,
+        DateTimeOffset DateCreated, GroupPlan Plan, IssueSchedule Schedule,
         bool IsPendingDeletion)
         : CoreOnlyData();
 
-    public record GroupShard(long Id, long OwnerId, string InviteCode, string Title,
-        DateTimeOffset DateCreated, GroupPlan Plan, SegmentFrequency Frequency);
+    public record GroupShard(long Id, string InviteCode, string Title,
+        DateTimeOffset DateCreated, GroupPlan Plan, IssueSchedule Schedule);
 
-    public record CoreGroupMembership(long UserId, DateTimeOffset DateJoined)
+
+    public enum GroupMembershipType
+    { Regular, Owner }
+
+    public record CoreGroupMembership(long UserId, DateTimeOffset DateJoined, GroupMembershipType Type)
         : CoreOnlyData();
 
-    public record GroupMembershipShard(long UserId);
+    public record GroupMembershipShard(long UserId, DateTimeOffset DateJoined, GroupMembershipType Type);
+
+
+    public record CoreRecipient(long Id, long ManagerId, bool IsMyself, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null)
+        : CoreOnlyData();
+
+    public record RecipientShard(long Id, long ManagerId, bool IsMyself, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
+
+
+    public record Address(string Street, string ApartmentOrSuite,
+        string City, string ProvinceOrState,
+        string PostalCode, string Country);
 
     #endregion
 
@@ -33,18 +49,25 @@ namespace Core.Boundaries
     public interface IGroupDatabase
     {
         Task<CoreGroup> GetGroupAsync(long groupId);
+        Task<CoreGroup> GetGroupByCodeAsync(string groupCode);
         Task<List<CoreGroup>> GetGroupsForUserAsync(long userId);
 
         Task<CoreGroup> CreateGroupAsync(long ownerId, string title);
         Task UpdateGroupAsync(long groupId, List<(string Property, object Value)> edits);
+        Task<string> RerollGroupCode(long groupId);
         Task DeleteGroupAsync(long groupId);
 
         Task<List<CoreGroupMembership>> GetGroupMembersAsync(long groupId);
+        Task<List<RecipientShard>> GetRecipientsForGroupAsync(long groupId);
 
-        Task<CoreGroupMembership> GetGroupMemberAsync(long userId, long groupId);
+        Task<CoreGroupMembership> GetGroupMembershipAsync(long userId, long groupId);
         Task UpdateGroupMemberAsync(long userId, long groupId, List<(string Property, object Value)> edits);
         Task AddGroupMemberAsync(long userId, long groupId);
         Task DeleteGroupMemberAsync(long userId, long groupId);
+
+        Task AddRecipientAsync(long groupId, long userId);
+        Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
+        Task DeleteRecipientAsync(long recipientId);
 
         Task SoftDeleteAsync(long groupId);
         Task HardDeleteAsync(long groupId);
@@ -60,10 +83,18 @@ namespace Core.Boundaries
         Task EditGroupAsync(long userId, long groupId,
             string groupTitle = "",
             MemoryStream header = null);
+        Task<string> RerollGroupCodeAsync(long userId, long groupId);
         Task DeleteGroupAsync(long userId, long groupId);
         
-        Task InviteUserAsync(long ownerId, long inviteeId, long groupId);
-        Task RemoveUserAsync(long ownerId, long targetId, long groupId);
+        Task<List<GroupMembershipShard>> GetMembersForGroupAsync(long userId, long groupId);
+        Task<List<RecipientShard>> GetRecipientsForGroupAsync(long userId, long groupId);
+
+        Task AddMemberAsync(long ownerId, long inviteeId, long groupId);
+        Task RemoveMemberAsync(long ownerId, long targetId, long groupId);
+
+        Task AddRecipientAsync(long userId, long groupId);
+        Task EditRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
+        Task RemoveRecipientAsync(long recipientId);
     }
 
     #endregion

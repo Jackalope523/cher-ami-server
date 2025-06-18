@@ -25,11 +25,11 @@ namespace Core
 		#region Initialisation
 
 		public static DebugTerminal CreateDebugTerminal(ILogger logger,
-            IAccountDatabase accountDatabase, IAdminDatabase adminDatabase, IConnectionDatabase connectionDatabase,
-            IGroupDatabase gatheringDatabase, ISegmentDatabase snapshotDatabase,
+            IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
+            IGroupDatabase groupDatabase, IIssueDatabase issueDatabase,
             IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
-            IMediaDatabase mediaDatabase, IMessageDatabase messageDatabase,
-			INotificationDatabase notificationDatabase, IProfileDatabase nestDatabase,
+            IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
+			INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
 			IMiscellaneousDatabase miscellaneousDatabase,
             INotificationService notificationService, ISocketService socketService,
 			IDebugDatabase debugDatabase)
@@ -41,17 +41,16 @@ namespace Core
 					Log = logger,
 
 					AccountDatabase = accountDatabase,
-					AdminDatabase = adminDatabase,
 					ConnectionDatabase = connectionDatabase,
-					GatheringDatabase = gatheringDatabase,
-					SnapshotDatabase = snapshotDatabase,
+					ChatDatabase = chatDatabase,
 					DisciplineDatabase = disciplineDatabase,
+					GroupDatabase = groupDatabase,
+					IssueDatabase = issueDatabase,
 					KeyDatabase = keyDatabase,
 					MediaDatabase = mediaDatabase,
-					MessageDatabase = messageDatabase,
-					NestDatabase = nestDatabase,
-					NotificationDatabase = notificationDatabase,
 					MiscellaneousDatabase = miscellaneousDatabase,
+					NotificationDatabase = notificationDatabase,
+					ProfileDatabase = profileDatabase,
 
 					NotificationService = notificationService,
 					SocketService = socketService,

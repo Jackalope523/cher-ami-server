@@ -117,9 +117,9 @@ namespace Core.Controls
                 var host = await GetUserAsync(gathering.HostId);
 
                 // Threshold hit, seal gathering
-                await Terminal.GatheringDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
+                await Terminal.GroupDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
 
-                await gathering.NotifyGuests(CardinalNotification.GatheringSealed(await gathering.ToGatheringShard()));
+                await gathering.NotifyGuests(CardinalNotification.GatheringSealed(await gathering.ToIssueShard()));
 
                 // Compute host's standing
                 var status = await host.GatheringReported();
@@ -132,7 +132,7 @@ namespace Core.Controls
             }
         }
 
-        public async Task<List<SnapshotReportType>> GetAvailableReportsForSnapshotAsync(long userId, long snapshotId)
+        public async Task<List<PostReportType>> GetAvailableReportsForPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
             var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
@@ -146,8 +146,8 @@ namespace Core.Controls
             return await user.AvailableReportTypes(targetSnapshot, targetUser);
         }
 
-        public async Task ReportSnapshotAsync(long userId, long snapshotId,
-            SnapshotReportType reportType, string reportDetails)
+        public async Task ReportPostAsync(long userId, long snapshotId,
+            PostReportType reportType, string reportDetails)
         {
             var user = await GetUserAsync(userId);
             var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
@@ -183,11 +183,11 @@ namespace Core.Controls
         internal async Task PenaliseUserAsync(User user, PenaltyType offense, DateTimeOffset timeOfPenalty)
             => await Reports.PenaliseUserAsync(user.Id, offense, timeOfPenalty);
 
-		internal async Task<(List<UserReport> UserReports, List<GatheringReport> GatheringReports, List<SnapshotReport> SnapshotReports)>
+		internal async Task<(List<UserReport> UserReports, List<PostReport> GatheringReports, List<PostReport> SnapshotReports)>
             RequestAllReportsAsync(User user)
             => await Reports.GetReportsForUserAsync(user.Id);
 
-        internal async Task<List<GatheringReport>> RequestGatheringReportsAsync(Segment gathering)
+        internal async Task<List<PostReport>> RequestGatheringReportsAsync(Issue gathering)
             => await Reports.GetReportsForGatheringAsync(gathering.Id);
 
 		#endregion

@@ -15,7 +15,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class Conversation
+    internal class Chat
     {
 		#region Variables
 
@@ -25,7 +25,7 @@ namespace Core.Entities
 
 		public const int MaximumTitleLength = 30;
 
-        public static Conversation None
+        public static Chat None
             => new() { Id = -1, Type = ChatType.Individual, Title = "" };
 
         ///////
@@ -53,53 +53,53 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public Conversation()
+        public Chat()
         {
-            PageCount = new(() => Terminal.MessageDirector.RequestConversationPageCountAsync(this));
-            Members = new(() => Terminal.MessageDirector.RequestConversationMembersAsync(this));
-            Messages = new((int page) => Terminal.MessageDirector.RequestConversationMessagesAsync(this, page));
+            PageCount = new(() => Terminal.ChatDirector.RequestChatPageCountAsync(this));
+            Members = new(() => Terminal.ChatDirector.RequestChatMembersAsync(this));
+            Messages = new((int page) => Terminal.ChatDirector.RequestChatMessagesAsync(this, page));
 
             Group = new(() => GroupId.HasValue ? Entities.Group.GetGroupAsync(GroupId.Value) : Task.FromResult(Entities.Group.None));
         }
 
-        public Conversation(CoreConversation fromConversation) : this()
+        public Chat(CoreChat fromChat) : this()
         {
-            Id = fromConversation.Id;
-            Type = fromConversation.Type;
-            DateCreated = fromConversation.DateCreated;
-            Title = fromConversation.Title;
-            GroupId = fromConversation.GroupId;
+            Id = fromChat.Id;
+            Type = fromChat.Type;
+            DateCreated = fromChat.DateCreated;
+            Title = fromChat.Title;
+            GroupId = fromChat.GroupId;
         }
 
-        public CoreConversation ToCoreConversation()
+        public CoreChat ToCoreChat()
         {
             return new(Id, Type, DateCreated, Title);
         }
 
-        public async Task<ConversationShard> ToConversationShard()
+        public async Task<ChatShard> ToChatShard()
         {
             return new(Id, Type, await PageCount, Title, GroupId);
         }
 
-        public async Task<ConversationShard> ToConversationShard(User relativeTo)
+        public async Task<ChatShard> ToChatShard(User relativeTo)
         {
             Verify(await HasMember(relativeTo),
-                new UnexpectedFailureException("ToConversationShard: User is not member"));
+                new UnexpectedFailureException("ToChatShard: User is not member"));
 
             var userMembership = (await Members).Find(member => member.User.Equals(relativeTo));
 
             var lastSeen = userMembership.Membership.LastSeen;
-            var unreadCount = await Terminal.MessageDirector.RequestMessageCountSinceAsync(this, lastSeen);
+            var unreadCount = await Terminal.ChatDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
             return new(Id, Type, await PageCount, Title, GroupId,
                 Muted: userMembership.Membership.Muted,
                 Unread: unreadCount);
         }
 
-        public async Task<ConversationShard> ToConversationShard(CoreMembership relativeTo)
+        public async Task<ChatShard> ToChatShard(CoreMembership relativeTo)
         {
             var lastSeen = relativeTo.LastSeen;
-            var unreadCount = await Terminal.MessageDirector.RequestMessageCountSinceAsync(this, lastSeen);
+            var unreadCount = await Terminal.ChatDirector.RequestMessageCountSinceAsync(this, lastSeen);
 
             return new(Id, Type, await PageCount, Title, GroupId,
                 Muted: relativeTo.Muted,
@@ -136,7 +136,7 @@ namespace Core.Entities
             var userMembership = (await Members).Find(member => member.User.Equals(user));
 
             if (Type == ChatType.Individual ||
-                userMembership.Membership.Type.Equals(MembershipType.Owner))
+                userMembership.Membership.Type.Equals(ChatMembershipType.Owner))
 			{ return true; }
 
 			return false;
@@ -152,7 +152,7 @@ namespace Core.Entities
 
         public async Task<bool> HasMember(User user)
         {
-            // Check if user is affiliated with conversation
+            // Check if user is affiliated with chat
             return (await Members).Exists(u => u.User.Equals(user));
         }
 
@@ -172,7 +172,7 @@ namespace Core.Entities
 
             if (onlineMembers.Any())
             {
-                await Terminal.MessageDirector.SendClientMessageAsync(this, message, onlineMembers.Select(u => u.User).ToArray());
+                await Terminal.ChatDirector.SendClientMessageAsync(this, message, onlineMembers.Select(u => u.User).ToArray());
             }
         }
 
@@ -184,7 +184,7 @@ namespace Core.Entities
 
             if (onlineMembers.Any())
             {
-                await Terminal.MessageDirector.SendClientMessageAsync(this, message, onlineMembers.Select(u => u.User).ToArray());
+                await Terminal.ChatDirector.SendClientMessageAsync(this, message, onlineMembers.Select(u => u.User).ToArray());
             }
 
             if (offlineMembers.Any())
@@ -194,14 +194,13 @@ namespace Core.Entities
                     .Select(u => u.User)
                     .ToArray();
 
-                var shard = await ToConversationShard();
+                var shard = await ToChatShard();
 
                 CardinalNotification notification = Type switch
                 {
                     ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), message),
-                    ChatType.Unit => CardinalNotification.UnitMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), message),
-                    _ => throw new UnexpectedFailureException("ConversationType does not exist"),
+                    ChatType.Group => CardinalNotification.GroupMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), message),
+                    _ => throw new UnexpectedFailureException("ChatType does not exist"),
                 };
 
                 await User.NotifyAll(notification, subscribedMembers);
@@ -216,7 +215,7 @@ namespace Core.Entities
 
             if (onlineMembers.Any())
             {
-                await Terminal.MessageDirector.SendClientMessagesAsync(this, messages.ToArray(), onlineMembers.Select(u => u.User).ToArray());
+                await Terminal.ChatDirector.SendClientMessagesAsync(this, messages.ToArray(), onlineMembers.Select(u => u.User).ToArray());
             }
 
             if (offlineMembers.Any())
@@ -226,16 +225,15 @@ namespace Core.Entities
                     .Select(u => u.User)
                     .ToArray();
 
-                var shard = await ToConversationShard();
+                var shard = await ToChatShard();
 
                 if (messages.Any())
                 {
                     CardinalNotification notification = Type switch
                     {
                         ChatType.Individual => CardinalNotification.IndividualMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Group => CardinalNotification.GroupMessage(shard, sender.ToUserShard(), messages.First()),
-                        ChatType.Unit => CardinalNotification.UnitMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), messages.First()),
-                        _ => throw new UnexpectedFailureException("ConversationType does not exist"),
+                        ChatType.Group => CardinalNotification.GroupMessage(await (await Group).ToGroupShard(), shard, sender.ToUserShard(), messages.First()),
+                        _ => throw new UnexpectedFailureException("ChatType does not exist"),
                     };
 
                     await User.NotifyAll(notification, subscribedMembers);
@@ -266,7 +264,7 @@ namespace Core.Entities
 
         public override bool Equals(object obj)
 		{
-			return obj is Conversation other &&
+			return obj is Chat other &&
                 Id.Equals(other.Id);
 		}
 

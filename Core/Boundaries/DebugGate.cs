@@ -9,6 +9,7 @@ namespace Core.Boundaries
 	public interface IDebugDatabase
 	{
         Task DrainDatabaseAsync();
+        Task VoidUserAsync(long userId);
     }
 
 	public interface IDebugOperations

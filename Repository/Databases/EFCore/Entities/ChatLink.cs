@@ -6,7 +6,7 @@
         public long ConversationId { get; set; }
         public DateTimeOffset LastSeen { get; set; }
         public DateTimeOffset? HiddenFrom { get; set; }
-        public MembershipType Type { get; set; }
+        public ChatMembershipType Type { get; set; }
         public bool Muted { get; set; }
 
         // Navigation Properties

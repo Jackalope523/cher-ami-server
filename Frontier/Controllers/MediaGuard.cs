@@ -145,7 +145,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("conversation/{conversationId}")]
-		public async Task<IActionResult> GetGroupChatHeader(long conversationId)
+		public async Task<IActionResult> GetGroupChatHeader(long chatId)
         {
             return await ExecuteUnsafe(async () =>
             {
@@ -170,13 +170,13 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("conversation/{conversationId}/metadata")]
-        public async Task<IActionResult> GetGroupChatHeaderMetadata(long conversationId)
+        public async Task<IActionResult> GetGroupChatHeaderMetadata(long chatId)
         {
             return await Execute(async user => await media.GetGroupChatHeaderMetadataAsync(user.Id, conversationId));
         }
 
         [HttpGet("conversation/{conversationId}/photos/{photoId}")]
-        public async Task<IActionResult> GetPhoto(long conversationId, Guid photoId)
+        public async Task<IActionResult> GetPhoto(long chatId, Guid photoId)
         {
             return await ExecuteUnsafe(async () =>
             {
@@ -201,7 +201,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("conversation/{conversationId}/photos/{photoId}/metadata")]
-        public async Task<IActionResult> GetPhotoMetadata(long conversationId, Guid photoId)
+        public async Task<IActionResult> GetPhotoMetadata(long chatId, Guid photoId)
         {
             return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, conversationId, photoId));
         }

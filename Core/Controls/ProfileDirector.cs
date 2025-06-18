@@ -12,11 +12,11 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal class NestDirector : AbstractDirector, IProfileOperations
+    internal class ProfileDirector : AbstractDirector, IProfileOperations
 	{
 		#region Initialisation
 
-		public NestDirector(CoreTerminal terminal) : base(terminal) { }
+		public ProfileDirector(CoreTerminal terminal) : base(terminal) { }
 
 		#endregion
 
@@ -370,7 +370,7 @@ namespace Core.Controls
 
             foreach (var card in agenda.Cards)
             {
-                Segment gathering = await GetGatheringAsync(card.GatheringId);
+                Issue gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { viewableGatherings.Cards.Add(card); }
@@ -386,7 +386,7 @@ namespace Core.Controls
 
             foreach (var card in nest.Twigs)
             {
-                Segment gathering = await GetGatheringAsync(card.GatheringId);
+                Issue gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { visibleNest.Twigs.Add(card); }

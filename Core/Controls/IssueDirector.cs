@@ -11,11 +11,11 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class SnapshotDirector : AbstractDirector, ISegmentOperations
+    internal class IssueDirector : AbstractDirector, IIssueOperations
 	{
 		#region Initialisation
 
-		public SnapshotDirector(CoreTerminal terminal) : base(terminal) { }
+		public IssueDirector(CoreTerminal terminal) : base(terminal) { }
 
 		#endregion
 
@@ -40,7 +40,7 @@ namespace Core.Controls
             return snapshot;
         }
 
-        public async Task<GalleryShard> GetGalleryAsync(long userId, long gatheringId)
+        public async Task<GalleryShard> GetPostsForIssueAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
             var gathering = await GetGatheringAsync(gatheringId);
@@ -54,7 +54,7 @@ namespace Core.Controls
             if (await gathering.HasOnGuestList(user))
             {
                 // Remove any snapshots from blocked or blocking users
-                GalleryShard filteredGallery = new(await RemoveBlockedSnapshotsAsync(user, await gathering.Snapshots));
+                GalleryShard filteredGallery = new(await RemoveBlockedSnapshotsAsync(user, await gathering.Posts));
 
                 // Remove strangers if gallery is in pre mode
                 if (gathering.IsUpcoming)
@@ -73,7 +73,7 @@ namespace Core.Controls
                 var companionIds = (await user.Companions)
                     .ConvertAll(companion => companion.Id);
 
-                var companionSnapshots = (await gathering.Snapshots)
+                var companionSnapshots = (await gathering.Posts)
                     .Where(snapshot => companionIds.Contains(snapshot.User.Id)).ToList();
 
                 gallery = new(companionSnapshots);
@@ -90,7 +90,7 @@ namespace Core.Controls
             var user = await userSync;
             var gathering = await targetGatheringSync;
 
-            await user.CanEtch(gathering);
+            await user.CanPostTo(gathering);
 
             // Try to etch
             var snapshot = await Snapshots.AddPostAsync(gathering.Id, user.Id, Time);
@@ -118,7 +118,7 @@ namespace Core.Controls
             var user = await userSync;
 
             // Verify user owns the snapshot or can modify the gathering
-            Verify(user.Taken(snapshot) || gatheringTaken.IsModifiableBy(user),
+            Verify(user.Owns(snapshot) || gatheringTaken.IsModifiableBy(user),
                 new UserErrorException(SnapshotErrorCode.CANNOT_DELETE));
 
             await Snapshots.SoftDeleteAsync(snapshot.Id);
@@ -135,7 +135,7 @@ namespace Core.Controls
             Verify(await gatheringTaken.WasAttendedBy(user),
                 new UserErrorException(SnapshotErrorCode.CANNOT_INTERACT));
 
-            FailIf(user.Taken(snapshot),
+            FailIf(user.Owns(snapshot),
                 new UserErrorException(SnapshotErrorCode.CANNOT_INTERACT_SELF));
 
             // Check action
@@ -189,10 +189,10 @@ namespace Core.Controls
 
 		#region Favours
 
-		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Segment gathering)
-            => await Snapshots.GetPostsForSegmentAsync(gathering.Id);
+		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Issue gathering)
+            => await Snapshots.GetPostsForIssueAsync(gathering.Id);
 
-		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Segment gathering)
+		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Issue gathering)
         {
             // Verify user can see the gathering
             if (!await user.CanView(gathering))
@@ -200,21 +200,21 @@ namespace Core.Controls
                 return new List<PostShard> { };
             }
 
-            _ = gathering.Snapshots.Sync();
+            _ = gathering.Posts.Sync();
 
             // Determine the level of visibility to the user
 
             // Check if the user attended the gathering
             if (await gathering.WasAttendedBy(user) || gathering.IsModifiableBy(user))
             {
-                return await gathering.Snapshots;
+                return await gathering.Posts;
             }
             else
             {
                 // Get all companion snapshots
                 var companions = await user.Companions;
 
-                var companionSnapshots = (await gathering.Snapshots)
+                var companionSnapshots = (await gathering.Posts)
                     .Where(snapshot => companions.Exists(cmp => cmp.Id.Equals(snapshot.User.Id)))
                     .ToList();
 

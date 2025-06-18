@@ -2,7 +2,7 @@
 
 namespace Repository
 {
-    class EFMessageStore : QueryStore, IMessageDatabase
+    class EFMessageStore : QueryStore, IChatDatabase
     {
         private int pageSize = 10;
 
@@ -11,7 +11,7 @@ namespace Repository
         }
 
 
-        public async Task<MessageShard> AddMessageAsync(long conversationId, long userId, DateTimeOffset timestamp, MessageType type, object value)
+        public async Task<MessageShard> AddMessageAsync(long chatId, long userId, DateTimeOffset timestamp, MessageType type, object value)
         {
             Message toAdd;
 
@@ -35,7 +35,7 @@ namespace Repository
                         StorageId = (Guid)value
                     };
                     break;
-                case MessageType.Segment:
+                case MessageType.Issue:
                     toAdd = new GatheringShareMessage()
                     {
                         ConversationId = conversationId,
@@ -92,7 +92,7 @@ namespace Repository
             return new MessageShard(toAdd.Id, toAdd.UserId ?? 0, toAdd.Timestamp, type, value);
         }
 
-        public async Task AddUsersToConversationAsync(long conversationId, params long[] userIds)
+        public async Task AddUsersToChatAsync(long chatId, params long[] userIds)
         {
             Discussion discussion = storeSentry.BeginDiscussion();
 
@@ -106,7 +106,7 @@ namespace Repository
                             ConversationId = conversationId, 
                             UserId = userId,
                             LastSeen = DateTime.UtcNow,
-                            Type = MembershipType.Regular
+                            Type = ChatMembershipType.Regular
                         }
                 ), discussion);
             }
@@ -114,7 +114,7 @@ namespace Repository
             await storeSentry.EndDiscussionAsync(discussion);
         }
 
-        public async Task DeleteConversationAsync(long conversationId)
+        public async Task DeleteChatAsync(long chatId)
         {
             await storeSentry.ExecuteWriteAsync(ctx =>
                ctx.Messages.
@@ -132,20 +132,20 @@ namespace Repository
                ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
         }
 
-        public async Task<CoreConversation> GetConversationAsync(long conversationId)
+        public async Task<CoreChat> GetChatAsync(long chatId)
         {
             Chat conversation = await storeSentry.ExecuteReadAsync(ctx =>
                                             ctx.Chats.
                                             Where(c => c.Id == conversationId).
                                             SingleAsync());
 
-            string? title = conversation.Type == ChatType.Group ? ((GroupChat)conversation).Title : null;
-            long gatheringId = conversation.Type == ChatType.Unit ? ((GatheringChat)conversation).GatheringId : 0;
+            string? title = conversation.Type == ChatType.OldGC ? ((GroupChat)conversation).Title : null;
+            long gatheringId = conversation.Type == ChatType.Group ? ((GatheringChat)conversation).GatheringId : 0;
 
-            return new CoreConversation(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
+            return new CoreChat(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
         }
 
-        public async Task<List<CoreMembership>> GetConversationMembersAsync(long conversationId)
+        public async Task<List<CoreMembership>> GetChatMembersAsync(long chatId)
         {
             return await storeSentry.ExecuteReadAsync(ctx => 
                     ctx.ChatLinks.
@@ -154,7 +154,7 @@ namespace Repository
                     ToListAsync());
         }
 
-        public async Task<List<CoreConversation>> GetConversationsForUserAsync(long userId)
+        public async Task<List<CoreChat>> GetChatsForUserAsync(long userId)
         {
             List<Chat> conversations = await storeSentry.ExecuteReadAsync(ctx =>
                                                     ctx.ChatLinks.
@@ -167,10 +167,10 @@ namespace Repository
                                                     ).
                                                     ToListAsync());
 
-            List<CoreConversation> toReturn = new();
+            List<CoreChat> toReturn = new();
             foreach (Chat conversation in conversations)
             {
-                CoreConversation coreConversation = new(conversation.Id, conversation.Type, conversation.CreatedAt, null, 0);
+                CoreChat coreConversation = new(conversation.Id, conversation.Type, conversation.CreatedAt, null, 0);
                 switch (conversation)
                 {
                     case PrivateChat privateChat:
@@ -190,7 +190,7 @@ namespace Repository
             return toReturn;
         }
 
-        public async Task<CoreMembership> GetMembershipAsync(long conversationId, long userId)
+        public async Task<CoreMembership> GetMembershipAsync(long chatId, long userId)
         {
             return await storeSentry.ExecuteReadAsync(ctx => 
                     ctx.ChatLinks.
@@ -199,7 +199,7 @@ namespace Repository
                     SingleAsync());
         }
 
-        public async Task<List<MessageShard>> GetMessagesForConversationAsync(long conversationId, int pageNumber)
+        public async Task<List<MessageShard>> GetMessagesForChatAsync(long chatId, int pageNumber)
         {
             List<Message> messages = await storeSentry.ExecuteReadAsync(ctx =>
                                         ctx.Messages
@@ -244,7 +244,7 @@ namespace Repository
             return toReturn;
         }
 
-        public async Task RemoveUserFromConversationAsync(long conversationId, long userId)
+        public async Task RemoveUserFromChatAsync(long chatId, long userId)
         {
             await storeSentry.ExecuteWriteAsync(ctx =>
                ctx.ChatLinks.
@@ -252,7 +252,7 @@ namespace Repository
                ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
         }
 
-        public async Task UpdateConversationAsync(long conversationId, List<(string Property, object Value)> edits)
+        public async Task UpdateChatAsync(long chatId, List<(string Property, object Value)> edits)
         {
             Discussion currentDiscussion = storeSentry.BeginDiscussion();
 
@@ -263,7 +263,7 @@ namespace Repository
             {
                 switch (Property)
                 {
-                    case nameof(CoreConversation.Title):
+                    case nameof(CoreChat.Title):
                         c.Title = (string)Value;
                         break;
                     default:
@@ -274,7 +274,7 @@ namespace Repository
             await storeSentry.EndDiscussionAsync(currentDiscussion);
         }
 
-        public async Task UpdateMembershipAsync(long conversationId, long userId, List<(string Property, object Value)> edits)
+        public async Task UpdateMembershipAsync(long chatId, long userId, List<(string Property, object Value)> edits)
         {
             Discussion currentDiscussion = storeSentry.BeginDiscussion();
 
@@ -296,7 +296,7 @@ namespace Repository
                         l.LastSeen = (DateTimeOffset)Value;
                         break;
                     case nameof(CoreMembership.Type):
-                        l.Type = (MembershipType)Value;
+                        l.Type = (ChatMembershipType)Value;
                         break;
                     default:
                         throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
@@ -308,7 +308,7 @@ namespace Repository
 
         public async Task<long> CreateGroupChatConversationAsync(ChatType type, string title, DateTimeOffset currentTime)
         {
-            if (type != ChatType.Group)
+            if (type != ChatType.OldGC)
             {
                 throw new ArgumentException("Message of type " + type.ToString() + " is not supported by this method.");
             }
@@ -320,20 +320,20 @@ namespace Repository
             return toAdd.Id;
         }
 
-        public async Task<CoreConversation> GetOrCreateIndividualConversationBetween(long userIdA, long userIdB, DateTimeOffset currentTime)
+        public async Task<CoreChat> GetOrCreateIndividualChatBetween(long userIdA, long userIdB, DateTimeOffset currentTime)
         {
-            List<CoreConversation> conversations = await storeSentry.ExecuteReadAsync(ctx => 
+            List<CoreChat> conversations = await storeSentry.ExecuteReadAsync(ctx => 
                 ctx.PrivateChats.
                 Join(
                     ctx.ChatLinks.Where(l => l.UserId == userIdA || l.UserId == userIdB),
                     c => c.Id,
                     m => m.ConversationId,
-                    (c, m) => new CoreConversation(c.Id, c.Type, c.CreatedAt, null, 0)
+                    (c, m) => new CoreChat(c.Id, c.Type, c.CreatedAt, null, 0)
                 ).
                 ToListAsync());
 
             List<long> seen = new();
-            foreach (CoreConversation c in conversations)
+            foreach (CoreChat c in conversations)
             {
                 if (seen.Contains(c.Id))
                 {
@@ -349,30 +349,30 @@ namespace Repository
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.PrivateChats.Add(toAdd));
 
-            ChatLink membershipA = new() { UserId = userIdA, ConversationId = toAdd.Id, Type = MembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
-            ChatLink membershipB = new() { UserId = userIdB, ConversationId = toAdd.Id, Type = MembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatLink membershipA = new() { UserId = userIdA, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatLink membershipB = new() { UserId = userIdB, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.ChatLinks.AddRange(membershipA, membershipB));
 
-            return new CoreConversation(toAdd.Id, toAdd.Type, toAdd.CreatedAt);
+            return new CoreChat(toAdd.Id, toAdd.Type, toAdd.CreatedAt);
         }
 
-        public async Task<bool> IndividualConversationBetweenExists(long userIdA, long userIdB)
+        public async Task<bool> IndividualChatBetweenExists(long userIdA, long userIdB)
         {
-            List<CoreConversation> chats = await storeSentry.ExecuteReadAsync(ctx =>
+            List<CoreChat> chats = await storeSentry.ExecuteReadAsync(ctx =>
                 ctx.PrivateChats.
                 Join(
                     ctx.ChatLinks.Where(l => l.UserId == userIdA || l.UserId == userIdB),
                     c => c.Id,
                     l => l.ConversationId,
-                    (c, l) => new CoreConversation(c.Id, c.Type, c.CreatedAt, null, 0)
+                    (c, l) => new CoreChat(c.Id, c.Type, c.CreatedAt, null, 0)
                 ).
                 ToListAsync());
 
             return chats.Count != chats.Distinct().Count();
         }
 
-        public async Task<bool> GroupConversationExists(long gatheringId)
+        public async Task<bool> GroupChatExists(long gatheringId)
         {
             long chatId = await storeSentry.ExecuteReadAsync(ctx =>
                 ctx.GatheringChats.
@@ -383,12 +383,12 @@ namespace Repository
             return chatId != 0;
         }
 
-        public async Task<CoreConversation> GetOrCreateGroupConversation(long gatheringId, DateTimeOffset currentTime)
+        public async Task<CoreChat> GetOrCreateGroupChat(long gatheringId, DateTimeOffset currentTime)
         {
-            CoreConversation? conversation = await storeSentry.ExecuteReadAsync(ctx =>
+            CoreChat? conversation = await storeSentry.ExecuteReadAsync(ctx =>
                ctx.GatheringChats.
                Where(c => c.GatheringId == gatheringId).
-               Select(c => new CoreConversation(c.Id, c.Type, c.CreatedAt, null, c.GatheringId)).
+               Select(c => new CoreChat(c.Id, c.Type, c.CreatedAt, null, c.GatheringId)).
                SingleOrDefaultAsync());
 
             if (conversation != null)
@@ -396,7 +396,7 @@ namespace Repository
                 return conversation;
             }
 
-            GatheringChat toAdd = new() { Type = ChatType.Unit, CreatedAt = currentTime, GatheringId = gatheringId };
+            GatheringChat toAdd = new() { Type = ChatType.Group, CreatedAt = currentTime, GatheringId = gatheringId };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.GatheringChats.Add(toAdd));
 
@@ -415,23 +415,23 @@ namespace Repository
             List<ChatLink> links = new();
             foreach (long userId in guestList)
             {
-                links.Add(new() { UserId = userId, ConversationId = toAdd.Id, Type = hostId == userId ? MembershipType.Owner : MembershipType.Regular, LastSeen = DateTimeOffset.UtcNow });
+                links.Add(new() { UserId = userId, ConversationId = toAdd.Id, Type = hostId == userId ? ChatMembershipType.Owner : ChatMembershipType.Regular, LastSeen = DateTimeOffset.UtcNow });
             }
             await storeSentry.ExecuteWriteAsync(ctx => ctx.ChatLinks.AddRange(links));
 
-            return new CoreConversation(toAdd.Id, toAdd.Type, toAdd.CreatedAt, null, toAdd.GatheringId);
+            return new CoreChat(toAdd.Id, toAdd.Type, toAdd.CreatedAt, null, toAdd.GatheringId);
         }
 
         public async Task<long> CreateGroupChatConversationAsync(DateTimeOffset currentTime, string title)
         {
-            GroupChat toAdd = new() { Type = ChatType.Group, Title = title, CreatedAt = currentTime };
+            GroupChat toAdd = new() { Type = ChatType.OldGC, Title = title, CreatedAt = currentTime };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.GroupChats.Add(toAdd));
 
             return toAdd.Id;
         }
 
-        public async Task<int> GetLastPageNumber(long conversationId)
+        public async Task<int> GetLastPageNumber(long chatId)
         {
             int messageCount = await storeSentry.ExecuteReadAsync(ctx => 
                                 ctx.Messages.
@@ -443,7 +443,7 @@ namespace Repository
             return Math.Max(0, totalPages - 1);
         }
 
-        public async Task<MessageShard> GetMessagesSinceAsync(long conversationId)
+        public async Task<MessageShard> GetMessagesSinceAsync(long chatId)
         {
             Message? message =  await storeSentry.ExecuteReadAsync(ctx => 
                                     ctx.Messages
@@ -473,7 +473,7 @@ namespace Repository
             }
         }
 
-        public Task<int> GetMessageCountSinceAsync(long conversationId, DateTimeOffset timestamp)
+        public Task<int> GetMessageCountSinceAsync(long chatId, DateTimeOffset timestamp)
         {
             return storeSentry.ExecuteReadAsync(ctx => 
                     ctx.Messages

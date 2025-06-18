@@ -129,7 +129,7 @@ namespace Core.Controls
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
-            Verify(user.Taken(snapshot) ||
+            Verify(user.Owns(snapshot) ||
                 await user.IsCompanionsWith(snapshotOwner) ||
                 await etchedGathering.HasOnGuestList(user),
                 new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
@@ -153,7 +153,7 @@ namespace Core.Controls
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
-            Verify(user.Taken(snapshot) ||
+            Verify(user.Owns(snapshot) ||
                 await user.IsCompanionsWith(snapshotOwner) ||
                 await etchedGathering.HasOnGuestList(user),
                 new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
@@ -171,7 +171,7 @@ namespace Core.Controls
             var hashSync = ComputeHashAsync(image);
 
             // Get reports
-            var reports = await Reports.GetReportsForSnapshotAsync(snapshot.Id);
+            var reports = await Reports.GetReportsForPostAsync(snapshot.Id);
             bool shouldConceal = false;
 
             // Check if image is concealed due to reports or if user reported it
@@ -181,7 +181,7 @@ namespace Core.Controls
             return new(await hashSync, shouldConceal);
         }
 
-        public async Task<MemoryStream> GetPhotoAsync(long userId, long conversationId, Guid photoId)
+        public async Task<MemoryStream> GetPhotoAsync(long userId, long chatId, Guid photoId)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -201,7 +201,7 @@ namespace Core.Controls
             return image;
         }
 
-        public async Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long conversationId, Guid photoId)
+        public async Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -224,7 +224,7 @@ namespace Core.Controls
             return new(await hashSync, false);
         }
 
-        public async Task<MemoryStream> GetGroupChatHeaderAsync(long userId, long conversationId)
+        public async Task<MemoryStream> GetGroupChatHeaderAsync(long userId, long chatId)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -244,7 +244,7 @@ namespace Core.Controls
             return image;
         }
 
-        public async Task<ImageMetadataShard> GetGroupChatHeaderMetadataAsync(long userId, long conversationId)
+        public async Task<ImageMetadataShard> GetGroupChatHeaderMetadataAsync(long userId, long chatId)
         {
             var user = await GetUserAsync(userId);
             var conversation = await GetConversationAsync(conversationId);
@@ -301,7 +301,7 @@ namespace Core.Controls
             { throw new UnexpectedFailureException($"Failed to upload snapshot for {snapshotId}", ex, HollowErrorCode.UPLOAD_FAILED); }
         }
 
-        public async Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image)
+        public async Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image)
 		{
             try
             {
@@ -311,7 +311,7 @@ namespace Core.Controls
             { throw new UnexpectedFailureException($"Failed to upload photo for {conversationId}", ex, HollowErrorCode.UPLOAD_FAILED); }
         }
 
-        public async Task UploadGroupChatHeaderAsync(long conversationId, MemoryStream image)
+        public async Task UploadGroupChatHeaderAsync(long chatId, MemoryStream image)
 		{
             try
             {

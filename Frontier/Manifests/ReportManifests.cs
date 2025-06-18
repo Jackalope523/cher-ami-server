@@ -25,7 +25,7 @@ namespace Frontier.Manifests
     public class SnapshotReportManifest
     {
         [Required]
-        public SnapshotReportType ReportType { get; set; }
+        public PostReportType ReportType { get; set; }
 
         public string ReportDetails { get; set; }
     }

@@ -24,7 +24,7 @@ namespace Core.Controls
 
         public async Task<bool> GetUserExistsAsync(string phoneNumber)
         {
-            return await Accounts.UserExistsAsync(phoneNumber);
+            return await Accounts.PhoneNumberExistsAsync(phoneNumber);
         }
 
 		public async Task<CoreUser> GetCoreUserAsync(long userId)
@@ -76,7 +76,6 @@ namespace Core.Controls
             // Store nest
             var user = await Accounts.CreateUserAsync(newUser.PhoneNumber, email, newUser.Email,
                 newUser.Name, newUser.DateOfBirth, Time,
-                CharacterVector.Default(newUser.GetAge()).ToCharacter(),
                 Guid.NewGuid());
         }
 
@@ -163,71 +162,10 @@ namespace Core.Controls
             await Terminal.MediaDirector.UploadAvatarAsync(user.Id, image);
         }
 
-        public async Task<string> RerollCodeAsync(long userId)
-        {
-            var user = await GetUserAsync(userId);
-
-            return await Accounts.RerollUserCodeAsync(user.Id);
-        }
-
         public async Task DeleteUserAsync(long userId)
         {
             // TODO Gracefully delete data
             await Accounts.SoftDeleteAsync(userId);
-        }
-
-        public async Task UpdateUserLocationAsync(long userId, double latitude, double longitude)
-		{
-			var user = await base.GetUserAsync(userId);
-            var userIsAtGathering = user.IsAtGathering();
-
-            user.LastKnownLocation.Set(new() { Latitude = latitude, Longitude = longitude });
-            await user.HandleHaunt();
-
-            Log.LogWarning("Updating location for user {id} {name} to {latitude}, {longitude} at {time}",
-                user.Id, user.Name, latitude, longitude, Time);
-
-            // Position update
-            _ = Accounts.UpdateRecentLocationAsync(user.Id,
-                (await user.LastKnownLocation).Latitude,
-                (await user.LastKnownLocation).Longitude,
-                (await user.LastKnownRadius).Metres);
-            // Haunt update
-            _ = Accounts.UpdateHauntAsync(user.Id,
-                (await user.Haunt).Latitude,
-                (await user.Haunt).Longitude,
-                (await user.HauntRadius).Metres,
-                await user.HauntStability);
-
-            var nextGathering = await user.NextGathering();
-
-            // Check if user is at an gathering
-            if (await userIsAtGathering)
-            {
-                var ongoingGatherings = await user.OngoingGatherings;
-
-                foreach (var current in ongoingGatherings)
-                {
-                    // Check if user is in the gathering radius
-                    if (GeoLocation.AreInRange(await user.LastKnownLocation, current.Location, current.Radius))
-                    {
-                        await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Segment.InitialDecay) });
-                    }
-                }
-            }
-            // Check if user is on their way to an gathering
-            else if (!await userIsAtGathering &&
-                !nextGathering.Equals(Segment.None))
-            {
-                // Check if user is close enough to be arrived
-                if (nextGathering.IsOngoing &&
-                    await nextGathering.IsInRange(user))
-                {
-                    Log.LogWarning("Guest {name} entered gathering {title} area, marking as arrived...", user.Name, nextGathering.Title);
-                    await Gatherings.SetUserStateAsync(user.Id, nextGathering.Id, GatheringBond.Arrived, Time);
-                    await Gatherings.UpdateGatheringAsync(nextGathering.Id, new() { (nameof(CoreGathering.Decay), Segment.InitialDecay) });
-                }
-            }
         }
 
 		#endregion
@@ -238,24 +176,6 @@ namespace Core.Controls
         {
             users.ForEach(user => Accounts.UpdateUserAsync(user.Id, edits(user)));
 		}
-
-        internal async Task<(GeoLocation Location, Distance Radius, int Stability)>
-            RequestUserHauntAsync(User user)
-        {
-            var result = await Accounts.GetUserHauntAsync(user.Id);
-            return (new() { Latitude = result.Latitude, Longitude = result.Longitude }, new() { Metres = result.Radius }, result.Stability);
-        }
-
-        internal async Task<(GeoLocation Location, Distance Radius)>
-            RequestLastKnownUserLocationAsync(User user)
-        {
-            var result = await Accounts.GetRecentLocationAsync(user.Id);
-
-            if (result == null)
-            { return (GeoLocation.None, Distance.None); }
-
-            return (new() { Latitude = result.Latitude, Longitude = result.Longitude }, new() { Metres = result.Radius });
-        }
 
 		#endregion
 

@@ -9,42 +9,42 @@ namespace Frontier.Controllers
 {
     public partial class HollowHub : Hub<IClientSocket>
     {
-        public async Task UserRead(long conversationId)
+        public async Task UserRead(long chatId)
         {
             var user = await GetCurrentUserAsync();
 
             await messages.UserReadAsync(user.Id, conversationId);
         }
 
-        public async Task UserComposing(long conversationId, bool isComposing)
+        public async Task UserComposing(long chatId, bool isComposing)
         {
             var user = await GetCurrentUserAsync();
 
             await messages.UserComposingAsync(user.Id, conversationId, isComposing);
         }
 
-        public async Task<MessageShard> SendText(long conversationId, string text)
+        public async Task<MessageShard> SendText(long chatId, string text)
         {
             var user = await GetCurrentUserAsync();
 
             return await messages.SendTextAsync(user.Id, conversationId, text);
         }
 
-        public async Task<MessageShard[]> ShareGathering(long conversationId, long[] gatheringIds)
+        public async Task<MessageShard[]> ShareGathering(long chatId, long[] gatheringIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareSegmentAsync(user.Id, conversationId, gatheringIds);
+            return await messages.ShareIssueAsync(user.Id, conversationId, gatheringIds);
         }
 
-        public async Task<MessageShard[]> ShareSnapshot(long conversationId, long[] snapshotIds)
+        public async Task<MessageShard[]> ShareSnapshot(long chatId, long[] snapshotIds)
         {
             var user = await GetCurrentUserAsync();
 
             return await messages.SharePostAsync(user.Id, conversationId, snapshotIds);
         }
 
-        public async Task<MessageShard[]> ShareNest(long conversationId, long[] nestIds)
+        public async Task<MessageShard[]> ShareNest(long chatId, long[] nestIds)
         {
             var user = await GetCurrentUserAsync();
 

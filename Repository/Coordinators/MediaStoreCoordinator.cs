@@ -60,32 +60,32 @@ namespace Repository
             await store.DeleteGatheringHeaderAsync(gatheringId);
         }
 
-        public async Task<MemoryStream> DownloadPhotoAsync(long conversationId, Guid photoId)
+        public async Task<MemoryStream> DownloadPhotoAsync(long chatId, Guid photoId)
         {
             return await store.DownloadPhotoAsync(conversationId, photoId);
         }
 
-        public async Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image)
+        public async Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image)
         {
             return await store.UploadPhotoAsync(conversationId, image);
         }
 
-        public async Task DeletePhotoAsync(long conversationId, Guid photoId)
+        public async Task DeletePhotoAsync(long chatId, Guid photoId)
         {
             await store.DeletePhotoAsync(conversationId, photoId);
         }
 
-        public async Task<MemoryStream> DownloadGroupChatHeaderAsync(long conversationId)
+        public async Task<MemoryStream> DownloadGroupChatHeaderAsync(long chatId)
         {
             return await store.DownloadGroupChatHeaderAsync(conversationId);
         }
 
-        public async Task UploadGroupChatHeaderAsync(long conversationId, MemoryStream image)
+        public async Task UploadGroupChatHeaderAsync(long chatId, MemoryStream image)
         {
             await store.UploadGroupChatHeaderAsync(conversationId, image);
         }
 
-        public async Task DeleteGroupChatHeaderAsync(long conversationId)
+        public async Task DeleteGroupChatHeaderAsync(long chatId)
         {
             await store.DeleteGroupChatHeaderAsync(conversationId);
         }

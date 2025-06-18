@@ -119,7 +119,7 @@ namespace Core.Notifications
     {
         public string RelativePath { get; private set; }
 
-        public MessageDeepLink(long conversationId)
+        public MessageDeepLink(long chatId)
         {
             string path = $"chat/{conversationId}";
 
@@ -347,20 +347,13 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification IndividualMessage(ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification IndividualMessage(ChatShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 ParseMessage(message),
                 new MessageDeepLink(conversation.Id),
                 $"chat:{conversation.Id}"));
 
-        public static CardinalNotification GroupMessage(ConversationShard conversation, UserShard sender, MessageShard message)
-            => Message(new(sender.Name,
-                conversation.Title,
-                ParseMessage(message),
-                new MessageDeepLink(conversation.Id),
-                $"chat:{conversation.Id}"));
-
-        public static CardinalNotification UnitMessage(GroupShard group, ConversationShard conversation, UserShard sender, MessageShard message)
+        public static CardinalNotification GroupMessage(GroupShard group, ChatShard conversation, UserShard sender, MessageShard message)
             => Message(new(sender.Name,
                 group.Title,
                 ParseMessage(message),
@@ -373,7 +366,7 @@ namespace Core.Notifications
             {
                 MessageType.Text => message.Value.ToString(),
                 MessageType.Photo => "Sent a photo.",
-                MessageType.Segment => "Shared a segment.",
+                MessageType.Issue => "Shared a segment.",
                 MessageType.Post => "Shared a post.",
                 MessageType.Profile => "Shared a profile.",
                 _ => "",

@@ -138,7 +138,7 @@ namespace Core.Tests
 					if (user.Equals(otherUser))
 					{ continue; }
 
-					await Terminal.NestDatabase.FollowUserAsync(user.Id, otherUser.Id, DateTimeOffset.UtcNow);
+					await Terminal.ProfileDatabase.FollowUserAsync(user.Id, otherUser.Id, DateTimeOffset.UtcNow);
 				}
 			}
 		}
@@ -152,7 +152,7 @@ namespace Core.Tests
 					if (user.Equals(otherUser))
 					{ continue; }
 
-					await Terminal.NestDatabase.BlockUserAsync(user.Id, otherUser.Id, DateTimeOffset.UtcNow);
+					await Terminal.ProfileDatabase.BlockUserAsync(user.Id, otherUser.Id, DateTimeOffset.UtcNow);
 				}
 			}
 		}
@@ -161,14 +161,14 @@ namespace Core.Tests
 		// Gathering Helpers
 		//////////////////
 
-		internal Segment CreateTestGathering(User host)
+		internal Issue CreateTestGathering(User host)
 		{
-			Segment gatheringStub = new()
+			Issue gatheringStub = new()
 			{
 				Title = testGatheringName,
 				Description = testGatheringDescription,
 				HostId = host.Id,
-				StartTime = testGatheringStartTime,
+				StartDate = testGatheringStartTime,
 				Location = testGatheringLocation,
 				FriendlyLocation = testGatheringFriendlyLocation,
 				GroupMinimum = testGatheringGroupMinimum,
@@ -183,68 +183,68 @@ namespace Core.Tests
 			return gatheringStub;
 		}
 
-		internal async Task<Segment> GenerateGatheringUnsafeAsync(Segment gatheringStub, User host)
+		internal async Task<Issue> GenerateGatheringUnsafeAsync(Issue gatheringStub, User host)
 		{
-			return new(await Terminal.GatheringDatabase.CreateGatheringAsync(host.Id, gatheringStub.Title, gatheringStub.Description,
-				gatheringStub.StartTime, gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
+			return new(await Terminal.GroupDatabase.CreateGatheringAsync(host.Id, gatheringStub.Title, gatheringStub.Description,
+				gatheringStub.StartDate, gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
 				gatheringStub.GroupMinimum, gatheringStub.GroupMaximum, host.Character.ToCharacter(),
-				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic, gatheringStub.DegreeOfPrivacy, gatheringStub.StartTime));
+				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic, gatheringStub.DegreeOfPrivacy, gatheringStub.StartDate));
 		}
 
-		internal async Task<Segment> GenerateUpcomingGatheringAsync(User host)
+		internal async Task<Issue> GenerateUpcomingGatheringAsync(User host)
 		{
 			var gatheringStub = CreateTestGathering(host);
 
 			return await GenerateGatheringUnsafeAsync(gatheringStub, host);
 		}
 
-		internal async Task<Segment> GenerateUpcomingGatheringAsync(User host, params User[] guests)
+		internal async Task<Issue> GenerateUpcomingGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = await GenerateUpcomingGatheringAsync(host);
 
 			foreach (var guest in guests)
             {
-				await Terminal.GatheringDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Guest, DateTimeOffset.UtcNow);
+				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Guest, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
 		}
 
-		internal async Task<Segment> GenerateOngoingGatheringAsync(User host, params User[] guests)
+		internal async Task<Issue> GenerateOngoingGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
-			gatheringStub.StartTime = DateTime.Now - TimeSpan.FromHours(2);
+			gatheringStub.StartDate = DateTime.Now - TimeSpan.FromHours(2);
 
 			gatheringStub = await GenerateGatheringUnsafeAsync(gatheringStub, host);
-			await Terminal.GatheringDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+			await Terminal.GroupDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GatheringDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
 		}
 
-		internal async Task<Segment> GeneratePastGatheringAsync(User host, params User[] guests)
+		internal async Task<Issue> GeneratePastGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
-			gatheringStub.StartTime = DateTime.Now - TimeSpan.FromHours(2);
+			gatheringStub.StartDate = DateTime.Now - TimeSpan.FromHours(2);
 
 			gatheringStub = await GenerateGatheringUnsafeAsync(gatheringStub, host);
-			await Terminal.GatheringDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+			await Terminal.GroupDatabase.SetUserStateAsync(host.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GatheringDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
-			await Terminal.GatheringDatabase.TerminateGatheringAsync(gatheringStub.Id, DateTimeOffset.UtcNow);
+			await Terminal.GroupDatabase.TerminateGatheringAsync(gatheringStub.Id, DateTimeOffset.UtcNow);
 
 			return gatheringStub;
 		}
 
-		internal async Task<Segment> GenerateUniqueGatheringAsync(User host, params User[] guests)
+		internal async Task<Issue> GenerateUniqueGatheringAsync(User host, params User[] guests)
 		{
 			var gatheringStub = CreateTestGathering(host);
 			gatheringStub.Location = new() { Latitude = SafeAdd(ref uniqueGatheringDegree, 1), Longitude = SafeAdd(ref uniqueGatheringDegree, 1) };
@@ -256,13 +256,13 @@ namespace Core.Tests
 
 			foreach (var guest in guests)
 			{
-				await Terminal.GatheringDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
+				await Terminal.GroupDatabase.SetUserStateAsync(guest.Id, gatheringStub.Id, GatheringBond.Arrived, DateTimeOffset.UtcNow);
 			}
 
 			return gatheringStub;
 		}
 
-		internal async Task<List<Segment>> GenerateMultipleUniqueGatheringAsync(params User[] hosts)
+		internal async Task<List<Issue>> GenerateMultipleUniqueGatheringAsync(params User[] hosts)
 		{
 			double currentDegree = SafeAdd(ref uniqueGatheringDegree, 1);
 			GeoLocation location = new() { Latitude = currentDegree, Longitude = currentDegree };
@@ -270,7 +270,7 @@ namespace Core.Tests
 			if (uniqueGatheringDegree > 80)
 			{ uniqueGatheringDegree = -89.5; }
 
-			List<Segment> gatherings = new();
+			List<Issue> gatherings = new();
 
 			foreach (var host in hosts)
 			{
@@ -283,14 +283,14 @@ namespace Core.Tests
 			return gatherings;
 		}
 
-		internal async Task AddUserToGatheringAsync(Segment gathering, User user, GatheringBond state)
+		internal async Task AddUserToGatheringAsync(Issue gathering, User user, GatheringBond state)
 		{
-			await Terminal.GatheringDatabase.SetUserStateAsync(user.Id, gathering.Id, state, DateTimeOffset.UtcNow);
+			await Terminal.GroupDatabase.SetUserStateAsync(user.Id, gathering.Id, state, DateTimeOffset.UtcNow);
 		}
 
-		internal async Task SetGatheringState(Segment gathering, GatheringState state)
+		internal async Task SetGatheringState(Issue gathering, GatheringState state)
 		{
-			await Terminal.GatheringDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Segment.State), state) });
+			await Terminal.GroupDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(Issue.State), state) });
 			gathering.State = state;
 		}
 
@@ -298,19 +298,19 @@ namespace Core.Tests
 		// Snapshot Helpers
 		////////////////////
 
-		internal async Task<PostShard> GenerateSnapshotAsync(Segment etchedGathering, User etcher)
+		internal async Task<PostShard> GenerateSnapshotAsync(Issue etchedGathering, User etcher)
 		{
 			return await GenerateSnapshotUnsafeAsync(etchedGathering, etcher, testSnapshotTime);
 		}
 
-		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Segment etchedGathering, User etcher, PostShard snapshot)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Issue etchedGathering, User etcher, PostShard snapshot)
 		{
-			return await Terminal.SnapshotDatabase.AddSnapshotAsync(etchedGathering.Id, etcher.Id, snapshot.TimeTaken);
+			return await Terminal.IssueDatabase.AddSnapshotAsync(etchedGathering.Id, etcher.Id, snapshot.TimeTaken);
 		}
 
-		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Segment etchedGathering, User etcher, DateTimeOffset timeTaken)
+		internal async Task<PostShard> GenerateSnapshotUnsafeAsync(Issue etchedGathering, User etcher, DateTimeOffset timeTaken)
 		{
-			return await Terminal.SnapshotDatabase.AddPostAsync(etchedGathering.Id, etcher.Id, timeTaken);
+			return await Terminal.IssueDatabase.AddPostAsync(etchedGathering.Id, etcher.Id, timeTaken);
 		}
 
 		///////////

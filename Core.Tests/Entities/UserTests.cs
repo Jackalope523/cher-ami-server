@@ -92,7 +92,7 @@ namespace Core.Tests.Entities
 			var returnedGathering = await user.NextGathering();
 
 			// Assert
-			Assert.Equal(Segment.None, returnedGathering);
+			Assert.Equal(Issue.None, returnedGathering);
 		}
 
 		/////
@@ -337,7 +337,7 @@ namespace Core.Tests.Entities
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			// Act
-			await host.CanEtch(gathering);
+			await host.CanPostTo(gathering);
 			// If no exception is thrown, the test is successful
 		}
 
@@ -351,7 +351,7 @@ namespace Core.Tests.Entities
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, user);
 
 			// Act
-			var etched = user.Taken(snapshot);
+			var etched = user.Owns(snapshot);
 
 			// Assert
 			Assert.True(etched);
@@ -368,7 +368,7 @@ namespace Core.Tests.Entities
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var etched = user.Taken(snapshot);
+			var etched = user.Owns(snapshot);
 
 			// Assert
 			Assert.False(etched);

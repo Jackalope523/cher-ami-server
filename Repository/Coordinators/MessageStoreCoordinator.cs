@@ -2,21 +2,21 @@
 
 namespace Repository
 {
-    class MessageStoreCoordinator : IMessageDatabase
+    class MessageStoreCoordinator : IChatDatabase
     {
-        private readonly IMessageDatabase store;
+        private readonly IChatDatabase store;
 
         public MessageStoreCoordinator(Harbor.Flag flag)
         {
             store = new EFMessageStore(flag);
         }
 
-        public Task<MessageShard> AddMessageAsync(long conversationId, long userId, DateTimeOffset timestamp, MessageType type, object value)
+        public Task<MessageShard> AddMessageAsync(long chatId, long userId, DateTimeOffset timestamp, MessageType type, object value)
         {
             return store.AddMessageAsync(conversationId, userId, timestamp, type, value);
         }
 
-        public Task AddUsersToConversationAsync(long conversationId, params long[] userIds)
+        public Task AddUsersToChatAsync(long chatId, params long[] userIds)
         {
             return store.AddUsersToConversationAsync(conversationId, userIds);
         }
@@ -26,77 +26,77 @@ namespace Repository
             return store.CreateGroupChatConversationAsync(currentTime, title);
         }
 
-        public Task DeleteConversationAsync(long conversationId)
+        public Task DeleteChatAsync(long chatId)
         {
             return store.DeleteConversationAsync(conversationId);
         }
 
-        public Task<bool> GroupConversationExists(long gatheringId)
+        public Task<bool> GroupChatExists(long gatheringId)
         {
-            return store.GroupConversationExists(gatheringId);
+            return store.GroupChatExists(gatheringId);
         }
 
-        public Task<CoreConversation> GetConversationAsync(long conversationId)
+        public Task<CoreChat> GetChatAsync(long chatId)
         {
-            return store.GetConversationAsync(conversationId);
+            return store.GetChatAsync(conversationId);
         }
 
-        public Task<List<CoreMembership>> GetConversationMembersAsync(long conversationId)
+        public Task<List<CoreMembership>> GetChatMembersAsync(long chatId)
         {
             return store.GetConversationMembersAsync(conversationId);
         }
 
-        public Task<int> GetLastPageNumber(long conversationId)
+        public Task<int> GetLastPageNumber(long chatId)
         {
             return store.GetLastPageNumber(conversationId);
         }
 
-        public Task<List<CoreConversation>> GetConversationsForUserAsync(long userId)
+        public Task<List<CoreChat>> GetChatsForUserAsync(long userId)
         {
-            return store.GetConversationsForUserAsync(userId);
+            return store.GetChatsForUserAsync(userId);
         }
 
-        public Task<CoreMembership> GetMembershipAsync(long conversationId, long userId)
+        public Task<CoreMembership> GetMembershipAsync(long chatId, long userId)
         {
             return store.GetMembershipAsync(conversationId, userId);
         }
 
-        public Task<List<MessageShard>> GetMessagesForConversationAsync(long conversationId, int pageNumber)
+        public Task<List<MessageShard>> GetMessagesForChatAsync(long chatId, int pageNumber)
         {
             return store.GetMessagesForConversationAsync(conversationId, pageNumber);
         }
 
-        public Task<CoreConversation> GetOrCreateGroupConversation(long gatheringId, DateTimeOffset currentTime)
+        public Task<CoreChat> GetOrCreateGroupChat(long gatheringId, DateTimeOffset currentTime)
         {
-            return store.GetOrCreateGroupConversation(gatheringId, currentTime);
+            return store.GetOrCreateGroupChat(gatheringId, currentTime);
         }
 
-        public Task<CoreConversation> GetOrCreateIndividualConversationBetween(long userIdA, long userIdB, DateTimeOffset currentTime)
+        public Task<CoreChat> GetOrCreateIndividualChatBetween(long userIdA, long userIdB, DateTimeOffset currentTime)
         {
-            return store.GetOrCreateIndividualConversationBetween(userIdA, userIdB, currentTime);
+            return store.GetOrCreateIndividualChatBetween(userIdA, userIdB, currentTime);
         }
 
-        public Task<bool> IndividualConversationBetweenExists(long userIdA, long userIdB)
+        public Task<bool> IndividualChatBetweenExists(long userIdA, long userIdB)
         {
-            return store.IndividualConversationBetweenExists(userIdA, userIdB);
+            return store.IndividualChatBetweenExists(userIdA, userIdB);
         }
 
-        public Task RemoveUserFromConversationAsync(long conversationId, long userId)
+        public Task RemoveUserFromChatAsync(long chatId, long userId)
         {
             return store.RemoveUserFromConversationAsync(conversationId, userId);
         }
 
-        public Task UpdateConversationAsync(long conversationId, List<(string Property, object Value)> edits)
+        public Task UpdateChatAsync(long chatId, List<(string Property, object Value)> edits)
         {
             return store.UpdateConversationAsync(conversationId, edits);
         }
 
-        public Task UpdateMembershipAsync(long conversationId, long userId, List<(string Property, object Value)> edits)
+        public Task UpdateMembershipAsync(long chatId, long userId, List<(string Property, object Value)> edits)
         {
             return store.UpdateMembershipAsync(conversationId, userId, edits);
         }
 
-        public Task<int> GetMessageCountSinceAsync(long conversationId, DateTimeOffset timestamp)
+        public Task<int> GetMessageCountSinceAsync(long chatId, DateTimeOffset timestamp)
         {
             return store.GetMessageCountSinceAsync(conversationId, timestamp);
         }

@@ -10,11 +10,11 @@ namespace Core.Tests.Controls
 {
     public class NestDirectorTests : CoreTest
     {
-		private NestDirector director;
+		private ProfileDirector director;
 
         public NestDirectorTests()
         {
-			director = environment.Terminal.NestDirector;
+			director = environment.Terminal.ProfileDirector;
         }
 
 		[Fact]

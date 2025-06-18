@@ -11,7 +11,7 @@ namespace Repository
             store = new EFCoreDisciplineStore(flag);
         }
 
-        public async Task<List<Core.Boundaries.GatheringReport>> GetReportsForGatheringAsync(long id)
+        public async Task<List<Core.Boundaries.PostReport>> GetReportsForGatheringAsync(long id)
         {
             return await store.GetReportsForGatheringAsync(id);
         }
@@ -41,22 +41,22 @@ namespace Repository
             return await store.GetPenaltiesForUserAsync(userId);
         }
 
-        public Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>)> GetReportsForUserAsync(long userId)
+        public Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
         {
             return store.GetReportsForUserAsync(userId);
         }
 
-        public Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>)> GetReportsByUserAsync(long userId)
+        public Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long userId)
         {
             return store.GetReportsByUserAsync(userId);
         }
 
-        public Task<List<Core.Boundaries.SnapshotReport>> GetReportsForSnapshotAsync(long snapshotId)
+        public Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long snapshotId)
         {
-            return store.GetReportsForSnapshotAsync(snapshotId);
+            return store.GetReportsForPostAsync(snapshotId);
         }
 
-        public Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, SnapshotReportType reportType, string reportDetails)
+        public Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)
         {
             return store.ReportSnapshotAsync(userId, snapshotId, timeOfReport, reportType, reportDetails);
         }

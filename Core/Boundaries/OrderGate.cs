@@ -1,30 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace Core.Boundaries
 {
     #region Schemas
 
-    public enum OrderStatus
-    { Pending, Paid, Printing, Delivered }
+    public enum PaymentProvider
+    {
+        Stripe = 0,
+        PayPal = 1,
+        ApplePay = 2,
+        GooglePay = 3,
+    }
 
-    public record CoreOrder(long Id, OrderStatus Status)
+    public record CorePaymentMethod(long Id, PaymentProvider Provider,
+        string ProviderCustomerId, string ProviderPaymentMethodId,
+        string Last4Digits, string CardBrand, DateTime Expiry, Address BillingAddress)
+        : CoreOnlyData();
+
+    public record PaymentMethodShard(string Last4Digits, string CardBrand, DateTime Expiry, Address BillingAddress);
+
+
+    public enum OrderStatus
+    {
+        Upcoming = 0,
+        PendingPayment = 1,
+        Processing = 2,
+        Delivered = 3,
+        Cancelled = 4,
+    }
+
+    public record CoreOrder(long Id, long IssueId, IssueType Type, long RecipientId, OrderStatus Status)
         : CoreOnlyData();
 
     public record OrderShard();
-
-
-    public record CoreRecipient(long Id, string Name, string Address)
-        : CoreOnlyData();
-
-    public record RecipientShard();
-
-
-    public record CorePaymentMethod(long Id)
-        : CoreOnlyData();
-
-    public record PaymentMethodShard();
 
     #endregion
 
@@ -34,22 +45,22 @@ namespace Core.Boundaries
     {
         Task<CorePaymentMethod> GetPaymentMethodForUserAsync(long userId);
 
-        Task<CorePaymentMethod> AddPaymentMethodAsync(long userId);
-        Task UpdatePaymentMethodAsync(long paymentId, List<(string Property, object Value)> edits);
+        Task<CorePaymentMethod> AddPaymentMethodAsync(long userId,);
         Task DeletePaymentMethodAsync(long paymentId);
 
         Task<List<CoreOrder>> GetOrdersForGroupAsync(long groupId);
-        Task<List<CoreOrder>> GetOrdersForSegmentAsync(long segmentId);
-
-        Task<List<CoreRecipient>> GetRecipientsForGroupAsync(long groupId);
-
-        Task AddRecipientAsync(long groupId, long userId);
-        Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
-        Task DeleteRecipientAsync(long recipientId);
+        Task<List<CoreOrder>> GetOrdersForIssueAsync(long issueId);
     }
 
     public interface IOrderOperations
     {
+        Task<PaymentMethodShard> GetPaymentMethodForUserAsync(long userId);
+
+        Task<PaymentMethodShard> AddPaymentMethodAsync(long userId,);
+        Task RemovePaymentMethodAsync(long userId, long paymentId);
+
+        Task<List<OrderShard>> GetOrdersForGroupAsync(long userId, long groupId);
+        Task<List<OrderShard>> GetOrdersForIssueAsync(long userId, long issueId);
     }
 
     #endregion

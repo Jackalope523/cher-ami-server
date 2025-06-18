@@ -11,11 +11,11 @@ namespace Core.Tests.Controls
 {
     public class GatheringDirectorTests : CoreTest
     {
-		private GatheringDirector director;
+		private GroupDirector director;
 
         public GatheringDirectorTests()
         {
-			director = environment.Terminal.GatheringDirector;
+			director = environment.Terminal.GroupDirector;
         }
 
 		[Fact]
@@ -29,7 +29,7 @@ namespace Core.Tests.Controls
 			var returnedGathering = await director.GetGatheringInformationAsync(host.Id, gathering.Id);
 
 			// Assert
-			Assert.True(gathering.ToGatheringShard().Equals(returnedGathering));
+			Assert.True(gathering.ToIssueShard().Equals(returnedGathering));
 		}
 
 		[Fact]
@@ -45,7 +45,7 @@ namespace Core.Tests.Controls
 			var returnedGathering = await director.GetGatheringInformationAsync(user.Id, gathering.Id);
 
 			// Assert
-			Assert.True(gathering.ToGatheringShard().Equals(returnedGathering));
+			Assert.True(gathering.ToIssueShard().Equals(returnedGathering));
 		}
 
 		[Fact]
@@ -168,12 +168,12 @@ namespace Core.Tests.Controls
 			// Arrange
 			var host = await environment.GenerateUniqueUserAsync();
 			var gatheringStub = environment.CreateTestGathering(host);
-			gatheringStub.StartTime = new(DateTime.UtcNow + TimeSpan.FromDays(1));
+			gatheringStub.StartDate = new(DateTime.UtcNow + TimeSpan.FromDays(1));
 
 			// Act
 			var returnedGathering = await director.CreateGatheringAsync(host.Id,
 				gatheringStub.Title, gatheringStub.Description,
-				gatheringStub.StartTime,
+				gatheringStub.StartDate,
                 gatheringStub.Location.Latitude, gatheringStub.Location.Longitude,
 				gatheringStub.FriendlyLocation,
                 gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic,
@@ -184,7 +184,7 @@ namespace Core.Tests.Controls
             // Assert
             Assert.Equal(gatheringStub.Title, returnedGathering.Title);
 			Assert.Equal(gatheringStub.Description, returnedGathering.Description);
-			Assert.Equal(gatheringStub.StartTime, returnedGathering.StartTime);
+			Assert.Equal(gatheringStub.StartDate, returnedGathering.StartTime);
 
 			Assert.Equal(gatheringStub.Location.Latitude, returnedGathering.Latitude);
 			Assert.Equal(gatheringStub.Location.Longitude, returnedGathering.Longitude);
@@ -200,14 +200,14 @@ namespace Core.Tests.Controls
 			// Arrange
 			var host = await environment.GenerateUniqueUserAsync();
 			var gatheringStub = environment.CreateTestGathering(host);
-			gatheringStub.StartTime = new(DateTime.UtcNow + TimeSpan.FromDays(30));
+			gatheringStub.StartDate = new(DateTime.UtcNow + TimeSpan.FromDays(30));
 			gatheringStub.GroupMaximum = 3;
 			gatheringStub.GroupMinimum = 5;
 
 			// Act
 			var returnedGathering = director.CreateGatheringAsync(host.Id,
 				gatheringStub.Title, gatheringStub.Description,
-				gatheringStub.StartTime,
+				gatheringStub.StartDate,
 				gatheringStub.Location.Latitude, gatheringStub.Location.Longitude,
 				gatheringStub.FriendlyLocation,
 				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic,
@@ -231,7 +231,7 @@ namespace Core.Tests.Controls
 			// Act
 			var returnedGathering = director.CreateGatheringAsync(host.Id,
 				gatheringStub.Title, gatheringStub.Description,
-				gatheringStub.StartTime,
+				gatheringStub.StartDate,
                 gatheringStub.Location.Latitude, gatheringStub.Location.Longitude,
 				gatheringStub.FriendlyLocation,
                 gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic,
@@ -254,7 +254,7 @@ namespace Core.Tests.Controls
 			// Act
 			var returnedGathering = director.CreateGatheringAsync(host.Id,
 				conflictingGathering.Title, conflictingGathering.Description,
-				conflictingGathering.StartTime,
+				conflictingGathering.StartDate,
 				conflictingGathering.Location.Latitude, conflictingGathering.Location.Longitude,
 				conflictingGathering.FriendlyLocation,
 				conflictingGathering.Radius.Kilometres, conflictingGathering.IsDynamic,
@@ -522,7 +522,7 @@ namespace Core.Tests.Controls
             await environment.UpdateUserLocationAsync(companion, gathering.Location.Latitude, gathering.Location.Longitude);
 
             // Act
-            await director.InviteUserAsync(user.Id, companion.Id, gathering.Id);
+            await director.AddMemberAsync(user.Id, companion.Id, gathering.Id);
 			// If no exception is thrown, the test is successful
 		}
 
@@ -538,7 +538,7 @@ namespace Core.Tests.Controls
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			// Act
-			var invite = director.InviteUserAsync(user.Id, companion.Id, gathering.Id);
+			var invite = director.AddMemberAsync(user.Id, companion.Id, gathering.Id);
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await invite);
@@ -554,7 +554,7 @@ namespace Core.Tests.Controls
 			var gathering = await environment.GenerateUpcomingGatheringAsync(user);
 
 			// Act
-			var invite = director.InviteUserAsync(user.Id, stranger.Id, gathering.Id);
+			var invite = director.AddMemberAsync(user.Id, stranger.Id, gathering.Id);
 
 			// Assert
 			await Assert.ThrowsAnyAsync<HollowException>(async () => await invite);

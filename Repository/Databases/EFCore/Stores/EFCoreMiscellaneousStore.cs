@@ -1,4 +1,6 @@
-﻿namespace Repository
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Repository
 {
     internal class EFCoreMiscellaneousStore : QueryStore, IMiscellaneousDatabase
     {

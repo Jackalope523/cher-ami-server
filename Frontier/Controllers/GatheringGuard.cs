@@ -183,7 +183,7 @@ namespace Frontier.Controllers
 		{
 			return await Execute(async user =>
 			{
-				await gatherings.InviteUserAsync(user.Id, target_id, gatheringId);
+				await gatherings.AddMemberAsync(user.Id, target_id, gatheringId);
 			});
         }
 
@@ -243,7 +243,7 @@ namespace Frontier.Controllers
 		{
 			return await Execute(async user =>
 			{
-				return await snapshots.GetGalleryAsync(user.Id, gatheringId);
+				return await snapshots.GetPostsForIssueAsync(user.Id, gatheringId);
 			});
 		}
 
@@ -290,7 +290,7 @@ namespace Frontier.Controllers
 		public async Task<IActionResult> AvailableSnapshotReports(long gatheringId, long snapshotId)
         {
             return await Execute(async user =>
-				await reports.GetAvailableReportsForSnapshotAsync(user.Id, snapshotId)
+				await reports.GetAvailableReportsForPostAsync(user.Id, snapshotId)
             );
         }
 
@@ -303,7 +303,7 @@ namespace Frontier.Controllers
 
 			return await Execute(async user =>
             {
-                await reports.ReportSnapshotAsync(user.Id, snapshotId, report.ReportType, report.ReportDetails);
+                await reports.ReportPostAsync(user.Id, snapshotId, report.ReportType, report.ReportDetails);
             });
 		}
 

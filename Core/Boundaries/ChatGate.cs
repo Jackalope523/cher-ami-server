@@ -92,6 +92,7 @@ namespace Core.Boundaries
 
 		Task UserReadAsync(long userId, long chatId);
 		Task UserComposingAsync(long userId, long chatId, bool isComposing);
+
 		Task<MessageShard> SendTextAsync(long userId, long chatId, string text);
 		Task<MessageShard> SendPhotoAsync(long userId, long chatId, MemoryStream photo);
 

@@ -31,7 +31,6 @@ namespace Core
         public IAccountDatabase AccountDatabase { get; init; }
         public IChatDatabase ChatDatabase { get; init; }
         public IConnectionDatabase ConnectionDatabase { get; init; }
-        public IDisciplineDatabase DisciplineDatabase { get; init; }
         public IGroupDatabase GroupDatabase { get; init; }
         public IIssueDatabase IssueDatabase { get; init; }
         public IKeyDatabase KeyDatabase { get; init; }
@@ -39,6 +38,7 @@ namespace Core
         public IMiscellaneousDatabase MiscellaneousDatabase { get; init; }
         public INotificationDatabase NotificationDatabase { get; init; }
         public IProfileDatabase ProfileDatabase { get; init; }
+        public IReportDatabase ReportDatabase { get; init; }
 
         public IAccountOperations AccountOperations
             => AccountDirector;
@@ -46,8 +46,6 @@ namespace Core
             => ChatDirector;
         public IConnectionOperations ConnectionOperations
             => ConnectionDirector;
-        public IDisciplineOperations DisciplineOperations
-            => DisciplineDirector;
         public IGroupOperations GroupOperations
             => GroupDirector;
         public IIssueOperations IssueOperations
@@ -62,6 +60,8 @@ namespace Core
             => NotificationDirector;
         public IProfileOperations ProfileOperations
             => ProfileDirector;
+        public IReportOperations ReportOperations
+            => ReportDirector;
 
         public INotificationService NotificationService { get; init; }
         public ISocketService SocketService { get; init; }
@@ -69,7 +69,6 @@ namespace Core
         internal AccountDirector AccountDirector { get; private set; }
         internal ConnectionDirector ConnectionDirector { get; private set; }
         internal ChatDirector ChatDirector { get; private set; }
-        internal DisciplineDirector DisciplineDirector { get; private set; }
         internal GroupDirector GroupDirector { get; private set; }
         internal IssueDirector IssueDirector { get; private set; }
         internal KeyDirector KeyDirector { get; private set; }
@@ -77,6 +76,7 @@ namespace Core
         internal MiscellaneousDirector MiscellaneousDirector { get; private set; }
         internal NotificationDirector NotificationDirector { get; private set; }
         internal ProfileDirector ProfileDirector { get; private set; }
+        internal ReportDirector ReportDirector { get; private set; }
 
         #endregion
 
@@ -85,7 +85,7 @@ namespace Core
         public static CoreTerminal CreateTerminal(EnvironmentOptions environment, ILogger logger,
             IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
             IGroupDatabase groupDatabase, IIssueDatabase issueDatabase,
-            IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
+            IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
             INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
             IMiscellaneousDatabase miscellaneousDatabase,
@@ -99,16 +99,16 @@ namespace Core
                     Log = logger,
 
                     AccountDatabase = accountDatabase,
+                    ChatDatabase = chatDatabase,
                     ConnectionDatabase = connectionDatabase,
                     GroupDatabase = groupDatabase,
                     IssueDatabase = issueDatabase,
-                    DisciplineDatabase = disciplineDatabase,
                     KeyDatabase = keyDatabase,
                     MediaDatabase = mediaDatabase,
-                    ChatDatabase = chatDatabase,
-                    ProfileDatabase = profileDatabase,
-                    NotificationDatabase = notificationDatabase,
                     MiscellaneousDatabase = miscellaneousDatabase,
+                    NotificationDatabase = notificationDatabase,
+                    ProfileDatabase = profileDatabase,
+                    ReportDatabase = reportDatabase,
 
                     NotificationService = notificationService,
                     SocketService = socketService,
@@ -128,7 +128,6 @@ namespace Core
             AccountDirector = new AccountDirector(this);
             ChatDirector = new ChatDirector(this);
             ConnectionDirector = new ConnectionDirector(this);
-            DisciplineDirector = new DisciplineDirector(this);
             GroupDirector = new GroupDirector(this);
             IssueDirector = new IssueDirector(this);
             KeyDirector = new KeyDirector(this);
@@ -136,6 +135,7 @@ namespace Core
             MiscellaneousDirector = new MiscellaneousDirector(this);
             NotificationDirector = new NotificationDirector(this);
             ProfileDirector = new ProfileDirector(this);
+            ReportDirector = new ReportDirector(this);
         }
 
         #endregion

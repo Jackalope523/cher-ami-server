@@ -15,7 +15,6 @@ using Repository;
 using Frontier.Controllers;
 using Microsoft.Extensions.Logging;
 using Core;
-using Core.Daemons;
 using Microsoft.AspNetCore.DataProtection;
 using System.IO;
 
@@ -44,7 +43,7 @@ namespace Frontier
                     .AddSerilog(Log.Logger);
 
                 var socketLogger = loggerFactory.CreateLogger("Socket");
-                var hubContext = app.Services.GetRequiredService<IHubContext<HollowHub, IClientSocket>>();
+                var hubContext = app.Services.GetRequiredService<IHubContext<SocketHub, IClientSocket>>();
 
                 SocketConnection.Initialise(socketLogger, hubContext);
 
@@ -169,16 +168,15 @@ namespace Frontier
                 coreLogger,
 
                 harbor.AccountDatabaseAccess,
-                harbor.AdminDatabaseAccess,
                 harbor.ConnectionDatabaseAccess,
-                harbor.GatheringDatabaseAccess,
-                harbor.SnapshotDatabaseAccess,
+                harbor.GroupDatabaseAccess,
+                harbor.IssueDatabaseAccess,
                 harbor.ReportDatabaseAccess,
                 harbor.KeyDatabaseAccess,
                 harbor.MediaDatabaseAccess,
-                harbor.MessageDatabaseAccess,
+                harbor.ChatDatabaseAccess,
                 harbor.NotificationDatabaseAccess,
-                harbor.NestDatabaseAccess,
+                harbor.ProfileDatabaseAccess,
                 harbor.MiscellaneousDatabaseAccess,
                 pushNotifications,
                 socket
@@ -194,7 +192,7 @@ namespace Frontier
                 terminal.GroupOperations,
                 terminal.IssueOperations,
                 terminal.KeyOperations,
-                terminal.DisciplineOperations,
+                terminal.ReportOperations,
                 terminal.MediaOperations,
                 terminal.ChatOperations,
                 terminal.NotificationOperations,
@@ -207,7 +205,7 @@ namespace Frontier
             // Daemons
             ////////////
 
-            services.AddHostedService(services => terminal.CreateRepositoryCleanupService());
+            // None atm
 
             /////////
             // Authentication Schema 
@@ -228,7 +226,7 @@ namespace Frontier
             
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(@"/home/data-protection-keys"))
-                .SetApplicationName("Hollow-" + env);
+                .SetApplicationName($"cardinal-{env}-keys");
 
             /////
             // Sockets
@@ -260,7 +258,7 @@ namespace Frontier
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<HollowHub>("/hub");
+                endpoints.MapHub<SocketHub>("/hub");
             });
         }
 

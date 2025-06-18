@@ -41,7 +41,7 @@ namespace Core.Entities
             => new() { Id = 0 };
 
         public static User Hidden
-            => new() { Id = -1, Name = "Hidden User" };
+            => new() { Id = -1, GivenName = "Hidden User" };
 
         public static User Hollow
             => new() { Id = -2 };
@@ -55,8 +55,8 @@ namespace Core.Entities
         public string Email { get; set; }
         public string NormalisedEmail { get; set; }
         public string Title { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string GivenName { get; set; }
+        public string FamilyName { get; set; }
         public DateTimeOffset DateOfBirth { get; init; }
 
         public DateTimeOffset JoinDate { get; init; }
@@ -115,7 +115,7 @@ namespace Core.Entities
             Blocking = new(() => Terminal.ProfileDirector.RequestBlockedUsersAsync(this));
             BlockedBy = new(() => Terminal.ProfileDirector.RequestUsersBlockingAsync(this));
 
-            ReportsSync = new(() => Terminal.DisciplineDirector.RequestAllReportsAsync(this));
+            ReportsSync = new(() => Terminal.ReportDirector.RequestAllReportsAsync(this));
             UserReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).UserReports);
             PostReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).GatheringReports);
 
@@ -131,8 +131,8 @@ namespace Core.Entities
             Email = fromUser.Email;
             Email = fromUser.Email;
             Title = fromUser.Title;
-            FirstName = fromUser.FirstName;
-            LastName = fromUser.LastName;
+            GivenName = fromUser.FirstName;
+            FamilyName = fromUser.LastName;
             DateOfBirth = fromUser.DateOfBirth;
             JoinDate = fromUser.JoinDate;
             IsPhoneConfirmed = fromUser.IsPhoneConfirmed;
@@ -148,7 +148,7 @@ namespace Core.Entities
 
         public CoreUser ToCoreUser()
         {
-            return new(Id, PhoneNumber, Email, NormalisedEmail, Title, FirstName, LastName, DateOfBirth,
+            return new(Id, PhoneNumber, Email, NormalisedEmail, Title, GivenName, FamilyName, DateOfBirth,
                 IsPhoneConfirmed, IsEmailConfirmed, IsDeleted,
                 SecurityStamp, LockoutDate, AccessTries, AccountStatus,
                 JoinDate, TimeOfUserAgreement, NotificationId);
@@ -156,14 +156,14 @@ namespace Core.Entities
 
         public AccountShard ToAccountShard()
         {
-            return new(Id, PhoneNumber, Email, Title, FirstName, LastName, DateOfBirth,
+            return new(Id, PhoneNumber, Email, Title, GivenName, FamilyName, DateOfBirth,
                 IsPhoneConfirmed, IsEmailConfirmed, AccountStatus,
                 JoinDate, TimeOfUserAgreement, NotificationId);
         }
 
         public UserShard ToUserShard()
         {
-            return new(Id, FirstName, LastName);
+            return new(Id, GivenName, FamilyName);
         }
 
 		#endregion
@@ -183,7 +183,7 @@ namespace Core.Entities
                 !ContentValidation.IsEmailValid(Email)) { issues += "Invalid email. "; }
 
             // Verify user age
-            if (HasYet(DateOfBirth + (OneYear * 18))) { issues += "User is too young. "; }
+            if (HasYet(DateOfBirth + (OneYear * 13))) { issues += "User is too young. "; }
 
             // Normalise
             NormalisedEmail = string.IsNullOrEmpty(Email) ? Email : Email.ToLower();

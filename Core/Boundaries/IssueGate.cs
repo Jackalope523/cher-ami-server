@@ -25,6 +25,8 @@ namespace Core.Boundaries
 
     public interface IIssueDatabase
     {
+        Task<CoreIssue> GetIssueAsync(long issueId);
+
         Task<List<CoreIssue>> GetIssuesForGroupAsync(long groupId);
         Task<List<PostShard>> GetPostsForIssueAsync(long issueId);
 
@@ -37,6 +39,8 @@ namespace Core.Boundaries
 
     public interface IIssueOperations
     {
+        Task<IssueShard> GetIssueAsync(long userId, long issueId);
+
         Task<List<IssueShard>> GetIssuesForGroupAsync(long userId, long groupId);
         Task<GalleryShard> GetPostsForIssueAsync(long userId, long issueId);
 
@@ -45,7 +49,8 @@ namespace Core.Boundaries
             DateTimeOffset timestamp, string caption,
             MemoryStream image);
         Task EditPostAsync(long userId, long postId,
-            DateTimeOffset? timestamp = null, string caption = null);
+            DateTimeOffset? timestamp = null, string caption = null,
+            MemoryStream image = null);
         Task DeletePostAsync(long userId, long postId);
     }
 

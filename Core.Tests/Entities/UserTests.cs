@@ -446,8 +446,8 @@ namespace Core.Tests.Entities
 			// Arrange
 			var user = await environment.GenerateUniqueUserAsync();
 			var oldReputation = user.Reputation;
-			await environment.Terminal.DisciplineDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
-			await environment.Terminal.DisciplineDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
+			await environment.Terminal.ReportDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
+			await environment.Terminal.ReportDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
 
 			// Act
 			await user.Penalised();

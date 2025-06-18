@@ -256,8 +256,9 @@ namespace Frontier.Controllers
                 if (!userExists)
                 {
                     // Persist a new user
-                    await accounts.CreateUserAsync(details.PhoneNumber, details.Email ?? "",
-                        details.Name, details.DateOfBirth.ToUniversalTime());
+                    await accounts.CreateUserAsync(details.PhoneNumber, details.Email,
+                        details.Title, details.GivenName, details.FamilyName,
+                        details.DateOfBirth.ToUniversalTime());
 
                     // Send an SMS to new user with a generated change number token
                     var user = await accounts.GetCoreUserAsync(details.PhoneNumber);
@@ -295,9 +296,10 @@ namespace Frontier.Controllers
 
             return await Execute(async user =>
             {
-                // Send updates to account manager
                 await accounts.EditUserAsync(user.Id,
-                    name: details.Name, email: details.Email);
+                    email: details.Email,
+                    title: details.Title, givenName: details.GivenName, familyName: details.FamilyName,
+                    dateOfBirth: details.DateOfBirth);
             }, allowUnverified: true);
         }
 
@@ -326,7 +328,6 @@ namespace Frontier.Controllers
                 using var stream = new MemoryStream();
                 await avatar.Image.CopyToAsync(stream);
 
-                // Send avatar to account manager
                 await accounts.EditAvatarAsync(user.Id, stream);
             }, allowUnverified: true);
         }

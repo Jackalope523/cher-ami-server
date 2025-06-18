@@ -10,34 +10,34 @@ namespace Repository
         internal static ILogger logger;
 
         public IAccountDatabase AccountDatabaseAccess { get; private set; }
+        public IChatDatabase ChatDatabaseAccess { get; private set; }
         public IConnectionDatabase ConnectionDatabaseAccess { get; private set; }
-        public IProfileDatabase NestDatabaseAccess { get; private set; }
-        public INotificationDatabase NotificationDatabaseAccess { get; private set; }
-        public IGroupDatabase GatheringDatabaseAccess { get; private set; }
-        public IIssueDatabase SnapshotDatabaseAccess { get; private set; }
-        public IDisciplineDatabase ReportDatabaseAccess { get; private set; }
-        public IAdminDatabase AdminDatabaseAccess { get; private set; }
-        public IMediaDatabase MediaDatabaseAccess { get; private set; }
-        public IChatDatabase MessageDatabaseAccess { get; private set; }
+        public IGroupDatabase GroupDatabaseAccess { get; private set; }
+        public IIssueDatabase IssueDatabaseAccess { get; private set; }
         public IKeyDatabase KeyDatabaseAccess { get; private set; }
-        public IDebugDatabase DebugDatabaseAccess { get; private set; }
+        public IMediaDatabase MediaDatabaseAccess { get; private set; }
         public IMiscellaneousDatabase MiscellaneousDatabaseAccess { get; private set; }
+        public INotificationDatabase NotificationDatabaseAccess { get; private set; }
+        public IProfileDatabase ProfileDatabaseAccess { get; private set; }
+        public IReportDatabase ReportDatabaseAccess { get; private set; }
+
+        public IDebugDatabase DebugDatabaseAccess { get; private set; }
 
         public Harbor(Flag flag)
         {
             AccountDatabaseAccess = new AccountStoreCoordinator(flag);
+            ChatDatabaseAccess = new MessageStoreCoordinator(flag);
             ConnectionDatabaseAccess = new ConnectionStoreCoordinator(flag);
-            NestDatabaseAccess = new NestStoreCoordinator(flag);
-            NotificationDatabaseAccess = new NotificationStoreCoordinator(flag);
-            GatheringDatabaseAccess = new GatheringStoreCoordinator(flag);
-            SnapshotDatabaseAccess = new SnapshotStoreCoordinator(flag);
-            ReportDatabaseAccess = new DisciplineStoreCoordinator(flag);
-            AdminDatabaseAccess = new AdminStoreCoordinator(flag);
+            GroupDatabaseAccess = new GatheringStoreCoordinator(flag);
+            IssueDatabaseAccess = new SnapshotStoreCoordinator(flag);
             KeyDatabaseAccess = new KeyStoreCoordinator();
             MediaDatabaseAccess = new MediaStoreCoordinator(flag);
-            MessageDatabaseAccess = new MessageStoreCoordinator(flag);
-            DebugDatabaseAccess = new DebugStoreCoordinator(flag);
             MiscellaneousDatabaseAccess = new MiscellaneousStoreCoordinator(flag);
+            NotificationDatabaseAccess = new NotificationStoreCoordinator(flag);
+            ProfileDatabaseAccess = new NestStoreCoordinator(flag);
+            ReportDatabaseAccess = new DisciplineStoreCoordinator(flag);
+
+            DebugDatabaseAccess = new DebugStoreCoordinator(flag);
         }
 
         public Harbor(Flag flag, ILogger logger) : this(flag)

@@ -31,16 +31,26 @@ namespace Frontier.Manifests
 
 		public string Email { get; set; }
 
+
+		public string Title { get; set; }
+
 		[Required]
-		public string Name { get; set; }
+		public string GivenName { get; set; }
+
+		[Required]
+		public string FamilyName { get; set; }
 
 		[Required]
 		public DateTime DateOfBirth { get; set; }
     }
 
-	public class ImageManifest
-	{
-		[Required]
-		public IFormFile Image { get; set; }
-	}
+    public class AccountEditManifest
+    {
+        public string Email { get; set; }
+
+        public string Title { get; set; }
+        public string GivenName { get; set; }
+        public string FamilyName { get; set; }
+		public DateTime DateOfBirth { get; set; }
+    }
 }

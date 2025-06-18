@@ -10,11 +10,11 @@ namespace Core.Boundaries
     #region Schemas
 
 	public record NotificationProfile(long UserId, Guid NotificationId,
-		bool SegmentPosts, bool PostReminders)
+		bool IssuePosts, bool IssueReminders)
 		: CoreOnlyData();
 
 	public record NotificationPreferencesShard(Guid NotificationId,
-		bool SegmentPosts, bool PostReminders);
+		bool IssuePosts, bool IssueReminders);
 
     #endregion
 
@@ -30,7 +30,7 @@ namespace Core.Boundaries
 	{
 		Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId);
 		Task UpdateNotificationPreferencesAsync(long userId,
-			bool? segmentPosts = null, bool? postReminders = null);
+			bool? issuePosts = null, bool? issueReminders = null);
 	}
 
 	public interface INotificationService

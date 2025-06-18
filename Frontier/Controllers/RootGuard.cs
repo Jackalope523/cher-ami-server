@@ -28,9 +28,9 @@ namespace Frontier.Controllers
         }
 
 		[HttpGet("req")]
-		public IActionResult CanaryMinimumVersion()
+		public IActionResult ClientRequirements()
 		{
-			return Ok(new CanaryDetailsManifest() {
+			return Ok(new ClientDetailsManifest() {
 				MinimumVersion = "0.0.0",
 				ServerVersion = "RoyalFrost",
 				PageSize = 10,

@@ -25,24 +25,18 @@ namespace Frontier.Controllers
 		public async Task<IActionResult> GetNotificationPreferences()
 		{
 			return await Execute(async user =>
-			{
-				return await notifications.GetNotificationPreferencesAsync(user.Id);
-			});
+				await notifications.GetNotificationPreferencesAsync(user.Id)
+			);
         }
 
 		[HttpPost]
 		public async Task<IActionResult> UpdateNotificationPreferences(
-			bool? social_invitations = null, bool? companion_activity = null,
-			bool? gathering_reminders = null, bool? gathering_activity = null,
-			bool? gathering_discovery = null)
+			bool? issue_posts = null, bool? issue_reminders = null)
 		{
 			return await Execute(async user =>
-			{
 				await notifications.UpdateNotificationPreferencesAsync(user.Id,
-					socialInvitations: social_invitations, companionActivity: companion_activity,
-					gatheringReminders: gathering_reminders, gatheringActivity: gathering_activity,
-					gatheringDiscovery: gathering_discovery);
-			});
+					issuePosts: issue_posts, issueReminders: issue_reminders)
+			);
         }
 
 		#endregion

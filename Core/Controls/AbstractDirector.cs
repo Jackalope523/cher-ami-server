@@ -22,7 +22,7 @@ namespace Core.Controls
 		protected IConnectionDatabase Connections { get; private set; }
 		protected IGroupDatabase Gatherings { get; private set; }
 		protected IIssueDatabase Snapshots { get; private set; }
-		protected IDisciplineDatabase Reports { get; private set; }
+		protected IReportDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
 		protected IMediaDatabase Media { get; private set; }
 		protected IChatDatabase Messages { get; private set; }
@@ -45,7 +45,7 @@ namespace Core.Controls
 			Connections = Terminal.ConnectionDatabase;
 			Gatherings = Terminal.GroupDatabase;
 			Snapshots = Terminal.IssueDatabase;
-			Reports = Terminal.DisciplineDatabase;
+			Reports = Terminal.ReportDatabase;
 			Keys = Terminal.KeyDatabase;
 			Media = Terminal.MediaDatabase;
 			Messages = Terminal.ChatDatabase;

@@ -52,7 +52,7 @@ namespace Core.Boundaries
         Task<CoreGroup> GetGroupByCodeAsync(string groupCode);
         Task<List<CoreGroup>> GetGroupsForUserAsync(long userId);
 
-        Task<CoreGroup> CreateGroupAsync(long ownerId, string title);
+        Task<CoreGroup> CreateGroupAsync(long ownerId, string title, GroupPlan plan, IssueSchedule schedule);
         Task UpdateGroupAsync(long groupId, List<(string Property, object Value)> edits);
         Task<string> RerollGroupCode(long groupId);
         Task DeleteGroupAsync(long groupId);
@@ -79,19 +79,21 @@ namespace Core.Boundaries
         Task<GroupShard> GetGroupInformationAsync(long userId, long groupId);
 
         Task<GroupShard> CreateGroupAsync(long userId, string groupTitle,
+            GroupPlan plan, IssueSchedule schedule,
             MemoryStream heroImage);
         Task EditGroupAsync(long userId, long groupId,
             string groupTitle = "",
+            GroupPlan? plan = null, IssueSchedule? schedule = null,
             MemoryStream header = null);
         Task<string> RerollGroupCodeAsync(long userId, long groupId);
         Task DeleteGroupAsync(long userId, long groupId);
         
         Task<List<GroupMembershipShard>> GetMembersForGroupAsync(long userId, long groupId);
+        Task SendInvitationAsync(long userId, string phoneNumber = null, string email = null);
+        Task JoinGroupAsync(long userId, string groupCode);
+        Task RemoveMemberAsync(long userId, long targetId, long groupId);
+
         Task<List<RecipientShard>> GetRecipientsForGroupAsync(long userId, long groupId);
-
-        Task AddMemberAsync(long ownerId, long inviteeId, long groupId);
-        Task RemoveMemberAsync(long ownerId, long targetId, long groupId);
-
         Task AddRecipientAsync(long userId, long groupId);
         Task EditRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
         Task RemoveRecipientAsync(long recipientId);

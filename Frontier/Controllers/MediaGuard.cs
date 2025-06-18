@@ -47,7 +47,7 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. asset:{asset}");
             });
         }
 
@@ -72,7 +72,7 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. avatar:{userId}");
             });
         }
 
@@ -82,8 +82,8 @@ namespace Frontier.Controllers
             return await Execute(async user => await media.GetAvatarMetadataAsync(user.Id, userId));
         }
 
-		[HttpGet("headers/{gatheringId}")]
-		public async Task<IActionResult> GetHeader(long gatheringId)
+		[HttpGet("headers/{groupId}")]
+		public async Task<IActionResult> GetHeader(long groupId)
         {
 			return await ExecuteUnsafe(async () =>
 			{
@@ -91,7 +91,7 @@ namespace Frontier.Controllers
 
 				ThrowIfUnverified(user);
 
-				var imageStream = await media.GetHeaderAsync(user.Id, gatheringId);
+				var imageStream = await media.GetHeaderAsync(user.Id, groupId);
 
 				if (imageStream != null)
 				{
@@ -103,49 +103,18 @@ namespace Frontier.Controllers
 					};
 				}
 				
-				throw new UnexpectedFailureException("Could not download image.");
+				throw new UnexpectedFailureException($"Could not download image. group:{groupId}");
 			});
         }
 
-        [HttpGet("headers/{gatheringId}/metadata")]
-        public async Task<IActionResult> GetHeaderMetadata(long gatheringId)
+        [HttpGet("headers/{groupId}/metadata")]
+        public async Task<IActionResult> GetHeaderMetadata(long groupId)
         {
-            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, gatheringId));
+            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, groupId));
         }
 
-        [HttpGet("snapshots/{snapshotId}")]
-		public async Task<IActionResult> GetSnapshotImage(long snapshotId)
-        {
-            return await ExecuteUnsafe(async () =>
-            {
-                var user = await GetCurrentUserAsync();
-
-                ThrowIfUnverified(user);
-
-                var imageStream = await media.GetPostAsync(user.Id, snapshotId);
-
-                if (imageStream != null)
-                {
-                    imageStream.Seek(0, SeekOrigin.Begin);
-
-                    return new FileStreamResult(imageStream, "image/jpeg")
-                    {
-                        FileDownloadName = "snapshot.jpg"
-                    };
-                }
-
-                throw new UnexpectedFailureException("Could not download image.");
-            });
-        }
-
-        [HttpGet("snapshots/{snapshotId}/metadata")]
-        public async Task<IActionResult> GetSnapshotMetadata(long snapshotId)
-        {
-            return await Execute(async user => await media.GetPostMetadataAsync(user.Id, snapshotId));
-        }
-
-        [HttpGet("conversation/{conversationId}")]
-		public async Task<IActionResult> GetGroupChatHeader(long chatId)
+        [HttpGet("posts/{postId}")]
+		public async Task<IActionResult> GetPostImage(long postId)
         {
             return await ExecuteUnsafe(async () =>
             {
@@ -153,7 +122,7 @@ namespace Frontier.Controllers
 
                 ThrowIfUnverified(user);
 
-                var imageStream = await media.GetGroupChatHeaderAsync(user.Id, conversationId);
+                var imageStream = await media.GetPostAsync(user.Id, postId);
 
                 if (imageStream != null)
                 {
@@ -161,21 +130,21 @@ namespace Frontier.Controllers
 
                     return new FileStreamResult(imageStream, "image/jpeg")
                     {
-                        FileDownloadName = "photo.jpg"
+                        FileDownloadName = "post.jpg"
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. post:{postId}");
             });
         }
 
-        [HttpGet("conversation/{conversationId}/metadata")]
-        public async Task<IActionResult> GetGroupChatHeaderMetadata(long chatId)
+        [HttpGet("posts/{postId}/metadata")]
+        public async Task<IActionResult> GetPostMetadata(long postId)
         {
-            return await Execute(async user => await media.GetGroupChatHeaderMetadataAsync(user.Id, conversationId));
+            return await Execute(async user => await media.GetPostMetadataAsync(user.Id, postId));
         }
 
-        [HttpGet("conversation/{conversationId}/photos/{photoId}")]
+        [HttpGet("chat/{chatId}/photos/{photoId}")]
         public async Task<IActionResult> GetPhoto(long chatId, Guid photoId)
         {
             return await ExecuteUnsafe(async () =>
@@ -184,7 +153,7 @@ namespace Frontier.Controllers
 
                 ThrowIfUnverified(user);
 
-                var imageStream = await media.GetPhotoAsync(user.Id, conversationId, photoId);
+                var imageStream = await media.GetPhotoAsync(user.Id, chatId, photoId);
 
                 if (imageStream != null)
                 {
@@ -196,14 +165,14 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. photo:{photoId}");
             });
         }
 
-        [HttpGet("conversation/{conversationId}/photos/{photoId}/metadata")]
+        [HttpGet("chat/{chatId}/photos/{photoId}/metadata")]
         public async Task<IActionResult> GetPhotoMetadata(long chatId, Guid photoId)
         {
-            return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, conversationId, photoId));
+            return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, chatId, photoId));
         }
 
         #endregion

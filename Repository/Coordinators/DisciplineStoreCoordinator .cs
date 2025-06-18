@@ -2,9 +2,9 @@
 
 namespace Repository
 {
-    public class DisciplineStoreCoordinator : IDisciplineDatabase
+    public class DisciplineStoreCoordinator : IReportDatabase
     {
-        private readonly IDisciplineDatabase store;
+        private readonly IReportDatabase store;
 
         public DisciplineStoreCoordinator(Harbor.Flag flag)
         {

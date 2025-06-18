@@ -29,7 +29,7 @@ namespace Core.Boundaries
 
 	#region Gates
 
-	public interface IDisciplineDatabase
+	public interface IReportDatabase
     {
         Task<(List<UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId);
         Task<(List<UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId);
@@ -43,7 +43,7 @@ namespace Core.Boundaries
             PostReportType reportType, string reportDetails);
     }
 
-    public interface IDisciplineOperations
+    public interface IReportOperations
     {
         Task<List<UserReportType>> GetAvailableReportsForUserAsync(long userId, long targetId);
         Task ReportUserAsync(long userId, long targetId,

@@ -27,7 +27,7 @@ namespace Core
 		public static DebugTerminal CreateDebugTerminal(ILogger logger,
             IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
             IGroupDatabase groupDatabase, IIssueDatabase issueDatabase,
-            IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
+            IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
 			INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
 			IMiscellaneousDatabase miscellaneousDatabase,
@@ -41,9 +41,8 @@ namespace Core
 					Log = logger,
 
 					AccountDatabase = accountDatabase,
-					ConnectionDatabase = connectionDatabase,
 					ChatDatabase = chatDatabase,
-					DisciplineDatabase = disciplineDatabase,
+					ConnectionDatabase = connectionDatabase,
 					GroupDatabase = groupDatabase,
 					IssueDatabase = issueDatabase,
 					KeyDatabase = keyDatabase,
@@ -51,6 +50,7 @@ namespace Core
 					MiscellaneousDatabase = miscellaneousDatabase,
 					NotificationDatabase = notificationDatabase,
 					ProfileDatabase = profileDatabase,
+					ReportDatabase = reportDatabase,
 
 					NotificationService = notificationService,
 					SocketService = socketService,

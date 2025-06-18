@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Reflection;
 using Core.Boundaries;
-using Microsoft.VisualBasic;
 
 namespace Core.Notifications
 {
     public enum NotificationGroup
     {
         None,
-        SegmentPosts,
-        PostReminders,
+        IssuePosts,
+        IssueReminders,
     }
 
     public static class NotificationGroupExtensions
@@ -19,8 +18,8 @@ namespace Core.Notifications
             return group switch
             {
                 NotificationGroup.None => true,
-                NotificationGroup.SegmentPosts => profile.SegmentPosts,
-                NotificationGroup.PostReminders => profile.PostReminders,
+                NotificationGroup.IssuePosts => profile.IssuePosts,
+                NotificationGroup.IssueReminders => profile.IssueReminders,
                 _ => throw new ArgumentOutOfRangeException(nameof(group), group, null)
             };
         }

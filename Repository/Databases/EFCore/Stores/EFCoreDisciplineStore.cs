@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-    public class EFCoreDisciplineStore : QueryStore, IDisciplineDatabase
+    public class EFCoreDisciplineStore : QueryStore, IReportDatabase
     {
         public EFCoreDisciplineStore(Harbor.Flag flag) : base(flag)
         {

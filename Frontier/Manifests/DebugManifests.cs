@@ -13,7 +13,7 @@ namespace Frontier.Manifests
         public List<List<int>> Follows { get; set; }
         public List<List<int>> Blocks { get; set; }
 
-        public List<GatheringCreationManifest> Gatherings { get; set; }
+        public List<GroupCreationManifest> Gatherings { get; set; }
         public List<List<int>> Attendance { get; set; }
 
         public List<List<int>> Snapshots { get; set; }

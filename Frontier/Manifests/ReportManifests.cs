@@ -4,25 +4,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frontier.Manifests
 {
-	public class AccountReportManifest
+	public class UserReportManifest
     {
         [Required]
         public UserReportType ReportType { get; set; }
 
         public string ReportDetails { get; set; }
 
-        public long? OccuringGatheringId { get; set; }
+        public long? GroupId { get; set; }
     }
 
-    public class GatheringReportManifest
-    {
-        [Required]
-        public GatheringReportType ReportType { get; set; }
-
-        public string ReportDetails { get; set; }
-    }
-
-    public class SnapshotReportManifest
+    public class PostReportManifest
     {
         [Required]
         public PostReportType ReportType { get; set; }

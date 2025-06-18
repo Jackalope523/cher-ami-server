@@ -10,9 +10,9 @@ namespace Frontier.Services
 	public class SocketConnection : ISocketService
     {
         private static ILogger log;
-        private static IHubContext<HollowHub, IClientSocket> hub;
+        private static IHubContext<SocketHub, IClientSocket> hub;
 
-        public static void Initialise(ILogger logger, IHubContext<HollowHub, IClientSocket> hubContext)
+        public static void Initialise(ILogger logger, IHubContext<SocketHub, IClientSocket> hubContext)
         {
             log = logger;
             hub = hubContext;

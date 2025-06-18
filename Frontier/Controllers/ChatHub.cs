@@ -7,48 +7,48 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Frontier.Controllers
 {
-    public partial class HollowHub : Hub<IClientSocket>
+    public partial class SocketHub : Hub<IClientSocket>
     {
         public async Task UserRead(long chatId)
         {
             var user = await GetCurrentUserAsync();
 
-            await messages.UserReadAsync(user.Id, conversationId);
+            await chats.UserReadAsync(user.Id, chatId);
         }
 
         public async Task UserComposing(long chatId, bool isComposing)
         {
             var user = await GetCurrentUserAsync();
 
-            await messages.UserComposingAsync(user.Id, conversationId, isComposing);
+            await chats.UserComposingAsync(user.Id, chatId, isComposing);
         }
 
         public async Task<MessageShard> SendText(long chatId, string text)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.SendTextAsync(user.Id, conversationId, text);
+            return await chats.SendTextAsync(user.Id, chatId, text);
         }
 
-        public async Task<MessageShard[]> ShareGathering(long chatId, long[] gatheringIds)
+        public async Task<MessageShard[]> ShareIssue(long chatId, long[] groupIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareIssueAsync(user.Id, conversationId, gatheringIds);
+            return await chats.ShareIssueAsync(user.Id, chatId, groupIds);
         }
 
-        public async Task<MessageShard[]> ShareSnapshot(long chatId, long[] snapshotIds)
+        public async Task<MessageShard[]> SharePost(long chatId, long[] postIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.SharePostAsync(user.Id, conversationId, snapshotIds);
+            return await chats.SharePostAsync(user.Id, chatId, postIds);
         }
 
-        public async Task<MessageShard[]> ShareNest(long chatId, long[] nestIds)
+        public async Task<MessageShard[]> ShareProfile(long chatId, long[] profileIds)
         {
             var user = await GetCurrentUserAsync();
 
-            return await messages.ShareProfileAsync(user.Id, conversationId, nestIds);
+            return await chats.ShareProfileAsync(user.Id, chatId, profileIds);
         }
     }
 }

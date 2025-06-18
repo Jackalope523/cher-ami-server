@@ -11,11 +11,11 @@ namespace Core.Tests.Controls
 {
     public class DisciplineDirectorTests : CoreTest
     {
-		private DisciplineDirector director;
+		private ReportDirector director;
 
         public DisciplineDirectorTests()
         {
-			director = environment.Terminal.DisciplineDirector;
+			director = environment.Terminal.ReportDirector;
         }
 
 		[Fact]

@@ -21,13 +21,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-		[HttpGet("map")]
-		public async Task<IActionResult> GetMapKey()
-		{
-			return await Execute(async user =>
-				await keys.GetCanaryMapKeyAsync(user.Id));
-        }
-
 		#endregion
 	}
 }

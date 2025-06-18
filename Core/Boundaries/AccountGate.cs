@@ -11,18 +11,18 @@ namespace Core.Boundaries
 	{ Active, Limited, Suspended, Blacklisted }
 
 	public record CoreUser(long Id, string PhoneNumber, string Email, string NormalisedEmail,
-		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
+		string Title, string GivenName, string FamilyName, DateTimeOffset DateOfBirth,
 		bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
 		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)
 		: CoreOnlyData();
 
 	public record AccountShard(long Id, string PhoneNumber, string Email,
-		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
+		string Title, string GivenName, string FamilyName, DateTimeOffset DateOfBirth,
 		bool IsPhoneConfirmed, bool IsEmailConfirmed, UserAccountStatus AccountStatus,
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId);
 
-    public record UserShard(long Id, string FirstName, string LastName);
+    public record UserShard(long Id, string GivenName, string FamilyName);
 	
     #endregion
 
@@ -38,7 +38,7 @@ namespace Core.Boundaries
 		Task<CoreUser> GetUserByEmailAsync(string normalisedEmail);
 
 		Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail,
-			string title, string firstName, string lastName,
+			string title, string givenName, string familyName,
 			DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
 		Task UpdateUserAsync(long userId, List<(string Property, object Value)> edits);
 
@@ -56,11 +56,11 @@ namespace Core.Boundaries
 		Task<UserShard> GetUserShardAsync(long userId);
 
 		Task CreateUserAsync(string phoneNumber, string email,
-			string title, string firstName, string lastName,
+			string title, string givenName, string familyName,
 			DateTimeOffset dateOfBirth);
 		Task EditUserAsync(long userId,
 			string phoneNumber = null, string email = null,
-			string title = null, string firstName = null, string lastName = null,
+			string title = null, string givenName = null, string familyName = null,
 			DateTimeOffset? dateOfBirth = null, bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null);
 		Task EditAvatarAsync(long userId, MemoryStream image);

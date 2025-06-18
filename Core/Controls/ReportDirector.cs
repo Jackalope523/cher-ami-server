@@ -10,11 +10,11 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class DisciplineDirector : AbstractDirector, IDisciplineOperations
+    internal class ReportDirector : AbstractDirector, IReportOperations
 	{
 		#region Initialisation
 
-		public DisciplineDirector(CoreTerminal terminal) : base(terminal) { }
+		public ReportDirector(CoreTerminal terminal) : base(terminal) { }
 
         #endregion
 

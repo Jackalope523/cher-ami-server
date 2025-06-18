@@ -26,16 +26,16 @@ namespace Frontier.Controllers
 		public ILogger log;
 
 		public IAccountOperations accounts;
+		public IChatOperations chats;
 		public IConnectionOperations connections;
-		public IGroupOperations gatherings;
-		public IIssueOperations snapshots;
-		public IDisciplineOperations reports;
+		public IGroupOperations groups;
+		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;
-		public IChatOperations messages;
-		public IProfileOperations nests;
-		public INotificationOperations notifications;
 		public IMiscellaneousOperations miscellaneous;
+		public INotificationOperations notifications;
+		public IProfileOperations profiles;
+		public IReportOperations reports;
 
 		public UserManager<CoreUser> userManager;
 
@@ -49,16 +49,16 @@ namespace Frontier.Controllers
 			log = box.log;
 
 			accounts = box.accounts;
+			chats = box.chat;
 			connections = box.connections;
-			nests = box.nests;
-			gatherings = box.gatherings;
-			snapshots = box.snapshots;
+			groups = box.groups;
+			issues = box.issues;
 			keys = box.keys;
-			reports = box.reports;
 			media = box.media;
-			messages = box.messages;
-			notifications = box.notifications;
 			miscellaneous = box.miscellaneous;
+			notifications = box.notifications;
+			profiles = box.profiles;
+			reports = box.reports;
 
 			userManager = aspUserManager;
 		}

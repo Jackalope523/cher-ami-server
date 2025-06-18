@@ -8,39 +8,39 @@ namespace Frontier.Controllers
 		public ILogger log;
 
 		public IAccountOperations accounts;
+		public IChatOperations chat;
 		public IConnectionOperations connections;
-		public IGroupOperations gatherings;
-		public IIssueOperations snapshots;
+		public IGroupOperations groups;
+		public IIssueOperations issues;
 		public IKeyOperations keys;
-		public IDisciplineOperations reports;
 		public IMediaOperations media;
-		public IChatOperations messages;
-		public IProfileOperations nests;
-		public INotificationOperations notifications;
         public IMiscellaneousOperations miscellaneous;
+		public INotificationOperations notifications;
+		public IProfileOperations profiles;
+		public IReportOperations reports;
 
         public GuardBox(EnvironmentOptions environment, ILogger logger,
 			IAccountOperations accountOperations, IConnectionOperations connectionOperations,
-			IProfileOperations nestOperations, IGroupOperations gatheringOperations,
-			IIssueOperations snapshotOperations, IKeyOperations keyOperations,
-			IDisciplineOperations disciplineOperations,IMediaOperations mediaOperations,
-			IChatOperations messageOperations,
+			IProfileOperations profileOperations, IGroupOperations groupOperations,
+			IIssueOperations issueOperations, IKeyOperations keyOperations,
+			IReportOperations reportOperations,IMediaOperations mediaOperations,
+			IChatOperations chatOperations,
 			INotificationOperations notificationOperations, IMiscellaneousOperations miscellaneousOperations)
 		{
 			env = environment;
 			log = logger;
 
 			accounts = accountOperations;
+			chat = chatOperations;
 			connections = connectionOperations;
-			nests = nestOperations;
-			gatherings = gatheringOperations;
-			snapshots = snapshotOperations;
+			groups = groupOperations;
+			issues = issueOperations;
 			keys = keyOperations;
-			reports = disciplineOperations;
 			media = mediaOperations;
-			messages = messageOperations;
-			notifications = notificationOperations;
 			miscellaneous = miscellaneousOperations;
+			notifications = notificationOperations;
+			profiles = profileOperations;
+			reports = reportOperations;
 		}
 	}
 }

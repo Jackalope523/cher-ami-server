@@ -35,7 +35,7 @@ namespace Core.Controls
 
             // Fail if user cannot view gathering
             Verify(await user.CanView(gathering),
-                new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+                new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
             return snapshot;
         }
@@ -47,7 +47,7 @@ namespace Core.Controls
 
             // Fail if user cannot view gathering
             Verify(await user.CanView(gathering),
-                new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+                new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
             GalleryShard gallery = new(new());
 
@@ -119,7 +119,7 @@ namespace Core.Controls
 
             // Verify user owns the snapshot or can modify the gathering
             Verify(user.Owns(snapshot) || gatheringTaken.IsModifiableBy(user),
-                new UserErrorException(SnapshotErrorCode.CANNOT_DELETE));
+                new UserErrorException(IssueErrorCode.CANNOT_DELETE));
 
             await Snapshots.SoftDeleteAsync(snapshot.Id);
         }
@@ -133,10 +133,10 @@ namespace Core.Controls
 
             // Verify user can interact with snapshot
             Verify(await gatheringTaken.WasAttendedBy(user),
-                new UserErrorException(SnapshotErrorCode.CANNOT_INTERACT));
+                new UserErrorException(IssueErrorCode.CANNOT_INTERACT));
 
             FailIf(user.Owns(snapshot),
-                new UserErrorException(SnapshotErrorCode.CANNOT_INTERACT_SELF));
+                new UserErrorException(IssueErrorCode.CANNOT_INTERACT_SELF));
 
             // Check action
             if (acclaim == SnapshotAcclaim.Acclaim)

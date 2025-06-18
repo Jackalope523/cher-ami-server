@@ -110,7 +110,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.VisibleTo(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             return await conversation.ToConversationShard();
         }
@@ -121,7 +121,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.VisibleTo(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             return (await conversation.Members)
                 .ConvertAll(m => m.Membership.ToShard());
@@ -133,7 +133,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.VisibleTo(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             return await conversation.Messages.Value(pageNumber);
         }
@@ -148,7 +148,7 @@ namespace Core.Controls
             { return; }
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             await Messages.UpdateMembershipAsync(conversation.Id, user.Id, new() { (nameof(CoreMembership.LastSeen), Time) });
         }
@@ -159,7 +159,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             _ = conversation.IndicateUserComposingAsync(user, isComposing);
         }
@@ -170,10 +170,10 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             FailIf(string.IsNullOrWhiteSpace(text),
-                new UserErrorException(ConversationErrorCode.EMPTY_MESSAGE));
+                new UserErrorException(ChatErrorCode.EMPTY_MESSAGE));
 
             var message = await Messages.AddMessageAsync(conversation.Id, user.Id, Time, MessageType.Text, text);
 
@@ -190,7 +190,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             var photoId = await Media.UploadPhotoAsync(conversation.Id, photo);
 
@@ -209,7 +209,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             var gathering = await GetGatheringAsync(gatheringId);
             
@@ -228,7 +228,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             List<MessageShard> messages = new();
             var time = Time;
@@ -238,7 +238,7 @@ namespace Core.Controls
                 var gathering = await GetGatheringAsync(gatheringId);
 
                 Verify(await user.CanView(gathering),
-                    new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+                    new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
                 messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Issue, gathering.Id));
             }
@@ -256,7 +256,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             List<MessageShard> messages = new();
             var time = Time;
@@ -270,7 +270,7 @@ namespace Core.Controls
                 Verify(user.Owns(snapshot) ||
                     await user.IsCompanionsWith(snapshotOwner) ||
                     await etchedGathering.HasOnGuestList(user),
-                    new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
+                    new UserErrorException(IssueErrorCode.CANNOT_VIEW));
 
                 messages.Add(await Messages.AddMessageAsync(conversation.Id, user.Id, time, MessageType.Post, snapshot.Id));
             }
@@ -288,7 +288,7 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             List<MessageShard> messages = new();
             var time = Time;
@@ -341,10 +341,10 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             Verify(await conversation.IsModifiableBy(user),
-                new UserErrorException(ConversationErrorCode.CANNOT_EDIT_PERMISSION));
+                new UserErrorException(ChatErrorCode.CANNOT_EDIT_PERMISSION));
 
             Chat editedConversation = new(conversation.ToCoreConversation())
             {
@@ -353,7 +353,7 @@ namespace Core.Controls
 
             // Validate conversation
             Verify(editedConversation.ValidateAndNormalise(out string issues),
-                new UserErrorException(ConversationErrorCode.INVALID_DETAILS, new { issues }));
+                new UserErrorException(ChatErrorCode.INVALID_DETAILS, new { issues }));
 
             List<(string Property, object Value)> edits = new();
             List<ActivityMessageShard> editMessages = new();
@@ -391,13 +391,13 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(conversation.Type == ChatType.OldGC,
-                new UserErrorException(ConversationErrorCode.NOT_GROUP_CHAT));
+                new UserErrorException(ChatErrorCode.NOT_GROUP_CHAT));
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             Verify(await conversation.IsModifiableBy(user),
-                new UserErrorException(ConversationErrorCode.CANNOT_DELETE_PERMISSION));
+                new UserErrorException(ChatErrorCode.CANNOT_DELETE_PERMISSION));
 
             await Messages.DeleteConversationAsync(conversation.Id);
         }
@@ -408,10 +408,10 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(conversation.Type == ChatType.OldGC,
-                new UserErrorException(ConversationErrorCode.NOT_GROUP_CHAT));
+                new UserErrorException(ChatErrorCode.NOT_GROUP_CHAT));
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             await Messages.RemoveUserFromConversationAsync(conversation.Id, user.Id);
 
@@ -428,13 +428,13 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(conversation.Type == ChatType.OldGC,
-                new UserErrorException(ConversationErrorCode.NOT_GROUP_CHAT));
+                new UserErrorException(ChatErrorCode.NOT_GROUP_CHAT));
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             Verify(await user.IsCompanionsWith(summoned),
-                new UserErrorException(ConversationErrorCode.CANNOT_INVITE_NEUTRAL));
+                new UserErrorException(ChatErrorCode.CANNOT_INVITE_NEUTRAL));
 
             await Messages.AddUsersToConversationAsync(conversation.Id, summoned.Id);
 
@@ -450,13 +450,13 @@ namespace Core.Controls
             var conversation = await GetConversationAsync(conversationId);
 
             Verify(conversation.Type == ChatType.OldGC,
-                new UserErrorException(ConversationErrorCode.NOT_GROUP_CHAT));
+                new UserErrorException(ChatErrorCode.NOT_GROUP_CHAT));
 
             Verify(await conversation.HasMember(user),
-                new UserErrorException(ConversationErrorCode.NOT_MEMBER));
+                new UserErrorException(ChatErrorCode.NOT_MEMBER));
 
             Verify(await conversation.IsModifiableBy(user),
-                new UserErrorException(ConversationErrorCode.CANNOT_KICK_PERMISSION));
+                new UserErrorException(ChatErrorCode.CANNOT_KICK_PERMISSION));
 
             await Messages.RemoveUserFromConversationAsync(conversation.Id, targetId);
 

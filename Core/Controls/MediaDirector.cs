@@ -76,7 +76,7 @@ namespace Core.Controls
 			var gathering = await GetGatheringAsync(gatheringId);
 
             Verify(await gathering.IsVisibleTo(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+                new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
             MemoryStream image;
 
@@ -96,7 +96,7 @@ namespace Core.Controls
             var gathering = await GetGatheringAsync(gatheringId);
 
             Verify(await gathering.IsVisibleTo(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+                new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
             MemoryStream image;
 
@@ -132,7 +132,7 @@ namespace Core.Controls
             Verify(user.Owns(snapshot) ||
                 await user.IsCompanionsWith(snapshotOwner) ||
                 await etchedGathering.HasOnGuestList(user),
-                new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
+                new UserErrorException(IssueErrorCode.CANNOT_VIEW));
 
             MemoryStream image;
 
@@ -156,7 +156,7 @@ namespace Core.Controls
             Verify(user.Owns(snapshot) ||
                 await user.IsCompanionsWith(snapshotOwner) ||
                 await etchedGathering.HasOnGuestList(user),
-                new UserErrorException(SnapshotErrorCode.CANNOT_VIEW));
+                new UserErrorException(IssueErrorCode.CANNOT_VIEW));
 
             MemoryStream image;
 

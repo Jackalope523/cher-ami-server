@@ -259,7 +259,7 @@ namespace Core.Entities
         public async Task CanPostTo(Issue issue)
 		{
 			Verify(await issue.HasOnGuestList(this),
-				new UserErrorException(GatheringErrorCode.NOT_GUEST));
+				new UserErrorException(CircleErrorCode.NOT_GUEST));
 		}
 
 		public bool Owns(PostShard post)

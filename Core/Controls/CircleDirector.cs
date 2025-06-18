@@ -32,7 +32,7 @@ namespace Core.Controls
 
 			// Verify user is allowed to view gathering
 			Verify(await targetGathering.IsVisibleTo(user),
-				new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+				new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
 			return await targetGathering.ToIssueShard();
 		}
@@ -109,11 +109,11 @@ namespace Core.Controls
 
 			// Verify user can host
 			Verify(user.CanHost,
-				new UserErrorException(GatheringErrorCode.CANNOT_HOST, new { user.AccountStatus }));
+				new UserErrorException(CircleErrorCode.CANNOT_HOST, new { user.AccountStatus }));
 
 			// Verify user has position enabled
 			Verify((await user.LastKnownLocation).Exists,
-				new UserErrorException(GatheringErrorCode.LOCATION_DISABLED));
+				new UserErrorException(CircleErrorCode.LOCATION_DISABLED));
 
 			// Create gathering
 			Issue gatheringStub = new()
@@ -132,12 +132,12 @@ namespace Core.Controls
 
 			// Validate gathering
 			Verify(gatheringStub.ValidateAndNormalise(out string issues),
-				new UserErrorException(GatheringErrorCode.INVALID_DETAILS, new { issues }));
+				new UserErrorException(CircleErrorCode.INVALID_DETAILS, new { issues }));
 
 			// Verify user has no conflict
 			var conflict = (await user.UpcomingGatherings).Find(e => IsWithin(e.StartTime - gatheringStub.StartDate, HalfHour));
 			if (conflict != null)
-			{ throw new UserErrorException(GatheringErrorCode.CONFLICT, new { conflict.Id }); }
+			{ throw new UserErrorException(CircleErrorCode.CONFLICT, new { conflict.Id }); }
 
 			// Try to create a gathering
 			Issue newGathering = new(await Gatherings.CreateGatheringAsync(user.Id,
@@ -190,11 +190,11 @@ namespace Core.Controls
 
 			// Verify user is gathering host
 			Verify(originalGathering.IsModifiableBy(user),
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_PERMISSION));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_PERMISSION));
 
 			// Ensure gathering is editable
 			FailIf(originalGathering.IsTerminated,
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_ENDED));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_ENDED));
 
 			// Fail if edits may not be done during the gathering
 			FailIf(originalGathering.IsOngoing &&
@@ -204,7 +204,7 @@ namespace Core.Controls
 				AreNotNull(latitude, longitude) ||
                 !string.IsNullOrEmpty(friendlyLocation) ||
                 IsNotNull(radius) || IsNotNull(isDynamic)),
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_STARTED));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_STARTED));
 
 			Issue editedGathering = new(originalGathering.ToCoreIssue())
 			{
@@ -222,7 +222,7 @@ namespace Core.Controls
 
 			// Validate gathering
 			Verify(editedGathering.ValidateAndNormalise(out string issues),
-				new UserErrorException(GatheringErrorCode.INVALID_DETAILS, new { issues }));
+				new UserErrorException(CircleErrorCode.INVALID_DETAILS, new { issues }));
 
 			List<(string Property, object Value)> edits = new();
             List<ActivityMessageShard> editMessages = new();
@@ -313,11 +313,11 @@ namespace Core.Controls
 
 			// Verify user is able to end the gathering
 			Verify(gathering.IsModifiableBy(user),
-				new UserErrorException(GatheringErrorCode.NOT_HOST));
+				new UserErrorException(CircleErrorCode.NOT_HOST));
 
 			// Verify gathering is able to be terminated
             Verify(gathering.IsTerminable(),
-                new UserErrorException(GatheringErrorCode.CANNOT_END));
+                new UserErrorException(CircleErrorCode.CANNOT_END));
 
             // Try to end gathering
             await Gatherings.TerminateGatheringAsync(gathering.Id, Time);
@@ -344,11 +344,11 @@ namespace Core.Controls
 
 			// Verify gathering has not yet started
 			Verify(gathering.IsCancelable(),
-                new UserErrorException(GatheringErrorCode.CANNOT_CANCEL_STARTED));
+                new UserErrorException(CircleErrorCode.CANNOT_CANCEL_STARTED));
 
             // Verify user is able to cancel the gathering
             Verify(gathering.IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_CANCEL_PERMISSION));
+                new UserErrorException(CircleErrorCode.CANNOT_CANCEL_PERMISSION));
 
             // Try to cancel gathering
             await Gatherings.CancelGatheringAsync(gathering.Id);
@@ -366,15 +366,15 @@ namespace Core.Controls
 
             // Verify user is gathering host
             Verify(gathering.IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_EDIT_PERMISSION));
+                new UserErrorException(CircleErrorCode.CANNOT_EDIT_PERMISSION));
 
             // Ensure gathering is editable
             Verify(gathering.IsOngoing,
-                new UserErrorException(GatheringErrorCode.NOT_STARTED));
+                new UserErrorException(CircleErrorCode.NOT_STARTED));
 
             // Ensure gathering is not sealed
             FailIf(gathering.Visibility == GatheringVisibility.Sealed,
-                new UserErrorException(GatheringErrorCode.SEALED));
+                new UserErrorException(CircleErrorCode.SEALED));
 
             var visibility = hide ? GatheringVisibility.Hidden : GatheringVisibility.Visible;
 
@@ -389,7 +389,7 @@ namespace Core.Controls
 
 			// Verify user is allowed to join gathering
 			Verify(await gathering.IsJoinableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_JOIN, new { user.AccountStatus }));
+                new UserErrorException(CircleErrorCode.CANNOT_JOIN, new { user.AccountStatus }));
 
             GatheringBond? previousUserState = null;
 
@@ -402,14 +402,14 @@ namespace Core.Controls
             // Check that user was not kicked
             FailIf(previousUserState.HasValue &&
                 previousUserState.Value.Equals(GatheringBond.Kicked),
-                new UserErrorException(GatheringErrorCode.KICKED));
+                new UserErrorException(CircleErrorCode.KICKED));
 
             // Check if user is already guest or arrived
             if (previousUserState.HasValue &&
 				(previousUserState.Value.Equals(GatheringBond.Guest) ||
                 previousUserState.Value.Equals(GatheringBond.Arrived)))
 			{
-                throw new UserErrorException(GatheringErrorCode.CANNOT_JOIN_GUEST);
+                throw new UserErrorException(CircleErrorCode.CANNOT_JOIN_GUEST);
             }
 
 			// Check if gathering is active and user is already there
@@ -462,12 +462,12 @@ namespace Core.Controls
 
 			// Check that user was associated
 			Verify(userIntention.HasValue,
-				new UserErrorException(GatheringErrorCode.NOT_GUEST));
+				new UserErrorException(CircleErrorCode.NOT_GUEST));
 
             // Check that user was not kicked
             FailIf(userIntention.HasValue &&
                 userIntention.Value.Equals(GatheringBond.Kicked),
-                new UserErrorException(GatheringErrorCode.KICKED));
+                new UserErrorException(CircleErrorCode.KICKED));
 
 			// Try to remove user from gathering
 			await Gatherings.DeleteUserStateAsync(user.Id, gathering.Id);
@@ -566,7 +566,7 @@ namespace Core.Controls
             }
 			// User cannot receive information about gathering
 			else
-			{ throw new UserErrorException(GatheringErrorCode.CANNOT_VIEW); }
+			{ throw new UserErrorException(CircleErrorCode.CANNOT_VIEW); }
 
 			List<GuestListBondPair> allGuestShards = allGuests
 				.ConvertAll(userDetails => new GuestListBondPair(userDetails.User.ToUserShard(), userDetails.Bond));
@@ -602,15 +602,15 @@ namespace Core.Controls
 
 			// Verify inviter has relationship with gathering
 			Verify(await gathering.HasUserRelationship(inviter),
-				new UserErrorException(GatheringErrorCode.NOT_GUEST));
+				new UserErrorException(CircleErrorCode.NOT_GUEST));
 
 			// Verify that the invitee can join the gathering
 			Verify(await gathering.IsJoinableBy(invitee),
-				new UserErrorException(GatheringErrorCode.CANNOT_INVITE_INVALID_INVITEE));
+				new UserErrorException(CircleErrorCode.CANNOT_INVITE_INVALID_INVITEE));
 
 			// Verify that inviter is companions with the invitee
 			Verify(await inviter.IsCompanionsWith(invitee),
-				new UserErrorException(GatheringErrorCode.CANNOT_INVITE_NEUTRAL));
+				new UserErrorException(CircleErrorCode.CANNOT_INVITE_NEUTRAL));
 
 			Chat conversation = new(await Messages.GetOrCreateIndividualChatBetween(inviter.Id, invitee.Id, Time));
             var message = await Messages.AddMessageAsync(conversation.Id, inviter.Id, Time, MessageType.GatheringInvite, gathering.Id);
@@ -626,11 +626,11 @@ namespace Core.Controls
 
 			// Verify kicking user is the host
 			Verify(gathering.IsHostedBy(host),
-				new UserErrorException(GatheringErrorCode.CANNOT_KICK_PERMISSION));
+				new UserErrorException(CircleErrorCode.CANNOT_KICK_PERMISSION));
 
 			// Verify host is not kicking themself
 			FailIf(host.Equals(target),
-				new UserErrorException(GatheringErrorCode.CANNOT_KICK_SELF));
+				new UserErrorException(CircleErrorCode.CANNOT_KICK_SELF));
 
 			// Kick target user from gathering
 			await Gatherings.SetUserStateAsync(target.Id, gathering.Id, GatheringBond.Kicked, Time);

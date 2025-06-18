@@ -157,11 +157,11 @@ namespace Core.Entities
         {
             // Verify snapshot is not before gathering starting or user is host
             Verify(HasAlready(StartDate) || IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.NOT_STARTED));
+                new UserErrorException(CircleErrorCode.NOT_STARTED));
 
             // Verify user can etch into the gathering
             Verify(await WasAttendedBy(user) || IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.NOT_GUEST));
+                new UserErrorException(CircleErrorCode.NOT_GUEST));
 		}
 
         #endregion

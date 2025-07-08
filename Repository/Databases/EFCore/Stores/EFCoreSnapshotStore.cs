@@ -4,7 +4,7 @@ namespace Repository
 {
     public class EFCoreSnapshotStore : QueryStore, ISnapshotDatabase
     {   
-        public EFCoreSnapshotStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreSnapshotStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 

@@ -6,14 +6,16 @@ namespace Repository
 {
     public class EFCoreAdminStore : QueryStore, IAdminDatabase
     {
-        public EFCoreAdminStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreAdminStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
 
         }
 
         public async Task<List<CoreGathering>> GetAllActiveGatheringsAsync(DateTimeOffset currentTime)
         {
-            return await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            return await 
                 ctx.Gatherings
                 .Where(g => g.State == GatheringState.Alive && g.StartTime <= currentTime)
                 .Select(
@@ -48,112 +50,70 @@ namespace Repository
                     g.Visibility,
                     g.TimeOfCreation,
                     g.Decay
-                 )).ToListAsync());
+                 )).ToListAsync();
         }
 
         public async Task VoidGatheringAsync(long gatheringId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-            ctx.GuestClearances.
-            Where(c => c.GatheringId == gatheringId).
-            ExecuteDeleteAsync());
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-             ctx.GatheringLinks.
-             Where(l => l.GatheringId == gatheringId).
-             ExecuteDeleteAsync());
+            try
+            {
+                await ctx.GuestClearances.Where(c => c.GatheringId == gatheringId).ExecuteDeleteAsync();
+                await ctx.GatheringLinks.Where(l => l.GatheringId == gatheringId).ExecuteDeleteAsync();
+                await ctx.GatheringReports.Where(r => r.GatheringId == gatheringId).ExecuteDeleteAsync();
+                await ctx.UserReports.Where(r => r.GatheringId == gatheringId).ExecuteDeleteAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-             ctx.GatheringReports.
-             Where(r => r.GatheringId == gatheringId).
-             ExecuteDeleteAsync());
+                List<long> snapshots = await ctx.Snapshots.
+                                       Where(s => s.GatheringId == gatheringId).
+                                       Select(s => s.Id).
+                                       ToListAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-              ctx.UserReports.
-              Where(r => r.GatheringId == gatheringId).
-              ExecuteDeleteAsync());
+                await ctx.SnapshotLinks.Where(l => snapshots.Contains(l.SnapshotId)).ExecuteDeleteAsync();
+                await ctx.Snapshots.Where(s => s.GatheringId == gatheringId).ExecuteDeleteAsync();
 
-            List<long> snapshots = await storeSentry.ExecuteReadAsync(ctx =>
-                                     ctx.Snapshots.
-                                     Where(s => s.GatheringId == gatheringId).
-                                     Select(s => s.Id).
-                                     ToListAsync());
+                ctx.Gatherings.Remove(new Gathering { Id = gatheringId });
+                await ctx.SaveChangesAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.SnapshotLinks.
-               Where(l => snapshots.Contains(l.SnapshotId)).
-               ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.Snapshots.
-               Where(s => s.GatheringId == gatheringId).
-               ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Gatherings.
-                Remove(new Gathering { Id = gatheringId }));
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task VoidUserAsync(long userId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Penalties.
-                Where(p => p.PenalizedId == userId).
-                ExecuteDeleteAsync());
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.SnapshotLinks.
-                Where(l => l.UserId == userId).
-                ExecuteDeleteAsync());
+            try
+            {
+                await ctx.Penalties.Where(p => p.PenalizedId == userId).ExecuteDeleteAsync();
+                await ctx.SnapshotLinks.Where(l => l.UserId == userId).ExecuteDeleteAsync();
+                await ctx.Snapshots.Where(s => s.OwnerId == userId).ExecuteDeleteAsync();
+                await ctx.Subscriptions.Where(s => s.UserId == userId).ExecuteDeleteAsync();
+                await ctx.Telegrams.Where(t => t.RecipientId == userId || t.NotifierId == userId).ExecuteDeleteAsync();
+                await ctx.UserReports.Where(r => r.SelfId == userId || r.OtherId == userId).ExecuteDeleteAsync();
+                await ctx.GatheringReports.Where(r => r.UserId == userId).ExecuteDeleteAsync();
+                await ctx.UserRelationships.Where(l => l.SelfId == userId || l.OtherId == userId).ExecuteDeleteAsync();
+                await ctx.GuestClearances.Where(c => c.UserId == userId).ExecuteDeleteAsync();
+                await ctx.GatheringLinks.Where(l => l.UserId == userId).ExecuteDeleteAsync();
+                await ctx.Gatherings.Where(e => e.HostId == userId).ExecuteDeleteAsync();
+                
+                ctx.Users.Remove(new User { Id = userId });
+                await ctx.SaveChangesAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Snapshots.
-                Where(s => s.OwnerId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Subscriptions.
-                Where(s => s.UserId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Telegrams.
-                Where(t => t.RecipientId == userId || t.NotifierId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.UserReports.
-                Where(r => r.SelfId == userId || r.OtherId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.GatheringReports.
-                Where(r => r.UserId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.UserRelationships.
-                Where(l => l.SelfId == userId || l.OtherId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.GuestClearances.
-                Where(c => c.UserId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.GatheringLinks.
-                Where(l => l.UserId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Gatherings.
-                Where(e => e.HostId == userId).
-                ExecuteDeleteAsync());
-
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Users.
-                Remove(new User { Id = userId }));
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

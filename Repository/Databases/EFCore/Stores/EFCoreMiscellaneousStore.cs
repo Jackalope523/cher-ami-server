@@ -2,7 +2,7 @@
 {
     internal class EFCoreMiscellaneousStore : QueryStore, IMiscellaneousDatabase
     {
-        public EFCoreMiscellaneousStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreMiscellaneousStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 

@@ -25,19 +25,36 @@ namespace Repository
 
         public Harbor(Flag flag)
         {
-            AccountDatabaseAccess = new AccountStoreCoordinator(flag);
-            ConnectionDatabaseAccess = new ConnectionStoreCoordinator(flag);
-            NestDatabaseAccess = new NestStoreCoordinator(flag);
-            NotificationDatabaseAccess = new NotificationStoreCoordinator(flag);
-            GatheringDatabaseAccess = new GatheringStoreCoordinator(flag);
-            SnapshotDatabaseAccess = new SnapshotStoreCoordinator(flag);
-            ReportDatabaseAccess = new DisciplineStoreCoordinator(flag);
-            AdminDatabaseAccess = new AdminStoreCoordinator(flag);
-            KeyDatabaseAccess = new KeyStoreCoordinator();
-            MediaDatabaseAccess = new MediaStoreCoordinator(flag);
-            MessageDatabaseAccess = new MessageStoreCoordinator(flag);
-            DebugDatabaseAccess = new DebugStoreCoordinator(flag);
-            MiscellaneousDatabaseAccess = new MiscellaneousStoreCoordinator(flag);
+            Func<CanaryContext> factory;
+
+            switch (flag)
+            {
+                case Flag.Development:
+                    factory = () => new DevelopmentContext();
+                    break;
+                case Flag.Staging:
+                    factory = () => new AzureStagingContext();
+                    break;
+                case Flag.Production:
+                    factory = () => new AzureProductionContext();
+                    break;
+                default:
+                    throw new ArgumentException("Invalid Harbor flag: " + nameof(flag));
+            }
+
+            AccountDatabaseAccess = new EFCoreAccountStore(factory);
+            ConnectionDatabaseAccess = new EFCoreConnectionStore(factory);
+            NestDatabaseAccess = new EFCoreNestStore(factory);
+            NotificationDatabaseAccess = new EFCoreNotificationStore(factory);
+            GatheringDatabaseAccess = new EFCoreGatheringStore(factory);
+            SnapshotDatabaseAccess = new EFCoreSnapshotStore(factory);
+            ReportDatabaseAccess = new EFCoreDisciplineStore(factory);
+            AdminDatabaseAccess = new EFCoreAdminStore(factory);
+            KeyDatabaseAccess = new AzureKeyStore();
+            MediaDatabaseAccess = new AzureFileStore(flag);
+            MessageDatabaseAccess = new EFMessageStore(factory);
+            DebugDatabaseAccess = new EFCoreDebugStore(factory);
+            MiscellaneousDatabaseAccess = new EFCoreMiscellaneousStore(factory);
         }
 
         public Harbor(Flag flag, ILogger logger) : this(flag)

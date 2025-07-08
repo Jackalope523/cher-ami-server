@@ -6,7 +6,7 @@ namespace Repository
 {
     public class EFCoreNotificationStore : QueryStore, INotificationDatabase
     {
-        public EFCoreNotificationStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreNotificationStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 

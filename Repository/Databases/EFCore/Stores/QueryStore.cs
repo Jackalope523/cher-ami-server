@@ -3,12 +3,12 @@ namespace Repository
 {
     public abstract class QueryStore
     {
-        internal IDatabaseSentry storeSentry;
+        internal readonly Func<CanaryContext> initContext;
 
-        public QueryStore(Harbor.Flag flag)
+        internal QueryStore(Func<CanaryContext> contextFactory)
         {
-            storeSentry = new EFCoreSentry(flag);
-        }      
+            initContext = contextFactory;
+        }
     }
 }
 

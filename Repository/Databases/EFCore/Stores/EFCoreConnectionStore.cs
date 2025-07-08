@@ -4,40 +4,45 @@ namespace Repository
 {
     class EFCoreConnectionStore : QueryStore, IConnectionDatabase
     {
-        public EFCoreConnectionStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreConnectionStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
-
         }
 
         public async Task AddConnectionAsync(long userId, string connectionId)
         {
+            await using CanaryContext ctx = initContext();
+
             Connection toAdd = new() { UserId = userId, ConnectionId = connectionId};
-            await storeSentry.ExecuteWriteAsync(ctx => ctx.Connections.Add(toAdd));
+            ctx.Connections.Add(toAdd);
+            await ctx.SaveChangesAsync();
         }
 
         public async Task DeleteConnectionAsync(string connectionId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.Connections.
-               Where(c => c.ConnectionId == connectionId).
-               ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
+            await using CanaryContext ctx = initContext();
+
+            await ctx.Connections.
+            Where(c => c.ConnectionId == connectionId).
+            ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
         }
 
         public async Task<List<string>> GetConnectionsAsync(long userId)
         {
-            return await storeSentry.ExecuteReadAsync(ctx => 
-                    ctx.Connections.
-                    Where(c => c.UserId == userId).
-                    Select(c => c.ConnectionId).
-                    ToListAsync());
+            await using CanaryContext ctx = initContext();
+
+            return await ctx.Connections.
+                         Where(c => c.UserId == userId).
+                         Select(c => c.ConnectionId).
+                         ToListAsync();
         }
 
         public async Task<Dictionary<long, List<string>>> GetConnectionsAsync(params long[] userIds)
         {
-            List<Connection> connections = await storeSentry.ExecuteReadAsync(ctx =>
-                                                ctx.Connections.
-                                                Where(c => userIds.Contains(c.UserId)).
-                                                ToListAsync());
+            await using CanaryContext ctx = initContext();
+
+            List<Connection> connections = await ctx.Connections.
+                                                 Where(c => userIds.Contains(c.UserId)).
+                                                 ToListAsync();
 
             Dictionary<long, List<string>> toReturn = new();
 

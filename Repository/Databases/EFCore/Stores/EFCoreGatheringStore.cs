@@ -5,84 +5,82 @@ namespace Repository
 {
     public class EFCoreGatheringStore : QueryStore, IGatheringDatabase
     {
-        public EFCoreGatheringStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreGatheringStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
 
         }
 
-        internal void PropagateClearance(long userId, long gatheringId, int degree, List<long> exclusionList, Discussion discussion)
+        internal void PropagateClearance(long userId, long gatheringId, int degree, List<long> exclusionList, CanaryContext context)
         {
             if (degree == -1) return;
 
-            long foundInCache = storeSentry.DiscussRead(ctx =>
-                                        ctx.GuestClearances.Local.
-                                        Where(c => c.GatheringId == gatheringId && c.UserId == userId).
-                                        Select(c => c.UserId).
-                                        SingleOrDefault(), discussion);
+            long foundInCache = context.GuestClearances.Local.
+                                Where(c => c.GatheringId == gatheringId && c.UserId == userId).
+                                Select(c => c.UserId).
+                                SingleOrDefault();
 
-            long foundInDatabase = storeSentry.DiscussRead(ctx =>
-                                        ctx.GuestClearances.
-                                        Where(c => c.GatheringId == gatheringId && c.UserId == userId).
-                                        Select(c => c.UserId).
-                                        SingleOrDefault(), discussion);
+            long foundInDatabase = context.GuestClearances.
+                                   Where(c => c.GatheringId == gatheringId && c.UserId == userId).
+                                   Select(c => c.UserId).
+                                   SingleOrDefault();
 
             if (foundInCache == 0 && foundInDatabase == 0)
             {
-                storeSentry.DiscussWrite(ctx =>
-                ctx.GuestClearances.
+                context.GuestClearances.
                 Add(new GuestClearance
                 {
                     UserId = userId,
                     GatheringId = gatheringId,
                     Degree = degree,
                 }
-                ), discussion);
+                );
             }
             else return;
 
-            List<long> appreciating = storeSentry.ExecuteRead(ctx =>
-                ctx.UserRelationships.
+            List<long> appreciating = 
+                context.UserRelationships.
                 Where(l => !exclusionList.Contains(l.OtherId) && l.SelfId == userId && l.Type == UserRelationship.UserRelationshipType.Follow).
                 Select(l => l.OtherId).
-                ToList());
+                ToList();
 
-            List<long> appreciatingMe = storeSentry.ExecuteRead(ctx =>
-                ctx.UserRelationships.
+            List<long> appreciatingMe =
+                context.UserRelationships.
                 Where(l => !exclusionList.Contains(l.SelfId) && l.OtherId == userId && l.Type == UserRelationship.UserRelationshipType.Follow).
                 Select(l => l.SelfId).
-                ToList());
+                ToList();
 
             List<long> companions = appreciating.Intersect(appreciatingMe).ToList();
 
             foreach (long companion in companions)
             {
-                PropagateClearance(companion, gatheringId, degree - 1, companions.Union(exclusionList).Append(userId).ToList(), discussion);
+                PropagateClearance(companion, gatheringId, degree - 1, companions.Union(exclusionList).Append(userId).ToList(), context);
             }
         }
 
         private void UpdateClearance(long gatheringId, int previousDegreeOfPrivacy, int newDegreeOfPrivacy)
         {
+            using CanaryContext ctx = initContext();
+
             if (previousDegreeOfPrivacy < newDegreeOfPrivacy)
             {
-                List<long> edgeUsers = storeSentry.ExecuteRead(ctx =>
+                List<long> edgeUsers =
                     ctx.GuestClearances.
                     Where(c => c.GatheringId == gatheringId && c.Degree == previousDegreeOfPrivacy).
                     Select(c => c.UserId).
-                    ToList());
+                    ToList();
 
-                Discussion discussion = storeSentry.BeginDiscussion();
                 foreach (long user in edgeUsers)
                 {
-                    PropagateClearance(user, gatheringId, newDegreeOfPrivacy - previousDegreeOfPrivacy, new(edgeUsers), discussion);
+                    PropagateClearance(user, gatheringId, newDegreeOfPrivacy - previousDegreeOfPrivacy, new(edgeUsers), ctx);
                 }
-                storeSentry.EndDiscussion(discussion);
+
+                ctx.SaveChanges();
             }
             else if (previousDegreeOfPrivacy > newDegreeOfPrivacy)
             {
-                storeSentry.ExecuteWrite(ctx =>
-                    ctx.GuestClearances.
-                    Where(c => c.GatheringId == gatheringId && c.Degree > newDegreeOfPrivacy).
-                    ExecuteDelete());
+                ctx.GuestClearances.
+                Where(c => c.GatheringId == gatheringId && c.Degree > newDegreeOfPrivacy).
+                ExecuteDelete();
             }
             else
             {
@@ -115,7 +113,11 @@ namespace Repository
                 TimeOfCreation = timeOfCreation
             };
 
-            await storeSentry.ExecuteWriteAsync(ctx => ctx.Gatherings.Add(toCreate));
+            await using (CanaryContext ctx = initContext())
+            {
+                ctx.Gatherings.Add(toCreate);
+                await ctx.SaveChangesAsync();
+            }
 
             GatheringLink hostLink = new() 
             { 
@@ -129,9 +131,9 @@ namespace Repository
 
             if (degreeOfPrivacy < 3)
             {
-                Discussion discussion = storeSentry.BeginDiscussion();
-                PropagateClearance(hostId, toCreate.Id, degreeOfPrivacy, new(), discussion);
-                storeSentry.EndDiscussion(discussion);
+                using CanaryContext ctx = initContext();
+                PropagateClearance(hostId, toCreate.Id, degreeOfPrivacy, new(), ctx);
+                ctx.SaveChanges();
             }
 
             return new CoreGathering
@@ -282,7 +284,9 @@ namespace Repository
 
         public async Task<List<CoreGathering>> FindOngoingGatheringsForUserAsync(long id, DateTimeOffset currentTime) 
         {
-            return await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            return await 
             ctx.GatheringLinks
             .Where(l => l.UserId == id && l.Type == GatheringBond.Guest)
             .Join(
@@ -321,11 +325,13 @@ namespace Repository
                     e.TimeOfCreation,
                     e.Decay
                 )
-            ).ToListAsync());
+            ).ToListAsync();
         }
         public async Task<List<CoreGathering>> FindUpcomingGatheringsForUserAsync(long id, DateTimeOffset currentTime) 
         {
-            return await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            return await
             ctx.GatheringLinks
             .Where(l => l.UserId == id && l.Type == GatheringBond.Guest)
             .Join(
@@ -364,12 +370,14 @@ namespace Repository
                     e.TimeOfCreation,
                     e.Decay
                 )
-            ).ToListAsync());
+            ).ToListAsync();
         }
 
         public async Task<List<CoreGathering>> FindPastGatheringsForUserAsync(long id)
         {
-            return await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            return await
             ctx.GatheringLinks
             .Where(l => l.UserId == id && l.Type == GatheringBond.Guest)
             .Join(
@@ -408,11 +416,13 @@ namespace Repository
                     e.TimeOfCreation,
                     e.Decay
                 )
-            ).ToListAsync());
+            ).ToListAsync();
         }
         public async Task<CoreGathering> FindGatheringAsync(long id)
         {
-            return await storeSentry.ExecuteReadAsync(ctx => 
+            await using CanaryContext ctx = initContext();
+
+            return await
             ctx.Gatherings.
             Where(e => e.Id == id).
             Select(
@@ -448,7 +458,7 @@ namespace Repository
                     e.TimeOfCreation,
                     e.Decay
                 )
-            ).SingleAsync());
+            ).SingleAsync();
         }
         public async Task<List<CoreGathering>> FindGatheringsAsync(double latitude, double longitude, double distance)
         {
@@ -456,7 +466,9 @@ namespace Repository
             DateTimeOffset today = DateTimeOffset.UtcNow;
             DateTimeOffset inTwoWeeks = today.AddDays(14);
 
-            return await storeSentry.ExecuteReadAsync(ctx => 
+            await using CanaryContext ctx = initContext();
+
+            return await
                 ctx.Gatherings.
                 Where(e => e.Location.Distance(currentLocation) <= distance && e.State == GatheringState.Alive && e.Visibility == GatheringVisibility.Visible).
                 Join(
@@ -494,18 +506,20 @@ namespace Repository
                         e.Visibility,
                         e.TimeOfCreation,
                         e.Decay
-                   )).ToListAsync());
+                   )).ToListAsync();
         }     
         public async Task<List<CoreUser>> GetGuestListAsync(long id)
         {
-            return await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            return await
             ctx.GatheringLinks.
             Where(l => l.GatheringId == id && l.Type == GatheringBond.Guest).
             Join(
                 ctx.Users,
                 l => l.UserId,
                 u => u.Id,
-                (_,u) => new CoreUser(u.Id,
+                (_, u) => new CoreUser(u.Id,
                       u.PhoneNumber,
                       u.Email,
                       u.Name,
@@ -533,7 +547,7 @@ namespace Repository
                       u.NotificationId
                   )
             )
-            .ToListAsync());
+            .ToListAsync();
         }    
         public async Task DeleteUserStateAsync(long userId, long gatheringId) 
         { 
@@ -576,10 +590,10 @@ namespace Repository
         }
         public async Task UpdateGatheringAsync(long id, List<(string Property, object Value)> edits)
         {
-            Discussion currentDiscussion = storeSentry.BeginDiscussion();
+            await using CanaryContext ctx = initContext();
 
             Gathering e = new() { Id = id };
-            storeSentry.DiscussWrite(ctx => ctx.Gatherings.Attach(e), currentDiscussion);
+            ctx.Gatherings.Attach(e);
 
             foreach ((string Property, object Value) in edits)
             {
@@ -617,11 +631,10 @@ namespace Repository
                         e.GroupMaximum = (int)Value;
                         break;
                     case nameof(CoreGathering.DegreeOfPrivacy):
-                        int prev = await storeSentry.ExecuteReadAsync(ctx => 
-                                        ctx.Gatherings.
-                                        Where(g => g.Id == id).
-                                        Select(g => g.DegreeOfPrivacy).
-                                        SingleAsync());
+                        int prev = await ctx.Gatherings.
+                                         Where(g => g.Id == id).
+                                         Select(g => g.DegreeOfPrivacy).
+                                         SingleAsync();
 
                         e.DegreeOfPrivacy = (int)Value;
                         UpdateClearance(id, prev, e.DegreeOfPrivacy);
@@ -632,13 +645,15 @@ namespace Repository
                     default:
                         throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
                 }
-                storeSentry.DiscussWrite(ctx => ctx.Entry(e).Property(Property).IsModified = true, currentDiscussion);
+                ctx.Entry(e).Property(Property).IsModified = true;
             }
-            await storeSentry.EndDiscussionAsync(currentDiscussion);
+            await ctx.SaveChangesAsync();
         }   
         public async Task<List<(long UserId, DateTimeOffset Joined, DateTimeOffset? Left)>> GetGuestHistoryAsync(long id)
         {
-            var times = await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            var times = await
             ctx.GatheringLinks.
             Where(l => l.GatheringId == id && (l.Type == GatheringBond.Arrived || l.Type == GatheringBond.Left)).
             Join(
@@ -647,7 +662,7 @@ namespace Repository
                 u => u.Id,
                 (l,u) => new { u.Id, u.Name, l.Time, l.Type }
                 ).
-            ToListAsync());
+            ToListAsync();
 
             Dictionary<long,List<(string, DateTimeOffset, GatheringBond)>> history = new();
             foreach (var item in times)
@@ -681,10 +696,12 @@ namespace Repository
         }      
         public async Task<List<CoreGathering>> FindGatheringsByUserAsync(long userId)
         {
-           return await storeSentry.ExecuteReadAsync(ctx =>
-           ctx.Gatherings.
-           Where(e => e.HostId == userId).
-           Join(
+            await using CanaryContext ctx = initContext();
+
+            return await
+            ctx.Gatherings.
+            Where(e => e.HostId == userId).
+            Join(
                ctx.Users,
                e => e.HostId,
                u => u.Id,
@@ -719,15 +736,17 @@ namespace Repository
                     e.Visibility,
                     e.TimeOfCreation,
                     e.Decay
-                    )).ToListAsync());
+                    )).ToListAsync();
         }      
         public async Task<GatheringBond?> GetUserStateAsync(long userId, long gatheringId)
         {
-            var states = await storeSentry.ExecuteReadAsync(ctx =>
+            await using CanaryContext ctx = initContext();
+
+            var states = await
             ctx.GatheringLinks.
             Where(l => l.UserId == userId && l.GatheringId == gatheringId).
             Select(l => new { l.Type, l.Time }).
-            ToListAsync());
+            ToListAsync();
 
             states.Sort((x, y) => DateTimeOffset.Compare(x.Time, y.Time));
 
@@ -743,11 +762,12 @@ namespace Repository
                 Time = time
             };
 
-            long id = await storeSentry.ExecuteReadAsync(ctx => 
-                       ctx.GatheringLinks.
-                       Where(l => l.UserId == userId && l.GatheringId == gatheringId && l.Type == userState).
-                       Select(l => l.Id).
-                       SingleOrDefaultAsync());
+            await using CanaryContext ctx = initContext();
+
+            long id = await ctx.GatheringLinks.
+                      Where(l => l.UserId == userId && l.GatheringId == gatheringId && l.Type == userState).
+                      Select(l => l.Id).
+                      SingleOrDefaultAsync();
 
             if (id != 0)
             {

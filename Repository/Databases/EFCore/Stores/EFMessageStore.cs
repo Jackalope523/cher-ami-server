@@ -6,7 +6,7 @@ namespace Repository
     {
         private int pageSize = 10;
 
-        public EFMessageStore(Harbor.Flag flag) : base(flag)
+        internal EFMessageStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 

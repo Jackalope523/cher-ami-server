@@ -5,24 +5,36 @@ namespace Repository
 {
     public class EFCoreDebugStore : QueryStore, IDebugDatabase
     {
-        public EFCoreDebugStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreDebugStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
-
         }
 
         public async Task DrainDatabaseAsync()
         {
-            storeSentry.ExecuteWrite(ctx => ctx.SnapshotLinks.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.GatheringLinks.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.UserRelationships.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.UserReports.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.GatheringReports.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Snapshots.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Telegrams.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Subscriptions.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Penalties.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Gatherings.ExecuteDelete());
-            storeSentry.ExecuteWrite(ctx => ctx.Users.ExecuteDelete());
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+
+            try
+            {
+                ctx.SnapshotLinks.ExecuteDelete();
+                ctx.GatheringLinks.ExecuteDelete();
+                ctx.UserRelationships.ExecuteDelete();
+                ctx.UserReports.ExecuteDelete();
+                ctx.GatheringReports.ExecuteDelete();
+                ctx.Snapshots.ExecuteDelete();
+                ctx.Telegrams.ExecuteDelete();
+                ctx.Subscriptions.ExecuteDelete();
+                ctx.Penalties.ExecuteDelete();
+                ctx.Gatherings.ExecuteDelete();
+                ctx.Users.ExecuteDelete();
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

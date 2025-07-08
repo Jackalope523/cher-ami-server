@@ -11,9 +11,8 @@ namespace Repository
                 .Where(l => l.SelfId == selfId && l.OtherId == otherId && l.Type == type)
                 .ExecuteDelete());
 
-        public EFCoreNestStore(Harbor.Flag flag) : base(flag)
+        internal EFCoreNestStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
-
         }
 
         public async Task FollowUserAsync(long selfId, long targetId, DateTimeOffset time)

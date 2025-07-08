@@ -2,11 +2,11 @@
 
 namespace Repository
 {
-    class EFMessageStore : QueryStore, IChatDatabase
+    class ChatRepository : Repository, IChatDatabase
     {
         private int pageSize = 10;
 
-        internal EFMessageStore(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ChatRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -20,7 +20,7 @@ namespace Repository
                 case MessageType.Text:
                     toAdd = new TextMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         Text = (string)value,
@@ -29,7 +29,7 @@ namespace Repository
                 case MessageType.Photo:
                     toAdd = new ImageMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         StorageId = (Guid)value
@@ -38,7 +38,7 @@ namespace Repository
                 case MessageType.Issue:
                     toAdd = new GatheringShareMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         GatheringId = (long)value
@@ -47,7 +47,7 @@ namespace Repository
                 case MessageType.GatheringInvite:
                     toAdd = new GatheringInviteMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         GatheringId = (long)value
@@ -56,7 +56,7 @@ namespace Repository
                 case MessageType.Post:
                     toAdd = new SnapshotMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         SnapshotId = (long)value
@@ -65,7 +65,7 @@ namespace Repository
                 case MessageType.Profile:
                     toAdd = new ProfileMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         ProfileId = (long)value
@@ -75,7 +75,7 @@ namespace Repository
                     ActivityMessageShard activityMessageShard = (ActivityMessageShard)value;
                     toAdd = new ActivityMessage()
                     {
-                        ConversationId = conversationId,
+                        ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         ActivityType = activityMessageShard.Activity,

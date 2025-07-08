@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Repository.Coordinators;
 
 namespace Repository
 {
@@ -42,18 +41,18 @@ namespace Repository
                     throw new ArgumentException("Invalid Harbor flag: " + nameof(flag));
             }
 
-            AccountDatabaseAccess = new EFCoreAccountStore(factory);
-            ConnectionDatabaseAccess = new EFCoreConnectionStore(factory);
-            ProfileDatabaseAccess = new EFCoreNestStore(factory);
-            NotificationDatabaseAccess = new EFCoreNotificationStore(factory);
-            CircleDatabaseAccess = new EFCoreGatheringStore(factory);
-            IssueDatabaseAccess = new EFCoreSnapshotStore(factory);
-            ReportDatabaseAccess = new EFCoreDisciplineStore(factory);
+            AccountDatabaseAccess = new AccountRepository(factory);
+            ConnectionDatabaseAccess = new ConnectionRepository(factory);
+            ProfileDatabaseAccess = new ProfileRepository(factory);
+            NotificationDatabaseAccess = new NotificationRepository(factory);
+            CircleDatabaseAccess = new CircleRepository(factory);
+            IssueDatabaseAccess = new IssueRepository(factory);
+            ReportDatabaseAccess = new ReportRepository(factory);
             KeyDatabaseAccess = new AzureKeyStore();
             MediaDatabaseAccess = new AzureFileStore(flag);
-            ChatDatabaseAccess = new EFMessageStore(factory);
-            DebugDatabaseAccess = new EFCoreDebugStore(factory);
-            MiscellaneousDatabaseAccess = new EFCoreMiscellaneousStore(factory);
+            ChatDatabaseAccess = new ChatRepository(factory);
+            DebugDatabaseAccess = new DebugRepository(factory);
+            MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);
         }
 
         public Harbor(Flag flag, ILogger logger) : this(flag)

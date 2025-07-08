@@ -1,23 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.Entities;
 using static Repository.Notification;
 
 namespace Repository
 {
-    public class EFCoreNotificationStore : QueryStore, INotificationDatabase
+    public class NotificationRepository : Repository, INotificationDatabase
     {
-        internal EFCoreNotificationStore(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal NotificationRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
-        }
-
-        public async Task DeleteTelegramAsync(long telegramId)
-        {
-            await storeSentry.ExecuteWriteAsync(ctx => ctx.Telegrams.Remove(new Telegram { Id = telegramId }));
         }
 
         public async Task<NotificationProfile> GetNotificationProfileAsync(long userId)
         {
-            return await storeSentry.ExecuteReadAsync(ctx => 
+            await using CanaryContext ctx = initContext();
+
+            return await
                 ctx.Users.
                 Where(u => u.Id == userId).
                 Select(u => new NotificationProfile(
@@ -28,16 +24,16 @@ namespace Repository
                     u.GatheringReminders, 
                     u.GatheringActivity, 
                     u.GatheringDiscovery
-                )).SingleAsync());
+                )).SingleAsync();
         }
 
         public async Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits)
         {
-            Discussion currentDiscussion = storeSentry.BeginDiscussion();
+            await using CanaryContext ctx = initContext();
 
             User u = new() { Id = userId };
 
-            storeSentry.DiscussWrite(ctx => ctx.Users.Attach(u), currentDiscussion);
+            ctx.Users.Attach(u);
 
             foreach ((string Property, object Value) in edits)
             {
@@ -61,25 +57,30 @@ namespace Repository
                     default:
                         throw new InvalidInputException("Property named \"" + Property + "\" can not be updated using this method.");
                 }
-                storeSentry.DiscussWrite(ctx => ctx.Entry(u).Property(Property).IsModified = true, currentDiscussion);
+                ctx.Entry(u).Property(Property).IsModified = true;
             }
-            await storeSentry.EndDiscussionAsync(currentDiscussion);
+            await ctx.SaveChangesAsync();
         }
 
         public async Task ClearGatheringNotificationScheduleAsync(long gatheringId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-                ctx.Notifications.
-                Where(n => n.GatheringId == gatheringId).
-                ExecuteDeleteAsync());
+            await using CanaryContext ctx = initContext();
+
+            await ctx.Notifications.
+            Where(n => n.GatheringId == gatheringId).
+            ExecuteDeleteAsync();
         }
 
         public async Task<(HostNotificationSchedule, List<GuestNotificationSchedule>)> GetGatheringNotificationScheduleAsync(long gatheringId)
         {
-            List<Notification> notifications = await storeSentry.ExecuteReadAsync(ctx =>
-                                                ctx.Notifications.
-                                                Where(n => n.GatheringId == gatheringId).
-                                                ToListAsync());
+            List<Notification> notifications;
+
+            await using (CanaryContext ctx = initContext())
+            {
+                notifications = await ctx.Notifications.
+                                Where(n => n.GatheringId == gatheringId).
+                                ToListAsync();
+            }
 
             HostNotificationSchedule hostNotification = new("ERROR");
             Dictionary<long, string> guestUpcomingNotifications = new();
@@ -114,64 +115,80 @@ namespace Repository
 
         public async Task UpdateGatheringGuestNotificationSchedulesAsync(long gatheringId, params (long userId, string gatheringUpcomingId, string gatheringImminentId)[] guestSchedules)
         {
-            Discussion discussion = storeSentry.BeginDiscussion();
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-            await storeSentry.DiscussWriteAsync(ctx => 
-                ctx.Notifications.
-                Where(n => n.GatheringId == gatheringId && n.Type != NotificationType.GatheringWaiting).
-                ExecuteDeleteAsync(), discussion);
-
-            foreach (var schedule in guestSchedules) 
+            try
             {
-                Notification upcoming = new()
-                {
-                    GatheringId = gatheringId,
-                    RecipientId = schedule.userId,
-                    NotificationId = schedule.gatheringUpcomingId,
-                    Type = NotificationType.GatheringUpcoming,
-                };
+                await ctx.Notifications.
+                Where(n => n.GatheringId == gatheringId && n.Type != NotificationType.GatheringWaiting).
+                ExecuteDeleteAsync();
 
-                Notification imminent = new()
+                foreach (var schedule in guestSchedules)
                 {
-                    GatheringId = gatheringId,
-                    RecipientId = schedule.userId,
-                    NotificationId = schedule.gatheringImminentId,
-                    Type = NotificationType.GatheringImminent,
-                };
+                    Notification upcoming = new()
+                    {
+                        GatheringId = gatheringId,
+                        RecipientId = schedule.userId,
+                        NotificationId = schedule.gatheringUpcomingId,
+                        Type = NotificationType.GatheringUpcoming,
+                    };
 
-                storeSentry.DiscussWrite(ctx => ctx.Notifications.AddRange(upcoming, imminent), discussion);
+                    Notification imminent = new()
+                    {
+                        GatheringId = gatheringId,
+                        RecipientId = schedule.userId,
+                        NotificationId = schedule.gatheringImminentId,
+                        Type = NotificationType.GatheringImminent,
+                    };
+
+                    ctx.Notifications.AddRange(upcoming, imminent);
+                }
+
+                await ctx.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
-
-            await storeSentry.EndDiscussionAsync(discussion);
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task UpdateGatheringHostNotificationScheduleAsync(long gatheringId, string gatheringWaitingId)
         {
-            Discussion discussion = storeSentry.BeginDiscussion();
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-            await storeSentry.DiscussWriteAsync(ctx =>
-               ctx.Notifications.
-               Where(n => n.GatheringId == gatheringId && n.Type == NotificationType.GatheringWaiting).
-               ExecuteDeleteAsync(), discussion);
+            try
+            {
+                await ctx.Notifications.
+                Where(n => n.GatheringId == gatheringId && n.Type == NotificationType.GatheringWaiting).
+                ExecuteDeleteAsync();
 
-            long? hostId = await storeSentry.ExecuteReadAsync(ctx => 
-                            ctx.Gatherings.
-                            Where(g => g.Id == gatheringId).
-                            Select(g => g.HostId).
-                            SingleAsync());
+                long? hostId = await ctx.Gatherings.
+                               Where(g => g.Id == gatheringId).
+                               Select(g => g.HostId).
+                               SingleAsync();
 
-            storeSentry.DiscussWrite(ctx =>
-               ctx.Notifications.
-               Add(new() 
-               { 
-                   RecipientId = hostId ?? 0,
-                   GatheringId = gatheringId, 
-                   NotificationId = gatheringWaitingId, 
-                   Type = NotificationType.GatheringWaiting
+                ctx.Notifications.
+                Add(new()
+                {
+                    RecipientId = hostId ?? 0,
+                    GatheringId = gatheringId,
+                    NotificationId = gatheringWaitingId,
+                    Type = NotificationType.GatheringWaiting
                 }
-            ), discussion);
+                );
 
-            storeSentry.EndDiscussion(discussion);
+                await ctx.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

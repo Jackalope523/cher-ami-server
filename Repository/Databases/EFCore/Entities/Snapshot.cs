@@ -1,3 +1,5 @@
+using Repository.Databases.EFCore.Entities.Reports;
+
 namespace Repository
 {
     public class Snapshot : Entity

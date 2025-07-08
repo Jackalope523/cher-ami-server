@@ -1,11 +1,11 @@
 ﻿
 namespace Repository
 {
-    public abstract class QueryStore
+    public abstract class Repository
     {
         internal readonly Func<CanaryContext> initContext;
 
-        internal QueryStore(Func<CanaryContext> contextFactory)
+        internal Repository(Func<CanaryContext> contextFactory)
         {
             initContext = contextFactory;
         }

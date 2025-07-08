@@ -1,5 +1,6 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Repository.Databases.EFCore.Entities.Reports;
 using Repository.Entities;
+using UserReport = Repository.Databases.EFCore.Entities.Reports.UserReport;
 
 namespace Repository
 {
@@ -7,8 +8,10 @@ namespace Repository
     {
         public string PhoneNumber { get; set; } = DefaultPhoneNumber;
         public string Email { get; set; } = DefaultEmail;
-        public string NormalisedEmail { get; set; } = DefaultNormalisedEmail;
-        public string Name { get; set; } = DefaultName;
+        public string NormalizedEmail { get; set; } = DefaultNormalisedEmail;
+        public string Title { get; set; }
+        public string FirstName { get; set; } = DefaultName;
+        public string LastName { get; set; }
         public string CompanionshipCode { get; set; } = DefaultCompanionshipCode;
         public DateTimeOffset DateOfBirth { get; init; } = DefaultDateOfBirth;
         public DateTimeOffset JoinDate { get; init; } = DefaultJoinDate;
@@ -19,25 +22,7 @@ namespace Repository
         public DateTimeOffset? LockoutDate { get; set; } = DefaultLockoutDate;
         public int AccessTries { get; set; } = DefaultAccessTries;
         public UserAccountStatus AccountStatus { get; set; } = DefaultAccountStatus;
-        public long? CurrentGathering { get; set; } = DefaultCurrentGathering;
         public DateTimeOffset TimeOfUserAgreement { get; set; } = DefaultTimeOfUserAgreement;
-
-        // Vector
-        public int Extroversion { get; init; } = DefaultExtroversion;
-        public int Athleticisme { get; init; } = DefaultAthleticisme;
-        public int Openness { get; init; } = DefaultOpenness;
-        public int Chaos { get; init; } = DefaultChaos;
-        public int Competitiveness { get; init; } = DefaultCompetitiveness;
-        public int Industriousness { get; init; } = DefaultIndustriousness;
-        public int NightOwl { get; init; } = DefaultNightOwl;
-        public int Age { get; init; } = DefaultAge;
-
-        //Geolocation: X = Longitude Y = Latitude
-        public Point Haunt { get; set; } = DefaultHaunt;
-        public double HauntRadius { get; set; } = DefaultHauntRadius;
-        public int HauntWeight { get; set; } = DefaultHauntWeight;
-        public Point CurrentLocation { get; set; } = DefaultCurrentLocation;
-        public double CurrentRadius { get; set; } = DefaultCurrentRadius;
 
         // Notification Profile
         public Guid NotificationId { get; set; }
@@ -55,7 +40,6 @@ namespace Repository
         public List<SnapshotLink>? SnapshotLinks { get; set; }
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
-        public List<GatheringReport>? GatheringReports { get; set; }
         public List<SnapshotReport>? SnapshotReports { get; set; }
         public List<Snapshot>? Snapshots { get; set; }
         public List<Telegram>? SentTelegrams { get; set; }
@@ -85,30 +69,9 @@ namespace Repository
         public static DateTimeOffset? DefaultLockoutDate { get; set; } = null;
         public static int DefaultAccessTries { get; set; } = 3;
         public static UserAccountStatus DefaultAccountStatus { get; set; } = UserAccountStatus.Active;
-        public static long? DefaultCurrentGathering { get; set; } = null;
         public static DateTimeOffset DefaultTimeOfUserAgreement { get; set; } = DateTimeOffset.MinValue;
 
-        // Vector
-        public static int DefaultExtroversion { get; set; } = 50;
-        public static int DefaultAthleticisme { get; set; } = 50;
-        public static int DefaultOpenness { get; set; } = 50;
-        public static int DefaultChaos { get; set; } = 50;
-        public static int DefaultCompetitiveness { get; set; } = 50;
-        public static int DefaultIndustriousness { get; set; } = 50;
-        public static int DefaultNightOwl { get; set; } = 50;
-        public static int DefaultAge { get; set; } = 25;
-
-        private static readonly CoordinateFactory Factory = new();
-
-        // Geolocation: X = Longitude Y = Latitude     
-        public static Point DefaultHaunt { get; set; } = Factory.Create(7.540, 53.483);
-        public static double DefaultHauntRadius { get; set; } = 10;
-        public static int DefaultHauntWeight { get; set; } = 0;
-        public static Point DefaultCurrentLocation { get; set; } = Factory.Create(7.544, 53.483);
-        public static double DefaultCurrentRadius { get; set; } = 10;
-
         // Notification Profile
-        public static Guid DefaultNotificationId { get; set; } = Guid.Empty;
         public static bool DefaultSocialInvitations { get; set; } = true;
         public static bool DefaultCompanionActivity { get; set; } = true;
         public static bool DefaultGatheringReminders { get; set; } = true;

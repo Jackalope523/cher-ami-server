@@ -8,7 +8,7 @@ namespace Repository.Tests
     public class SnapshotStoreTests : IDisposable
     {
         private static EFCoreSentry sentry = new(Harbor.Flag.Development);
-        private static EFCoreSnapshotStore snapshotStore = new(Harbor.Flag.Development);
+        private static IssueRepository snapshotStore = new(Harbor.Flag.Development);
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -38,7 +38,7 @@ namespace Repository.Tests
             DateTimeOffset postTime = DateTimeOffset.MinValue;
             string url = "URL";
 
-            await snapshotStore.AddPostAsync(testGathering.Id, subject.Id, postTime);
+            await snapshotStore.AddSnapshotAsync(testGathering.Id, subject.Id, postTime);
 
             Snapshot created = await sentry.ExecuteReadAsync(ctx => ctx.Snapshots.FirstAsync());
 
@@ -53,7 +53,7 @@ namespace Repository.Tests
             Snapshot testSnapshot = new SnapshotFactory().Create(subject, testGathering);
             await sentry.ExecuteWriteAsync(ctx => ctx.Snapshots.AddAsync(testSnapshot));
 
-            PostShard retrieved = await snapshotStore.GetPostAsync(testSnapshot.Id);
+            SnapshotShard retrieved = await snapshotStore.GetSnapshotAsync(testSnapshot.Id);
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);
@@ -69,7 +69,7 @@ namespace Repository.Tests
             int a = sentry.ExecuteRead(ctx => ctx.Snapshots.Count());
             _testOutputHelper.WriteLine(a.ToString());
 
-           PostShard retrieved = (await snapshotStore.GetPostsByUserAsync(subject.Id)).First();
+           SnapshotShard retrieved = (await snapshotStore.GetSnapshotsByUserAsync(subject.Id)).First();
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);
@@ -82,7 +82,7 @@ namespace Repository.Tests
             Snapshot testSnapshot = new SnapshotFactory().Create(subject, testGathering);
             sentry.ExecuteWrite(ctx => ctx.Snapshots.Add(testSnapshot));
 
-            PostShard retrieved = (await snapshotStore.GetPostsForIssueAsync(testGathering.Id)).First();
+            SnapshotShard retrieved = (await snapshotStore.GetSnapshotsForGatheringAsync(testGathering.Id)).First();
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);

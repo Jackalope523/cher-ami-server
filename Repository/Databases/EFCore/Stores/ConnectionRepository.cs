@@ -2,9 +2,9 @@
 
 namespace Repository
 {
-    class EFCoreConnectionStore : QueryStore, IConnectionDatabase
+    class ConnectionRepository : Repository, IConnectionDatabase
     {
-        internal EFCoreConnectionStore(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ConnectionRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 

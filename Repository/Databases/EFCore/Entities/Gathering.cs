@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using Repository.Databases.EFCore.Entities.Reports;
 
 namespace Repository
 {

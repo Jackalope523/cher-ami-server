@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Repository.Databases.EFCore.Entities.Reports;
 using Repository.Entities;
 
 namespace Repository
@@ -86,7 +87,7 @@ namespace Repository
                 .HasMaxLength(100);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.NormalisedEmail)
+                .Property(u => u.NormalizedEmail)
                 .HasMaxLength(255);
 
             modelBuilder.Entity<User>()
@@ -444,8 +445,8 @@ namespace Repository
             modelBuilder.Entity<Chat>()
                .HasDiscriminator<ChatType>("Type")
                .HasValue<PrivateChat>(ChatType.Individual)
-               .HasValue<GroupChat>(ChatType.OldGC)
-               .HasValue<GatheringChat>(ChatType.Circle)
+               .HasValue<GroupChat>(ChatType.Group)
+               .HasValue<GatheringChat>(ChatType.Gathering)
                .HasValue<BroadcastChat>(ChatType.Broadcast);
 
             modelBuilder.Entity<BroadcastChat>()
@@ -465,9 +466,9 @@ namespace Repository
                 .HasValue<TextMessage>(MessageType.Text)
                 .HasValue<ImageMessage>(MessageType.Photo)
                 .HasValue<ActivityMessage>(MessageType.Activity)
-                .HasValue<ProfileMessage>(MessageType.Profile)
+                .HasValue<ProfileMessage>(MessageType.Nest)
                 .HasValue<GatheringInviteMessage>(MessageType.GatheringInvite)
-                .HasValue<GatheringShareMessage>(MessageType.Issue);
+                .HasValue<GatheringShareMessage>(MessageType.ShareGathering);
 
             modelBuilder.Entity<GatheringInviteMessage>()
                 .Property(g => g.GatheringId)
@@ -497,7 +498,7 @@ namespace Repository
                     Id = -2,
                     UserId = -2,
                     ConversationId = -2,
-                    Type = ChatMembershipType.Owner,
+                    Type = MembershipType.Owner,
                     Muted = false,
                 });
 

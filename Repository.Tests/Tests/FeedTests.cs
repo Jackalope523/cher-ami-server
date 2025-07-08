@@ -8,7 +8,7 @@ namespace Repository.Tests
     public class ColumnTests : IDisposable
     {
         private static EFCoreSentry sentry = new(Harbor.Flag.Development);
-        private static EFCoreSnapshotStore store = new(Harbor.Flag.Development);
+        private static IssueRepository store = new(Harbor.Flag.Development);
 
         private readonly ITestOutputHelper _testOutputHelper;
 
@@ -148,7 +148,7 @@ namespace Repository.Tests
             Assert.NotNull(retrieved);
             Assert.Equal(9, retrieved.Count);
 
-            PostShard e1Snapshot = retrieved.Find(snapshot => snapshot.Id.Equals(e1.Id));
+            SnapshotShard e1Snapshot = retrieved.Find(snapshot => snapshot.Id.Equals(e1.Id));
             Assert.NotNull(e1Snapshot);
             //Assert.Equal(e1.OwnerId, e1Snapshot.UserId);
             Assert.Equal(e1.GatheringId, e1Snapshot.GatheringId);

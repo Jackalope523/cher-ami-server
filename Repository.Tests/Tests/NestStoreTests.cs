@@ -10,7 +10,7 @@ namespace Repository.Tests
     public class NestStoreTests : IDisposable
     {
         private static EFCoreSentry sentry = new(Harbor.Flag.Development);
-        private static EFCoreNestStore nestStore = new(Harbor.Flag.Development);
+        private static ProfileRepository nestStore = new(Harbor.Flag.Development);
 
         private readonly ITestOutputHelper _testOutputHelper;
 

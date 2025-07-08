@@ -12,7 +12,7 @@ namespace Repository.Tests
         private readonly ITestOutputHelper _testOutputHelper;
 
         private static EFCoreSentry sentry = new(Harbor.Flag.Development);
-        private static EFCoreNotificationStore store = new(Harbor.Flag.Development);
+        private static NotificationRepository store = new(Harbor.Flag.Development);
 
         private User subject1;
         private User subject2;

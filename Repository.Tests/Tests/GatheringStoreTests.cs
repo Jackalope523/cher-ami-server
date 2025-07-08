@@ -10,7 +10,7 @@ namespace Repository.Tests
     public class GatheringStoreTests : IDisposable
     {
         private static EFCoreSentry sentry = new(Harbor.Flag.Development);
-        private static EFCoreGatheringStore store = new(Harbor.Flag.Development);
+        private static CircleRepository store = new(Harbor.Flag.Development);
 
         private readonly UserFactory _userFactory;
         private readonly GatheringFactory _gatheringFactory;

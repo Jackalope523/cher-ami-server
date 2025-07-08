@@ -124,7 +124,7 @@ namespace Repository
             }
         }
 
-        public async Task<CoreUser> FindUserByIdAsync(long id)
+        public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
             await using CanaryContext ctx = initContext();
 
@@ -160,7 +160,7 @@ namespace Repository
                   u.NotificationId
               )).SingleAsync();
         }
-        public async Task<CoreUser> FindUserByPhoneNumberAsync(string phoneNumber)
+        public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
             await using CanaryContext ctx = initContext();
 
@@ -196,7 +196,7 @@ namespace Repository
                      u.NotificationId
                  )).SingleAsync();
         }
-        public async Task<CoreUser> FindUserByEmailAsync(string email)
+        public async Task<CoreUser> GetUserByEmailAsync(string email) 
         {
             await using CanaryContext ctx = initContext();
 

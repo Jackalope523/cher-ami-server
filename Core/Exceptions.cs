@@ -83,21 +83,21 @@ namespace Core.Exceptions
             Details = details;
         }
 
-        public UserErrorException(GatheringErrorCode code, object details = null)
+        public UserErrorException(CircleErrorCode code, object details = null)
         {
-            ErrorCode = $"GATHERING.{code}";
+            ErrorCode = $"CIRCLE.{code}";
             Details = details;
         }
 
-        public UserErrorException(SnapshotErrorCode code, object details = null)
+        public UserErrorException(IssueErrorCode code, object details = null)
         {
-            ErrorCode = $"SNAPSHOT.{code}";
+            ErrorCode = $"ISSUE.{code}";
             Details = details;
         }
 
-        public UserErrorException(ConversationErrorCode code, object details = null)
+        public UserErrorException(ChatErrorCode code, object details = null)
         {
-            ErrorCode = $"CONVERSATION.{code}";
+            ErrorCode = $"CHAT.{code}";
             Details = details;
         }
     }
@@ -127,18 +127,15 @@ namespace Core.Exceptions
         CANNOT_REPORT_DUPLICATE,
         CANNOT_VIEW,
 
-        CANNOT_FOLLOW,
-        CODE_NOT_FOUND,
-        CANNOT_FOLLOW_SELF,
-
         CANNOT_BLOCK_SELF,
     }
 
-    public enum GatheringErrorCode
+    public enum CircleErrorCode
     {
+        CODE_NOT_FOUND,
+
         CANNOT_VIEW,
-        CANNOT_WATCH,
-        CANNOT_UNWATCH,
+
         CANNOT_JOIN,
         CANNOT_JOIN_GUEST,
 
@@ -151,37 +148,21 @@ namespace Core.Exceptions
         CANNOT_KICK_ARCHIVED,
         CANNOT_KICK_SELF,
 
-        USER_ATTENDING_ELSEWHERE,
-        NO_IMMEDIATE,
-
-        NOT_STARTED,
         NOT_GUEST,
         KICKED,
 
-        // Hosting
-        CANNOT_HOST,
-        CANNOT_HOST_XYZ,
-
-        LOCATION_DISABLED,
         INVALID_DETAILS,
-        CONFLICT,
 
         CANNOT_EDIT_PERMISSION,
-        CANNOT_EDIT_STARTED,
-        CANNOT_EDIT_ENDED,
 
         NOT_HOST,
-        CANNOT_START,
-        CANNOT_END,
 
-        CANNOT_CANCEL_STARTED,
-        CANNOT_CANCEL_PERMISSION,
+        CANNOT_DELETE_PERMISSION,
 
         SEALED,
-        ENDED,
     }
 
-    public enum SnapshotErrorCode
+    public enum IssueErrorCode
     {
         CANNOT_VIEW,
         CANNOT_DELETE,
@@ -192,25 +173,18 @@ namespace Core.Exceptions
         WINDOW_CLOSED,
     }
 
-    public enum ConversationErrorCode
+    public enum ChatErrorCode
     {
         EMPTY_MESSAGE,
 
         NOT_MEMBER,
-        NOT_GROUP_CHAT,
-
-        CANNOT_INVITE_NEUTRAL,
-        CANNOT_KICK_PERMISSION,
-
-        INVALID_DETAILS,
-        CANNOT_EDIT_PERMISSION,
-        CANNOT_DELETE_PERMISSION,
     }
 
     public enum HollowErrorCode
     {
         UPLOAD_FAILED,
         DOWNLOAD_FAILED,
+
         UNKNOWN,
     }
 

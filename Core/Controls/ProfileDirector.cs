@@ -12,17 +12,17 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal class NestDirector : AbstractDirector, INestOperations
+    internal class ProfileDirector : AbstractDirector, IProfileOperations
 	{
 		#region Initialisation
 
-		public NestDirector(CoreTerminal terminal) : base(terminal) { }
+		public ProfileDirector(CoreTerminal terminal) : base(terminal) { }
 
 		#endregion
 
 		#region Operations
 
-        public async Task<NestShard> GetNestAsync(long userId, long targetId)
+        public async Task<ProfileShard> GetProfileAsync(long userId, long targetId)
         {
             var user = await GetUserAsync(userId);
             var targetUser = await GetUserAsync(targetId);
@@ -31,7 +31,7 @@ namespace Core.Controls
             FailIf(await user.IsBlockedBy(targetUser),
                 new UserErrorException(UserErrorCode.CANNOT_VIEW));
             
-            NestShard nest = new(new());
+            ProfileShard nest = new(new());
 
             // Check if user is themself
             if (user.Equals(targetUser))
@@ -197,20 +197,20 @@ namespace Core.Controls
 
             await Nests.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
 
-            CanaryNotification targetNotification = CanaryNotification.CompanionshipRequest(user.ToUserShard());
+            CardinalNotification targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard());
 
             // Should always hit
             if (await Nests.HaveMutualGathering(user.Id, targetUser.Id))
             {
                 var lastMutualGathering = await Nests.GetLatestMutualGathering(user.Id, targetUser.Id);
 
-                targetNotification = CanaryNotification.CompanionshipRequest(user.ToUserShard(), lastMutualGathering.Title);
+                targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard(), lastMutualGathering.Title);
             }
 
             // Check if this forges companionship
             if (await targetUser.IsFollowing(user))
             {
-                targetNotification = CanaryNotification.CompanionshipForged(user.ToUserShard());
+                targetNotification = CardinalNotification.CompanionshipForged(user.ToUserShard());
             }
             else
             {
@@ -244,12 +244,12 @@ namespace Core.Controls
 
             await Nests.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
 
-            CanaryNotification targetNotification = CanaryNotification.CompanionshipRequest(user.ToUserShard());
+            CardinalNotification targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard());
 
             // Check if this forges companionship
             if (await targetUser.IsFollowing(user))
             {
-                targetNotification = CanaryNotification.CompanionshipForged(user.ToUserShard());
+                targetNotification = CardinalNotification.CompanionshipForged(user.ToUserShard());
             }
             else
             {
@@ -370,7 +370,7 @@ namespace Core.Controls
 
             foreach (var card in agenda.Cards)
             {
-                Gathering gathering = await GetGatheringAsync(card.GatheringId);
+                Issue gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { viewableGatherings.Cards.Add(card); }
@@ -379,14 +379,14 @@ namespace Core.Controls
             return viewableGatherings;
         }
 
-        private async Task<NestShard>
-            RemoveUnviewableNestTwigsAsync(User user, NestShard nest)
+        private async Task<ProfileShard>
+            RemoveUnviewableNestTwigsAsync(User user, ProfileShard nest)
         {
-            NestShard visibleNest = new(new(), nest.RelativeGatheringId);
+            ProfileShard visibleNest = new(new(), nest.RelativeGatheringId);
 
             foreach (var card in nest.Twigs)
             {
-                Gathering gathering = await GetGatheringAsync(card.GatheringId);
+                Issue gathering = await GetGatheringAsync(card.GatheringId);
 
                 if (await user.CanView(gathering))
                 { visibleNest.Twigs.Add(card); }

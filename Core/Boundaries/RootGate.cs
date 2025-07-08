@@ -5,6 +5,8 @@ namespace Core.Boundaries
 {
     #region Schemas
 
+    public record CoreOnlyData();
+
     public record ErrorShard(string Code, object Details = null);
 
     #endregion

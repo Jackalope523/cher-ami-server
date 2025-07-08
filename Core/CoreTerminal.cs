@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Boundaries;
 using Core.Controls;
-using Core.Daemons;
 
 namespace Core
 {
@@ -30,66 +29,65 @@ namespace Core
         public ILogger Log { get; init; }
 
         public IAccountDatabase AccountDatabase { get; init; }
-        public IAdminDatabase AdminDatabase { get; init; }
+        public IChatDatabase ChatDatabase { get; init; }
         public IConnectionDatabase ConnectionDatabase { get; init; }
-        public IGatheringDatabase GatheringDatabase { get; init; }
-        public ISnapshotDatabase SnapshotDatabase { get; init; }
-        public IDisciplineDatabase DisciplineDatabase { get; init; }
+        public ICircleDatabase CircleDatabase { get; init; }
+        public IIssueDatabase IssueDatabase { get; init; }
         public IKeyDatabase KeyDatabase { get; init; }
         public IMediaDatabase MediaDatabase { get; init; }
-        public IMessageDatabase MessageDatabase { get; init; }
-        public INestDatabase NestDatabase { get; init; }
-        public INotificationDatabase NotificationDatabase { get; init; }
         public IMiscellaneousDatabase MiscellaneousDatabase { get; init; }
+        public INotificationDatabase NotificationDatabase { get; init; }
+        public IProfileDatabase ProfileDatabase { get; init; }
+        public IReportDatabase ReportDatabase { get; init; }
 
         public IAccountOperations AccountOperations
             => AccountDirector;
+        public IChatOperations ChatOperations
+            => ChatDirector;
         public IConnectionOperations ConnectionOperations
             => ConnectionDirector;
-        public IGatheringOperations GatheringOperations
-            => GatheringDirector;
-        public ISnapshotOperations SnapshotOperations
-            => SnapshotDirector;
-        public IDisciplineOperations DisciplineOperations
-            => DisciplineDirector;
+        public ICircleOperations CircleOperations
+            => CircleDirector;
+        public IIssueOperations IssueOperations
+            => IssueDirector;
         public IKeyOperations KeyOperations
             => KeyDirector;
         public IMediaOperations MediaOperations
             => MediaDirector;
-        public IMessageOperations MessageOperations
-            => MessageDirector;
-        public INestOperations NestOperations
-            => NestDirector;
-        public INotificationOperations NotificationOperations
-            => NotificationDirector;
         public IMiscellaneousOperations MiscellaneousOperations
             => MiscellaneousDirector;
+        public INotificationOperations NotificationOperations
+            => NotificationDirector;
+        public IProfileOperations ProfileOperations
+            => ProfileDirector;
+        public IReportOperations ReportOperations
+            => ReportDirector;
 
         public INotificationService NotificationService { get; init; }
         public ISocketService SocketService { get; init; }
 
         internal AccountDirector AccountDirector { get; private set; }
         internal ConnectionDirector ConnectionDirector { get; private set; }
-        internal GatheringDirector GatheringDirector { get; private set; }
-        internal SnapshotDirector SnapshotDirector { get; private set; }
-        internal DisciplineDirector DisciplineDirector { get; private set; }
+        internal ChatDirector ChatDirector { get; private set; }
+        internal CircleDirector CircleDirector { get; private set; }
+        internal IssueDirector IssueDirector { get; private set; }
         internal KeyDirector KeyDirector { get; private set; }
         internal MediaDirector MediaDirector { get; private set; }
-        internal MessageDirector MessageDirector { get; private set; }
-        internal NestDirector NestDirector { get; private set; }
-        internal NotificationDirector NotificationDirector { get; private set; }
         internal MiscellaneousDirector MiscellaneousDirector { get; private set; }
+        internal NotificationDirector NotificationDirector { get; private set; }
+        internal ProfileDirector ProfileDirector { get; private set; }
+        internal ReportDirector ReportDirector { get; private set; }
 
         #endregion
 
         #region Initialisation
 
         public static CoreTerminal CreateTerminal(EnvironmentOptions environment, ILogger logger,
-            IAccountDatabase accountDatabase, IAdminDatabase adminDatabase, IConnectionDatabase connectionDatabase,
-            IGatheringDatabase gatheringDatabase, ISnapshotDatabase snapshotDatabase,
-            IDisciplineDatabase disciplineDatabase, IKeyDatabase keyDatabase,
-            IMediaDatabase mediaDatabase, IMessageDatabase messageDatabase,
-            INotificationDatabase notificationDatabase, INestDatabase nestDatabase,
+            IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
+            ICircleDatabase circleDatabase, IIssueDatabase issueDatabase,
+            IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
+            IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
+            INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
             IMiscellaneousDatabase miscellaneousDatabase,
             INotificationService notificationService, ISocketService socketService)
         {
@@ -101,17 +99,16 @@ namespace Core
                     Log = logger,
 
                     AccountDatabase = accountDatabase,
-                    AdminDatabase = adminDatabase,
+                    ChatDatabase = chatDatabase,
                     ConnectionDatabase = connectionDatabase,
-                    GatheringDatabase = gatheringDatabase,
-                    SnapshotDatabase = snapshotDatabase,
-                    DisciplineDatabase = disciplineDatabase,
+                    CircleDatabase = circleDatabase,
+                    IssueDatabase = issueDatabase,
                     KeyDatabase = keyDatabase,
                     MediaDatabase = mediaDatabase,
-                    MessageDatabase = messageDatabase,
-                    NestDatabase = nestDatabase,
-                    NotificationDatabase = notificationDatabase,
                     MiscellaneousDatabase = miscellaneousDatabase,
+                    NotificationDatabase = notificationDatabase,
+                    ProfileDatabase = profileDatabase,
+                    ReportDatabase = reportDatabase,
 
                     NotificationService = notificationService,
                     SocketService = socketService,
@@ -129,24 +126,22 @@ namespace Core
         protected void CreateManagers()
         {
             AccountDirector = new AccountDirector(this);
+            ChatDirector = new ChatDirector(this);
             ConnectionDirector = new ConnectionDirector(this);
-            GatheringDirector = new GatheringDirector(this);
-            SnapshotDirector = new SnapshotDirector(this);
-            DisciplineDirector = new DisciplineDirector(this);
+            CircleDirector = new CircleDirector(this);
+            IssueDirector = new IssueDirector(this);
             KeyDirector = new KeyDirector(this);
             MediaDirector = new MediaDirector(this);
-            MessageDirector = new MessageDirector(this);
-            NestDirector = new NestDirector(this);
-            NotificationDirector = new NotificationDirector(this);
             MiscellaneousDirector = new MiscellaneousDirector(this);
+            NotificationDirector = new NotificationDirector(this);
+            ProfileDirector = new ProfileDirector(this);
+            ReportDirector = new ReportDirector(this);
         }
 
         #endregion
 
         #region Daemons
 
-        public GatheringOverseerGoblin CreateRepositoryCleanupService()
-         => new(this);
 
         #endregion
     }

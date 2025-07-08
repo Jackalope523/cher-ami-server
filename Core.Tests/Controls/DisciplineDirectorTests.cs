@@ -11,11 +11,11 @@ namespace Core.Tests.Controls
 {
     public class DisciplineDirectorTests : CoreTest
     {
-		private DisciplineDirector director;
+		private ReportDirector director;
 
         public DisciplineDirectorTests()
         {
-			director = environment.Terminal.DisciplineDirector;
+			director = environment.Terminal.ReportDirector;
         }
 
 		[Fact]
@@ -31,9 +31,9 @@ namespace Core.Tests.Controls
 			await director.ReportUserAsync(user.Id, reportedUser.Id, report, reportDetails);
 
 			// Assert
-			Assert.Single(await reportedUser.Reports);
-			Assert.Equal(report, (await reportedUser.Reports)[0].ReportType);
-			Assert.Equal(reportDetails, (await reportedUser.Reports)[0].ReportDetails);
+			Assert.Single(await reportedUser.UserReports);
+			Assert.Equal(report, (await reportedUser.UserReports)[0].ReportType);
+			Assert.Equal(reportDetails, (await reportedUser.UserReports)[0].ReportDetails);
 		}
 
 		[Fact]
@@ -51,7 +51,7 @@ namespace Core.Tests.Controls
 			await director.ReportUserAsync(user.Id, reportedUser.Id, report, reportDetails);
 
 			// Assert
-			Assert.Equal(3, (await reportedUser.Reports).Count);
+			Assert.Equal(3, (await reportedUser.UserReports).Count);
 		}
 
 		[Fact]
@@ -72,9 +72,9 @@ namespace Core.Tests.Controls
 			Assert.Equal(report, (await reportedGathering.GatheringReports)[0].ReportType);
 			Assert.Equal(reportDetails, (await reportedGathering.GatheringReports)[0].ReportDetails);
 
-			Assert.Single(await reportedHost.GatheringReports);
-			Assert.Equal(report, (await reportedHost.GatheringReports)[0].ReportType);
-			Assert.Equal(reportDetails, (await reportedHost.GatheringReports)[0].ReportDetails);
+			Assert.Single(await reportedHost.PostReports);
+			Assert.Equal(report, (await reportedHost.PostReports)[0].ReportType);
+			Assert.Equal(reportDetails, (await reportedHost.PostReports)[0].ReportDetails);
 		}
 
 		[Fact]

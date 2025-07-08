@@ -2,7 +2,7 @@
 {
     public class SnapshotReport : Entity
     {
-        public SnapshotReportType Type { get; set; }
+        public PostReportType Type { get; set; }
 
         public long? UserId { get; init; }
         public long SnapshotId { get; init; }

@@ -38,7 +38,7 @@ namespace Repository.Tests
             DateTimeOffset postTime = DateTimeOffset.MinValue;
             string url = "URL";
 
-            await snapshotStore.AddSnapshotAsync(testGathering.Id, subject.Id, postTime);
+            await snapshotStore.AddPostAsync(testGathering.Id, subject.Id, postTime);
 
             Snapshot created = await sentry.ExecuteReadAsync(ctx => ctx.Snapshots.FirstAsync());
 
@@ -53,7 +53,7 @@ namespace Repository.Tests
             Snapshot testSnapshot = new SnapshotFactory().Create(subject, testGathering);
             await sentry.ExecuteWriteAsync(ctx => ctx.Snapshots.AddAsync(testSnapshot));
 
-            SnapshotShard retrieved = await snapshotStore.GetSnapshotAsync(testSnapshot.Id);
+            PostShard retrieved = await snapshotStore.GetPostAsync(testSnapshot.Id);
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);
@@ -69,7 +69,7 @@ namespace Repository.Tests
             int a = sentry.ExecuteRead(ctx => ctx.Snapshots.Count());
             _testOutputHelper.WriteLine(a.ToString());
 
-           SnapshotShard retrieved = (await snapshotStore.GetSnapshotsByUserAsync(subject.Id)).First();
+           PostShard retrieved = (await snapshotStore.GetPostsByUserAsync(subject.Id)).First();
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);
@@ -82,7 +82,7 @@ namespace Repository.Tests
             Snapshot testSnapshot = new SnapshotFactory().Create(subject, testGathering);
             sentry.ExecuteWrite(ctx => ctx.Snapshots.Add(testSnapshot));
 
-            SnapshotShard retrieved = (await snapshotStore.GetSnapshotsForGatheringAsync(testGathering.Id)).First();
+            PostShard retrieved = (await snapshotStore.GetPostsForIssueAsync(testGathering.Id)).First();
 
             Assert.NotNull(retrieved);
             Assert.Equal(testSnapshot.OwnerId, retrieved.User.Id);

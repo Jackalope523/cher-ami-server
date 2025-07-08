@@ -3,7 +3,7 @@ using NetTopologySuite.Geometries;
 
 namespace Repository
 {
-    public class EFCoreGatheringStore : QueryStore, IGatheringDatabase
+    public class EFCoreGatheringStore : QueryStore, ICircleDatabase
     {
         internal EFCoreGatheringStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {

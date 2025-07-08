@@ -15,11 +15,11 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class GatheringDirector : AbstractDirector, IGatheringOperations
+    internal class CircleDirector : AbstractDirector, ICircleOperations
 	{
 		#region Initialisation
 
-		public GatheringDirector(CoreTerminal terminal) : base(terminal) { }
+		public CircleDirector(CoreTerminal terminal) : base(terminal) { }
 
 		#endregion
 
@@ -32,26 +32,26 @@ namespace Core.Controls
 
 			// Verify user is allowed to view gathering
 			Verify(await targetGathering.IsVisibleTo(user),
-				new UserErrorException(GatheringErrorCode.CANNOT_VIEW));
+				new UserErrorException(CircleErrorCode.CANNOT_VIEW));
 
-			return await targetGathering.ToGatheringShard();
+			return await targetGathering.ToIssueShard();
 		}
 
-		public async Task<List<TwigShard>> GetUpcomingGatheringsAsync(long userId)
+		public async Task<List<ProfileIssueShard>> GetUpcomingGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
 			return (await user.UpcomingGatherings).ConvertAll(g => g.ToTwigShard());
 		}
 
-		public async Task<List<TwigShard>> GetOngoingGatheringsAsync(long userId)
+		public async Task<List<ProfileIssueShard>> GetOngoingGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
 			return (await user.OngoingGatherings).ConvertAll(g => g.ToTwigShard());
 		}
 
-		public async Task<List<TwigShard>> GetPastGatheringsAsync(long userId)
+		public async Task<List<ProfileIssueShard>> GetPastGatheringsAsync(long userId)
         {
 			var user = await GetUserAsync(userId);
 
@@ -109,18 +109,18 @@ namespace Core.Controls
 
 			// Verify user can host
 			Verify(user.CanHost,
-				new UserErrorException(GatheringErrorCode.CANNOT_HOST, new { user.AccountStatus }));
+				new UserErrorException(CircleErrorCode.CANNOT_HOST, new { user.AccountStatus }));
 
 			// Verify user has position enabled
 			Verify((await user.LastKnownLocation).Exists,
-				new UserErrorException(GatheringErrorCode.LOCATION_DISABLED));
+				new UserErrorException(CircleErrorCode.LOCATION_DISABLED));
 
 			// Create gathering
-			Gathering gatheringStub = new()
+			Issue gatheringStub = new()
 			{
 				Title = gatheringName,
 				Description = gatheringDescription,
-				StartTime = startTime,
+				StartDate = startTime,
 				Location = new() { Latitude = latitude, Longitude = longitude },
 				FriendlyLocation = friendlyLocation,
 				GroupMinimum = groupMinimum ?? 0,
@@ -132,16 +132,16 @@ namespace Core.Controls
 
 			// Validate gathering
 			Verify(gatheringStub.ValidateAndNormalise(out string issues),
-				new UserErrorException(GatheringErrorCode.INVALID_DETAILS, new { issues }));
+				new UserErrorException(CircleErrorCode.INVALID_DETAILS, new { issues }));
 
 			// Verify user has no conflict
-			var conflict = (await user.UpcomingGatherings).Find(e => IsWithin(e.StartTime - gatheringStub.StartTime, HalfHour));
+			var conflict = (await user.UpcomingGatherings).Find(e => IsWithin(e.StartTime - gatheringStub.StartDate, HalfHour));
 			if (conflict != null)
-			{ throw new UserErrorException(GatheringErrorCode.CONFLICT, new { conflict.Id }); }
+			{ throw new UserErrorException(CircleErrorCode.CONFLICT, new { conflict.Id }); }
 
 			// Try to create a gathering
-			Gathering newGathering = new(await Gatherings.CreateGatheringAsync(user.Id,
-				gatheringStub.Title, gatheringStub.Description, gatheringStub.StartTime,
+			Issue newGathering = new(await Gatherings.CreateGatheringAsync(user.Id,
+				gatheringStub.Title, gatheringStub.Description, gatheringStub.StartDate,
 				gatheringStub.Location.Latitude, gatheringStub.Location.Longitude, gatheringStub.FriendlyLocation,
 				gatheringStub.GroupMinimum, gatheringStub.GroupMaximum, user.Character.ToCharacter(),
 				gatheringStub.Radius.Kilometres, gatheringStub.IsDynamic, gatheringStub.DegreeOfPrivacy,
@@ -160,7 +160,7 @@ namespace Core.Controls
             }
 
             // If now
-			if (HasAlready(newGathering.StartTime))
+			if (HasAlready(newGathering.StartDate))
 			{
 				await Gatherings.UpdateGatheringAsync(newGathering.Id, new() { (nameof(CoreGathering.StartTime), Time) });
 				newGathering = await GetGatheringAsync(newGathering.Id);
@@ -172,9 +172,9 @@ namespace Core.Controls
 			}
 
             // Notify companions of gathering
-            _ = user.NotifyCompanions(CanaryNotification.CompanionGatheringCreated(user.ToUserShard(), await newGathering.ToGatheringShard()));
+            _ = user.NotifyCompanions(CardinalNotification.CompanionGatheringCreated(user.ToUserShard(), await newGathering.ToIssueShard()));
 			
-			return await newGathering.ToGatheringShard();
+			return await newGathering.ToIssueShard();
 		}
 
 		public async Task EditGatheringAsync(long userId, long gatheringId,
@@ -190,11 +190,11 @@ namespace Core.Controls
 
 			// Verify user is gathering host
 			Verify(originalGathering.IsModifiableBy(user),
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_PERMISSION));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_PERMISSION));
 
 			// Ensure gathering is editable
 			FailIf(originalGathering.IsTerminated,
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_ENDED));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_ENDED));
 
 			// Fail if edits may not be done during the gathering
 			FailIf(originalGathering.IsOngoing &&
@@ -204,13 +204,13 @@ namespace Core.Controls
 				AreNotNull(latitude, longitude) ||
                 !string.IsNullOrEmpty(friendlyLocation) ||
                 IsNotNull(radius) || IsNotNull(isDynamic)),
-				new UserErrorException(GatheringErrorCode.CANNOT_EDIT_STARTED));
+				new UserErrorException(CircleErrorCode.CANNOT_EDIT_STARTED));
 
-			Gathering editedGathering = new(originalGathering.ToCoreGathering())
+			Issue editedGathering = new(originalGathering.ToCoreIssue())
 			{
                 Title = string.IsNullOrEmpty(gatheringName) ? originalGathering.Title : gatheringName,
                 Description = string.IsNullOrEmpty(gatheringDescription) ? originalGathering.Description : gatheringDescription,
-				StartTime = startTime ?? originalGathering.StartTime,
+				StartDate = startTime ?? originalGathering.StartDate,
 				Location = AreNull(latitude, longitude) ? originalGathering.Location : new() { Latitude = latitude.Value, Longitude = longitude.Value },
 				FriendlyLocation = string.IsNullOrEmpty(friendlyLocation) ? originalGathering.FriendlyLocation : friendlyLocation,
 				Radius = IsNull(radius) ? originalGathering.Radius : new() { Kilometres = Math.Clamp(radius.Value, 0.1, radius.Value) },
@@ -222,7 +222,7 @@ namespace Core.Controls
 
 			// Validate gathering
 			Verify(editedGathering.ValidateAndNormalise(out string issues),
-				new UserErrorException(GatheringErrorCode.INVALID_DETAILS, new { issues }));
+				new UserErrorException(CircleErrorCode.INVALID_DETAILS, new { issues }));
 
 			List<(string Property, object Value)> edits = new();
             List<ActivityMessageShard> editMessages = new();
@@ -240,7 +240,7 @@ namespace Core.Controls
 			}
 			if (IsNotNull(startTime))
 			{
-				edits.Add((nameof(CoreGathering.StartTime), editedGathering.StartTime));
+				edits.Add((nameof(CoreGathering.StartTime), editedGathering.StartDate));
                 editMessages.Add(new(ActivityMessageType.Edited, ActorId: user.Id, Info: "time"));
 			}
 			if (IsNotNull(latitude) && IsNotNull(longitude))
@@ -285,7 +285,7 @@ namespace Core.Controls
 				// Push update
 				await Gatherings.UpdateGatheringAsync(originalGathering.Id, edits);
 
-				_ = originalGathering.NotifyGuests(CanaryNotification.GatheringEdited(await originalGathering.ToGatheringShard()), notifyHost: false);
+				_ = originalGathering.NotifyGuests(CardinalNotification.GatheringEdited(await originalGathering.ToIssueShard()), notifyHost: false);
 
 				// Reschedule notifications if required
 				if (IsNotNull(startTime))
@@ -294,9 +294,9 @@ namespace Core.Controls
 				}
 			}
 
-            if (editMessages.Any() && await Messages.GatheringConversationExists(originalGathering.Id))
+            if (editMessages.Any() && await Messages.CircleChatExists(originalGathering.Id))
             {
-				Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(originalGathering.Id, Time));
+				Chat conversation = new(await Messages.GetOrCreateCircleChat(originalGathering.Id, Time));
 
                 foreach (var value in editMessages)
                 {
@@ -313,11 +313,11 @@ namespace Core.Controls
 
 			// Verify user is able to end the gathering
 			Verify(gathering.IsModifiableBy(user),
-				new UserErrorException(GatheringErrorCode.NOT_HOST));
+				new UserErrorException(CircleErrorCode.NOT_HOST));
 
 			// Verify gathering is able to be terminated
             Verify(gathering.IsTerminable(),
-                new UserErrorException(GatheringErrorCode.CANNOT_END));
+                new UserErrorException(CircleErrorCode.CANNOT_END));
 
             // Try to end gathering
             await Gatherings.TerminateGatheringAsync(gathering.Id, Time);
@@ -334,7 +334,7 @@ namespace Core.Controls
 			_ = Terminal.AccountDirector.UpdateAllAsync(participants, user => new() { (nameof(CoreUser.Character), user.Character) });
 
 			// Schedule photo reminder for attendees
-			_ = User.NotifyAll(CanaryNotification.GatheringUploadClosing(await gathering.ToGatheringShard()), notifyAt: Time + OneDay * 0.7, users: (await gathering.Left).ToArray());
+			_ = User.NotifyAll(CardinalNotification.GatheringUploadClosing(await gathering.ToIssueShard()), notifyAt: Time + OneDay * 0.7, users: (await gathering.Left).ToArray());
         }
 
 		public async Task CancelGatheringAsync(long userId, long gatheringId)
@@ -344,16 +344,16 @@ namespace Core.Controls
 
 			// Verify gathering has not yet started
 			Verify(gathering.IsCancelable(),
-                new UserErrorException(GatheringErrorCode.CANNOT_CANCEL_STARTED));
+                new UserErrorException(CircleErrorCode.CANNOT_CANCEL_STARTED));
 
             // Verify user is able to cancel the gathering
             Verify(gathering.IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_CANCEL_PERMISSION));
+                new UserErrorException(CircleErrorCode.CANNOT_CANCEL_PERMISSION));
 
             // Try to cancel gathering
             await Gatherings.CancelGatheringAsync(gathering.Id);
 
-            _ = gathering.NotifyGuests(CanaryNotification.GatheringCancelled(await gathering.ToGatheringShard()), notifyHost: false);
+            _ = gathering.NotifyGuests(CardinalNotification.GatheringCancelled(await gathering.ToIssueShard()), notifyHost: false);
 
 			// Cancel scheduled notifications
 			_ = CancelScheduledNotifications(gathering);
@@ -366,15 +366,15 @@ namespace Core.Controls
 
             // Verify user is gathering host
             Verify(gathering.IsModifiableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_EDIT_PERMISSION));
+                new UserErrorException(CircleErrorCode.CANNOT_EDIT_PERMISSION));
 
             // Ensure gathering is editable
             Verify(gathering.IsOngoing,
-                new UserErrorException(GatheringErrorCode.NOT_STARTED));
+                new UserErrorException(CircleErrorCode.NOT_STARTED));
 
             // Ensure gathering is not sealed
             FailIf(gathering.Visibility == GatheringVisibility.Sealed,
-                new UserErrorException(GatheringErrorCode.SEALED));
+                new UserErrorException(CircleErrorCode.SEALED));
 
             var visibility = hide ? GatheringVisibility.Hidden : GatheringVisibility.Visible;
 
@@ -389,7 +389,7 @@ namespace Core.Controls
 
 			// Verify user is allowed to join gathering
 			Verify(await gathering.IsJoinableBy(user),
-                new UserErrorException(GatheringErrorCode.CANNOT_JOIN, new { user.AccountStatus }));
+                new UserErrorException(CircleErrorCode.CANNOT_JOIN, new { user.AccountStatus }));
 
             GatheringBond? previousUserState = null;
 
@@ -402,24 +402,24 @@ namespace Core.Controls
             // Check that user was not kicked
             FailIf(previousUserState.HasValue &&
                 previousUserState.Value.Equals(GatheringBond.Kicked),
-                new UserErrorException(GatheringErrorCode.KICKED));
+                new UserErrorException(CircleErrorCode.KICKED));
 
             // Check if user is already guest or arrived
             if (previousUserState.HasValue &&
 				(previousUserState.Value.Equals(GatheringBond.Guest) ||
                 previousUserState.Value.Equals(GatheringBond.Arrived)))
 			{
-                throw new UserErrorException(GatheringErrorCode.CANNOT_JOIN_GUEST);
+                throw new UserErrorException(CircleErrorCode.CANNOT_JOIN_GUEST);
             }
 
 			// Check if gathering is active and user is already there
-			if (HasAlready(gathering.StartTime) &&
+			if (HasAlready(gathering.StartDate) &&
 				await gathering.IsInRange(user))
 			{
 				// Try to add user to the gathering
 				await Gatherings.SetUserStateAsync(user.Id, gathering.Id, GatheringBond.Guest, Time);
 				await Gatherings.SetUserStateAsync(user.Id, gathering.Id, GatheringBond.Arrived, Time);
-                await Gatherings.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Decay), Gathering.InitialDecay) });
+                await Gatherings.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Decay), Issue.InitialDecay) });
             }
 			else
 			{
@@ -435,15 +435,15 @@ namespace Core.Controls
 
 				var activeCompanions = activeGuests.Intersect(userCompanions);
 
-				_ = User.NotifyAll(CanaryNotification.CompanionJoined(user.ToUserShard(), await gathering.ToGatheringShard()), users: activeCompanions.ToArray());
+				_ = User.NotifyAll(CardinalNotification.CompanionJoined(user.ToUserShard(), await gathering.ToIssueShard()), users: activeCompanions.ToArray());
             }
 
 			// Add member to chat
-			if (await Messages.GatheringConversationExists(gathering.Id))
+			if (await Messages.CircleChatExists(gathering.Id))
 			{
-				Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+				Chat conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
 
-				await Messages.AddUsersToConversationAsync(conversation.Id, user.Id);
+				await Messages.AddUsersToChatAsync(conversation.Id, user.Id);
 
                 ActivityMessageShard activityMessage = new(ActivityMessageType.Joined, ActorId: user.Id);
                 var message = await Messages.AddMessageAsync(conversation.Id, User.Hollow.Id, Time, MessageType.Activity, activityMessage);
@@ -462,20 +462,20 @@ namespace Core.Controls
 
 			// Check that user was associated
 			Verify(userIntention.HasValue,
-				new UserErrorException(GatheringErrorCode.NOT_GUEST));
+				new UserErrorException(CircleErrorCode.NOT_GUEST));
 
             // Check that user was not kicked
             FailIf(userIntention.HasValue &&
                 userIntention.Value.Equals(GatheringBond.Kicked),
-                new UserErrorException(GatheringErrorCode.KICKED));
+                new UserErrorException(CircleErrorCode.KICKED));
 
 			// Try to remove user from gathering
 			await Gatherings.DeleteUserStateAsync(user.Id, gathering.Id);
 
             // Delete any snapshots
-            foreach (SnapshotShard snapshot in await gathering.Snapshots)
+            foreach (PostShard snapshot in await gathering.Posts)
             {
-                if (user.Taken(snapshot))
+                if (user.Owns(snapshot))
                 { _ = Snapshots.SoftDeleteAsync(snapshot.Id); }
             }
 
@@ -483,11 +483,11 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, user);
 
             // Remove member from chat
-            if (await Messages.GatheringConversationExists(gathering.Id))
+            if (await Messages.CircleChatExists(gathering.Id))
             {
-                Conversation conversation = new(await Messages.GetOrCreateGatheringConversation(gathering.Id, Time));
+                Chat conversation = new(await Messages.GetOrCreateCircleChat(gathering.Id, Time));
 
-                await Messages.RemoveUserFromConversationAsync(conversation.Id, user.Id);
+                await Messages.RemoveUserFromChatAsync(conversation.Id, user.Id);
 
                 ActivityMessageShard activityMessage = new(ActivityMessageType.Left, ActorId: user.Id);
                 var message = await Messages.AddMessageAsync(conversation.Id, User.Hollow.Id, Time, MessageType.Activity, activityMessage);
@@ -566,7 +566,7 @@ namespace Core.Controls
             }
 			// User cannot receive information about gathering
 			else
-			{ throw new UserErrorException(GatheringErrorCode.CANNOT_VIEW); }
+			{ throw new UserErrorException(CircleErrorCode.CANNOT_VIEW); }
 
 			List<GuestListBondPair> allGuestShards = allGuests
 				.ConvertAll(userDetails => new GuestListBondPair(userDetails.User.ToUserShard(), userDetails.Bond));
@@ -594,7 +594,7 @@ namespace Core.Controls
 				.ConvertAll(u => u.ToUserShard());
 		}
 
-		public async Task InviteUserAsync(long inviterId, long inviteeId, long gatheringId)
+		public async Task AddMemberAsync(long inviterId, long inviteeId, long gatheringId)
 		{
 			var inviter = await GetUserAsync(inviterId);
 			var invitee = await GetUserAsync(inviteeId);
@@ -602,17 +602,17 @@ namespace Core.Controls
 
 			// Verify inviter has relationship with gathering
 			Verify(await gathering.HasUserRelationship(inviter),
-				new UserErrorException(GatheringErrorCode.NOT_GUEST));
+				new UserErrorException(CircleErrorCode.NOT_GUEST));
 
 			// Verify that the invitee can join the gathering
 			Verify(await gathering.IsJoinableBy(invitee),
-				new UserErrorException(GatheringErrorCode.CANNOT_INVITE_INVALID_INVITEE));
+				new UserErrorException(CircleErrorCode.CANNOT_INVITE_INVALID_INVITEE));
 
 			// Verify that inviter is companions with the invitee
 			Verify(await inviter.IsCompanionsWith(invitee),
-				new UserErrorException(GatheringErrorCode.CANNOT_INVITE_NEUTRAL));
+				new UserErrorException(CircleErrorCode.CANNOT_INVITE_NEUTRAL));
 
-			Conversation conversation = new(await Messages.GetOrCreateIndividualConversationBetween(inviter.Id, invitee.Id, Time));
+			Chat conversation = new(await Messages.GetOrCreateIndividualChatBetween(inviter.Id, invitee.Id, Time));
             var message = await Messages.AddMessageAsync(conversation.Id, inviter.Id, Time, MessageType.GatheringInvite, gathering.Id);
 
             _ = conversation.MessageOrNotifyOthersAsync(inviter, message);
@@ -626,19 +626,19 @@ namespace Core.Controls
 
 			// Verify kicking user is the host
 			Verify(gathering.IsHostedBy(host),
-				new UserErrorException(GatheringErrorCode.CANNOT_KICK_PERMISSION));
+				new UserErrorException(CircleErrorCode.CANNOT_KICK_PERMISSION));
 
 			// Verify host is not kicking themself
 			FailIf(host.Equals(target),
-				new UserErrorException(GatheringErrorCode.CANNOT_KICK_SELF));
+				new UserErrorException(CircleErrorCode.CANNOT_KICK_SELF));
 
 			// Kick target user from gathering
 			await Gatherings.SetUserStateAsync(target.Id, gathering.Id, GatheringBond.Kicked, Time);
 
 			// Remove target user's snapshots from gathering
-			foreach (SnapshotShard snapshot in await gathering.Snapshots)
+			foreach (PostShard snapshot in await gathering.Posts)
 			{
-				if (target.Taken(snapshot))
+				if (target.Owns(snapshot))
 				{ _ = Snapshots.SoftDeleteAsync(snapshot.Id); }
 			}
 
@@ -646,11 +646,11 @@ namespace Core.Controls
             _ = CancelScheduledNotificationsForGuest(gathering, target);
 
             // Remove member from chat
-            if (await Messages.GatheringConversationExists(gathering.Id))
+            if (await Messages.CircleChatExists(gathering.Id))
             {
-                var conversation = await Messages.GetOrCreateGatheringConversation(gathering.Id, Time);
+                var conversation = await Messages.GetOrCreateCircleChat(gathering.Id, Time);
 
-                await Messages.RemoveUserFromConversationAsync(conversation.Id, target.Id);
+                await Messages.RemoveUserFromChatAsync(conversation.Id, target.Id);
             }
         }
 
@@ -674,25 +674,25 @@ namespace Core.Controls
 
 		#region Favours
 
-		internal async Task<List<Gathering>> RequestPastGatheringsForUserAsync(User user)
+		internal async Task<List<Issue>> RequestPastGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindPastGatheringsForUserAsync(user.Id))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 
-		internal async Task<List<Gathering>> RequestOngoingGatheringsForUserAsync(User user)
+		internal async Task<List<Issue>> RequestOngoingGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindOngoingGatheringsForUserAsync(user.Id, Time))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 
-		internal async Task<List<Gathering>> RequestUpcomingGatheringsForUserAsync(User user)
+		internal async Task<List<Issue>> RequestUpcomingGatheringsForUserAsync(User user)
 		{
 			return (await Gatherings.FindUpcomingGatheringsForUserAsync(user.Id, Time))
 				.ConvertAll(gathering => new Gathering(gathering));
 		}
 		
-		internal async Task<List<(User User, GatheringBond State)>> RequestAllUsersFromGatheringAsync(Gathering gathering)
+		internal async Task<List<(User User, GatheringBond State)>> RequestAllUsersFromGatheringAsync(Issue gathering)
 		{
 			var users = await Gatherings.GetAllUsersAsync(gathering.Id);
 
@@ -701,7 +701,7 @@ namespace Core.Controls
 		}
 
 		internal async Task<List<(User User, DateTimeOffset Joined, DateTimeOffset? Left)>>
-			RequestGuestHistoryAsync(Gathering gathering)
+			RequestGuestHistoryAsync(Issue gathering)
 		{
 			var guests = await Gatherings.GetGuestHistoryAsync(gathering.Id);
 
@@ -716,7 +716,7 @@ namespace Core.Controls
 
 			foreach (CoreGathering coreGathering in gatherings)
 			{
-				Gathering gathering = new(coreGathering);
+				Issue gathering = new(coreGathering);
 
 				if (await user.CanJoin(gathering))
 				{ accessibleGatherings.Add(await gathering.ToGatheringShard(user)); }
@@ -732,15 +732,15 @@ namespace Core.Controls
 
             foreach (CoreGathering coreGathering in gatherings)
 			{
-				Gathering gathering = new(coreGathering);
+				Issue gathering = new(coreGathering);
 
 				gathering.RelativeAngle = CharacterVector.AngleBetweenAffected(user.Character, gathering.Character);
 
                 if (await user.CanJoin(gathering))
-				{ accessibleGatherings.Add(await gathering.ToGatheringShard()); continue; }
+				{ accessibleGatherings.Add(await gathering.ToIssueShard()); continue; }
 
 				if (gathering.RelativeAngle < maximumAngle)
-				{ accessibleGatherings.Add(await gathering.ToGatheringShard()); }
+				{ accessibleGatherings.Add(await gathering.ToIssueShard()); }
             }
 
             return accessibleGatherings;
@@ -757,15 +757,15 @@ namespace Core.Controls
 				// Add if not default
 				if (!pair.Equals(default))
 				{
-					Gathering gath = new(gathering);
-					list.Add(await gath.ToGatheringShard());
+					Issue gath = new(gathering);
+					list.Add(await gath.ToIssueShard());
 				}
 			}
 
 			return list;
 		}
 
-		internal async Task<bool> RequestUserIsAuthorisedGuest(User user, Gathering gathering)
+		internal async Task<bool> RequestUserIsAuthorisedGuest(User user, Issue gathering)
 		{
 			return await Gatherings.UserIsAuthorizedGuest(user.Id, gathering.Id);
 		}
@@ -796,7 +796,7 @@ namespace Core.Controls
             };
         }
 
-		private async Task RescheduleSchedule(Gathering gathering)
+		private async Task RescheduleSchedule(Issue gathering)
 		{
             // Cancel scheduled notifications
             await CancelScheduledNotifications(gathering);
@@ -805,7 +805,7 @@ namespace Core.Controls
             await ScheduleNotifications(gathering);
         }
 
-		private async Task CancelScheduledNotifications(Gathering gathering)
+		private async Task CancelScheduledNotifications(Issue gathering)
 		{
 			var (HostSchedule, GuestSchedules) = await Notifications.GetGatheringNotificationScheduleAsync(gathering.Id);
 
@@ -825,7 +825,7 @@ namespace Core.Controls
 			await Notifications.ClearGatheringNotificationScheduleAsync(gathering.Id);
 		}
 
-        private async Task CancelScheduledNotificationsForGuest(Gathering gathering, User guest)
+        private async Task CancelScheduledNotificationsForGuest(Issue gathering, User guest)
         {
             var (_, GuestSchedules) = await Notifications.GetGatheringNotificationScheduleAsync(gathering.Id);
 
@@ -851,7 +851,7 @@ namespace Core.Controls
             }
         }
 
-        private async Task CancelScheduledNotificationBatch(Gathering gathering, List<GuestNotificationSchedule> schedules)
+        private async Task CancelScheduledNotificationBatch(Issue gathering, List<GuestNotificationSchedule> schedules)
         {
 			// Flatten batches
 			// TODO
@@ -873,22 +873,22 @@ namespace Core.Controls
             }
         }
 
-        private async Task ScheduleNotifications(Gathering gathering)
+        private async Task ScheduleNotifications(Issue gathering)
 		{
             // TODO Should make this a bit more intelligent.
 
-            var shard = await gathering.ToGatheringShard();
+            var shard = await gathering.ToIssueShard();
 
 			// Schedule guests
             var upcomingIdSync = Task.FromResult("");
-            bool scheduleUpcoming = gathering.StartTime - OneHour > Time;
+            bool scheduleUpcoming = gathering.StartDate - OneHour > Time;
 
             if (scheduleUpcoming)
             {
-                upcomingIdSync = gathering.NotifyGuests(CanaryNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
+                upcomingIdSync = gathering.NotifyGuests(CardinalNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
             }
 
-            var imminentIdSync = gathering.NotifyGuests(CanaryNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
+            var imminentIdSync = gathering.NotifyGuests(CardinalNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
 
 			// Await scheduling
 			string upcomingNotificationId = await upcomingIdSync, imminentNotificationId = await imminentIdSync;
@@ -899,19 +899,19 @@ namespace Core.Controls
 			{ await Notifications.UpdateGatheringGuestNotificationSchedulesAsync(gathering.Id, schedules.ToArray()); }
         }
 
-		private async Task ScheduleNotificationsForGuest(Gathering gathering, User guest)
+		private async Task ScheduleNotificationsForGuest(Issue gathering, User guest)
 		{
-			var shard = await gathering.ToGatheringShard();
+			var shard = await gathering.ToIssueShard();
 
             var upcomingIdSync = Task.FromResult("");
-            bool scheduleUpcoming = gathering.StartTime - OneHour < Time;
+            bool scheduleUpcoming = gathering.StartDate - OneHour < Time;
 
             if (scheduleUpcoming)
             {
-                upcomingIdSync = guest.Notify(CanaryNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
+                upcomingIdSync = guest.Notify(CardinalNotification.GatheringUpcoming(shard, "in an hour"), shard.StartTime - OneHour);
             }
 
-            var imminentIdSync = guest.Notify(CanaryNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
+            var imminentIdSync = guest.Notify(CardinalNotification.GatheringImminent(shard), shard.StartTime - FifteenMinutes);
 
             // Await scheduling
             string upcomingNotificationId = await upcomingIdSync, imminentNotificationId = await imminentIdSync;

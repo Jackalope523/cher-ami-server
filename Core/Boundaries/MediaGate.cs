@@ -20,21 +20,17 @@ namespace Core.Boundaries
         Task UploadAvatarAsync(long userId, MemoryStream image);
         Task DeleteAvatarAsync(long userId);
 
-        Task<MemoryStream> DownloadGatheringHeaderAsync(long gatheringId);
-        Task UploadGatheringHeaderAsync(long gatheringId, MemoryStream image);
-        Task DeleteGatheringHeaderAsync(long gatheringId);
+        Task<MemoryStream> DownloadCircleHeaderAsync(long circleId);
+        Task UploadCircleHeaderAsync(long circleId, MemoryStream image);
+        Task DeleteCircleHeaderAsync(long circleId);
 
-        Task<MemoryStream> DownloadSnapshotAsync(long snapshotId, long ownerId);
-        Task UploadSnapshotAsync(long snapshotId, long ownerId, MemoryStream image);
-        Task DeleteSnapshotAsync(long snapshotId, long ownerId);
+        Task<MemoryStream> DownloadPostAsync(long postId, long ownerId);
+        Task UploadPostAsync(long postId, long ownerId, MemoryStream image);
+        Task DeletePostAsync(long postId, long ownerId);
 
-        Task<MemoryStream> DownloadPhotoAsync(long conversationId, Guid photoId);
-        Task<Guid> UploadPhotoAsync(long conversationId, MemoryStream image);
-        Task DeletePhotoAsync(long conversationId, Guid photoId);
-
-        Task<MemoryStream> DownloadGroupChatHeaderAsync(long conversationId);
-        Task UploadGroupChatHeaderAsync(long conversationId, MemoryStream image);
-        Task DeleteGroupChatHeaderAsync(long conversationId);
+        Task<MemoryStream> DownloadPhotoAsync(long chatId, Guid photoId);
+        Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image);
+        Task DeletePhotoAsync(long chatId, Guid photoId);
     }
 
     public interface IMediaOperations
@@ -44,17 +40,14 @@ namespace Core.Boundaries
         Task<MemoryStream> GetAvatarAsync(long userId, long targetId);
         Task<ImageMetadataShard> GetAvatarMetadataAsync(long userId, long targetId);
 
-        Task<MemoryStream> GetHeaderAsync(long userId, long gatheringId);
-        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long gatheringId);
+        Task<MemoryStream> GetHeaderAsync(long userId, long circleId);
+        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long circleId);
 
-        Task<MemoryStream> GetSnapshotAsync(long userId, long snapshotId);
-        Task<ImageMetadataShard> GetSnapshotMetadataAsync(long userId, long snapshotId);
+        Task<MemoryStream> GetPostAsync(long userId, long postId);
+        Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId);
 
-        Task<MemoryStream> GetGroupChatHeaderAsync(long userId, long conversationId);
-        Task<ImageMetadataShard> GetGroupChatHeaderMetadataAsync(long userId, long conversationId);
-
-        Task<MemoryStream> GetPhotoAsync(long userId, long conversationId, Guid photoId);
-        Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long conversationId, Guid photoId);
+        Task<MemoryStream> GetPhotoAsync(long userId, long chatId, Guid photoId);
+        Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId);
     }
 
     #endregion

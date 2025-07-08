@@ -2,7 +2,7 @@
 
 namespace Repository
 {
-    public class EFCoreNestStore : QueryStore, INestDatabase
+    public class EFCoreNestStore : QueryStore, IProfileDatabase
     {
         private static readonly Func<CanaryContext, long, long, UserRelationship.UserRelationshipType, Task> RemoveLinkOperation =
             EF.CompileAsyncQuery(

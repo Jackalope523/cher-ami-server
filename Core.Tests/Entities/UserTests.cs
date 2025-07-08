@@ -92,7 +92,7 @@ namespace Core.Tests.Entities
 			var returnedGathering = await user.NextGathering();
 
 			// Assert
-			Assert.Equal(Gathering.None, returnedGathering);
+			Assert.Equal(Issue.None, returnedGathering);
 		}
 
 		/////
@@ -285,7 +285,7 @@ namespace Core.Tests.Entities
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			await environment.UpdateUser(user, nameof(CoreUser.AccountStatus), UserAccountStatus.Limited);
-			user = new(await environment.Terminal.AccountDatabase.FindUserByIdAsync(user.Id));
+			user = new(await environment.Terminal.AccountDatabase.GetUserByIdAsync(user.Id));
 
 			// Act
 			var canView = await user.CanView(gathering);
@@ -337,7 +337,7 @@ namespace Core.Tests.Entities
 			var gathering = await environment.GenerateUpcomingGatheringAsync(host);
 
 			// Act
-			await host.CanEtch(gathering);
+			await host.CanPostTo(gathering);
 			// If no exception is thrown, the test is successful
 		}
 
@@ -351,7 +351,7 @@ namespace Core.Tests.Entities
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, user);
 
 			// Act
-			var etched = user.Taken(snapshot);
+			var etched = user.Owns(snapshot);
 
 			// Assert
 			Assert.True(etched);
@@ -368,7 +368,7 @@ namespace Core.Tests.Entities
 			var snapshot = await environment.GenerateSnapshotAsync(gathering, host);
 
 			// Act
-			var etched = user.Taken(snapshot);
+			var etched = user.Owns(snapshot);
 
 			// Assert
 			Assert.False(etched);
@@ -446,8 +446,8 @@ namespace Core.Tests.Entities
 			// Arrange
 			var user = await environment.GenerateUniqueUserAsync();
 			var oldReputation = user.Reputation;
-			await environment.Terminal.DisciplineDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
-			await environment.Terminal.DisciplineDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
+			await environment.Terminal.ReportDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
+			await environment.Terminal.ReportDirector.PenaliseUserAsync(user, PenaltyType.Unreliable, Psijic.Time);
 
 			// Act
 			await user.Penalised();

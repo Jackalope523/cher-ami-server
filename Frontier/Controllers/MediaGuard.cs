@@ -47,7 +47,7 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. asset:{asset}");
             });
         }
 
@@ -72,7 +72,7 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. avatar:{userId}");
             });
         }
 
@@ -82,8 +82,8 @@ namespace Frontier.Controllers
             return await Execute(async user => await media.GetAvatarMetadataAsync(user.Id, userId));
         }
 
-		[HttpGet("headers/{gatheringId}")]
-		public async Task<IActionResult> GetHeader(long gatheringId)
+		[HttpGet("headers/{circleId}")]
+		public async Task<IActionResult> GetHeader(long circleId)
         {
 			return await ExecuteUnsafe(async () =>
 			{
@@ -91,7 +91,7 @@ namespace Frontier.Controllers
 
 				ThrowIfUnverified(user);
 
-				var imageStream = await media.GetHeaderAsync(user.Id, gatheringId);
+				var imageStream = await media.GetHeaderAsync(user.Id, circleId);
 
 				if (imageStream != null)
 				{
@@ -103,18 +103,18 @@ namespace Frontier.Controllers
 					};
 				}
 				
-				throw new UnexpectedFailureException("Could not download image.");
+				throw new UnexpectedFailureException($"Could not download image. circle:{circleId}");
 			});
         }
 
-        [HttpGet("headers/{gatheringId}/metadata")]
-        public async Task<IActionResult> GetHeaderMetadata(long gatheringId)
+        [HttpGet("headers/{circleId}/metadata")]
+        public async Task<IActionResult> GetHeaderMetadata(long circleId)
         {
-            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, gatheringId));
+            return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, circleId));
         }
 
-        [HttpGet("snapshots/{snapshotId}")]
-		public async Task<IActionResult> GetSnapshotImage(long snapshotId)
+        [HttpGet("posts/{postId}")]
+		public async Task<IActionResult> GetPostImage(long postId)
         {
             return await ExecuteUnsafe(async () =>
             {
@@ -122,7 +122,7 @@ namespace Frontier.Controllers
 
                 ThrowIfUnverified(user);
 
-                var imageStream = await media.GetSnapshotAsync(user.Id, snapshotId);
+                var imageStream = await media.GetPostAsync(user.Id, postId);
 
                 if (imageStream != null)
                 {
@@ -130,22 +130,22 @@ namespace Frontier.Controllers
 
                     return new FileStreamResult(imageStream, "image/jpeg")
                     {
-                        FileDownloadName = "snapshot.jpg"
+                        FileDownloadName = "post.jpg"
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. post:{postId}");
             });
         }
 
-        [HttpGet("snapshots/{snapshotId}/metadata")]
-        public async Task<IActionResult> GetSnapshotMetadata(long snapshotId)
+        [HttpGet("posts/{postId}/metadata")]
+        public async Task<IActionResult> GetPostMetadata(long postId)
         {
-            return await Execute(async user => await media.GetSnapshotMetadataAsync(user.Id, snapshotId));
+            return await Execute(async user => await media.GetPostMetadataAsync(user.Id, postId));
         }
 
-        [HttpGet("conversation/{conversationId}")]
-		public async Task<IActionResult> GetGroupChatHeader(long conversationId)
+        [HttpGet("chat/{chatId}/photos/{photoId}")]
+        public async Task<IActionResult> GetPhoto(long chatId, Guid photoId)
         {
             return await ExecuteUnsafe(async () =>
             {
@@ -153,38 +153,7 @@ namespace Frontier.Controllers
 
                 ThrowIfUnverified(user);
 
-                var imageStream = await media.GetGroupChatHeaderAsync(user.Id, conversationId);
-
-                if (imageStream != null)
-                {
-                    imageStream.Seek(0, SeekOrigin.Begin);
-
-                    return new FileStreamResult(imageStream, "image/jpeg")
-                    {
-                        FileDownloadName = "photo.jpg"
-                    };
-                }
-
-                throw new UnexpectedFailureException("Could not download image.");
-            });
-        }
-
-        [HttpGet("conversation/{conversationId}/metadata")]
-        public async Task<IActionResult> GetGroupChatHeaderMetadata(long conversationId)
-        {
-            return await Execute(async user => await media.GetGroupChatHeaderMetadataAsync(user.Id, conversationId));
-        }
-
-        [HttpGet("conversation/{conversationId}/photos/{photoId}")]
-        public async Task<IActionResult> GetPhoto(long conversationId, Guid photoId)
-        {
-            return await ExecuteUnsafe(async () =>
-            {
-                var user = await GetCurrentUserAsync();
-
-                ThrowIfUnverified(user);
-
-                var imageStream = await media.GetPhotoAsync(user.Id, conversationId, photoId);
+                var imageStream = await media.GetPhotoAsync(user.Id, chatId, photoId);
 
                 if (imageStream != null)
                 {
@@ -196,14 +165,14 @@ namespace Frontier.Controllers
                     };
                 }
 
-                throw new UnexpectedFailureException("Could not download image.");
+                throw new UnexpectedFailureException($"Could not download image. photo:{photoId}");
             });
         }
 
-        [HttpGet("conversation/{conversationId}/photos/{photoId}/metadata")]
-        public async Task<IActionResult> GetPhotoMetadata(long conversationId, Guid photoId)
+        [HttpGet("chat/{chatId}/photos/{photoId}/metadata")]
+        public async Task<IActionResult> GetPhotoMetadata(long chatId, Guid photoId)
         {
-            return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, conversationId, photoId));
+            return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, chatId, photoId));
         }
 
         #endregion

@@ -50,7 +50,7 @@ namespace Repository.Tests
             await sentry.ExecuteWriteAsync(ctx => ctx.UserReports.Add(userReport));
             await sentry.ExecuteWriteAsync(ctx => ctx.GatheringReports.Add(gatheringReport));
 
-            (List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>) reports = await store.GetReportsByUserAsync(subject1.Id);
+            (List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>) reports = await store.GetReportsByUserAsync(subject1.Id);
 
             Assert.NotNull(reports.Item1);
             Assert.NotNull(reports.Item2);
@@ -110,7 +110,7 @@ namespace Repository.Tests
             GatheringReport gatheringReport = new GatheringReportFactory().Create(subject1, testGathering);
             await sentry.ExecuteWriteAsync(ctx => ctx.GatheringReports.Add(gatheringReport));
 
-            List<Core.Boundaries.GatheringReport> reports = await store.GetReportsForGatheringAsync(testGathering.Id);
+            List<Core.Boundaries.PostReport> reports = await store.GetReportsForGatheringAsync(testGathering.Id);
 
             Assert.NotNull(reports);
             Assert.Equal(gatheringReport.UserId, reports.First().ReportingUserId);
@@ -128,7 +128,7 @@ namespace Repository.Tests
             await sentry.ExecuteWriteAsync(ctx => ctx.UserReports.Add(userReport));
             await sentry.ExecuteWriteAsync(ctx => ctx.GatheringReports.Add(gatheringReport));
 
-            (List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>) reports = await store.GetReportsForUserAsync(subject2.Id);
+            (List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>) reports = await store.GetReportsForUserAsync(subject2.Id);
 
             Assert.NotNull(reports.Item1);
             Assert.NotNull(reports.Item2);

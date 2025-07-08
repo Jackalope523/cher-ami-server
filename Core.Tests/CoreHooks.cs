@@ -35,7 +35,7 @@ namespace Core.Tests
             CoreUser userCheck = null;
 			try
 			{
-				userCheck = await accounts.FindUserByPhoneNumberAsync(phoneNumber);
+				userCheck = await accounts.GetUserByPhoneNumberAsync(phoneNumber);
 				Console.Error.WriteLine($"Tried to create user with phone number {phoneNumber} but it already exists.");
 			}
 			catch { }
@@ -54,7 +54,7 @@ namespace Core.Tests
             
 			await accounts.CreateUserAsync(phoneNumber, email, normalisedEmail, name, dateOfBirth, joinDate, character, notificationId);
 
-			CoreUser createdUser = await accounts.FindUserByPhoneNumberAsync(phoneNumber);
+			CoreUser createdUser = await accounts.GetUserByPhoneNumberAsync(phoneNumber);
 			generatedUserIds.Add(createdUser.Id);
 
 			return createdUser;
@@ -75,20 +75,20 @@ namespace Core.Tests
             return await accounts.RerollUserCodeAsync(userId);
         }
 
-        public async Task<CoreUser> FindUserByEmailAsync(string normalisedEmail)
+        public async Task<CoreUser> GetUserByEmailAsync(string normalisedEmail)
         {
-			return await accounts.FindUserByEmailAsync(normalisedEmail);
+			return await accounts.GetUserByEmailAsync(normalisedEmail);
         }
 
-        public async Task<CoreUser> FindUserByIdAsync(long userId)
+        public async Task<CoreUser> GetUserByIdAsync(long userId)
         {
-			return await accounts.FindUserByIdAsync(userId);
+			return await accounts.GetUserByIdAsync(userId);
         }
 
-        public async Task<CoreUser> FindUserByPhoneNumberAsync(string phoneNumber)
+        public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber)
         {
             ContentValidation.TryNormalisePhoneNumber(phoneNumber, out phoneNumber);
-            return await accounts.FindUserByPhoneNumberAsync(phoneNumber);
+            return await accounts.GetUserByPhoneNumberAsync(phoneNumber);
         }
 
         public async Task<LocationShard> GetRecentLocationAsync(long userId)
@@ -129,7 +129,7 @@ namespace Core.Tests
 
 	public class NotificationServiceStub : INotificationService
 	{
-		public static ConcurrentDictionary<string, ConcurrentBag<CanaryNotification>> messages = new();
+		public static ConcurrentDictionary<string, ConcurrentBag<CardinalNotification>> messages = new();
 
         public async Task CancelNotification(string notificationId)
         {
@@ -137,12 +137,12 @@ namespace Core.Tests
             // TODO
         }
 
-        public Task<string> DispatchNotification(CanaryNotification notification, params NotificationProfile[] notificationProfiles)
+        public Task<string> DispatchNotification(CardinalNotification notification, params NotificationProfile[] notificationProfiles)
         {
             if (notificationProfiles.Length < 1)
             { return Task.FromResult(""); }
 
-            ConcurrentBag<CanaryNotification> userBag;
+            ConcurrentBag<CardinalNotification> userBag;
             var notificationId = notificationProfiles[0].NotificationId.ToString();
             var exists = messages.TryGetValue(notificationId, out userBag);
 
@@ -156,12 +156,12 @@ namespace Core.Tests
             return Task.FromResult("");
         }
 
-        public Task<string> ScheduleNotification(CanaryNotification notification, DateTimeOffset dispatchAt, params NotificationProfile[] notificationProfiles)
+        public Task<string> ScheduleNotification(CardinalNotification notification, DateTimeOffset dispatchAt, params NotificationProfile[] notificationProfiles)
         {
             if (notificationProfiles.Length < 1)
             { return Task.FromResult(""); }
 
-            ConcurrentBag<CanaryNotification> userBag;
+            ConcurrentBag<CardinalNotification> userBag;
             var notificationId = notificationProfiles[0].NotificationId.ToString();
             var exists = messages.TryGetValue(notificationId, out userBag);
 

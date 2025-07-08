@@ -10,7 +10,7 @@ using Core;
 namespace Frontier.Controllers
 {
 	[Authorize]
-	public partial class HollowHub : Hub<IClientSocket>
+	public partial class SocketHub : Hub<IClientSocket>
 	{
 		#region Variables
 
@@ -18,16 +18,16 @@ namespace Frontier.Controllers
 		public ILogger log;
 
 		public IAccountOperations accounts;
+		public IChatOperations chats;
 		public IConnectionOperations connections;
-		public IGatheringOperations gatherings;
-		public ISnapshotOperations snapshots;
-		public IDisciplineOperations reports;
+		public ICircleOperations circles;
+		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;
-		public IMessageOperations messages;
-		public INestOperations nests;
-		public INotificationOperations notifications;
 		public IMiscellaneousOperations miscellaneous;
+		public INotificationOperations notifications;
+		public IProfileOperations profiles;
+		public IReportOperations reports;
 
 		public UserManager<CoreUser> userManager;
 
@@ -35,22 +35,22 @@ namespace Frontier.Controllers
 
 		#region Initialisation
 
-		public HollowHub(GuardBox box, UserManager<CoreUser> aspUserManager)
+		public SocketHub(GuardBox box, UserManager<CoreUser> aspUserManager)
 		{
 			env = box.env;
 			log = box.log;
 
 			accounts = box.accounts;
+			chats = box.chat;
 			connections = box.connections;
-			nests = box.nests;
-			gatherings = box.gatherings;
-			snapshots = box.snapshots;
+			circles = box.circles;
+			issues = box.issues;
 			keys = box.keys;
-			reports = box.reports;
 			media = box.media;
-			messages = box.messages;
-			notifications = box.notifications;
 			miscellaneous = box.miscellaneous;
+			notifications = box.notifications;
+			reports = box.reports;
+			profiles = box.profiles;
 
 			userManager = aspUserManager;
 		}

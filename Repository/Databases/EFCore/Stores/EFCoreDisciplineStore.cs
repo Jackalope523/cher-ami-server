@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-    public class EFCoreDisciplineStore : QueryStore, IDisciplineDatabase
+    public class EFCoreDisciplineStore : QueryStore, IReportDatabase
     {
         internal EFCoreDisciplineStore(Func<CanaryContext> contextFactory) : base(contextFactory)
         {
         }
 
-        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>)> GetReportsByUserAsync(long id)
+        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long id)
         {
             await using CanaryContext ctx = initContext();
 
@@ -28,10 +28,10 @@ namespace Repository
             )).
             ToListAsync();
 
-            List<Core.Boundaries.GatheringReport> gatheringReportsToReturn = await ctx.
+            Task<List<Core.Boundaries.PostReport>> gatheringReportsToReturn = storeSentry.ExecuteReadAsync(ctx => ctx.
             GatheringReports.
             Where(r => r.UserId == id).
-            Select(r => new Core.Boundaries.GatheringReport
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.UserId ?? 0,
@@ -42,10 +42,10 @@ namespace Repository
             )).
             ToListAsync();
 
-            List<Core.Boundaries.SnapshotReport> snapshotReportsToReturn = await ctx.
+            Task<List<Core.Boundaries.PostReport>> snapshotReportsToReturn = storeSentry.ExecuteReadAsync(ctx => ctx.
             SnapshotReports.
             Where(r => r.UserId == id).
-            Select(r => new Core.Boundaries.SnapshotReport
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.UserId ?? 0,
@@ -59,14 +59,14 @@ namespace Repository
             return (userReportsToReturn, gatheringReportsToReturn, snapshotReportsToReturn);
         }
 
-        public async Task<List<Core.Boundaries.GatheringReport>> GetReportsForGatheringAsync(long id)
+        public async Task<List<Core.Boundaries.PostReport>> GetReportsForGatheringAsync(long id)
         {
             await using CanaryContext ctx = initContext();
 
             return await ctx.
             GatheringReports.
             Where(r => r.GatheringId == id).
-            Select(r => new Core.Boundaries.GatheringReport
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.UserId ?? 0,
@@ -78,7 +78,7 @@ namespace Repository
             ToListAsync();
         }
 
-        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.GatheringReport>, List<Core.Boundaries.SnapshotReport>)> GetReportsForUserAsync(long id)
+        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long id)
         {
             await using CanaryContext ctx = initContext();
 
@@ -102,10 +102,10 @@ namespace Repository
                 Select(e => e.Id).
                 ToListAsync();
 
-            List<Core.Boundaries.GatheringReport>  gatheringReportsToReturn = await ctx.
+            Task<List<Core.Boundaries.PostReport>>  gatheringReportsToReturn = storeSentry.ExecuteReadAsync(ctx => ctx.
             GatheringReports.
             Where(r => gatheringsHosted.Contains(r.GatheringId)).
-            Select(r => new Core.Boundaries.GatheringReport
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.UserId ?? 0,
@@ -122,10 +122,10 @@ namespace Repository
                Select(s => s.Id).
                ToListAsync();
 
-            List<Core.Boundaries.SnapshotReport> snapshotReportsToReturn = await ctx.
+            Task<List<Core.Boundaries.PostReport>> snapshotReportsToReturn = storeSentry.ExecuteReadAsync(ctx => ctx.
             SnapshotReports.
             Where(r => snapshotsPosted.Contains(r.SnapshotId)).
-            Select(r => new Core.Boundaries.SnapshotReport
+            Select(r => new Core.Boundaries.PostReport
             (
                r.Id,
                r.UserId ?? 0,
@@ -213,14 +213,14 @@ namespace Repository
             ToListAsync();
         }
 
-        public async Task<List<Core.Boundaries.SnapshotReport>> GetReportsForSnapshotAsync(long snapshotId)
+        public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long snapshotId)
         {
             await using CanaryContext ctx = initContext();
 
             return await 
             ctx.SnapshotReports.
             Where(r => r.SnapshotId == snapshotId).
-            Select(r => new Core.Boundaries.SnapshotReport
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.UserId ?? 0,
@@ -232,7 +232,7 @@ namespace Repository
             ToListAsync();
         }
 
-        public async Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, SnapshotReportType reportType, string reportDetails)
+        public async Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)
         {
             SnapshotReport toCreate = new()
             {

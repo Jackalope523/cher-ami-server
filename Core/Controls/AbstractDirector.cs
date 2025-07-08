@@ -20,13 +20,13 @@ namespace Core.Controls
 
 		protected IAccountDatabase Accounts { get; private set; }
 		protected IConnectionDatabase Connections { get; private set; }
-		protected IGatheringDatabase Gatherings { get; private set; }
-		protected ISnapshotDatabase Snapshots { get; private set; }
-		protected IDisciplineDatabase Reports { get; private set; }
+		protected ICircleDatabase Gatherings { get; private set; }
+		protected IIssueDatabase Snapshots { get; private set; }
+		protected IReportDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
 		protected IMediaDatabase Media { get; private set; }
-		protected IMessageDatabase Messages { get; private set; }
-		protected INestDatabase Nests { get; private set; }
+		protected IChatDatabase Messages { get; private set; }
+		protected IProfileDatabase Nests { get; private set; }
 		protected INotificationDatabase Notifications { get; private set; }
         protected IMiscellaneousDatabase Miscellaneous { get; private set; }
 
@@ -43,13 +43,13 @@ namespace Core.Controls
 			
 			Accounts = Terminal.AccountDatabase;
 			Connections = Terminal.ConnectionDatabase;
-			Gatherings = Terminal.GatheringDatabase;
-			Snapshots = Terminal.SnapshotDatabase;
-			Reports = Terminal.DisciplineDatabase;
+			Gatherings = Terminal.CircleDatabase;
+			Snapshots = Terminal.IssueDatabase;
+			Reports = Terminal.ReportDatabase;
 			Keys = Terminal.KeyDatabase;
 			Media = Terminal.MediaDatabase;
-			Messages = Terminal.MessageDatabase;
-			Nests = Terminal.NestDatabase;
+			Messages = Terminal.ChatDatabase;
+			Nests = Terminal.ProfileDatabase;
 			Notifications = Terminal.NotificationDatabase;
 			Miscellaneous = Terminal.MiscellaneousDatabase;
         }
@@ -60,7 +60,7 @@ namespace Core.Controls
 
 		protected async Task<User> GetUserAsync(long userId)
         {
-            User user = new(await Accounts.FindUserByIdAsync(userId));
+            User user = new(await Accounts.GetUserByIdAsync(userId));
 			
 			// Fail if user account is locked
 			FailIf(user.IsLocked,
@@ -75,17 +75,17 @@ namespace Core.Controls
 
 		protected async Task<User> GetUserUnsafeAsync(long userId)
         {
-            return new(await Accounts.FindUserByIdAsync(userId));
+            return new(await Accounts.GetUserByIdAsync(userId));
         }
 
-        protected async Task<Gathering> GetGatheringAsync(long gatheringId)
+        protected async Task<Issue> GetGatheringAsync(long gatheringId)
         {
             return new(await Gatherings.FindGatheringAsync(gatheringId));
         }
 
-        protected async Task<Conversation> GetConversationAsync(long conversationId)
+        protected async Task<Chat> GetConversationAsync(long chatId)
         {
-            return new(await Messages.GetConversationAsync(conversationId));
+            return new(await Messages.GetChatAsync(conversationId));
         }
 
         #endregion

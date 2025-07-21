@@ -79,5 +79,15 @@ namespace Repository.Databases.Stores
             ctx.SnapshotReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
+
+        public Task<(List<Core.Boundaries.UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(List<Core.Boundaries.UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

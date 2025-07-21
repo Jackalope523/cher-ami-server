@@ -44,7 +44,7 @@ namespace Core.Boundaries
     {
         Task<CorePaymentMethod> GetPaymentMethodForUserAsync(long userId);
 
-        Task<CorePaymentMethod> AddPaymentMethodAsync(long userId,);
+        Task<CorePaymentMethod> AddPaymentMethodAsync(long userId);
         Task DeletePaymentMethodAsync(long paymentId);
 
         Task<List<CoreOrder>> GetOrdersForCircleAsync(long circleId);
@@ -55,7 +55,7 @@ namespace Core.Boundaries
     {
         Task<PaymentMethodShard> GetPaymentMethodForUserAsync(long userId);
 
-        Task<PaymentMethodShard> AddPaymentMethodAsync(long userId,);
+        Task<PaymentMethodShard> AddPaymentMethodAsync(long userId);
         Task RemovePaymentMethodAsync(long userId, long paymentId);
 
         Task<List<OrderShard>> GetOrdersForCircleAsync(long userId, long circleId);

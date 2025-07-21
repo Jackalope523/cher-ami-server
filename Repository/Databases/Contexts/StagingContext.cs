@@ -1,0 +1,25 @@
+﻿using EntityFramework.Exceptions.SqlServer;
+using Microsoft.EntityFrameworkCore;
+
+namespace Repository.Databases.Contexts
+{
+    internal class StagingContext : CanaryContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            string connectionString = "Host=localhost;Port=5432;Database=cardinal-test;Username=postgres;Password=SneakyPuma5233!!";
+
+            optionsBuilder.UseSqlServer(connectionString, x => x.
+                UseNetTopologySuite().
+                MigrationsHistoryTable("__StagingMigrationsHistory").
+                EnableRetryOnFailure());
+
+            optionsBuilder.UseExceptionProcessor();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}

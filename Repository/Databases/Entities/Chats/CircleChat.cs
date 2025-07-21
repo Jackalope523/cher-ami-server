@@ -2,12 +2,12 @@
 
 namespace Repository.Databases.Entities.Chats
 {
-    public class GatheringChat : Chat
+    public class CircleChat : Chat
     {
-        public long GatheringId { get; set; }
+        public long CircleId { get; set; }
       
 
         // Navigation Properties
-        public Gathering? Gathering { get; set; }
+        public Circle? Circle { get; set; }
     }
 }

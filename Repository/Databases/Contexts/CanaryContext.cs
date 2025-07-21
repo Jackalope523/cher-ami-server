@@ -3,38 +3,37 @@ using Repository.Databases.Entities;
 using Repository.Databases.Entities.Chats;
 using Repository.Databases.Entities.Messages;
 using Repository.Databases.Entities.Reports;
+using static Repository.Databases.Entities.Reports.Report;
+using UserReport = Repository.Databases.Entities.Reports.UserReport;
 
 namespace Repository.Databases.Contexts
 {
     internal abstract class CanaryContext : DbContext
     {
         internal DbSet<User> Users { get; set; }
-        internal DbSet<Gathering> Gatherings { get; set; }
-        internal DbSet<UserRelationship> UserRelationships { get; set; }
-        internal DbSet<GatheringLink> GatheringLinks { get; set; }
-        internal DbSet<SnapshotLink> SnapshotLinks { get; set; }
+        internal DbSet<Circle> Issues { get; set; }
+        internal DbSet<CircleMembership> CircleMemberships { get; set; }
+        internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
-        internal DbSet<GatheringReport> GatheringReports { get; set; }
         internal DbSet<SnapshotReport> SnapshotReports { get; set; }
+        internal DbSet<Post> Posts { get; set; }
         internal DbSet<Snapshot> Snapshots { get; set; }
-        internal DbSet<Telegram> Telegrams { get; set; }
+        internal DbSet<Caption> Captions { get; set; }
         internal DbSet<Subscription> Subscriptions { get; set; }
-        internal DbSet<Penalty> Penalties { get; set; }
-        internal DbSet<GuestClearance> GuestClearances { get; set; }
         internal DbSet<Feedback> Feedback { get; set; }
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
         internal DbSet<Chat> Chats { get; set; }
         internal DbSet<PrivateChat> PrivateChats { get; set; }
-        internal DbSet<GroupChat> GroupChats { get; set; }
-        internal DbSet<GatheringChat> GatheringChats { get; set; }
-        internal DbSet<ChatLink> ChatLinks { get; set; }
+        internal DbSet<CircleChat> CircleChats { get; set; }
+        internal DbSet<BroadcastChat> BroadcastChats { get; set; }
+        internal DbSet<ChatMembership> ChatMemberships { get; set; }
         internal DbSet<Connection> Connections { get; set; }
         internal DbSet<Message> Messages { get; set; }
         internal DbSet<TextMessage> TextMessages { get; set; }
-        internal DbSet<ImageMessage> ImageMessages { get; set; }
-        internal DbSet<GatheringShareMessage> GatheringShareMessages { get; set; }
-        internal DbSet<GatheringInviteMessage> GatheringInviteMessages { get; set; }
+        internal DbSet<PhotoMessage> PhotoMessages { get; set; }
+        internal DbSet<IssueMessage> IssueMessages { get; set; }
+        internal DbSet<PostMessage> PostMessages { get; set; }
         internal DbSet<ProfileMessage> ProfileMessages { get; set; }
         internal DbSet<ActivityMessage> ActivityMessages { get; set; }
 
@@ -53,7 +52,7 @@ namespace Repository.Databases.Contexts
               {
                   Id = -2,
                   PhoneNumber = "15734922666",
-                  Name = "CANARY",
+                  FirstName = "CANARY",
                   IsPhoneConfirmed = true,
 
               });
@@ -63,7 +62,7 @@ namespace Repository.Databases.Contexts
                 {
                     Id = -7,
                     PhoneNumber = "11002003007",
-                    Name = "Apple Test Account",
+                    FirstName = "Apple Test Account",
                     IsPhoneConfirmed = true,
                 });
 
@@ -72,7 +71,7 @@ namespace Repository.Databases.Contexts
                {
                    Id = -8,
                    PhoneNumber = "11002003008",
-                   Name = "Google Test Account",
+                   FirstName = "Google Test Account",
                    IsPhoneConfirmed = true,
                });
 
@@ -81,8 +80,16 @@ namespace Repository.Databases.Contexts
                 .HasMaxLength(255);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.Name)
-                .HasMaxLength(100);
+                .Property(u => u.Title)
+                .HasMaxLength(25);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.FirstName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.LastName)
+               .HasMaxLength(100);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.CompanionshipCode)
@@ -99,14 +106,6 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<User>()
                 .Property(u => u.SecurityStamp)
                 .HasMaxLength(50);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.Haunt)
-                .HasSrid(4326);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.CurrentLocation)
-                .HasSrid(4326);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.SocialInvitations)
@@ -129,11 +128,6 @@ namespace Repository.Databases.Contexts
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.HostedGatherings)
-                .WithOne(g => g.Host)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
                 .HasMany(u => u.InitiatedUserRelationships)
                 .WithOne(l => l.Self)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -149,13 +143,8 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.SnapshotLinks)
-                .WithOne(l => l.User)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
                 .HasMany(u => u.ReporterList)
-                .WithOne(r => r.Self)
+                .WithOne(r => r.FilingUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -164,28 +153,13 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.SentTelegrams)
-                .WithOne(t => t.Notifier)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.ReceivedTelegrams)
-                .WithOne(t => t.Recipient)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
                 .HasMany(u => u.SnapshotReports)
-                .WithOne(r => r.User)
+                .WithOne(r => r.FilingUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.GatheringReports)
-                .WithOne(r => r.User)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Snapshots)
-                .WithOne(r => r.Owner)
+                .HasMany(u => u.Posts)
+                .WithOne(p => p.Author)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -199,23 +173,8 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.Penalties)
-                .WithOne(p => p.Penalized)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.GuestClearances)
-                .WithOne(c => c.User)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
                .HasMany(u => u.Notifications)
                .WithOne(n => n.Recipient)
-               .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-               .HasMany(u => u.Snapshots)
-               .WithOne(r => r.Owner)
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -226,16 +185,6 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<User>()
              .HasMany(u => u.Feedback)
              .WithOne(f => f.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.Penalties)
-             .WithOne(p => p.Penalized)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.GuestClearances)
-             .WithOne(c => c.User)
              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -258,78 +207,31 @@ namespace Repository.Databases.Contexts
              .WithOne(c => c.User)
              .OnDelete(DeleteBehavior.Restrict);
 
-            // Gathering
-            modelBuilder.Entity<Gathering>()
+            // Circle
+            modelBuilder.Entity<Circle>()
                 .HasQueryFilter(g => !g.SoftDeleted);
 
-            modelBuilder.Entity<Gathering>()
+            modelBuilder.Entity<Circle>()
                 .Property(g => g.Description)
                 .HasMaxLength(1000);
 
-            modelBuilder.Entity<Gathering>()
-                .Property(g => g.FriendlyLocation)
-                .HasMaxLength(255);
-
-            modelBuilder.Entity<Gathering>()
+            modelBuilder.Entity<Circle>()
                 .Property(g => g.Title)
                 .HasMaxLength(100);
 
-            modelBuilder.Entity<Gathering>()
-                .Property(g => g.Location)
-                .HasSrid(4326);
-
-            modelBuilder.Entity<Gathering>()
-                .HasMany(g => g.GatheringLink)
-                .WithOne(l => l.Gathering)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-                .HasMany(g => g.Snapshots)
-                .WithOne(s => s.Gathering)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-                .HasMany(g => g.GatheringReports)
-                .WithOne(l => l.Gathering)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-                .HasMany(g => g.GuestClearances)
-                .WithOne(c => c.Gathering)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-                .HasMany(g => g.UserReports)
-                .WithOne(r => r.Gathering)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-               .HasMany(u => u.Notifications)
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.Notifications)
                .WithOne(n => n.Gathering)
                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Gathering>()
-               .HasMany(g => g.Shares)
-               .WithOne(m => m.Gathering)
+            modelBuilder.Entity<Circle>()
+               .HasOne(c => c.Chat)
+               .WithOne(c => c.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Gathering>()
-               .HasMany(g => g.Invites)
-               .WithOne(m => m.Gathering)
-               .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Gathering>()
-               .HasOne(g => g.Chat)
-               .WithOne(c => c.Gathering)
-               .OnDelete(DeleteBehavior.Restrict);
-
-            // Telegram
-            modelBuilder.Entity<Telegram>()
-                .HasQueryFilter(t => !t.SoftDeleted);
-                
-            modelBuilder.Entity<Telegram>()
-                .Property(n => n.Action)
-                .HasMaxLength(500);
+            // Issue
+            modelBuilder.Entity<Issue>()
+                .HasQueryFilter(g => !g.SoftDeleted);
 
             // Subscription
             modelBuilder.Entity<Subscription>()
@@ -339,29 +241,45 @@ namespace Repository.Databases.Contexts
                 .Property(s => s.DeviceToken)
                 .HasMaxLength(500);
 
-            // User Report
-            modelBuilder.Entity<UserReport>()
-                .HasQueryFilter(r => !r.SoftDeleted);
+            // Reports
+            modelBuilder.Entity<Report>()
+                .HasQueryFilter(w => !w.SoftDeleted);
 
-            modelBuilder.Entity<UserReport>()
+            modelBuilder.Entity<Report>()
                 .Property(r => r.Notes)
                 .HasMaxLength(2000);
 
-            // Gathering Report
-            modelBuilder.Entity<GatheringReport>()
-                .HasQueryFilter(r => !r.SoftDeleted);
-
-            modelBuilder.Entity<GatheringReport>()
-                .Property(r => r.Notes)
-                .HasMaxLength(2000);
-
-            // Snapshot Report
-            modelBuilder.Entity<SnapshotReport>()
-                .HasQueryFilter(r => !r.SoftDeleted);
+            modelBuilder.Entity<Report>()
+                .HasDiscriminator<ReportDiscriminator>("Discriminator")
+                .HasValue<SnapshotReport>(ReportDiscriminator.SnapshotReport)
+                .HasValue<UserReport>(ReportDiscriminator.UserReport)
+                .HasValue<CaptionReport>(ReportDiscriminator.CaptionReport);
 
             modelBuilder.Entity<SnapshotReport>()
-                .Property(r => r.Notes)
-                .HasMaxLength(2000);
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            modelBuilder.Entity<UserReport>()
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            modelBuilder.Entity<CaptionReport>()
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            // Post
+            modelBuilder.Entity<Post>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Post>()
+                .HasMany(p => p.Snapshots)
+                .WithOne(s => s.Post)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Post>()
+                .HasMany(p => p.Captions)
+                .WithOne(c => c.Post)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Snapshot
             modelBuilder.Entity<Snapshot>()
@@ -372,10 +290,19 @@ namespace Repository.Databases.Contexts
                 .WithOne(r => r.Snapshot)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Snapshot>()
-                .HasMany(s => s.SnapshotLinks)
-                .WithOne(l => l.Snapshot)
+
+            // Caption
+            modelBuilder.Entity<Caption>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Caption>()
+                .HasMany(s => s.Reports)
+                .WithOne(r => r.Caption)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Caption>()
+                .Property(c => c.Text)
+                .HasMaxLength(200);
 
             // Feedback
             modelBuilder.Entity<Feedback>()
@@ -384,25 +311,13 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Feedback>().Property(f => f.Comments)
                 .HasMaxLength(300);
 
-            // Snapshot Link
-            modelBuilder.Entity<SnapshotLink>()
-                .HasQueryFilter(l => !l.SoftDeleted);
-
             // User Relationship
             modelBuilder.Entity<UserRelationship>()
                 .HasQueryFilter(r => !r.SoftDeleted);
 
-            // Gathering Link
-            modelBuilder.Entity<GatheringLink>()
+            // Circle Membership
+            modelBuilder.Entity<CircleMembership>()
                 .HasQueryFilter(l => !l.SoftDeleted);
-
-            // Guest Clearance
-            modelBuilder.Entity<GuestClearance>()
-                .HasQueryFilter(c => !c.SoftDeleted);
-
-            // Penalty
-            modelBuilder.Entity<Penalty>()
-                .HasQueryFilter(p => !p.SoftDeleted);
 
             // Notifications
             modelBuilder.Entity<Notification>()
@@ -434,11 +349,6 @@ namespace Repository.Databases.Contexts
                 .WithOne(m => m.Chat)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<GroupChat>()
-                .Property(c => c.Title)
-                .HasColumnName("Title")
-                .HasMaxLength(200);
-
             modelBuilder.Entity<BroadcastChat>()
                 .Property(c => c.Title)
                 .HasColumnName("Title")
@@ -447,8 +357,7 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Chat>()
                .HasDiscriminator<ChatType>("Type")
                .HasValue<PrivateChat>(ChatType.Individual)
-               .HasValue<GroupChat>(ChatType.Group)
-               .HasValue<GatheringChat>(ChatType.Gathering)
+               .HasValue<CircleChat>(ChatType.Circle)
                .HasValue<BroadcastChat>(ChatType.Broadcast);
 
             modelBuilder.Entity<BroadcastChat>()
@@ -466,17 +375,17 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Message>()
                 .HasDiscriminator<MessageType>("Type")
                 .HasValue<TextMessage>(MessageType.Text)
-                .HasValue<ImageMessage>(MessageType.Photo)
+                .HasValue<PhotoMessage>(MessageType.Photo)
                 .HasValue<ActivityMessage>(MessageType.Activity)
-                .HasValue<ProfileMessage>(MessageType.Nest)
-                .HasValue<GatheringInviteMessage>(MessageType.GatheringInvite)
-                .HasValue<GatheringShareMessage>(MessageType.ShareGathering);
+                .HasValue<ProfileMessage>(MessageType.Profile)
+                .HasValue<PostMessage>(MessageType.Post)
+                .HasValue<IssueMessage>(MessageType.Issue);
 
-            modelBuilder.Entity<GatheringInviteMessage>()
+            modelBuilder.Entity<PostMessage>()
                 .Property(g => g.GatheringId)
                 .HasColumnName("GatheringId");
 
-            modelBuilder.Entity<GatheringShareMessage>()
+            modelBuilder.Entity<IssueMessage>()
                 .Property(g => g.GatheringId)
                 .HasColumnName("GatheringId");
 
@@ -491,16 +400,16 @@ namespace Repository.Databases.Contexts
                .HasMaxLength(2000);
 
             // Chat Links
-            modelBuilder.Entity<ChatLink>()
+            modelBuilder.Entity<ChatMembership>()
                 .HasQueryFilter(w => !w.SoftDeleted);
 
-            modelBuilder.Entity<ChatLink>()
-                .HasData(new ChatLink()
+            modelBuilder.Entity<ChatMembership>()
+                .HasData(new ChatMembership()
                 {
                     Id = -2,
                     UserId = -2,
                     ConversationId = -2,
-                    Type = MembershipType.Owner,
+                    Type = ChatMembershipType.Owner,
                     Muted = false,
                 });
 

@@ -9,9 +9,9 @@ namespace Repository.Databases.Entities
         public string PhoneNumber { get; set; } = DefaultPhoneNumber;
         public string Email { get; set; } = DefaultEmail;
         public string NormalizedEmail { get; set; } = DefaultNormalisedEmail;
-        public string Title { get; set; }
-        public string FirstName { get; set; } = DefaultName;
-        public string LastName { get; set; }
+        public string Title { get; set; } = DefaultTitle;
+        public string FirstName { get; set; } = DefaultFirstName;
+        public string LastName { get; set; } = DefaultLastName;
         public string CompanionshipCode { get; set; } = DefaultCompanionshipCode;
         public DateTimeOffset DateOfBirth { get; init; } = DefaultDateOfBirth;
         public DateTimeOffset JoinDate { get; init; } = DefaultJoinDate;
@@ -33,32 +33,30 @@ namespace Repository.Databases.Entities
         public bool GatheringDiscovery { get; set; } = DefaultGatheringDiscovery;
 
         // Navigation Properties
-        public List<Gathering>? HostedGatherings { get; set; }
+        public List<Circle>? HostedGatherings { get; set; }
         public List<UserRelationship>? InitiatedUserRelationships { get; set; }
         public List<UserRelationship>? TargetUserRelationships { get; set; }
-        public List<GatheringLink>? GatheringLinks { get; set; }
-        public List<SnapshotLink>? SnapshotLinks { get; set; }
+        public List<CircleMembership>? GatheringLinks { get; set; }
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
         public List<SnapshotReport>? SnapshotReports { get; set; }
         public List<Snapshot>? Snapshots { get; set; }
-        public List<Telegram>? SentTelegrams { get; set; }
-        public List<Telegram>? ReceivedTelegrams { get; set; }
         public List<Subscription>? Subscriptions { get; set; }
-        public List<Penalty>? Penalties { get; set; }
         public List<Feedback>? Feedback { get; set; }
-        public List<GuestClearance>? GuestClearances { get; set; }
         public List<Notification>? Notifications { get; set; }
-        public List<ChatLink>? ChatLinks { get; set; }
+        public List<ChatMembership>? ChatLinks { get; set; }
         public List<Message>? Messages { get; set; }
         public List<ProfileMessage>? Shares { get; set; }
         public List<Connection>? Connections { get; set; }
+        public List<Post>? Posts { get; set; }
 
         // Default Values
         public static string DefaultPhoneNumber { get; set; } = "";
         public static string DefaultEmail { get; set; } = "";
         public static string DefaultNormalisedEmail { get; set; } = "";
-        public static string DefaultName { get; set; } = "";
+        public static string DefaultTitle { get; set; } = "";
+        public static string DefaultFirstName { get; set; } = "";
+        public static string DefaultLastName { get; set; } = "";
         public static string DefaultCompanionshipCode { get; set; } = "";
         public static DateTimeOffset DefaultDateOfBirth { get; set; } = DateTimeOffset.MinValue;
         public static DateTimeOffset DefaultJoinDate { get; set; } = DateTimeOffset.MinValue;

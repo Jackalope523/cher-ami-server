@@ -4,15 +4,11 @@ namespace Repository.Databases.Entities
 {
     public class Snapshot : Entity
     {
-        public long OwnerId { get; set; }
-        public long GatheringId { get; set; }
-        public DateTimeOffset PostedAt { get; init; }
+        public long PostId { get; set; }
 
         // Navigation Properties
-        public User? Owner { get; set; }
-        public Gathering? Gathering { get; set; }
+        public Post? Post { get; set; }
         public List<SnapshotReport>? Reports { get; set; }
-        public List<SnapshotLink>? SnapshotLinks { get; set; }
 
         // Default Values
 

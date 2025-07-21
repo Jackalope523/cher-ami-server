@@ -61,7 +61,7 @@ namespace Repository.Databases.Stores
 
             try
             {
-                await ctx.ChatLinks.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
+                await ctx.ChatMemberships.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.Connections.Where(c => c.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.SnapshotLinks.Where(s => s.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
@@ -71,7 +71,7 @@ namespace Repository.Databases.Stores
                 await ctx.Penalties.Where(p => p.PenalizedId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.GuestClearances.Where(c => c.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.UserRelationships.Where(l => l.SelfId == id || l.OtherId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.GatheringLinks.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
+                await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
                 await ctx.Users.Where(u => u.Id == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
 
                 await transaction.CommitAsync();
@@ -91,7 +91,7 @@ namespace Repository.Databases.Stores
             try
             {
                 await ctx.Connections.Where(c => c.UserId == id).ExecuteDeleteAsync();
-                await ctx.ChatLinks.Where(l => l.UserId == id).ExecuteDeleteAsync();
+                await ctx.ChatMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteDeleteAsync();
                 await ctx.SnapshotLinks.Where(s => s.UserId == id).ExecuteDeleteAsync();
                 await ctx.Snapshots.Where(s => s.OwnerId == id).ExecuteDeleteAsync();
@@ -100,7 +100,7 @@ namespace Repository.Databases.Stores
                 await ctx.Penalties.Where(p => p.PenalizedId == id).ExecuteDeleteAsync();
                 await ctx.GuestClearances.Where(c => c.UserId == id).ExecuteDeleteAsync();
                 await ctx.UserRelationships.Where(l => l.SelfId == id).ExecuteDeleteAsync();
-                await ctx.GatheringLinks.Where(l => l.UserId == id).ExecuteDeleteAsync();
+                await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.ProfileMessages.Where(m => m.ProfileId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.ProfileId, (long?)null));
                 await ctx.Messages.Where(m => m.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
                 await ctx.Feedback.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));

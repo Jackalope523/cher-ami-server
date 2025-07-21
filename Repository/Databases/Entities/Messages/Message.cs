@@ -1,5 +1,4 @@
-﻿using Repository.Databases.Entities;
-using Repository.Databases.Entities.Chats;
+﻿using Repository.Databases.Entities.Chats;
 
 namespace Repository.Databases.Entities.Messages
 {

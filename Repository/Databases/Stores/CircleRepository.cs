@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using Repository.Databases.Contexts;
+﻿using Repository.Databases.Contexts;
 
 namespace Repository.Databases.Stores
 {

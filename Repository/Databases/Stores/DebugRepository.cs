@@ -18,7 +18,7 @@ namespace Repository.Databases.Stores
             try
             {
                 ctx.SnapshotLinks.ExecuteDelete();
-                ctx.GatheringLinks.ExecuteDelete();
+                ctx.CircleMemberships.ExecuteDelete();
                 ctx.UserRelationships.ExecuteDelete();
                 ctx.UserReports.ExecuteDelete();
                 ctx.GatheringReports.ExecuteDelete();

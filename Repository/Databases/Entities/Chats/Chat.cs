@@ -9,7 +9,7 @@ namespace Repository.Databases.Entities.Chats
         public DateTimeOffset CreatedAt { get; set; }
 
         // Navigation Properties
-        public List<ChatLink>? ChatLinks { get; set; }
+        public List<ChatMembership>? ChatLinks { get; set; }
         public List<Message>? Messages { get; set; }
     }
 }

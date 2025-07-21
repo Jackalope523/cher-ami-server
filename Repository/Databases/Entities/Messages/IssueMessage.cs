@@ -2,11 +2,11 @@
 
 namespace Repository.Databases.Entities.Messages
 {
-    public class GatheringInviteMessage : Message
+    public class IssueMessage : Message
     {
         public long GatheringId { get; set; }
 
         // Navigation Properties
-        public Gathering? Gathering { get; set; }
+        public Circle? Gathering { get; set; }
     }
 }

@@ -1,15 +1,15 @@
 ﻿namespace Repository.Databases.Entities
 {
-    public class GuestClearance : Entity
+    public class CircleMembership : Entity
     {
         public long UserId { get; set; }
-        public long GatheringId { get; set; }
+        public long CircleId { get; set; }
         public DateTimeOffset Time { get; set; }
-        public int Degree { get; set; }
+        public CircleMembershipType Type { get; set; }
 
         // Navigation Properties
         public User? User { get; set; }
-        public Gathering? Gathering { get; set; }
+        public Circle? Circle { get; set; }
 
         // Default Values
     }

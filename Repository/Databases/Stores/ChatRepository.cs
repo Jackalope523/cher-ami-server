@@ -31,7 +31,7 @@ namespace Repository.Databases.Stores
                     };
                     break;
                 case MessageType.Photo:
-                    toAdd = new ImageMessage()
+                    toAdd = new PhotoMessage()
                     {
                         ConversationId = chatId,
                         UserId = userId,
@@ -40,7 +40,7 @@ namespace Repository.Databases.Stores
                     };
                     break;
                 case MessageType.Issue:
-                    toAdd = new GatheringShareMessage()
+                    toAdd = new IssueMessage()
                     {
                         ConversationId = chatId,
                         UserId = userId,
@@ -49,7 +49,7 @@ namespace Repository.Databases.Stores
                     };
                     break;
                 case MessageType.GatheringInvite:
-                    toAdd = new GatheringInviteMessage()
+                    toAdd = new PostMessage()
                     {
                         ConversationId = chatId,
                         UserId = userId,
@@ -105,7 +105,7 @@ namespace Repository.Databases.Stores
                 storeSentry.DiscussWrite(ctx => 
                     ctx.ChatLinks.
                     Add(
-                        new ChatLink 
+                        new ChatMembership 
                         { 
                             ConversationId = conversationId, 
                             UserId = userId,
@@ -144,7 +144,7 @@ namespace Repository.Databases.Stores
                                             SingleAsync());
 
             string? title = conversation.Type == ChatType.OldGC ? ((GroupChat)conversation).Title : null;
-            long gatheringId = conversation.Type == ChatType.Circle ? ((GatheringChat)conversation).GatheringId : 0;
+            long gatheringId = conversation.Type == ChatType.Circle ? ((CircleChat)conversation).GatheringId : 0;
 
             return new CoreChat(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
         }
@@ -183,7 +183,7 @@ namespace Repository.Databases.Stores
                     case GroupChat groupChat:
                         toReturn.Add(coreConversation with { Title = groupChat.Title });
                         break;
-                    case GatheringChat gatheringChat:
+                    case CircleChat gatheringChat:
                         toReturn.Add(coreConversation with { GatheringId = gatheringChat.GatheringId });
                         break;
                     default:
@@ -222,13 +222,13 @@ namespace Repository.Databases.Stores
                     case TextMessage textMessage:
                         toReturn.Add(messageShard with { Value = textMessage.Text });
                         break;
-                    case ImageMessage imageMessage:
+                    case PhotoMessage imageMessage:
                         toReturn.Add(messageShard with { Value = imageMessage.StorageId });
                         break;
-                    case GatheringShareMessage gatheringShareMessage:
+                    case IssueMessage gatheringShareMessage:
                         toReturn.Add(messageShard with { Value = gatheringShareMessage.GatheringId });
                         break;
-                    case GatheringInviteMessage gatheringInviteMessage:
+                    case PostMessage gatheringInviteMessage:
                         toReturn.Add(messageShard with { Value = gatheringInviteMessage.GatheringId });
                         break;
                     case ProfileMessage profileMessage:
@@ -282,7 +282,7 @@ namespace Repository.Databases.Stores
         {
             Discussion currentDiscussion = storeSentry.BeginDiscussion();
 
-            ChatLink l = await storeSentry.ExecuteReadAsync(ctx => 
+            ChatMembership l = await storeSentry.ExecuteReadAsync(ctx => 
                                     ctx.ChatLinks.
                                     Where(l => l.ConversationId == conversationId && l.UserId == userId).
                                     SingleAsync());
@@ -353,8 +353,8 @@ namespace Repository.Databases.Stores
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.PrivateChats.Add(toAdd));
 
-            ChatLink membershipA = new() { UserId = userIdA, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
-            ChatLink membershipB = new() { UserId = userIdB, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatMembership membershipA = new() { UserId = userIdA, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatMembership membershipB = new() { UserId = userIdB, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.ChatLinks.AddRange(membershipA, membershipB));
 
@@ -400,7 +400,7 @@ namespace Repository.Databases.Stores
                 return conversation;
             }
 
-            GatheringChat toAdd = new() { Type = ChatType.Circle, CreatedAt = currentTime, GatheringId = gatheringId };
+            CircleChat toAdd = new() { Type = ChatType.Circle, CreatedAt = currentTime, GatheringId = gatheringId };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.GatheringChats.Add(toAdd));
 
@@ -416,7 +416,7 @@ namespace Repository.Databases.Stores
                              Select(g => g.HostId).
                              SingleAsync());
 
-            List<ChatLink> links = new();
+            List<ChatMembership> links = new();
             foreach (long userId in guestList)
             {
                 links.Add(new() { UserId = userId, ConversationId = toAdd.Id, Type = hostId == userId ? ChatMembershipType.Owner : ChatMembershipType.Regular, LastSeen = DateTimeOffset.UtcNow });
@@ -460,11 +460,11 @@ namespace Repository.Databases.Stores
             {
                 case TextMessage textMessage:
                     return messageShard with { Value = textMessage.Text };
-                case ImageMessage imageMessage:
+                case PhotoMessage imageMessage:
                     return messageShard with { Value = imageMessage.StorageId };
-                case GatheringShareMessage gatheringShareMessage:
+                case IssueMessage gatheringShareMessage:
                     return messageShard with { Value = gatheringShareMessage.GatheringId };
-                case GatheringInviteMessage gatheringInviteMessage:
+                case PostMessage gatheringInviteMessage:
                     return messageShard with { Value = gatheringInviteMessage.GatheringId };
                 case ProfileMessage profileMessage:
                     return messageShard with { Value = profileMessage.ProfileId };

@@ -2,7 +2,7 @@
 
 namespace Repository.Databases.Entities
 {
-    public class ChatLink : Entity
+    public class ChatMembership : Entity
     {
         public long UserId { get; set; }
         public long ConversationId { get; set; }

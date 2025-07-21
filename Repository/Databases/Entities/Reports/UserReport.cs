@@ -1,8 +1,6 @@
-﻿using Repository.Databases.Entities;
-
-namespace Repository.Databases.Entities.Reports
+﻿namespace Repository.Databases.Entities.Reports
 {
-    public class UserReport : Entity
+    public class UserReport : Report
     {
         public UserReportType Type { get; set; }
 
@@ -11,6 +9,6 @@ namespace Repository.Databases.Entities.Reports
 
         // Navigation Properties
         public User? Other { get; init; }
-        public Gathering? Gathering { get; init; }
+        public Circle? Gathering { get; init; }
     }
 }

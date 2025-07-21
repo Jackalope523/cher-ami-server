@@ -2,15 +2,15 @@
 
 namespace Repository.Databases.Entities.Reports
 {
-    public class SnapshotReport : Report
+    public class CaptionReport : Report
     {
         public enum ReportType { }
 
         public ReportType Type { get; set; }
 
-        public long SnapshotId { get; init; }
+        public long CaptionId { get; init; }
 
         // Navigation Properties
-        public Snapshot? Snapshot { get; init; }
+        public Caption? Caption { get; init; }
     }
 }

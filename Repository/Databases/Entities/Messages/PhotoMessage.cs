@@ -1,6 +1,6 @@
 ﻿namespace Repository.Databases.Entities.Messages
 {
-    public class ImageMessage : Message
+    public class PhotoMessage : Message
     {
         public Guid StorageId { get; set; }
     }

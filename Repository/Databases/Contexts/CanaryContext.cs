@@ -11,7 +11,8 @@ namespace Repository.Databases.Contexts
     internal abstract class CanaryContext : DbContext
     {
         internal DbSet<User> Users { get; set; }
-        internal DbSet<Circle> Issues { get; set; }
+        internal DbSet<Issue> Issues { get; set; }
+        internal DbSet<Circle> Circles { get; set; }
         internal DbSet<CircleMembership> CircleMemberships { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
@@ -90,10 +91,6 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<User>()
                .Property(u => u.LastName)
                .HasMaxLength(100);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.CompanionshipCode)
-                .HasMaxLength(100);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.NormalizedEmail)
@@ -212,8 +209,12 @@ namespace Repository.Databases.Contexts
                 .HasQueryFilter(g => !g.SoftDeleted);
 
             modelBuilder.Entity<Circle>()
-                .Property(g => g.Description)
-                .HasMaxLength(1000);
+                .Property(c => c.CircleCode)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Circle>()
+                .HasIndex(c => c.CircleCode)
+                .IsUnique();
 
             modelBuilder.Entity<Circle>()
                 .Property(g => g.Title)

@@ -12,7 +12,6 @@ namespace Repository.Databases.Entities
         public string Title { get; set; } = DefaultTitle;
         public string FirstName { get; set; } = DefaultFirstName;
         public string LastName { get; set; } = DefaultLastName;
-        public string CompanionshipCode { get; set; } = DefaultCompanionshipCode;
         public DateTimeOffset DateOfBirth { get; init; } = DefaultDateOfBirth;
         public DateTimeOffset JoinDate { get; init; } = DefaultJoinDate;
         public int Reputation { get; set; } = DefaultReputation;
@@ -57,7 +56,6 @@ namespace Repository.Databases.Entities
         public static string DefaultTitle { get; set; } = "";
         public static string DefaultFirstName { get; set; } = "";
         public static string DefaultLastName { get; set; } = "";
-        public static string DefaultCompanionshipCode { get; set; } = "";
         public static DateTimeOffset DefaultDateOfBirth { get; set; } = DateTimeOffset.MinValue;
         public static DateTimeOffset DefaultJoinDate { get; set; } = DateTimeOffset.MinValue;
         public static int DefaultReputation { get; set; } = 50;

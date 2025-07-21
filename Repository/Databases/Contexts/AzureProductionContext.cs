@@ -9,7 +9,6 @@ namespace Repository.Databases.Contexts
         {
             string connectionString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
             optionsBuilder.UseSqlServer(connectionString, x => x.
-                UseNetTopologySuite().
                 MigrationsHistoryTable("__ProductionMigrationsHistory").
                 EnableRetryOnFailure());
 

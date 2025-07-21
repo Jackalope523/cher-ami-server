@@ -63,7 +63,7 @@ namespace Core.Boundaries
         Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId);
         Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits);
         Task AddCircleMemberAsync(long userId, long circleId);
-        Task DeleteCircleMemberAsync(long userId, long circleId);
+        Task RemoveCircleMemberAsync(long userId, long circleId);
 
         Task AddRecipientAsync(long circleId, long userId);
         Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);

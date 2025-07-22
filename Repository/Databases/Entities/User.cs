@@ -32,10 +32,9 @@ namespace Repository.Databases.Entities
         public bool GatheringDiscovery { get; set; } = DefaultGatheringDiscovery;
 
         // Navigation Properties
-        public List<Circle>? HostedGatherings { get; set; }
         public List<UserRelationship>? InitiatedUserRelationships { get; set; }
         public List<UserRelationship>? TargetUserRelationships { get; set; }
-        public List<CircleMembership>? GatheringLinks { get; set; }
+        public List<CircleMembership>? CircleMemberships { get; set; }
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
         public List<SnapshotReport>? SnapshotReports { get; set; }

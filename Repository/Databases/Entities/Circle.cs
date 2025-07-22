@@ -1,8 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-using Repository.Databases.Entities.Chats;
-using Repository.Databases.Entities.Messages;
-using Repository.Databases.Entities.Reports;
-using Repository.Databases.Factories;
+﻿using Repository.Databases.Entities.Chats;
 
 namespace Repository.Databases.Entities
 {
@@ -16,9 +12,11 @@ namespace Repository.Databases.Entities
 
 
         // Navigation Properties
-        public CircleChat? Chat { get; set; }
         public List<CircleMembership>? CircleMemberships { get; set; }
+        public List<CircleRecipient>? CircleRecipients { get; set; }
+        public List<Issue>? Issues { get; set; }
         public List<Notification>? Notifications { get; set; }
+        public CircleChat? Chat { get; set; }
 
         // Default Values
 

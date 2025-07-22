@@ -4,7 +4,7 @@
     {
         public long UserId { get; set; }
         public long CircleId { get; set; }
-        public DateTimeOffset JoinTime { get; set; }
+        public DateTimeOffset JoinDate { get; set; }
         public CircleMembershipType Type { get; set; }
 
         // Navigation Properties

@@ -103,7 +103,7 @@ namespace Repository.Databases.Stores
                 {
                     UserId = ownerId,
                     CircleId = toCreate.Id,
-                    JoinTime = DateTimeOffset.UtcNow,
+                    JoinDate = DateTimeOffset.UtcNow,
                     Type = CircleMembershipType.Owner
                 };
 
@@ -188,7 +188,7 @@ namespace Repository.Databases.Stores
 
             return await ctx.CircleMemberships.
                    Where(m => m.CircleId == circleId).
-                   Select(m => new CoreCircleMembership(m.UserId, m.JoinTime, m.Type)).
+                   Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
                    ToListAsync();
         }
 
@@ -203,7 +203,7 @@ namespace Repository.Databases.Stores
 
             return await ctx.CircleMemberships.
                    Where(m => m.UserId == userId && m.CircleId == circleId).
-                   Select(m => new CoreCircleMembership(m.UserId, m.JoinTime, m.Type)).
+                   Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
                    SingleAsync();
         }
 
@@ -220,7 +220,7 @@ namespace Repository.Databases.Stores
             {
                 UserId = userId,
                 CircleId = circleId,
-                JoinTime = DateTimeOffset.UtcNow,
+                JoinDate = DateTimeOffset.UtcNow,
                 Type = CircleMembershipType.Regular,
             };
 

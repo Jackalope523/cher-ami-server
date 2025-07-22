@@ -14,6 +14,8 @@ namespace Repository.Databases.Contexts
         internal DbSet<Issue> Issues { get; set; }
         internal DbSet<Circle> Circles { get; set; }
         internal DbSet<CircleMembership> CircleMemberships { get; set; }
+        internal DbSet<Recipient> Recipients { get; set; }
+        internal DbSet<CircleRecipient> CircleRecipients { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
         internal DbSet<SnapshotReport> SnapshotReports { get; set; }
@@ -135,7 +137,7 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.GatheringLinks)
+                .HasMany(u => u.CircleMemberships)
                 .WithOne(l => l.User)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -222,7 +224,22 @@ namespace Repository.Databases.Contexts
 
             modelBuilder.Entity<Circle>()
                .HasMany(c => c.Notifications)
-               .WithOne(n => n.Gathering)
+               .WithOne(n => n.Circles)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.Issues)
+               .WithOne(i => i.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.CircleMemberships)
+               .WithOne(m => m.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.CircleRecipients)
+               .WithOne(cr => cr.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Circle>()
@@ -230,9 +247,59 @@ namespace Repository.Databases.Contexts
                .WithOne(c => c.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
+            // Recipient
+            modelBuilder.Entity<Recipient>()
+              .HasQueryFilter(g => !g.SoftDeleted);
+
+            modelBuilder.Entity<Recipient>()
+               .HasMany(c => c.CircleRecipients)
+               .WithOne(cr => cr.Recipient)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.Title)
+               .HasMaxLength(25);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.FirstName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.LastName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<Recipient>()
+              .Property(r => r.StreetAddress)
+              .HasMaxLength(150);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.City)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.ProvinceOrState)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.PostalCode)
+               .HasMaxLength(20);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.Country)
+               .HasMaxLength(56);
+
+
+            // Circle Recipient
+            modelBuilder.Entity<CircleRecipient>()
+              .HasQueryFilter(g => !g.SoftDeleted);
+
             // Issue
             modelBuilder.Entity<Issue>()
                 .HasQueryFilter(g => !g.SoftDeleted);
+
+            modelBuilder.Entity<Issue>()
+                .Property(i => i.Title)
+                .HasMaxLength(100);
 
             // Subscription
             modelBuilder.Entity<Subscription>()

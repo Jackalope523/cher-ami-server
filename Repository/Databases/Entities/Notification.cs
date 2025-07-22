@@ -12,7 +12,7 @@
 
         // Navigation Properties
         public User? Recipient { get; set; }
-        public Circle? Gathering { get; set; }
+        public Circle? Circles { get; set; }
 
         // Default Values
     }

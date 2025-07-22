@@ -206,6 +206,11 @@ namespace Repository.Databases.Contexts
              .WithOne(c => c.User)
              .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Recipients)
+             .WithOne(r => r.Manager)
+             .OnDelete(DeleteBehavior.Restrict);
+
             // Circle
             modelBuilder.Entity<Circle>()
                 .HasQueryFilter(g => !g.SoftDeleted);
@@ -249,7 +254,7 @@ namespace Repository.Databases.Contexts
 
             // Recipient
             modelBuilder.Entity<Recipient>()
-              .HasQueryFilter(g => !g.SoftDeleted);
+               .HasQueryFilter(g => !g.SoftDeleted);
 
             modelBuilder.Entity<Recipient>()
                .HasMany(c => c.CircleRecipients)
@@ -267,6 +272,10 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Recipient>()
                .Property(r => r.LastName)
                .HasMaxLength(100);
+
+            modelBuilder.Entity<Recipient>()
+              .Property(r => r.UnitNumber)
+              .HasMaxLength(15);
 
             modelBuilder.Entity<Recipient>()
               .Property(r => r.StreetAddress)
@@ -291,7 +300,7 @@ namespace Repository.Databases.Contexts
 
             // Circle Recipient
             modelBuilder.Entity<CircleRecipient>()
-              .HasQueryFilter(g => !g.SoftDeleted);
+                .HasQueryFilter(g => !g.SoftDeleted);
 
             // Issue
             modelBuilder.Entity<Issue>()
@@ -300,6 +309,11 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Issue>()
                 .Property(i => i.Title)
                 .HasMaxLength(100);
+
+            modelBuilder.Entity<Issue>()
+                .HasMany(i => i.Posts)
+                .WithOne(p => p.Issue)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Subscription
             modelBuilder.Entity<Subscription>()

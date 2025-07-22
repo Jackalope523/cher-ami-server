@@ -18,6 +18,7 @@
 
         // Navigation Properties
         public Circle? Circle { get; set; }
+        public List<Post>? Posts { get; set; }
 
         // Default Values
         public static string DefaultTitle { get; set; } = "";

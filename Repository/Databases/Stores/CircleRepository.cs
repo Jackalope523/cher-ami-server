@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities;
-using Repository.Databases.Factories;
-using System.Text.RegularExpressions;
 
 namespace Repository.Databases.Stores
 {
@@ -177,9 +175,36 @@ namespace Repository.Databases.Stores
             return c.CircleCode;
         }
 
-        public Task DeleteCircleAsync(long circleId)
+        public async Task DeleteCircleAsync(long circleId)
         {
-            throw new NotImplementedException();
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+
+            try
+            {
+                await ctx.CircleRecipients.Where(cr => cr.CircleId == circleId).ExecuteDeleteAsync();
+                await ctx.CircleMemberships.Where(m => m.CircleId == circleId).ExecuteDeleteAsync();
+
+                List<long> issuesToDelete = await ctx.Issues.Where(i => i.CircleId == circleId).Select(i => i.Id).ToListAsync();
+                List<long> postsToDelete = await ctx.Posts.Where(p => issuesToDelete.Contains(p.IssueId)).Select(i => i.Id).ToListAsync();
+                List<long> snapshotsToDelete = await ctx.Snapshots.Where(s => postsToDelete.Contains(s.PostId)).Select(i => i.Id).ToListAsync();
+                List<long> captionsToDelete = await ctx.Captions.Where(c => postsToDelete.Contains(c.PostId)).Select(i => i.Id).ToListAsync();
+
+                await ctx.Captions.Where(c => captionsToDelete.Contains(c.Id)).ExecuteDeleteAsync();
+                await ctx.Snapshots.Where(s => snapshotsToDelete.Contains(s.Id)).ExecuteDeleteAsync();
+                await ctx.Posts.Where(p => postsToDelete.Contains(p.Id)).ExecuteDeleteAsync();
+                await ctx.Issues.Where(i => issuesToDelete.Contains(i.Id)).ExecuteDeleteAsync();
+
+                ctx.Circles.Remove(new() { Id = circleId });
+                await ctx.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<List<CoreCircleMembership>> GetCircleMembersAsync(long circleId)
@@ -207,9 +232,38 @@ namespace Repository.Databases.Stores
                    SingleAsync();
         }
 
-        public Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
+        public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
         {
-            throw new NotImplementedException();
+            await using CanaryContext ctx = initContext();
+
+            Circle c = new() { Id = circleId };
+            ctx.Circles.Attach(c);
+
+            foreach ((string Property, object Value) in edits)
+            {
+                switch (Property)
+                {
+                    case nameof(CoreRecipient.):
+                        c.CircleCode = (string)Value;
+                        break;
+                    case nameof(CoreCircle.Title):
+                        c.Title = (string)Value;
+                        break;
+                    case nameof(CoreCircle.DateCreated):
+                        c.TimeOfCreation = (DateTimeOffset)Value;
+                        break;
+                    case nameof(CoreCircle.Plan):
+                        c.Plan = (CirclePlan)Value;
+                        break;
+                    case nameof(CoreCircle.Schedule):
+                        c.IssueSchedule = (IssueSchedule)Value;
+                        break;
+                    default:
+                        throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
+                }
+                ctx.Entry(c).Property(Property).IsModified = true;
+            }
+            await ctx.SaveChangesAsync();
         }
 
         public async Task AddCircleMemberAsync(long userId, long circleId)
@@ -228,7 +282,7 @@ namespace Repository.Databases.Stores
             await ctx.SaveChangesAsync();
         }
 
-        public async Task RemoveCircleMemberAsync(long userId, long circleId)
+        public async Task RemoveCircleMembershipAsync(long userId, long circleId)
         {
             await using CanaryContext ctx = initContext();
 
@@ -241,29 +295,118 @@ namespace Repository.Databases.Stores
             await ctx.SaveChangesAsync();
         }
 
-        public Task AddRecipientAsync(long circleId, long userId)
+        public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
         {
-            throw new NotImplementedException();
+            await using CanaryContext ctx = initContext();
+
+            Recipient r = new() { Id = recipientId };
+            ctx.Recipients.Attach(r);
+
+            foreach ((string Property, object Value) in edits)
+            {
+                switch (Property)
+                {
+                    case nameof(CoreRecipient.Title):
+                        r.Title = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.FirstName):
+                        r.FirstName = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.LastName):
+                        r.LastName = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.ApartmentOrSuite):
+                        r.UnitNumber = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.Street):
+                        r.StreetAddress = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.City):
+                        r.City = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.ProvinceOrState):
+                        r.ProvinceOrState = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.PostalCode):
+                        r.PostalCode = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.Country):
+                        r.Country = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.DateOfBirth):
+                        r.DateOfBirth = (DateTimeOffset)Value;
+                        break;
+                    case nameof(CoreRecipient.ManagerId):
+                        r.ManagerId = (long)Value;
+                        break;
+                    default:
+                        throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
+                }
+                ctx.Entry(r).Property(Property).IsModified = true;
+            }
+            await ctx.SaveChangesAsync();
         }
 
-        public Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
+        public async Task DeleteRecipientAsync(long recipientId)
         {
-            throw new NotImplementedException();
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+
+            try
+            {
+                await ctx.CircleRecipients.Where(cr => cr.RecipientId == recipientId).ExecuteDeleteAsync();
+                
+                ctx.Recipients.Remove(new() { Id = recipientId });
+                await ctx.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
-        public Task DeleteRecipientAsync(long recipientId)
+        public async Task AddRecipientAsync(long circleId, string title, string firstName, string lastName, string streetAddress, string city, string provinceOrState, string postalCode, string country)
         {
-            throw new NotImplementedException();
-        }
+            await using CanaryContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-        public Task SoftDeleteAsync(long circleId)
-        {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                Recipient toAdd = new()
+                {
+                    Title = title,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    StreetAddress = streetAddress,
+                    City = city,
+                    ProvinceOrState = provinceOrState,
+                    PostalCode = postalCode,
+                    Country = country,
+                };
 
-        public Task HardDeleteAsync(long circleId)
-        {
-            throw new NotImplementedException();
+                ctx.Recipients.Add(toAdd);
+                await ctx.SaveChangesAsync();
+
+                CircleRecipient link = new()
+                {
+                    CircleId = circleId,
+                    RecipientId = toAdd.Id,
+                    JoinDate = DateTimeOffset.UtcNow,
+                };
+
+                ctx.CircleRecipients.Add(link);
+                await ctx.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

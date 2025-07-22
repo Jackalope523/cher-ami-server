@@ -32,7 +32,7 @@ namespace Core.Boundaries
     public record CircleMembershipShard(long UserId, DateTimeOffset DateJoined, CircleMembershipType Type);
 
 
-    public record CoreRecipient(long Id, long ManagerId, bool IsManager, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null)
+    public record CoreRecipient(long Id, long ManagerId, string Title, string FirstName, string LastName, DateTimeOffset? DateOfBirth = null, Address Address = null)
         : CoreOnlyData();
 
     public record RecipientShard(long Id, long ManagerId, bool IsManager, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
@@ -63,14 +63,11 @@ namespace Core.Boundaries
         Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId);
         Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits);
         Task AddCircleMemberAsync(long userId, long circleId);
-        Task RemoveCircleMemberAsync(long userId, long circleId);
+        Task RemoveCircleMembershipAsync(long userId, long circleId);
 
-        Task AddRecipientAsync(long circleId, long userId);
+        Task AddRecipientAsync(long circleId, string title, string firstName, string lastName, string streetAddress, string city, string provinceOrState, string postalCode, string country);
         Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
         Task DeleteRecipientAsync(long recipientId);
-
-        Task SoftDeleteAsync(long circleId);
-        Task HardDeleteAsync(long circleId);
     }
 
     public interface ICircleOperations

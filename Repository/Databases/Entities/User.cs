@@ -38,7 +38,6 @@ namespace Repository.Databases.Entities
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
         public List<SnapshotReport>? SnapshotReports { get; set; }
-        public List<Snapshot>? Snapshots { get; set; }
         public List<Subscription>? Subscriptions { get; set; }
         public List<Feedback>? Feedback { get; set; }
         public List<Notification>? Notifications { get; set; }
@@ -47,6 +46,7 @@ namespace Repository.Databases.Entities
         public List<ProfileMessage>? Shares { get; set; }
         public List<Connection>? Connections { get; set; }
         public List<Post>? Posts { get; set; }
+        public List<Recipient>? Recipients { get; set; }
 
         // Default Values
         public static string DefaultPhoneNumber { get; set; } = "";

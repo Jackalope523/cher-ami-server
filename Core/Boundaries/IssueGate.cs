@@ -13,6 +13,9 @@ namespace Core.Boundaries
 	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate)
         : CoreOnlyData();
 
+    public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption) 
+        : CoreOnlyData();
+
     public record IssueShard(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate);
 
     public record PostShard(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
@@ -28,10 +31,10 @@ namespace Core.Boundaries
         Task<CoreIssue> GetIssueAsync(long issueId);
 
         Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId);
-        Task<List<PostShard>> GetPostsForIssueAsync(long issueId);
+        Task<List<CorePost>> GetPostsForIssueAsync(long issueId);
 
-        Task<PostShard> GetPostAsync(long postId);
-        Task<PostShard> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption);
+        Task<CorePost> GetPostAsync(long postId);
+        Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption);
 
         Task SoftDeleteAsync(long postId);
         Task HardDeleteAsync(long postId);

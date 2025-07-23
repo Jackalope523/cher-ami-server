@@ -9,6 +9,7 @@ namespace Repository.Databases.Entities
         public long AuthorId { get; init; }
         public long IssueId { get; init; }
         public LayoutType Layout { get; init; }
+        public DateTimeOffset PostedAt { get; init; }
 
         // Navigation Properties
         public User? Author { get; set; }

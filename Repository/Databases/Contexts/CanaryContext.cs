@@ -252,6 +252,10 @@ namespace Repository.Databases.Contexts
                .WithOne(c => c.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Circle>()
+                .Property(c => c.HeaderFilename)
+                .HasMaxLength(100);
+
             // Recipient
             modelBuilder.Entity<Recipient>()
                .HasQueryFilter(g => !g.SoftDeleted);
@@ -308,6 +312,10 @@ namespace Repository.Databases.Contexts
 
             modelBuilder.Entity<Issue>()
                 .Property(i => i.Title)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Issue>()
+                .Property(i => i.HeaderFilename)
                 .HasMaxLength(100);
 
             modelBuilder.Entity<Issue>()
@@ -372,6 +380,9 @@ namespace Repository.Databases.Contexts
                 .WithOne(r => r.Snapshot)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Snapshot>()
+                .Property(s => s.Filename)
+                .HasMaxLength(100);
 
             // Caption
             modelBuilder.Entity<Caption>()

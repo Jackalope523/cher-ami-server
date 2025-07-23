@@ -6,6 +6,7 @@ namespace Repository.Databases.Entities
     {
         public long PostId { get; set; }
 
+        public int SequenceNumber { get; set; }
         public string Text { get; set; } = DefaultText;
 
         // Navigation Properties

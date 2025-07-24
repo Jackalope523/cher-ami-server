@@ -20,37 +20,7 @@ namespace Repository.Databases.Stores
 
         }
 
-        private Uri BuildContainerUri(string containerName)
-        {
-            return new Uri($"{_storageAccountUri}/{containerName}");
-        }
-
-        private Uri BuildBlobUri(string relativePath)
-        {
-            return new Uri($"{_storageAccountUri}/{relativePath}");
-        }
-
-        private string BuildSnapshotBlobName(long circleId, long issueId, long postId, long snapshotId)
-        {
-            return $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
-        }
-
-        private string BuildAvatarBlobName(long userId)
-        {
-            return $"{userId}/avatar/avatar.jpg";
-        }
-
-        private string BuildCircleHeaderBlobName(long circleId)
-        {
-            return $"{circleId}/header/header.jpg";
-        }
-
-        private string BuildPhotoBlobName(long chatId, long messageId)
-        {
-            return $"{chatId}/messages/{messageId}.jpg";
-        }
-
-        private static (string ContainerName, string BlobName) ParseBlobPath(string path)
+        private async Task UploadBlobAsync(string path, MemoryStream blob)
         {
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentException("Path cannot be null or empty", nameof(path));
@@ -60,25 +30,20 @@ namespace Repository.Databases.Stores
             if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
                 throw new ArgumentException("Invalid blob path format. Expected format: 'container/blobName'", nameof(path));
 
-            return (ContainerName: parts[0], BlobName: parts[1]);
-        }
+            var (containerName, blobName) = (parts[0], parts[1]);
 
-        private async Task UploadBlobAsync(string path, MemoryStream blob)
-        {
-            var splitPath = ParseBlobPath(path);
-
-            BlobContainerClient containerClient = new(BuildContainerUri(splitPath.ContainerName), _credentials());
+            BlobContainerClient containerClient = new(new Uri($"{_storageAccountUri}/{containerName}"), _credentials());
 
             await containerClient.CreateIfNotExistsAsync();
             blob.Position = 0;
 
-            await containerClient.GetBlobClient(splitPath.BlobName).UploadAsync(blob, overwrite: true);
+            await containerClient.GetBlobClient(blobName).UploadAsync(blob, overwrite: true);
         }
 
         private async Task<MemoryStream> DownloadBlobAsync(string path)
         {
             MemoryStream stream = new MemoryStream();
-            BlobClient blobClient = new(BuildBlobUri(path), _credentials());
+            BlobClient blobClient = new(new Uri($"{_storageAccountUri}/{path}"), _credentials());
 
             try
             {
@@ -94,7 +59,7 @@ namespace Repository.Databases.Stores
 
         private async Task DeleteBlobAsync(string path)
         {
-            BlobClient blobClient = new(BuildBlobUri(path), _credentials());
+            BlobClient blobClient = new(new Uri($"{_storageAccountUri}/{path}"), _credentials());
 
             await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
         }
@@ -113,7 +78,7 @@ namespace Repository.Databases.Stores
         {
             await using CardinalContext ctx = initContext();
 
-            string path = BuildAvatarBlobName(userId);
+            string path = $"{userId}/avatar/avatar.jpg";
 
             User toUpdate = new() { Id = userId, AvatarPath = path };
             ctx.Users.Attach(toUpdate);
@@ -144,7 +109,7 @@ namespace Repository.Databases.Stores
         {
             await using CardinalContext ctx = initContext();
 
-            string path = BuildCircleHeaderBlobName(circleId);
+            string path = $"{circleId}/header/header.jpg";
 
             Circle toUpdate = new() { Id = circleId, HeaderPath = path };
             ctx.Circles.Attach(toUpdate);
@@ -175,7 +140,7 @@ namespace Repository.Databases.Stores
         {
             await using CardinalContext ctx = initContext();
 
-            string path = BuildSnapshotBlobName(circleId, issueId, postId, snapshotId);
+            string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
             Snapshot toUpdate = new() { Id = snapshotId, Path = path };
             ctx.Snapshots.Attach(toUpdate);
@@ -206,7 +171,7 @@ namespace Repository.Databases.Stores
         {
             await using CardinalContext ctx = initContext();
 
-            string path = BuildPhotoBlobName(chatId, messageId);
+            string path = $"{chatId}/messages/{messageId}.jpg";
 
             PhotoMessage toUpdate = new() { Id = messageId, Path = path };
             ctx.PhotoMessages.Attach(toUpdate);
@@ -227,24 +192,5 @@ namespace Repository.Databases.Stores
 
             await DeleteBlobAsync(path);
         }
-
-        /* File Structure
-         * /utility/failed.jpg
-         * 
-         * /users/{userId}/
-         * ├── avatar/avatar.{ext}                        ← User profile picture
-         * 
-         * /circles/{circleId}/
-         * ├── header/header.{ext}                          ← Circle header image
-         * ├── issues/{issueId}/
-         * │   ├── cover.{ext}                             ← Magazine issue header image
-         * │   ├── posts/
-         * │   │   ├── {postId}/
-         * │   │   │   ├── {snapshotId}.{ext}         ← User-submitted image
-         *
-         * ├── chats/{chatId}
-         * │   ├── messages/
-         * │   │   ├── {message_id}.{ext}              ← Photos sent in chat messages     
-        */
     }
 }

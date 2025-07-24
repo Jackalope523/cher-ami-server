@@ -22,14 +22,7 @@ namespace Repository.Databases.Stores
 
         private async Task UploadBlobAsync(string path, MemoryStream blob)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Path cannot be null or empty", nameof(path));
-
             string[] parts = path.Split(new[] { '/' }, 2);
-
-            if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
-                throw new ArgumentException("Invalid blob path format. Expected format: 'container/blobName'", nameof(path));
-
             var (containerName, blobName) = (parts[0], parts[1]);
 
             BlobContainerClient containerClient = new(new Uri($"{_storageAccountUri}/{containerName}"), _credentials());

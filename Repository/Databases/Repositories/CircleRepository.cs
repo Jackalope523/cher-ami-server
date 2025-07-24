@@ -1,17 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities;
-using Repository.Databases.Repositories;
 
 namespace Repository.Databases.Stores
 {
     public class CircleRepository : Repository, ICircleDatabase
     {
-        private readonly MediaRepository _fileRepository;
 
-        internal CircleRepository(Func<CardinalContext> contextFactory, MediaRepository fileRepository) : base(contextFactory)
+        internal CircleRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
-            _fileRepository = fileRepository;
         }
 
         private async Task<string> GenerateUniqueCircleCodeAsync(CardinalContext ctx)

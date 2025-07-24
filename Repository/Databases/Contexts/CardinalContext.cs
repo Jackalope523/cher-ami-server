@@ -131,16 +131,6 @@ namespace Repository.Databases.Contexts
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.InitiatedUserRelationships)
-                .WithOne(l => l.Self)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.TargetUserRelationships)
-                .WithOne(l => l.Other)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
                 .HasMany(u => u.CircleMemberships)
                 .WithOne(l => l.User)
                 .OnDelete(DeleteBehavior.Restrict);

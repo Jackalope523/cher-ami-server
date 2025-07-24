@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Repository.Databases.Contexts;
 using Repository.Databases.Stores;
-using Repository.Storages;
 
 namespace Repository
 {
@@ -52,11 +51,11 @@ namespace Repository
             ConnectionDatabaseAccess = new ConnectionRepository(factory);
             ProfileDatabaseAccess = new ProfileRepository(factory);
             NotificationDatabaseAccess = new NotificationRepository(factory);
-            CircleDatabaseAccess = new CircleRepository(factory, new AzureStorageRepository(storageAccountUri));
+            CircleDatabaseAccess = new CircleRepository(factory);
             IssueDatabaseAccess = new IssueRepository(factory);
             ReportDatabaseAccess = new ReportRepository(factory);
             KeyDatabaseAccess = new AzureKeyStore();
-            MediaDatabaseAccess = new AzureFileStore(flag);
+            MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
             ChatDatabaseAccess = new ChatRepository(factory);
             DebugDatabaseAccess = new DebugRepository(factory);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);

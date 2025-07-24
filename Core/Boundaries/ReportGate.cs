@@ -22,7 +22,7 @@ namespace Core.Boundaries
 	public record UserReport(long Id, long ReportingUserId, long ReportedUserId, DateTimeOffset ReportTime,
         UserReportType ReportType, string ReportDetails);
 
-    public record PostReport(long Id, long ReportingUserId, long ReportedSnapshotId, DateTimeOffset ReportTime,
+    public record PostReport(long Id, long ReportingUserId, long ReportedPostId, DateTimeOffset ReportTime,
         PostReportType ReportType, string ReportDetails);
 
 	#endregion
@@ -33,12 +33,11 @@ namespace Core.Boundaries
     {
         Task<(List<UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId);
         Task<(List<UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId);
-
         Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport,
             UserReportType reportType, string reportDetails);
 
         Task<List<PostReport>> GetReportsForPostAsync(long snapshotId);
-        Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport,
+        Task ReportPostAsync(long userId, long snapshotId, DateTimeOffset timeOfReport,
             PostReportType reportType, string reportDetails);
     }
 

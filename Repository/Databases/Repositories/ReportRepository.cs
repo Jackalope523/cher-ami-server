@@ -27,19 +27,65 @@ namespace Repository.Databases.Stores
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
+        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
+        {
+            await using CardinalContext ctx = initContext();
 
-        public async Task<List<PostReport>> GetReportsForPostAsync(long snapshotId)
+            List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
+                                                           Where(r => r.OtherId == userId).
+                                                           Select(r => new Core.Boundaries.UserReport
+                                                           (
+                                                               r.Id, 
+                                                               r.FilingUserId ?? 0, 
+                                                               r.OtherId, 
+                                                               r.FilingDate, 
+                                                               r.Type, 
+                                                               r.Notes
+                                                           )).
+                                                           ToListAsync();
+
+            List<Core.Boundaries.PostReport> postReports = await ctx.Posts.
+                                                           Where(p => p.AuthorId == userId).
+                                                           Join
+                                                           (
+                                                                ctx.PostReports,
+                                                                p => p.Id,
+                                                                pr => pr.PostId,
+                                                                (p, pr) => new Core.Boundaries.PostReport
+                                                           (
+                                                               pr.Id,
+                                                               pr.FilingUserId ?? 0,
+                                                               pr.PostId,
+                                                               pr.FilingDate,
+                                                               pr.Type,
+                                                               pr.Notes
+                                                           )).
+                                                           ToListAsync();
+
+            return (userReports, postReports);
+        }
+
+        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long userId)
+        {
+            await using CardinalContext ctx = initContext();
+
+            List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
+
+            return (reports.OfType<Core.Boundaries.UserReport>().ToList(), reports.OfType<Core.Boundaries.PostReport>().ToList());
+        }
+
+        public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)
         {
             await using CardinalContext ctx = initContext();
 
             return await 
-            ctx.SnapshotReports.
-            Where(r => r.SnapshotId == snapshotId).
-            Select(r => new PostReport
+            ctx.PostReports.
+            Where(r => r.PostId == postId).
+            Select(r => new Core.Boundaries.PostReport
             (
                 r.Id,
                 r.FilingUserId ?? 0,
-                r.SnapshotId,
+                r.PostId,
                 r.FilingDate,
                 r.Type,
                 r.Notes
@@ -47,30 +93,20 @@ namespace Repository.Databases.Stores
             ToListAsync();
         }
 
-        public async Task ReportSnapshotAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)
+        public async Task ReportPostAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)
         {
-            SnapshotReport toCreate = new()
+            Entities.Reports.PostReport toCreate = new()
             {
                 FilingUserId = userId,
-                SnapshotId = snapshotId,
+                PostId = snapshotId,
                 Type = reportType,
                 FilingDate = timeOfReport,
                 Notes = reportDetails
             };
 
             await using CardinalContext ctx = initContext();
-            ctx.SnapshotReports.Add(toCreate);
+            ctx.PostReports.Add(toCreate);
             await ctx.SaveChangesAsync();
-        }
-
-        public Task<(List<Core.Boundaries.UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<(List<Core.Boundaries.UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

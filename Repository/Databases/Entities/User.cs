@@ -33,7 +33,7 @@ namespace Repository.Databases.Entities
         public List<CircleMembership>? CircleMemberships { get; set; }
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
-        public List<SnapshotReport>? SnapshotReports { get; set; }
+        public List<Reports.PostReport>? SnapshotReports { get; set; }
         public List<Subscription>? Subscriptions { get; set; }
         public List<Feedback>? Feedback { get; set; }
         public List<Notification>? Notifications { get; set; }

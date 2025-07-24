@@ -4,6 +4,7 @@ using Repository.Databases.Entities.Chats;
 using Repository.Databases.Entities.Messages;
 using Repository.Databases.Entities.Reports;
 using static Repository.Databases.Entities.Reports.Report;
+using PostReport = Repository.Databases.Entities.Reports.PostReport;
 using UserReport = Repository.Databases.Entities.Reports.UserReport;
 
 namespace Repository.Databases.Contexts
@@ -18,8 +19,7 @@ namespace Repository.Databases.Contexts
         internal DbSet<CircleRecipient> CircleRecipients { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
-        internal DbSet<SnapshotReport> SnapshotReports { get; set; }
-        internal DbSet<SnapshotReport> CaptionReports { get; set; }
+        internal DbSet<PostReport> PostReports { get; set; }
         internal DbSet<Post> Posts { get; set; }
         internal DbSet<Snapshot> Snapshots { get; set; }
         internal DbSet<Caption> Captions { get; set; }
@@ -323,11 +323,10 @@ namespace Repository.Databases.Contexts
 
             modelBuilder.Entity<Report>()
                 .HasDiscriminator<ReportDiscriminator>("Discriminator")
-                .HasValue<SnapshotReport>(ReportDiscriminator.SnapshotReport)
                 .HasValue<UserReport>(ReportDiscriminator.UserReport)
-                .HasValue<CaptionReport>(ReportDiscriminator.CaptionReport);
+                .HasValue<PostReport>(ReportDiscriminator.PostReport);
 
-            modelBuilder.Entity<SnapshotReport>()
+            modelBuilder.Entity<PostReport>()
                 .Property(r => r.Type)
                 .HasColumnName("Type");
 
@@ -335,7 +334,7 @@ namespace Repository.Databases.Contexts
                 .Property(r => r.Type)
                 .HasColumnName("Type");
 
-            modelBuilder.Entity<CaptionReport>()
+            modelBuilder.Entity<PostReport>()
                 .Property(r => r.Type)
                 .HasColumnName("Type");
 
@@ -353,14 +352,14 @@ namespace Repository.Databases.Contexts
                 .WithOne(c => c.Post)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Post>()
+               .HasMany(p => p.Reports)
+               .WithOne(r => r.Post)
+               .OnDelete(DeleteBehavior.Restrict);
+
             // Snapshot
             modelBuilder.Entity<Snapshot>()
                 .HasQueryFilter(s => !s.SoftDeleted);
-
-            modelBuilder.Entity<Snapshot>()
-                .HasMany(s => s.Reports)
-                .WithOne(r => r.Snapshot)
-                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Snapshot>()
                 .Property(s => s.Path)

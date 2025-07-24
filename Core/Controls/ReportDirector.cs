@@ -161,7 +161,7 @@ namespace Core.Controls
             Verify(await user.CanReport(targetSnapshot, targetUser, reportType),
                 new UserErrorException(UserErrorCode.CANNOT_REPORT_DUPLICATE));
 
-            await Reports.ReportSnapshotAsync(user.Id, targetSnapshot.Id, Time, reportType, reportDetails);
+            await Reports.ReportPostAsync(user.Id, targetSnapshot.Id, Time, reportType, reportDetails);
 
             // Compute user's standing
             var status = await targetUser.Reported();

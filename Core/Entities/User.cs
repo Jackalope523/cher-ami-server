@@ -312,7 +312,7 @@ namespace Core.Entities
         {
             // Gather recent reports by user against target 
             var reportedTypesByUser = (await postAuthor.PostReports)
-                .Where(report => report.ReportedSnapshotId == post.Id && report.ReportingUserId.Equals(Id))
+                .Where(report => report.ReportedPostId == post.Id && report.ReportingUserId.Equals(Id))
                 .Select(report => report.ReportType);
 
             var reportTypes = Enum.GetValues<PostReportType>().ToList();

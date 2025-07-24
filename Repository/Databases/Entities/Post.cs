@@ -1,4 +1,5 @@
 ﻿using Repository.Databases.Entities.Reports;
+using PostReport = Repository.Databases.Entities.Reports.PostReport;
 
 namespace Repository.Databases.Entities
 {
@@ -16,7 +17,7 @@ namespace Repository.Databases.Entities
         public Issue? Issue { get; set; }
         public List<Snapshot>? Snapshots { get; set; }
         public List<Caption>? Captions { get; set; }
-        public List<SnapshotReport>? Reports { get; set; }
+        public List<PostReport>? Reports { get; set; }
 
         // Default Values
 

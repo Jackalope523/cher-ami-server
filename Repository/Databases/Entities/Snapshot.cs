@@ -10,7 +10,6 @@ namespace Repository.Databases.Entities
 
         // Navigation Properties
         public Post? Post { get; set; }
-        public List<SnapshotReport>? Reports { get; set; }
 
         // Default Values
         public static string DefaultPath { get; set; } = "";

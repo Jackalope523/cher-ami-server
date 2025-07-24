@@ -5,8 +5,7 @@
         public enum ReportDiscriminator 
         { 
             UserReport,
-            SnapshotReport,
-            CaptionReport
+            PostReport,
         }
 
         public ReportDiscriminator Discriminator { get; init; }

@@ -1,17 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities;
+using Repository.Databases.Repositories;
 
 namespace Repository.Databases.Stores
 {
     public class CircleRepository : Repository, ICircleDatabase
     {
-        internal CircleRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
-        {
+        private readonly MediaRepository _fileRepository;
 
+        internal CircleRepository(Func<CardinalContext> contextFactory, MediaRepository fileRepository) : base(contextFactory)
+        {
+            _fileRepository = fileRepository;
         }
 
-        private async Task<string> GenerateUniqueCircleCodeAsync(CanaryContext ctx)
+        private async Task<string> GenerateUniqueCircleCodeAsync(CardinalContext ctx)
         {
             List<string> adjectives = await ctx.Words.
                                       Where(w => w.Type == Word.WordType.Adjective).
@@ -44,7 +47,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreCircle> GetCircleAsync(long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
@@ -54,7 +57,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreCircle> GetCircleByCodeAsync(string circleCode)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
@@ -64,7 +67,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<CoreCircle>> GetCirclesForUserAsync(long userId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(c => c.UserId == userId).
@@ -78,7 +81,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, CirclePlan plan, IssueSchedule schedule)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -130,7 +133,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateCircleAsync(long circleId, List<(string Property, object Value)> edits)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
@@ -164,7 +167,7 @@ namespace Repository.Databases.Stores
 
         public async Task<string> RerollCircleCode(long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             Circle c = new() { Id = circleId, CircleCode = await GenerateUniqueCircleCodeAsync(ctx) };
 
@@ -177,7 +180,7 @@ namespace Repository.Databases.Stores
 
         public async Task DeleteCircleAsync(long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -209,7 +212,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<CoreCircleMembership>> GetCircleMembersAsync(long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(m => m.CircleId == circleId).
@@ -224,7 +227,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(m => m.UserId == userId && m.CircleId == circleId).
@@ -234,7 +237,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
@@ -268,7 +271,7 @@ namespace Repository.Databases.Stores
 
         public async Task AddCircleMemberAsync(long userId, long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             CircleMembership toAdd = new() 
             {
@@ -284,7 +287,7 @@ namespace Repository.Databases.Stores
 
         public async Task RemoveCircleMembershipAsync(long userId, long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             long id = await ctx.CircleMemberships.
                       Where(m => m.UserId == userId && m.CircleId == circleId).
@@ -297,7 +300,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             Recipient r = new() { Id = recipientId };
             ctx.Recipients.Attach(r);
@@ -349,7 +352,7 @@ namespace Repository.Databases.Stores
 
         public async Task DeleteRecipientAsync(long recipientId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -370,7 +373,7 @@ namespace Repository.Databases.Stores
 
         public async Task AddRecipientAsync(long circleId, string title, string firstName, string lastName, string streetAddress, string city, string provinceOrState, string postalCode, string country)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try

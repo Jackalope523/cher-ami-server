@@ -92,70 +92,6 @@ namespace Repository.Exceptions
     }
 
     [Serializable]
-    public class DatabaseWriteException : HollowFailureException
-    {
-        private static readonly string defaultMessage = "An unexpected error occured while writing to the database:";
-
-        public DatabaseWriteException()
-        {
-        }
-        public DatabaseWriteException(string message)
-            : base(message)
-        {
-        }
-        public DatabaseWriteException(Exception inner)
-           : base(defaultMessage + " " + inner.Message, inner)
-        {
-        }
-        public DatabaseWriteException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    [Serializable]
-    public class DatabaseReadException : HollowFailureException
-    {
-        private static readonly string defaultMessage = "An unexpected error occured while reading from the database.";
-        public DatabaseReadException()
-        {
-        }
-
-        public DatabaseReadException(string message)
-            : base(message)
-        {
-        }
-        public DatabaseReadException(Exception inner)
-            : base(defaultMessage + " " + inner.Message, inner)
-        {
-        }
-        public DatabaseReadException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    [Serializable]
-    public class BlobIOException : HollowFailureException
-    {
-        private static readonly string defaultMessage = "An unexpected error occured while communicating with the blob storage.";
-        public BlobIOException()
-        {
-        }
-
-        public BlobIOException(string message)
-            : base(message)
-        {
-        }
-        public BlobIOException(Exception inner)
-            : base(defaultMessage + " " + inner.Message, inner)
-        {
-        }
-        public BlobIOException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-
-    [Serializable]
     public class VaultIOException : HollowFailureException
     {
         private static readonly string defaultMessage = "An unexpected error occured while communicating with the key vault.";
@@ -172,28 +108,6 @@ namespace Repository.Exceptions
         {
         }
         public VaultIOException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-
-    [Serializable]
-    public class DatabaseCorruptionException : HollowFailureException
-    {
-        private static readonly string defaultMessage = "Data found in impossible configuration.";
-        public DatabaseCorruptionException()
-        {
-        }
-
-        public DatabaseCorruptionException(string message)
-            : base(message)
-        {
-        }
-        public DatabaseCorruptionException(Exception inner)
-            : base(defaultMessage, inner)
-        {
-        }
-        public DatabaseCorruptionException(string message, Exception inner)
             : base(message, inner)
         {
         }

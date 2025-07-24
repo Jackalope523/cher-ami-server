@@ -6,7 +6,7 @@ namespace Repository.Databases.Stores
 {
     public class AccountRepository : Repository, IAccountDatabase
     {
-        internal AccountRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal AccountRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -25,7 +25,7 @@ namespace Repository.Databases.Stores
                 NotificationId = notificationId,
             };
 
-            await using (CanaryContext ctx = initContext())
+            await using (CardinalContext ctx = initContext())
             {
                 ctx.Users.Add(toCreate);
                 await ctx.SaveChangesAsync();
@@ -56,7 +56,7 @@ namespace Repository.Databases.Stores
 
         public async Task SoftDeleteAsync(long id)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -85,7 +85,7 @@ namespace Repository.Databases.Stores
 
         public async Task HardDeleteAsync(long id)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -121,7 +121,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Users.
               Where(u => u.Id == id).
@@ -150,7 +150,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Users.
                  Where(u => u.PhoneNumber == phoneNumber).
@@ -179,7 +179,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CoreUser> GetUserByEmailAsync(string email) 
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Users.
               Where(u => u.Email == email).
@@ -208,7 +208,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             User u = new() { Id = id };
 
@@ -267,13 +267,13 @@ namespace Repository.Databases.Stores
 
         public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.PhoneNumber == phoneNumber);
         }
 
         public async Task<bool> EmailExistsAsync(string normalisedEmail)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.NormalizedEmail == normalisedEmail);
         }
     }

@@ -10,7 +10,7 @@ namespace Repository.Databases.Entities
         public string CircleCode { get; set; } = DefaultCircleCode;
         public CirclePlan Plan { get; set; }
         public IssueSchedule IssueSchedule { get; set; }
-        public string HeaderFilename { get; set; } = DefaultHeaderFilename;
+        public string HeaderPath { get; set; } = DefaultHeaderPath;
 
 
         // Navigation Properties
@@ -24,7 +24,7 @@ namespace Repository.Databases.Entities
 
         public static string DefaultTitle { get; set; } = "";
         public static string DefaultCircleCode { get; set; } = "";
-        public static string DefaultHeaderFilename { get; set; } = "";
+        public static string DefaultHeaderPath { get; set; } = "";
         public static DateTimeOffset DefaultTimeOfCreation { get; set; } = DateTimeOffset.MinValue;
     }
 }

@@ -10,7 +10,7 @@ namespace Repository.Databases.Stores
     {
         private int pageSize = 10;
 
-        internal ChatRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ChatRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -36,7 +36,6 @@ namespace Repository.Databases.Stores
                         ConversationId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
-                        StorageId = (Guid)value
                     };
                     break;
                 case MessageType.Issue:

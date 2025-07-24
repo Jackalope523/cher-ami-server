@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository.Databases.Contexts
 {
-    internal class AzureStagingContext : CanaryContext
+    internal class AzureStagingContext : CardinalContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

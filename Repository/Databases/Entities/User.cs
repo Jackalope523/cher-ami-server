@@ -22,6 +22,7 @@ namespace Repository.Databases.Entities
         public int AccessTries { get; set; } = DefaultAccessTries;
         public UserAccountStatus AccountStatus { get; set; } = DefaultAccountStatus;
         public DateTimeOffset TimeOfUserAgreement { get; set; } = DefaultTimeOfUserAgreement;
+        public string AvatarPath { get; set; } = DefaultAvatarPath;
 
         // Notification Profile
         public Guid NotificationId { get; set; }
@@ -32,8 +33,6 @@ namespace Repository.Databases.Entities
         public bool GatheringDiscovery { get; set; } = DefaultGatheringDiscovery;
 
         // Navigation Properties
-        public List<UserRelationship>? InitiatedUserRelationships { get; set; }
-        public List<UserRelationship>? TargetUserRelationships { get; set; }
         public List<CircleMembership>? CircleMemberships { get; set; }
         public List<UserReport>? ReporterList { get; set; }
         public List<UserReport>? ReporteeList { get; set; }
@@ -65,6 +64,7 @@ namespace Repository.Databases.Entities
         public static int DefaultAccessTries { get; set; } = 3;
         public static UserAccountStatus DefaultAccountStatus { get; set; } = UserAccountStatus.Active;
         public static DateTimeOffset DefaultTimeOfUserAgreement { get; set; } = DateTimeOffset.MinValue;
+        public static string DefaultAvatarPath { get; set; } = "";
 
         // Notification Profile
         public static bool DefaultSocialInvitations { get; set; } = true;

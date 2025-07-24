@@ -6,13 +6,13 @@ namespace Repository.Databases.Stores
 {
     class ConnectionRepository : Repository, IConnectionDatabase
     {
-        internal ConnectionRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ConnectionRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task AddConnectionAsync(long userId, string connectionId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             Connection toAdd = new() { UserId = userId, ConnectionId = connectionId};
             ctx.Connections.Add(toAdd);
@@ -21,7 +21,7 @@ namespace Repository.Databases.Stores
 
         public async Task DeleteConnectionAsync(string connectionId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             await ctx.Connections.
             Where(c => c.ConnectionId == connectionId).
@@ -30,7 +30,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<string>> GetConnectionsAsync(long userId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Connections.
                          Where(c => c.UserId == userId).
@@ -40,7 +40,7 @@ namespace Repository.Databases.Stores
 
         public async Task<Dictionary<long, List<string>>> GetConnectionsAsync(params long[] userIds)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             List<Connection> connections = await ctx.Connections.
                                                  Where(c => userIds.Contains(c.UserId)).

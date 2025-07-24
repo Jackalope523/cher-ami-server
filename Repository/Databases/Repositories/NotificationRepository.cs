@@ -7,13 +7,13 @@ namespace Repository.Databases.Stores
 {
     public class NotificationRepository : Repository, INotificationDatabase
     {
-        internal NotificationRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal NotificationRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task<NotificationProfile> GetNotificationProfileAsync(long userId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await
                 ctx.Users.
@@ -31,7 +31,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             User u = new() { Id = userId };
 
@@ -66,7 +66,7 @@ namespace Repository.Databases.Stores
 
         public async Task ClearGatheringNotificationScheduleAsync(long gatheringId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             await ctx.Notifications.
             Where(n => n.GatheringId == gatheringId).
@@ -77,7 +77,7 @@ namespace Repository.Databases.Stores
         {
             List<Notification> notifications;
 
-            await using (CanaryContext ctx = initContext())
+            await using (CardinalContext ctx = initContext())
             {
                 notifications = await ctx.Notifications.
                                 Where(n => n.GatheringId == gatheringId).
@@ -117,7 +117,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateGatheringGuestNotificationSchedulesAsync(long gatheringId, params (long userId, string gatheringUpcomingId, string gatheringImminentId)[] guestSchedules)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -159,7 +159,7 @@ namespace Repository.Databases.Stores
 
         public async Task UpdateGatheringHostNotificationScheduleAsync(long gatheringId, string gatheringWaitingId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try

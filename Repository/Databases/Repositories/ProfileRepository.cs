@@ -6,13 +6,13 @@ namespace Repository.Databases.Stores
 {
     public class ProfileRepository : Repository, IProfileDatabase
     {
-        internal ProfileRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ProfileRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task BlockUserAsync(long selfId, long targetId, DateTimeOffset time)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             long id = await ctx.UserRelationships.
                       Where(l => l.SelfId == selfId && l.OtherId == targetId).
@@ -35,7 +35,7 @@ namespace Repository.Databases.Stores
 
         public async Task UnblockUserAsync(long selfId, long targetId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             ctx.UserRelationships.
             Where(l => l.SelfId == selfId && l.OtherId == targetId && l.Type == UserRelationship.UserRelationshipType.Block).
@@ -44,7 +44,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long id)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await
             ctx.UserRelationships.
@@ -60,7 +60,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<CoreUser>> GetUsersBlockingAsync(long userId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await
             ctx.UserRelationships.Where(l => l.OtherId == userId && l.Type == UserRelationship.UserRelationshipType.Block).
@@ -92,7 +92,7 @@ namespace Repository.Databases.Stores
 
         public async Task<DateTimeOffset> BlockedSince(long userId, long targetId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await 
                 ctx.UserRelationships.

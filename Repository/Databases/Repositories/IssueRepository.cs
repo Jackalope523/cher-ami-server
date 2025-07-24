@@ -6,13 +6,13 @@ namespace Repository.Databases.Stores
 {
     public class IssueRepository : Repository, IIssueDatabase
     {   
-        internal IssueRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal IssueRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task<CoreIssue> GetIssueAsync(long issueId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Issues.
                    Where(i => i.Id == issueId).
@@ -30,7 +30,7 @@ namespace Repository.Databases.Stores
 
         public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await ctx.Issues.
                    Where(i => i.CircleId == circleId).
@@ -48,7 +48,7 @@ namespace Repository.Databases.Stores
 
         public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -64,11 +64,21 @@ namespace Repository.Databases.Stores
                 ctx.Posts.Add(toAdd);
                 await ctx.SaveChangesAsync();
 
+                Snapshot snapshotToAdd = new()
+                {
+                    PostId = toAdd.Id,
+                    SequenceNumber = 0,
+                };
+
                 Caption captionToAdd = new()
                 {
                     PostId = toAdd.Id,
+                    SequenceNumber = 1,
                     Text = caption
                 };
+
+                ctx.AddRange(snapshotToAdd, captionToAdd);
+                await ctx.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 

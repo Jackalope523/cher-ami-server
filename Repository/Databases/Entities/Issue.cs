@@ -17,7 +17,7 @@
         public DateTimeOffset DraftingEnd { get; set; }
         public IssueStatus Status { get; set; }
         public IssueType Type { get; set; }
-        public string HeaderFilename { get; set; } = DefaultHeaderFilename;
+        public string HeaderPath { get; set; } = DefaultHeaderPath;
 
         // Navigation Properties
         public Circle? Circle { get; set; }
@@ -25,6 +25,6 @@
 
         // Default Values
         public static string DefaultTitle { get; set; } = "";
-        public static string DefaultHeaderFilename { get; set; } = "";
+        public static string DefaultHeaderPath { get; set; } = "";
     }
 }

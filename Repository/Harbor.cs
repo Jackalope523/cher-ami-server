@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Repository.Databases.Contexts;
+using Repository.Databases.Stores;
+using Repository.Storages;
 
 namespace Repository
 {
@@ -25,18 +27,22 @@ namespace Repository
 
         public Harbor(Flag flag)
         {
-            Func<CanaryContext> factory;
+            Func<CardinalContext> factory;
+            string storageAccountUri = "https://{0}.blob.core.windows.net";
 
             switch (flag)
             {
                 case Flag.Development:
                     factory = () => new DevelopmentContext();
+                    storageAccountUri = storageAccountUri + "/sparrowstorageaccount";
                     break;
                 case Flag.Staging:
                     factory = () => new AzureStagingContext();
+                    storageAccountUri = storageAccountUri + "/sparrowstorageaccount";
                     break;
                 case Flag.Production:
                     factory = () => new AzureProductionContext();
+                    storageAccountUri = storageAccountUri + "/canaryproduction";
                     break;
                 default:
                     throw new ArgumentException("Invalid Harbor flag: " + nameof(flag));
@@ -46,7 +52,7 @@ namespace Repository
             ConnectionDatabaseAccess = new ConnectionRepository(factory);
             ProfileDatabaseAccess = new ProfileRepository(factory);
             NotificationDatabaseAccess = new NotificationRepository(factory);
-            CircleDatabaseAccess = new CircleRepository(factory);
+            CircleDatabaseAccess = new CircleRepository(factory, new AzureStorageRepository(storageAccountUri));
             IssueDatabaseAccess = new IssueRepository(factory);
             ReportDatabaseAccess = new ReportRepository(factory);
             KeyDatabaseAccess = new AzureKeyStore();

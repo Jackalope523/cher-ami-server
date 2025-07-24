@@ -8,7 +8,7 @@ using UserReport = Repository.Databases.Entities.Reports.UserReport;
 
 namespace Repository.Databases.Contexts
 {
-    internal abstract class CanaryContext : DbContext
+    internal abstract class CardinalContext : DbContext
     {
         internal DbSet<User> Users { get; set; }
         internal DbSet<Issue> Issues { get; set; }
@@ -105,6 +105,10 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<User>()
                 .Property(u => u.SecurityStamp)
                 .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.AvatarPath)
+                .HasMaxLength(1024);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.SocialInvitations)
@@ -228,6 +232,10 @@ namespace Repository.Databases.Contexts
                 .HasMaxLength(100);
 
             modelBuilder.Entity<Circle>()
+                .Property(c => c.HeaderPath)
+                .HasMaxLength(1024);
+
+            modelBuilder.Entity<Circle>()
                .HasMany(c => c.Notifications)
                .WithOne(n => n.Circles)
                .OnDelete(DeleteBehavior.Restrict);
@@ -251,10 +259,6 @@ namespace Repository.Databases.Contexts
                .HasOne(c => c.Chat)
                .WithOne(c => c.Circle)
                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Circle>()
-                .Property(c => c.HeaderFilename)
-                .HasMaxLength(100);
 
             // Recipient
             modelBuilder.Entity<Recipient>()
@@ -315,7 +319,7 @@ namespace Repository.Databases.Contexts
                 .HasMaxLength(100);
 
             modelBuilder.Entity<Issue>()
-                .Property(i => i.HeaderFilename)
+                .Property(i => i.HeaderPath)
                 .HasMaxLength(100);
 
             modelBuilder.Entity<Issue>()
@@ -381,8 +385,8 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Snapshot>()
-                .Property(s => s.Filename)
-                .HasMaxLength(100);
+                .Property(s => s.Path)
+                .HasMaxLength(1024);
 
             // Caption
             modelBuilder.Entity<Caption>()
@@ -403,10 +407,6 @@ namespace Repository.Databases.Contexts
 
             modelBuilder.Entity<Feedback>().Property(f => f.Comments)
                 .HasMaxLength(300);
-
-            // User Relationship
-            modelBuilder.Entity<UserRelationship>()
-                .HasQueryFilter(r => !r.SoftDeleted);
 
             // Circle Membership
             modelBuilder.Entity<CircleMembership>()
@@ -491,6 +491,10 @@ namespace Repository.Databases.Contexts
                .Property(m => m.Text)
                .HasColumnName("Text")
                .HasMaxLength(2000);
+
+            modelBuilder.Entity<PhotoMessage>()
+               .Property(p => p.Path)
+               .HasMaxLength(1024);
 
             // Chat Links
             modelBuilder.Entity<ChatMembership>()

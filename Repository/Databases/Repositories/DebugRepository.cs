@@ -6,13 +6,13 @@ namespace Repository.Databases.Stores
 {
     public class DebugRepository : Repository, IDebugDatabase
     {
-        internal DebugRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal DebugRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task DrainDatabaseAsync()
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try

@@ -2,6 +2,9 @@
 {
     public class PhotoMessage : Message
     {
-        public Guid StorageId { get; set; }
+        public string Path { get; set; } = DefaultPath;
+
+        // Default Values
+        public static string DefaultPath { get; set; } = "";
     }
 }

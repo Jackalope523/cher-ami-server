@@ -8,7 +8,7 @@ namespace Repository.Databases.Stores
 {
     public class ReportRepository : Repository, IReportDatabase
     {
-        internal ReportRepository(Func<CanaryContext> contextFactory) : base(contextFactory)
+        internal ReportRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -23,7 +23,7 @@ namespace Repository.Databases.Stores
                 Notes = reportDetails
             };
 
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
@@ -40,14 +40,14 @@ namespace Repository.Databases.Stores
                 Notes = reportDetails
             };
 
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
 
         public async Task<List<PostReport>> GetReportsForPostAsync(long snapshotId)
         {
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
 
             return await 
             ctx.SnapshotReports.
@@ -75,7 +75,7 @@ namespace Repository.Databases.Stores
                 Notes = reportDetails
             };
 
-            await using CanaryContext ctx = initContext();
+            await using CardinalContext ctx = initContext();
             ctx.SnapshotReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }

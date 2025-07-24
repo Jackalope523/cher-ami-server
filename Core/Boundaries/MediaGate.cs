@@ -16,21 +16,21 @@ namespace Core.Boundaries
     {
         Task<MemoryStream> DownloadAssetAsync(string asset);
 
-        Task<MemoryStream> DownloadAvatarAsync(long userId);
+        Task<MemoryStream> DownloadAvatarAsync(string path);
         Task UploadAvatarAsync(long userId, MemoryStream image);
-        Task DeleteAvatarAsync(long userId);
+        Task DeleteAvatarAsync(string path);
 
-        Task<MemoryStream> DownloadCircleHeaderAsync(long circleId);
+        Task<MemoryStream> DownloadCircleHeaderAsync(string path);
         Task UploadCircleHeaderAsync(long circleId, MemoryStream image);
-        Task DeleteCircleHeaderAsync(long circleId);
+        Task DeleteCircleHeaderAsync(string path);
 
-        Task<MemoryStream> DownloadPostAsync(long postId, long ownerId);
-        Task UploadPostAsync(long postId, long ownerId, MemoryStream image);
-        Task DeletePostAsync(long postId, long ownerId);
+        Task<MemoryStream> DownloadSnapshotAsync(string path);
+        Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image);
+        Task DeleteSnapshotAsync(string path);
 
-        Task<MemoryStream> DownloadPhotoAsync(long chatId, Guid photoId);
-        Task<Guid> UploadPhotoAsync(long chatId, MemoryStream image);
-        Task DeletePhotoAsync(long chatId, Guid photoId);
+        Task<MemoryStream> DownloadPhotoAsync(string path);
+        Task UploadPhotoAsync(long chatId, long messageId, MemoryStream image);
+        Task DeletePhotoAsync(string path);
     }
 
     public interface IMediaOperations

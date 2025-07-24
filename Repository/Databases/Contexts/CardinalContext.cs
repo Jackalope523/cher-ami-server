@@ -112,23 +112,11 @@ namespace Repository.Databases.Contexts
                 .HasMaxLength(1024);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.SocialInvitations)
+                .Property(u => u.IssuePosts)
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.CompanionActivity)
-                .HasDefaultValue(true);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.GatheringReminders)
-                .HasDefaultValue(true);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.GatheringActivity)
-                .HasDefaultValue(true);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.GatheringDiscovery)
+                .Property(u => u.IssueReminders)
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()

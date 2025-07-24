@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
-using Repository.Entities;
 
 namespace Repository.Databases.Stores
 {
@@ -36,6 +35,11 @@ namespace Repository.Databases.Stores
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public Task VoidUserAsync(long userId)
+        {
+        
         }
     }
 }

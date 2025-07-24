@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities.Reports;
 using UserReport = Repository.Databases.Entities.Reports.UserReport;
@@ -19,23 +18,6 @@ namespace Repository.Databases.Stores
             {
                 FilingUserId = userId,
                 OtherId = targetUserId,
-                Type = reportType,
-                FilingDate = timeOfReport,
-                Notes = reportDetails
-            };
-
-            await using CardinalContext ctx = initContext();
-            ctx.UserReports.Add(toCreate);
-            await ctx.SaveChangesAsync();
-        }
-
-        public async Task ReportUserAsync(long selfId, long targetId, long gatheringId, DateTimeOffset timeOfReport, UserReportType reportType, string reportDetails)
-        {
-            UserReport toCreate = new()
-            {
-                FilingUserId = selfId,
-                OtherId = targetId,
-                GatheringId = gatheringId,
                 Type = reportType,
                 FilingDate = timeOfReport,
                 Notes = reportDetails

@@ -33,8 +33,7 @@ namespace Core.Boundaries
     {
         Task<(List<UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId);
         Task<(List<UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId);
-        Task ReportUserAsync(long userId, long targetUserId, long circleId, DateTimeOffset timeOfReport,
-            UserReportType reportType, string reportDetails);
+
         Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport,
             UserReportType reportType, string reportDetails);
 

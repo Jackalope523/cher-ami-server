@@ -6,7 +6,7 @@ namespace Repository.Databases.Entities.Reports
     {
         public enum ReportType { }
 
-        public ReportType Type { get; set; }
+        public PostReportType Type { get; set; }
 
         public long SnapshotId { get; init; }
 

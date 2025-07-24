@@ -26,11 +26,8 @@ namespace Repository.Databases.Entities
 
         // Notification Profile
         public Guid NotificationId { get; set; }
-        public bool SocialInvitations { get; set; } = DefaultSocialInvitations;
-        public bool CompanionActivity { get; set; } = DefaultCompanionActivity;
-        public bool GatheringReminders { get; set; } = DefaultGatheringReminders;
-        public bool GatheringActivity { get; set; } = DefaultGatheringActivity;
-        public bool GatheringDiscovery { get; set; } = DefaultGatheringDiscovery;
+        public bool IssuePosts { get; set; } = DefaultIssuePosts;
+        public bool IssueReminders { get; set; } = DefaultIssueReminders;
 
         // Navigation Properties
         public List<CircleMembership>? CircleMemberships { get; set; }
@@ -67,8 +64,8 @@ namespace Repository.Databases.Entities
         public static string DefaultAvatarPath { get; set; } = "";
 
         // Notification Profile
-        public static bool DefaultSocialInvitations { get; set; } = true;
-        public static bool DefaultCompanionActivity { get; set; } = true;
+        public static bool DefaultIssuePosts { get; set; } = true;
+        public static bool DefaultIssueReminders { get; set; } = true;
         public static bool DefaultGatheringReminders { get; set; } = true;
         public static bool DefaultGatheringActivity { get; set; } = true;
         public static bool DefaultGatheringDiscovery { get; set; } = true;

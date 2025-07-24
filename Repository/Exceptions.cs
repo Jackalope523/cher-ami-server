@@ -23,57 +23,6 @@ namespace Repository.Exceptions
         }
     }
     [Serializable]
-    public class InsufficientRadiusException : HollowException
-    {
-        public InsufficientRadiusException()
-        {
-        }
-
-        public InsufficientRadiusException(string message)
-            : base(message)
-        {
-        }
-
-        public InsufficientRadiusException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    [Serializable]
-    public class ExcessiveRadiusException : HollowException
-    {
-        public ExcessiveRadiusException()
-        {
-        }
-
-        public ExcessiveRadiusException(string message)
-            : base(message)
-        {
-        }
-
-        public ExcessiveRadiusException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    [Serializable]
-    public class UserNotFoundException : HollowFailureException
-    {
-        public UserNotFoundException()
-        {
-        }
-
-        public UserNotFoundException(string message)
-            : base(message)
-        {
-        }
-
-        public UserNotFoundException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
-    }
-    [Serializable]
     public class InvalidInputException : HollowFailureException
     {
         public InvalidInputException()

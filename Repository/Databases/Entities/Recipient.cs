@@ -1,5 +1,4 @@
-﻿
-namespace Repository.Databases.Entities
+﻿namespace Repository.Databases.Entities
 {
     public class Recipient : Entity
     {

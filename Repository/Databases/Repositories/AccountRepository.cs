@@ -56,6 +56,26 @@ namespace Repository.Databases.Stores
 
         public async Task DeleteUserAsync(long id)
         {
+
+            // [ ] Chats
+            // [ ] Messages
+            // [ ] Reports
+            // [ ] Captions
+            // [ ] ChatMemberships
+            // [ ] Circles
+            // [ ] CircleMemberships
+            // [ ] Connections
+            // [ ] Feedbacks
+            // [ ] Issues
+            // [ ] Notifications
+            // [ ] Posts
+            // [ ] Recipients
+            // [ ] Snapshots
+            // [ ] Subscriptions
+            // [ ] Users
+            // [ ] Words
+            // [ ] CircleRecipients
+
             await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 

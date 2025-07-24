@@ -1,6 +1,4 @@
-﻿using Repository.Databases.Entities;
-
-namespace Repository
+﻿namespace Repository.Databases.Entities
 {
     public class CircleRecipient : Entity
     {

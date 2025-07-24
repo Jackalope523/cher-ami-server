@@ -22,8 +22,6 @@ namespace Repository
         public IProfileDatabase ProfileDatabaseAccess { get; private set; }
         public IReportDatabase ReportDatabaseAccess { get; private set; }
 
-        public IDebugDatabase DebugDatabaseAccess { get; private set; }
-
         public Harbor(Flag flag)
         {
             Func<CardinalContext> factory;
@@ -57,7 +55,6 @@ namespace Repository
             KeyDatabaseAccess = new AzureKeyStore();
             MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
             ChatDatabaseAccess = new ChatRepository(factory);
-            DebugDatabaseAccess = new DebugRepository(factory);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);
         }
 

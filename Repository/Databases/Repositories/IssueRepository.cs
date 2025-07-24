@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities;
+using System;
 
 namespace Repository.Databases.Stores
 {
@@ -98,24 +99,64 @@ namespace Repository.Databases.Stores
             }
         }
 
-        public Task<List<CorePost>> GetPostsForIssueAsync(long issueId)
+        public async Task<List<CorePost>> GetPostsForIssueAsync(long issueId)
         {
-            throw new NotImplementedException();
+            await using CardinalContext ctx = initContext();
+
+            return await ctx.Issues.
+            Where(i => i.Id == issueId).
+            Join
+            (
+                ctx.Posts.Where(p => p.IssueId == issueId),
+                i => i.Id,
+                p => p.IssueId,
+                (_, p) => new { p.Id, p.IssueId, p.AuthorId, p.PostedAt }
+            ).
+            Join
+            (
+                ctx.Captions,
+                p => p.Id,
+                c => c.PostId,
+                (p, c) => new CorePost(p.Id, p.IssueId, p.AuthorId, p.PostedAt, c.Text)
+            ).
+            ToListAsync();
         }
 
-        public Task<CorePost> GetPostAsync(long postId)
+        public async Task<CorePost> GetPostAsync(long postId)
         {
-            throw new NotImplementedException();
+            await using CardinalContext ctx = initContext();
+
+            return await ctx.Posts.
+            Where(p => p.Id == postId).
+            Join
+            (
+                ctx.Captions.Where(c => c.PostId == postId),
+                p => p.Id,
+                c => c.PostId,
+                (p,c) => new CorePost(p.Id, p.IssueId, p.AuthorId, p.PostedAt, c.Text)
+            ).
+            SingleAsync();
         }
 
-        public Task SoftDeleteAsync(long postId)
+        public async Task DeletePostAsync(long postId)
         {
-            throw new NotImplementedException();
-        }
+            await using CardinalContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-        public Task HardDeleteAsync(long postId)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                await ctx.Captions.Where(c => c.PostId == postId).ExecuteDeleteAsync();
+                await ctx.Snapshots.Where(s => s.PostId == postId).ExecuteDeleteAsync();
+                await ctx.Posts.Where(p => p.Id == postId).ExecuteDeleteAsync();
+
+                await transaction.CommitAsync();
+
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

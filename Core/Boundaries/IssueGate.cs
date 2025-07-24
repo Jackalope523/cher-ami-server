@@ -35,9 +35,7 @@ namespace Core.Boundaries
 
         Task<CorePost> GetPostAsync(long postId);
         Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption);
-
-        Task SoftDeleteAsync(long postId);
-        Task HardDeleteAsync(long postId);
+        Task DeletePostAsync(long postId);
     }
 
     public interface IIssueOperations

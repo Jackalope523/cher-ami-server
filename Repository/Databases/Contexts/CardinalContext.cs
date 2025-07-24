@@ -19,6 +19,7 @@ namespace Repository.Databases.Contexts
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
         internal DbSet<SnapshotReport> SnapshotReports { get; set; }
+        internal DbSet<SnapshotReport> CaptionReports { get; set; }
         internal DbSet<Post> Posts { get; set; }
         internal DbSet<Snapshot> Snapshots { get; set; }
         internal DbSet<Caption> Captions { get; set; }
@@ -294,7 +295,6 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Recipient>()
                .Property(r => r.Country)
                .HasMaxLength(56);
-
 
             // Circle Recipient
             modelBuilder.Entity<CircleRecipient>()

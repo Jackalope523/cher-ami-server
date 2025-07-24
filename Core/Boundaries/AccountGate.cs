@@ -41,9 +41,7 @@ namespace Core.Boundaries
 			string title, string givenName, string familyName,
 			DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
 		Task UpdateUserAsync(long userId, List<(string Property, object Value)> edits);
-
-		Task SoftDeleteAsync(long userId);
-        Task HardDeleteAsync(long userId);
+		Task DeleteUserAsync(long userId);
     }
 
 	public interface IAccountOperations

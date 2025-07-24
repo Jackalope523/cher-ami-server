@@ -54,36 +54,7 @@ namespace Repository.Databases.Stores
               );
         }
 
-        public async Task SoftDeleteAsync(long id)
-        {
-            await using CardinalContext ctx = initContext();
-            await using var transaction = await ctx.Database.BeginTransactionAsync();
-
-            try
-            {
-                await ctx.ChatMemberships.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Connections.Where(c => c.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.SnapshotLinks.Where(s => s.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Snapshots.Where(s => s.OwnerId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Telegrams.Where(t => t.NotifierId == id || t.RecipientId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Subscriptions.Where(s => s.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Penalties.Where(p => p.PenalizedId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.GuestClearances.Where(c => c.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.UserRelationships.Where(l => l.SelfId == id || l.OtherId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-                await ctx.Users.Where(u => u.Id == id).ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true));
-
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task HardDeleteAsync(long id)
+        public async Task DeleteUserAsync(long id)
         {
             await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
@@ -93,21 +64,12 @@ namespace Repository.Databases.Stores
                 await ctx.Connections.Where(c => c.UserId == id).ExecuteDeleteAsync();
                 await ctx.ChatMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteDeleteAsync();
-                await ctx.SnapshotLinks.Where(s => s.UserId == id).ExecuteDeleteAsync();
-                await ctx.Snapshots.Where(s => s.OwnerId == id).ExecuteDeleteAsync();
-                await ctx.Telegrams.Where(t => t.NotifierId == id || t.RecipientId == id).ExecuteDeleteAsync();
                 await ctx.Subscriptions.Where(s => s.UserId == id).ExecuteDeleteAsync();
-                await ctx.Penalties.Where(p => p.PenalizedId == id).ExecuteDeleteAsync();
-                await ctx.GuestClearances.Where(c => c.UserId == id).ExecuteDeleteAsync();
-                await ctx.UserRelationships.Where(l => l.SelfId == id).ExecuteDeleteAsync();
                 await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.ProfileMessages.Where(m => m.ProfileId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.ProfileId, (long?)null));
                 await ctx.Messages.Where(m => m.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
                 await ctx.Feedback.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
-                await ctx.UserReports.Where(r => r.SelfId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.SelfId, (long?)null));
-                await ctx.GatheringReports.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
-                await ctx.SnapshotReports.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
-                await ctx.Gatherings.Where(g => g.HostId == id).ExecuteUpdateAsync(setter => setter.SetProperty(g => g.HostId, (long?)null));
+                await ctx.Reports.Where(r => r.FilingUserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.FilingUserId, (long?)null));
                 await ctx.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
 
                 await transaction.CommitAsync();

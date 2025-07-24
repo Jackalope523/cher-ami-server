@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities;
-using System;
 
 namespace Repository.Databases.Stores
 {

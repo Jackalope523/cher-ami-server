@@ -35,7 +35,7 @@ namespace Core.Boundaries
     public record CoreRecipient(long Id, long ManagerId, string Title, string FirstName, string LastName, DateTimeOffset? DateOfBirth = null, Address Address = null)
         : CoreOnlyData();
 
-    public record RecipientShard(long Id, long ManagerId, bool IsManager, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
+    public record RecipientShard(long Id, long ManagerId, string FullName = null, DateTimeOffset? DateOfBirth = null, Address Address = null);
 
 
     public record Address(string Street, string ApartmentOrSuite,

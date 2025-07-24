@@ -217,9 +217,34 @@ namespace Repository.Databases.Stores
                    ToListAsync();
         }
 
-        public Task<List<RecipientShard>> GetRecipientsForCircleAsync(long circleId)
+        public async Task<List<RecipientShard>> GetRecipientsForCircleAsync(long circleId)
         {
-            throw new NotImplementedException();
+            await using CardinalContext ctx = initContext();
+
+            return await ctx.CircleRecipients.
+                   Where(cr => cr.CircleId == circleId).
+                   Join
+                   (
+                      ctx.Recipients,
+                      cr => cr.RecipientId,
+                      r => r.Id,
+                      (_, r) => new RecipientShard
+                      (
+                          r.Id,
+                          r.ManagerId,
+                          $"{r.Title} {r.FirstName} {r.LastName}",
+                          r.DateOfBirth,
+                          new Address
+                          (
+                              r.StreetAddress,
+                              r.UnitNumber,
+                              r.City,
+                              r.ProvinceOrState,
+                              r.PostalCode,
+                              r.Country
+                          )
+                      )
+                   ).ToListAsync();
         }
 
         public async Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId)

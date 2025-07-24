@@ -52,7 +52,7 @@ namespace Repository
             CircleDatabaseAccess = new CircleRepository(factory);
             IssueDatabaseAccess = new IssueRepository(factory);
             ReportDatabaseAccess = new ReportRepository(factory);
-            KeyDatabaseAccess = new AzureKeyStore();
+            KeyDatabaseAccess = new KeyStoreRepository();
             MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
             ChatDatabaseAccess = new ChatRepository(factory);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);

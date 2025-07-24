@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Repository.Databases.Contexts;
 using Repository.Databases.Entities.Reports;
+using UserReport = Repository.Databases.Entities.Reports.UserReport;
 
 
 namespace Repository.Databases.Stores
@@ -16,7 +17,7 @@ namespace Repository.Databases.Stores
         {
             UserReport toCreate = new()
             {
-                SelfId = userId,
+                FilingUserId = userId,
                 OtherId = targetUserId,
                 Type = reportType,
                 FilingDate = timeOfReport,
@@ -32,7 +33,7 @@ namespace Repository.Databases.Stores
         {
             UserReport toCreate = new()
             {
-                SelfId = selfId,
+                FilingUserId = selfId,
                 OtherId = targetId,
                 GatheringId = gatheringId,
                 Type = reportType,
@@ -55,7 +56,7 @@ namespace Repository.Databases.Stores
             Select(r => new PostReport
             (
                 r.Id,
-                r.UserId ?? 0,
+                r.FilingUserId ?? 0,
                 r.SnapshotId,
                 r.FilingDate,
                 r.Type,
@@ -68,7 +69,7 @@ namespace Repository.Databases.Stores
         {
             SnapshotReport toCreate = new()
             {
-                UserId = userId,
+                FilingUserId = userId,
                 SnapshotId = snapshotId,
                 Type = reportType,
                 FilingDate = timeOfReport,

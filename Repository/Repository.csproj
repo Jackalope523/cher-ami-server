@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Databases\Migrations\TestDBMigrations\**" />
+    <Compile Remove="Migrations\TestDBMigrations\**" />
     <Compile Remove="TestDBMigrations\**" />
-    <EmbeddedResource Remove="Databases\Migrations\TestDBMigrations\**" />
+    <EmbeddedResource Remove="Migrations\TestDBMigrations\**" />
     <EmbeddedResource Remove="TestDBMigrations\**" />
-    <None Remove="Databases\Migrations\TestDBMigrations\**" />
+    <None Remove="Migrations\TestDBMigrations\**" />
     <None Remove="TestDBMigrations\**" />
   </ItemGroup>
 
@@ -47,9 +47,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Databases\Migrations\ProductionMigrations\" />
-    <Folder Include="Databases\Migrations\StagingMigrations\" />
-    <Folder Include="Databases\Migrations\TestMigrations\" />
+    <Folder Include="Migrations\ProductionMigrations\" />
+    <Folder Include="Migrations\StagingMigrations\" />
+    <Folder Include="Migrations\TestMigrations\" />
   </ItemGroup>
 
 </Project>

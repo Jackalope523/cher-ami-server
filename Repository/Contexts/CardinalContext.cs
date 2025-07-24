@@ -1,0 +1,514 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.Entities;
+using Repository.Entities.Chats;
+using Repository.Entities.Messages;
+using Repository.Entities.Reports;
+using static Repository.Entities.Reports.Report;
+using PostReport = Repository.Entities.Reports.PostReport;
+using UserReport = Repository.Entities.Reports.UserReport;
+
+namespace Repository.Contexts
+{
+    internal abstract class CardinalContext : DbContext
+    {
+        internal DbSet<User> Users { get; set; }
+        internal DbSet<Issue> Issues { get; set; }
+        internal DbSet<Circle> Circles { get; set; }
+        internal DbSet<CircleMembership> CircleMemberships { get; set; }
+        internal DbSet<Recipient> Recipients { get; set; }
+        internal DbSet<RecipientLink> CircleRecipients { get; set; }
+        internal DbSet<Report> Reports { get; set; }
+        internal DbSet<UserReport> UserReports { get; set; }
+        internal DbSet<PostReport> PostReports { get; set; }
+        internal DbSet<Block> Blocks { get; set; }
+        internal DbSet<Post> Posts { get; set; }
+        internal DbSet<Snapshot> Snapshots { get; set; }
+        internal DbSet<Caption> Captions { get; set; }
+        internal DbSet<Subscription> Subscriptions { get; set; }
+        internal DbSet<Feedback> Feedback { get; set; }
+        internal DbSet<Notification> Notifications { get; set; }
+        internal DbSet<Word> Words { get; set; }
+        internal DbSet<Chat> Chats { get; set; }
+        internal DbSet<PrivateChat> PrivateChats { get; set; }
+        internal DbSet<CircleChat> CircleChats { get; set; }
+        internal DbSet<BroadcastChat> BroadcastChats { get; set; }
+        internal DbSet<ChatMembership> ChatMemberships { get; set; }
+        internal DbSet<Connection> Connections { get; set; }
+        internal DbSet<Message> Messages { get; set; }
+        internal DbSet<TextMessage> TextMessages { get; set; }
+        internal DbSet<PhotoMessage> PhotoMessages { get; set; }
+        internal DbSet<IssueMessage> IssueMessages { get; set; }
+        internal DbSet<PostMessage> PostMessages { get; set; }
+        internal DbSet<ProfileMessage> ProfileMessages { get; set; }
+        internal DbSet<ActivityMessage> ActivityMessages { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Entity
+            modelBuilder.Ignore<Entity>();
+
+            // User
+            modelBuilder.Entity<User>()
+                .HasQueryFilter(u => !u.SoftDeleted);
+
+            modelBuilder.Entity<User>()
+              .HasData(new User()
+              {
+                  Id = -2,
+                  PhoneNumber = "15734922666",
+                  FirstName = "CANARY",
+                  IsPhoneConfirmed = true,
+
+              });
+
+            modelBuilder.Entity<User>()
+                .HasData(new User()
+                {
+                    Id = -7,
+                    PhoneNumber = "11002003007",
+                    FirstName = "Apple Test Account",
+                    IsPhoneConfirmed = true,
+                });
+
+            modelBuilder.Entity<User>()
+               .HasData(new User()
+               {
+                   Id = -8,
+                   PhoneNumber = "11002003008",
+                   FirstName = "Google Test Account",
+                   IsPhoneConfirmed = true,
+               });
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Email)
+                .HasMaxLength(255);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Title)
+                .HasMaxLength(25);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.FirstName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.LastName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.NormalizedEmail)
+                .HasMaxLength(255);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.PhoneNumber)
+                .HasMaxLength(20);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.SecurityStamp)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.AvatarPath)
+                .HasMaxLength(1024);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.IssuePosts)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.IssueReminders)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.CircleMemberships)
+                .WithOne(l => l.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.ReporterList)
+                .WithOne(r => r.FilingUser)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.ReportedList)
+                .WithOne(r => r.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.BlockerList)
+                .WithOne(b => b.Blocker)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.BlockedList)
+                .WithOne(b => b.Blocked)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.SnapshotReports)
+                .WithOne(r => r.FilingUser)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Posts)
+                .WithOne(p => p.Author)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Subscriptions)
+                .WithOne(s => s.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Feedback)
+                .WithOne(f => f.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+               .HasMany(u => u.Notifications)
+               .WithOne(n => n.Recipient)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+               .HasMany(u => u.Subscriptions)
+               .WithOne(s => s.User)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Feedback)
+             .WithOne(f => f.User)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.ChatLinks)
+             .WithOne(l => l.User)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Messages)
+             .WithOne(m => m.User)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Shares)
+             .WithOne(m => m.Profile)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Connections)
+             .WithOne(c => c.User)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+             .HasMany(u => u.Recipients)
+             .WithOne(r => r.Manager)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            // Circle
+            modelBuilder.Entity<Circle>()
+                .HasQueryFilter(g => !g.SoftDeleted);
+
+            modelBuilder.Entity<Circle>()
+                .Property(c => c.CircleCode)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Circle>()
+                .HasIndex(c => c.CircleCode)
+                .IsUnique();
+
+            modelBuilder.Entity<Circle>()
+                .Property(g => g.Title)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Circle>()
+                .Property(c => c.HeaderPath)
+                .HasMaxLength(1024);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.Notifications)
+               .WithOne(n => n.Circles)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.Issues)
+               .WithOne(i => i.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.CircleMemberships)
+               .WithOne(m => m.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasMany(c => c.CircleRecipients)
+               .WithOne(cr => cr.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Circle>()
+               .HasOne(c => c.Chat)
+               .WithOne(c => c.Circle)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            // Recipient
+            modelBuilder.Entity<Recipient>()
+               .HasQueryFilter(g => !g.SoftDeleted);
+
+            modelBuilder.Entity<Recipient>()
+               .HasMany(c => c.CircleRecipients)
+               .WithOne(cr => cr.Recipient)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.Title)
+               .HasMaxLength(25);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.FirstName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.LastName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<Recipient>()
+              .Property(r => r.UnitNumber)
+              .HasMaxLength(15);
+
+            modelBuilder.Entity<Recipient>()
+              .Property(r => r.StreetAddress)
+              .HasMaxLength(150);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.City)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.ProvinceOrState)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.PostalCode)
+               .HasMaxLength(20);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.Country)
+               .HasMaxLength(56);
+
+            // Recipient Link
+            modelBuilder.Entity<RecipientLink>()
+                .HasQueryFilter(g => !g.SoftDeleted);
+
+            // Issue
+            modelBuilder.Entity<Issue>()
+                .HasQueryFilter(g => !g.SoftDeleted);
+
+            modelBuilder.Entity<Issue>()
+                .Property(i => i.Title)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Issue>()
+                .Property(i => i.HeaderPath)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<Issue>()
+                .HasMany(i => i.Posts)
+                .WithOne(p => p.Issue)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Subscription
+            modelBuilder.Entity<Subscription>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Subscription>()
+                .Property(s => s.DeviceToken)
+                .HasMaxLength(500);
+
+            // Blocks
+            modelBuilder.Entity<Block>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            // Reports
+            modelBuilder.Entity<Report>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<Report>()
+                .Property(r => r.Notes)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<Report>()
+                .HasDiscriminator<ReportDiscriminator>("Discriminator")
+                .HasValue<UserReport>(ReportDiscriminator.UserReport)
+                .HasValue<PostReport>(ReportDiscriminator.PostReport);
+
+            modelBuilder.Entity<PostReport>()
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            modelBuilder.Entity<UserReport>()
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            modelBuilder.Entity<PostReport>()
+                .Property(r => r.Type)
+                .HasColumnName("Type");
+
+            // Post
+            modelBuilder.Entity<Post>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Post>()
+                .HasMany(p => p.Snapshots)
+                .WithOne(s => s.Post)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Post>()
+                .HasMany(p => p.Captions)
+                .WithOne(c => c.Post)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Post>()
+               .HasMany(p => p.Reports)
+               .WithOne(r => r.Post)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            // Snapshot
+            modelBuilder.Entity<Snapshot>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Snapshot>()
+                .Property(s => s.Path)
+                .HasMaxLength(1024);
+
+            // Caption
+            modelBuilder.Entity<Caption>()
+                .HasQueryFilter(s => !s.SoftDeleted);
+
+            modelBuilder.Entity<Caption>()
+                .HasMany(s => s.Reports)
+                .WithOne(r => r.Caption)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Caption>()
+                .Property(c => c.Text)
+                .HasMaxLength(200);
+
+            // Feedback
+            modelBuilder.Entity<Feedback>()
+                .HasQueryFilter(f => !f.SoftDeleted);
+
+            modelBuilder.Entity<Feedback>().Property(f => f.Comments)
+                .HasMaxLength(300);
+
+            // Circle Membership
+            modelBuilder.Entity<CircleMembership>()
+                .HasQueryFilter(l => !l.SoftDeleted);
+
+            // Notifications
+            modelBuilder.Entity<Notification>()
+                .HasQueryFilter(n => !n.SoftDeleted);
+
+            modelBuilder.Entity<Notification>()
+                .Property(n => n.NotificationId)
+                .HasMaxLength(36);
+
+            // Words
+            modelBuilder.Entity<Word>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<Word>()
+                .Property(w => w.Text)
+                .HasMaxLength(50);
+
+            // Chats
+            modelBuilder.Entity<Chat>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<Chat>()
+                .HasMany(c => c.ChatLinks)
+                .WithOne(l => l.Chat)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Chat>()
+                .HasMany(c => c.Messages)
+                .WithOne(m => m.Chat)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BroadcastChat>()
+                .Property(c => c.Title)
+                .HasColumnName("Title")
+                .HasMaxLength(200);
+
+            modelBuilder.Entity<Chat>()
+               .HasDiscriminator<ChatType>("Type")
+               .HasValue<PrivateChat>(ChatType.Individual)
+               .HasValue<CircleChat>(ChatType.Circle)
+               .HasValue<BroadcastChat>(ChatType.Broadcast);
+
+            modelBuilder.Entity<BroadcastChat>()
+                .HasData(new BroadcastChat()
+                {
+                    Id = -2,
+                    Type = ChatType.Broadcast,
+                    Title = "CANARY Team"
+                });
+
+            // Messages
+            modelBuilder.Entity<Message>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<Message>()
+                .HasDiscriminator<MessageType>("Type")
+                .HasValue<TextMessage>(MessageType.Text)
+                .HasValue<PhotoMessage>(MessageType.Photo)
+                .HasValue<ActivityMessage>(MessageType.Activity)
+                .HasValue<ProfileMessage>(MessageType.Profile)
+                .HasValue<PostMessage>(MessageType.Post)
+                .HasValue<IssueMessage>(MessageType.Issue);
+
+            modelBuilder.Entity<PostMessage>()
+                .Property(g => g.GatheringId)
+                .HasColumnName("GatheringId");
+
+            modelBuilder.Entity<IssueMessage>()
+                .Property(g => g.GatheringId)
+                .HasColumnName("GatheringId");
+
+            modelBuilder.Entity<TextMessage>()
+                .Property(m => m.Text)
+                .HasColumnName("Text")
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<ActivityMessage>()
+               .Property(m => m.Text)
+               .HasColumnName("Text")
+               .HasMaxLength(2000);
+
+            modelBuilder.Entity<PhotoMessage>()
+               .Property(p => p.Path)
+               .HasMaxLength(1024);
+
+            // Chat Links
+            modelBuilder.Entity<ChatMembership>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<ChatMembership>()
+                .HasData(new ChatMembership()
+                {
+                    Id = -2,
+                    UserId = -2,
+                    ConversationId = -2,
+                    Type = ChatMembershipType.Owner,
+                    Muted = false,
+                });
+
+            // Connections
+            modelBuilder.Entity<Connection>()
+              .HasQueryFilter(c => !c.SoftDeleted);
+
+            modelBuilder.Entity<Connection>()
+             .Property(c => c.ConnectionId)
+             .HasMaxLength(36);
+        }
+    }
+}

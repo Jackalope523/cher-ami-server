@@ -4,11 +4,11 @@
     {
         public UserReportType Type { get; set; }
 
-        public long OtherId { get; init; }
+        public long UserId { get; init; }
         public long? GatheringId { get; init; }
 
         // Navigation Properties
-        public User? Other { get; init; }
+        public User? User { get; init; }
         public Circle? Gathering { get; init; }
     }
 }

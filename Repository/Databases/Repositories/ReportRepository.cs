@@ -17,7 +17,7 @@ namespace Repository.Databases.Stores
             UserReport toCreate = new()
             {
                 FilingUserId = userId,
-                OtherId = targetUserId,
+                UserId = targetUserId,
                 Type = reportType,
                 FilingDate = timeOfReport,
                 Notes = reportDetails
@@ -32,12 +32,12 @@ namespace Repository.Databases.Stores
             await using CardinalContext ctx = initContext();
 
             List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
-                                                           Where(r => r.OtherId == userId).
+                                                           Where(r => r.UserId == userId).
                                                            Select(r => new Core.Boundaries.UserReport
                                                            (
                                                                r.Id, 
                                                                r.FilingUserId ?? 0, 
-                                                               r.OtherId, 
+                                                               r.UserId, 
                                                                r.FilingDate, 
                                                                r.Type, 
                                                                r.Notes

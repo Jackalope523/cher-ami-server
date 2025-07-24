@@ -10,36 +10,29 @@ namespace Repository.Databases.Stores
         {
         }
 
-        public async Task BlockUserAsync(long selfId, long targetId, DateTimeOffset time)
+        public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)
         {
             await using CardinalContext ctx = initContext();
 
-            long id = await ctx.UserRelationships.
-                      Where(l => l.SelfId == selfId && l.OtherId == targetId).
-                      Select(l => l.Id).
-                      SingleOrDefaultAsync();
-
-            UserRelationship toAddOrUpdate = new()
+            Block toAdd = new()
             {
-                Id = id,
-                SelfId = selfId,
-                OtherId = targetId,
-                Time = time,
-                Type = UserRelationship.UserRelationshipType.Block
+                BlockerId = blockerId,
+                BlockedId = blockedId,
+                BlockDate = time,
             };
 
-            ctx.UserRelationships.Update(toAddOrUpdate);
+            ctx.Blocks.Add(toAdd);
 
             await ctx.SaveChangesAsync();
         }
 
-        public async Task UnblockUserAsync(long selfId, long targetId)
+        public async Task UnblockUserAsync(long blockerId, long blockedId)
         {
             await using CardinalContext ctx = initContext();
 
-            ctx.UserRelationships.
-            Where(l => l.SelfId == selfId && l.OtherId == targetId && l.Type == UserRelationship.UserRelationshipType.Block).
-            ExecuteDelete();
+            await ctx.Blocks.
+            Where(b => b.BlockerId == blockerId && b.BlockedId == blockedId).
+            ExecuteDeleteAsync();
         }
 
         public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long id)
@@ -47,13 +40,13 @@ namespace Repository.Databases.Stores
             await using CardinalContext ctx = initContext();
 
             return await
-            ctx.UserRelationships.
-            Where(l => l.SelfId == id && l.Type == UserRelationship.UserRelationshipType.Block).
+            ctx.Blocks.
+            Where(l => l.BlockerId == id).
             Join(
                 ctx.Users,
-                l => l.OtherId,
+                l => l.BlockedId,
                 u => u.Id,
-                (l, u) => new BlockedUserShard(u.Id, u.FirstName, l.Time)
+                (l, u) => new BlockedUserShard(u.Id, u.FirstName, l.BlockDate)
             ).
             ToListAsync();
         }
@@ -63,9 +56,9 @@ namespace Repository.Databases.Stores
             await using CardinalContext ctx = initContext();
 
             return await
-            ctx.UserRelationships.Where(l => l.OtherId == userId && l.Type == UserRelationship.UserRelationshipType.Block).
+            ctx.Blocks.Where(l => l.BlockedId == userId).
             Join(ctx.Users,
-            l => l.SelfId,
+            l => l.BlockerId,
             u => u.Id,
             (l, u) => new CoreUser(
                   u.Id,
@@ -86,7 +79,8 @@ namespace Repository.Databases.Stores
                   u.JoinDate,
                   u.TimeOfUserAgreement,
                   u.NotificationId
-                  )).
+                  )
+            ).
             ToListAsync();
         }
 
@@ -94,11 +88,10 @@ namespace Repository.Databases.Stores
         {
             await using CardinalContext ctx = initContext();
 
-            return await 
-                ctx.UserRelationships.
-                Where(l => l.SelfId == userId && l.OtherId == targetId && l.Type == UserRelationship.UserRelationshipType.Block).
-                Select(l => l.Time).
-                SingleAsync();
+            return await ctx.Blocks.
+                   Where(l => l.BlockerId == userId && l.BlockedId == targetId).
+                   Select(l => l.BlockDate).
+                   SingleAsync();
         }
     }
 }

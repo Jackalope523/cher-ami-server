@@ -15,7 +15,7 @@
         public long ManagerId { get; set; }
 
         // Navigation Properties
-        public List<CircleRecipient>? CircleRecipients { get; set; }
+        public List<RecipientLink>? CircleRecipients { get; set; }
         public User? Manager { get; set; }
 
         // Default Values

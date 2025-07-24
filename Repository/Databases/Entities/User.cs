@@ -1,5 +1,6 @@
 ﻿using Repository.Databases.Entities.Messages;
 using Repository.Databases.Entities.Reports;
+using PostReport = Repository.Databases.Entities.Reports.PostReport;
 using UserReport = Repository.Databases.Entities.Reports.UserReport;
 
 namespace Repository.Databases.Entities
@@ -32,8 +33,10 @@ namespace Repository.Databases.Entities
         // Navigation Properties
         public List<CircleMembership>? CircleMemberships { get; set; }
         public List<UserReport>? ReporterList { get; set; }
-        public List<UserReport>? ReporteeList { get; set; }
-        public List<Reports.PostReport>? SnapshotReports { get; set; }
+        public List<UserReport>? ReportedList { get; set; }
+        public List<Block>? BlockerList { get; set; }
+        public List<Block>? BlockedList { get; set; }
+        public List<PostReport>? SnapshotReports { get; set; }
         public List<Subscription>? Subscriptions { get; set; }
         public List<Feedback>? Feedback { get; set; }
         public List<Notification>? Notifications { get; set; }

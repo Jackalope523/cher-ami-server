@@ -15,7 +15,7 @@ namespace Repository.Databases.Entities
 
         // Navigation Properties
         public List<CircleMembership>? CircleMemberships { get; set; }
-        public List<CircleRecipient>? CircleRecipients { get; set; }
+        public List<RecipientLink>? CircleRecipients { get; set; }
         public List<Issue>? Issues { get; set; }
         public List<Notification>? Notifications { get; set; }
         public CircleChat? Chat { get; set; }

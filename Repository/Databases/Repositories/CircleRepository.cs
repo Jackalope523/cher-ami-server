@@ -415,7 +415,7 @@ namespace Repository.Databases.Stores
                 ctx.Recipients.Add(toAdd);
                 await ctx.SaveChangesAsync();
 
-                CircleRecipient link = new()
+                RecipientLink link = new()
                 {
                     CircleId = circleId,
                     RecipientId = toAdd.Id,

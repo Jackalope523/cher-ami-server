@@ -1,6 +1,6 @@
 ﻿namespace Repository.Databases.Entities
 {
-    public class CircleRecipient : Entity
+    public class RecipientLink : Entity
     {
         public long RecipientId { get; set; }
         public long CircleId { get; set; }

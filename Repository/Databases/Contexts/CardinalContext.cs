@@ -16,10 +16,11 @@ namespace Repository.Databases.Contexts
         internal DbSet<Circle> Circles { get; set; }
         internal DbSet<CircleMembership> CircleMemberships { get; set; }
         internal DbSet<Recipient> Recipients { get; set; }
-        internal DbSet<CircleRecipient> CircleRecipients { get; set; }
+        internal DbSet<RecipientLink> CircleRecipients { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
         internal DbSet<PostReport> PostReports { get; set; }
+        internal DbSet<Block> Blocks { get; set; }
         internal DbSet<Post> Posts { get; set; }
         internal DbSet<Snapshot> Snapshots { get; set; }
         internal DbSet<Caption> Captions { get; set; }
@@ -130,8 +131,18 @@ namespace Repository.Databases.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.ReporteeList)
-                .WithOne(r => r.Other)
+                .HasMany(u => u.ReportedList)
+                .WithOne(r => r.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.BlockerList)
+                .WithOne(b => b.Blocker)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.BlockedList)
+                .WithOne(b => b.Blocked)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -284,8 +295,8 @@ namespace Repository.Databases.Contexts
                .Property(r => r.Country)
                .HasMaxLength(56);
 
-            // Circle Recipient
-            modelBuilder.Entity<CircleRecipient>()
+            // Recipient Link
+            modelBuilder.Entity<RecipientLink>()
                 .HasQueryFilter(g => !g.SoftDeleted);
 
             // Issue
@@ -312,6 +323,10 @@ namespace Repository.Databases.Contexts
             modelBuilder.Entity<Subscription>()
                 .Property(s => s.DeviceToken)
                 .HasMaxLength(500);
+
+            // Blocks
+            modelBuilder.Entity<Block>()
+                .HasQueryFilter(s => !s.SoftDeleted);
 
             // Reports
             modelBuilder.Entity<Report>()

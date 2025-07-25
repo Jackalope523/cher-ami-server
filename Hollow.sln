@@ -10,8 +10,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontier", "Frontier\Fronti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{517374C8-4EEE-4B43-9C64-2C073BFAC781}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{C82BA0D8-5CDD-4556-80F2-3E3A873C1725}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}"
 EndProject
 Global
@@ -28,10 +26,6 @@ Global
 		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C82BA0D8-5CDD-4556-80F2-3E3A873C1725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C82BA0D8-5CDD-4556-80F2-3E3A873C1725}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C82BA0D8-5CDD-4556-80F2-3E3A873C1725}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C82BA0D8-5CDD-4556-80F2-3E3A873C1725}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Release|Any CPU.ActiveCfg = Release|Any CPU

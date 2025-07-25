@@ -497,7 +497,7 @@ namespace Repository.Contexts
                 {
                     Id = -2,
                     UserId = -2,
-                    ConversationId = -2,
+                    ChatId = -2,
                     Type = ChatMembershipType.Owner,
                     Muted = false,
                 });

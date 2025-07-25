@@ -24,7 +24,7 @@ namespace Repository.Repositories
                 case MessageType.Text:
                     toAdd = new TextMessage()
                     {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         Text = (string)value,
@@ -33,7 +33,7 @@ namespace Repository.Repositories
                 case MessageType.Photo:
                     toAdd = new PhotoMessage()
                     {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                     };
@@ -41,16 +41,7 @@ namespace Repository.Repositories
                 case MessageType.Issue:
                     toAdd = new IssueMessage()
                     {
-                        ConversationId = chatId,
-                        UserId = userId,
-                        Timestamp = timestamp,
-                        GatheringId = (long)value
-                    };
-                    break;
-                case MessageType.GatheringInvite:
-                    toAdd = new PostMessage()
-                    {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         GatheringId = (long)value
@@ -59,7 +50,7 @@ namespace Repository.Repositories
                 case MessageType.Post:
                     toAdd = new SnapshotMessage()
                     {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         SnapshotId = (long)value
@@ -68,7 +59,7 @@ namespace Repository.Repositories
                 case MessageType.Profile:
                     toAdd = new ProfileMessage()
                     {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         ProfileId = (long)value
@@ -78,7 +69,7 @@ namespace Repository.Repositories
                     ActivityMessageShard activityMessageShard = (ActivityMessageShard)value;
                     toAdd = new ActivityMessage()
                     {
-                        ConversationId = chatId,
+                        ChatId = chatId,
                         UserId = userId,
                         Timestamp = timestamp,
                         ActivityType = activityMessageShard.Activity,
@@ -91,102 +82,105 @@ namespace Repository.Repositories
                     throw new InvalidInputException("Message of type \"" + type.ToString() + "\" is not supported in this method.");
             }
 
-            await storeSentry.ExecuteWriteAsync(ctx => ctx.Messages.Add(toAdd));
+            await using CardinalContext ctx = initContext();
+            ctx.Messages.Add(toAdd);
+            await ctx.SaveChangesAsync();
+
             return new MessageShard(toAdd.Id, toAdd.UserId ?? 0, toAdd.Timestamp, type, value);
         }
 
         public async Task AddUsersToChatAsync(long chatId, params long[] userIds)
         {
-            Discussion discussion = storeSentry.BeginDiscussion();
+            await using CardinalContext ctx = initContext();
 
             foreach (long userId in userIds)
             {
-                storeSentry.DiscussWrite(ctx => 
-                    ctx.ChatLinks.
-                    Add(
-                        new ChatMembership 
-                        { 
-                            ConversationId = conversationId, 
-                            UserId = userId,
-                            LastSeen = DateTime.UtcNow,
-                            Type = ChatMembershipType.Regular
-                        }
-                ), discussion);
+                ChatMembership toAdd = new()
+                {
+                    ChatId = chatId,
+                    UserId = userId,
+                    LastSeen = DateTime.UtcNow,
+                    Type = ChatMembershipType.Regular
+                };
+
+                ctx.ChatMemberships.Add(toAdd);
             }
 
-            await storeSentry.EndDiscussionAsync(discussion);
+            await ctx.SaveChangesAsync();
         }
 
         public async Task DeleteChatAsync(long chatId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.Messages.
-               Where(m => m.ConversationId == conversationId).
-               ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
+            await using CardinalContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.ChatLinks.
-               Where(l => l.ConversationId == conversationId).
-               ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
+            try
+            {
+                await ctx.Messages.Where(m => m.ChatId == chatId).ExecuteDeleteAsync();
+                await ctx.ChatMemberships.Where(l => l.ChatId == chatId).ExecuteDeleteAsync();
+                await ctx.Chats.Where(c => c.Id == chatId).ExecuteDeleteAsync();
 
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.Chats.
-               Where(c => c.Id == conversationId).
-               ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<CoreChat> GetChatAsync(long chatId)
         {
-            Chat conversation = await storeSentry.ExecuteReadAsync(ctx =>
-                                            ctx.Chats.
-                                            Where(c => c.Id == conversationId).
-                                            SingleAsync());
+            await using CardinalContext ctx = initContext();
 
-            string? title = conversation.Type == ChatType.OldGC ? ((GroupChat)conversation).Title : null;
-            long gatheringId = conversation.Type == ChatType.Circle ? ((CircleChat)conversation).GatheringId : 0;
+            Chat chat = await ctx.Chats.
+                                Where(c => c.Id == chatId).
+                                SingleAsync();
 
-            return new CoreChat(conversation.Id, conversation.Type, conversation.CreatedAt, title, gatheringId);
+            long circleId = chat.Type == ChatType.Circle ? ((CircleChat)chat).CircleId : 0;
+
+            return new CoreChat(chat.Id, chat.Type, chat.CreatedAt, circleId == 0 ? circleId : null);
         }
 
         public async Task<List<CoreMembership>> GetChatMembersAsync(long chatId)
         {
-            return await storeSentry.ExecuteReadAsync(ctx => 
-                    ctx.ChatLinks.
-                    Where(l => l.ConversationId == conversationId).
-                    Select(l => new CoreMembership(l.UserId, l.Type, l.LastSeen, l.Muted)).
-                    ToListAsync());
+            await using CardinalContext ctx = initContext();
+
+            return await ctx.ChatMemberships.
+                   Where(l => l.ChatId == chatId).
+                   Select(l => new CoreMembership(l.UserId, l.Type, l.LastSeen, l.Muted)).
+                   ToListAsync();
         }
 
         public async Task<List<CoreChat>> GetChatsForUserAsync(long userId)
         {
-            List<Chat> conversations = await storeSentry.ExecuteReadAsync(ctx =>
-                                                    ctx.ChatLinks.
-                                                    Where(l => l.UserId == userId).
-                                                    Join(
-                                                        ctx.Chats,
-                                                        l => l.ConversationId,
-                                                        c => c.Id,
-                                                        (l, c) => c
-                                                    ).
-                                                    ToListAsync());
+            await using CardinalContext ctx = initContext();
+
+            List<Chat> chats = await ctx.ChatMemberships.
+                                       Where(l => l.UserId == userId).
+                                       Join
+                                       (
+                                            ctx.Chats,
+                                            l => l.ChatId,
+                                            c => c.Id,
+                                            (_, c) => c
+                                       ).
+                                       ToListAsync();
 
             List<CoreChat> toReturn = new();
-            foreach (Chat conversation in conversations)
+            foreach (Chat chat in chats)
             {
-                CoreChat coreConversation = new(conversation.Id, conversation.Type, conversation.CreatedAt, null, 0);
-                switch (conversation)
+                CoreChat coreConversation = new(chat.Id, chat.Type, chat.CreatedAt, 0);
+                switch (chat)
                 {
                     case PrivateChat privateChat:
                         toReturn.Add(coreConversation);
                         break;
-                    case GroupChat groupChat:
-                        toReturn.Add(coreConversation with { Title = groupChat.Title });
-                        break;
-                    case CircleChat gatheringChat:
-                        toReturn.Add(coreConversation with { GatheringId = gatheringChat.GatheringId });
+                    case CircleChat circleChat:
+                        toReturn.Add(coreConversation with { CircleId = circleChat.CircleId });
                         break;
                     default:
-                        throw new ArgumentException("Message of type " + conversation.GetType().Name + " is not supported by this method.");
+                        throw new ArgumentException("Message of type " + chat.GetType().Name + " is not supported by this method.");
                 }
             }
 
@@ -195,22 +189,24 @@ namespace Repository.Repositories
 
         public async Task<CoreMembership> GetMembershipAsync(long chatId, long userId)
         {
-            return await storeSentry.ExecuteReadAsync(ctx => 
-                    ctx.ChatLinks.
-                    Where(l => l.ConversationId == conversationId && l.UserId == userId).
-                    Select(l => new CoreMembership(l.UserId, l.Type, l.LastSeen, l.Muted)).
-                    SingleAsync());
+            await using CardinalContext ctx = initContext();
+
+            return await ctx.ChatMemberships.
+                   Where(l => l.ChatId == chatId && l.UserId == userId).
+                   Select(l => new CoreMembership(l.UserId, l.Type, l.LastSeen, l.Muted)).
+                   SingleAsync();
         }
 
         public async Task<List<MessageShard>> GetMessagesForChatAsync(long chatId, int pageNumber)
         {
-            List<Message> messages = await storeSentry.ExecuteReadAsync(ctx =>
-                                        ctx.Messages
-                                        .Where(m => m.ConversationId == conversationId)
-                                        .OrderBy(m => m.Timestamp)
-                                        .Skip(pageNumber * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync());
+            await using CardinalContext ctx = initContext();
+
+            List<Message> messages = await ctx.Messages.
+                                     Where(m => m.ChatId == chatId).
+                                     OrderBy(m => m.Timestamp).
+                                     Skip(pageNumber * pageSize).
+                                     Take(pageSize).
+                                     ToListAsync();
 
             List<MessageShard> toReturn = new();
             foreach (Message message in messages)
@@ -221,8 +217,8 @@ namespace Repository.Repositories
                     case TextMessage textMessage:
                         toReturn.Add(messageShard with { Value = textMessage.Text });
                         break;
-                    case PhotoMessage imageMessage:
-                        toReturn.Add(messageShard with { Value = imageMessage.StorageId });
+                    case PhotoMessage photoMessage:
+                        toReturn.Add(messageShard with { Value = photoMessage.Path });
                         break;
                     case IssueMessage gatheringShareMessage:
                         toReturn.Add(messageShard with { Value = gatheringShareMessage.GatheringId });
@@ -249,10 +245,28 @@ namespace Repository.Repositories
 
         public async Task RemoveUserFromChatAsync(long chatId, long userId)
         {
-            await storeSentry.ExecuteWriteAsync(ctx =>
-               ctx.ChatLinks.
-               Where(l => l.ConversationId == conversationId && l.UserId == userId).
-               ExecuteUpdateAsync(setter => setter.SetProperty(s => s.SoftDeleted, true)));
+            await using CardinalContext ctx = initContext();
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+
+            try
+            {
+                await ctx.Messages.
+                Where(m => m.ChatId == chatId && m.UserId == userId).
+                ExecuteUpdateAsync(setter => setter.SetProperty(m => m.UserId, 0));
+
+                await ctx.ChatMemberships.
+                Where(l => l.ChatId == chatId && l.UserId == userId).
+                ExecuteDeleteAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+           
         }
 
         public async Task UpdateChatAsync(long chatId, List<(string Property, object Value)> edits)
@@ -352,8 +366,8 @@ namespace Repository.Repositories
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.PrivateChats.Add(toAdd));
 
-            ChatMembership membershipA = new() { UserId = userIdA, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
-            ChatMembership membershipB = new() { UserId = userIdB, ConversationId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatMembership membershipA = new() { UserId = userIdA, ChatId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
+            ChatMembership membershipB = new() { UserId = userIdB, ChatId = toAdd.Id, Type = ChatMembershipType.Owner, LastSeen = DateTimeOffset.UtcNow };
 
             await storeSentry.ExecuteWriteAsync(ctx => ctx.ChatLinks.AddRange(membershipA, membershipB));
 
@@ -418,7 +432,7 @@ namespace Repository.Repositories
             List<ChatMembership> links = new();
             foreach (long userId in guestList)
             {
-                links.Add(new() { UserId = userId, ConversationId = toAdd.Id, Type = hostId == userId ? ChatMembershipType.Owner : ChatMembershipType.Regular, LastSeen = DateTimeOffset.UtcNow });
+                links.Add(new() { UserId = userId, ChatId = toAdd.Id, Type = hostId == userId ? ChatMembershipType.Owner : ChatMembershipType.Regular, LastSeen = DateTimeOffset.UtcNow });
             }
             await storeSentry.ExecuteWriteAsync(ctx => ctx.ChatLinks.AddRange(links));
 

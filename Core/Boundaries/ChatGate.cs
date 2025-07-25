@@ -35,7 +35,7 @@ namespace Core.Boundaries
 
 	public record ActivityMessageShard(ActivityMessageType Activity, long? ActorId = null, long? TargetId = null, string Info = null);
 
-    public record CoreChat(long Id, ChatType Type, DateTimeOffset DateCreated, string Title = default,
+    public record CoreChat(long Id, ChatType Type, DateTimeOffset DateCreated,
 		long? CircleId = null)
 		: CoreOnlyData();
 	public record ChatShard(long Id, ChatType Type, int LastPage, string Title = default,

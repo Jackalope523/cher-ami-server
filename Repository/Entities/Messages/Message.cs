@@ -6,7 +6,7 @@ namespace Repository.Entities.Messages
     public abstract class Message : Entity
     {
         public long? UserId { get; set; }
-        public long ConversationId { get; set; }
+        public long ChatId { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public MessageType Type { get; set; }
 

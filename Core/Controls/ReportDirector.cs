@@ -52,7 +52,7 @@ namespace Core.Controls
             if (gatheringId.HasValue)
             {
                 // Validate both users were at the gathering
-                var occuringGathering = await GetGatheringAsync(gatheringId.Value);
+                var occuringGathering = await GetCircleAsync(gatheringId.Value);
 
                 bool mutualGuestship = await occuringGathering.HasOnGuestList(user) &&
                     await occuringGathering.HasOnGuestList(targetUser);
@@ -85,7 +85,7 @@ namespace Core.Controls
         public async Task<List<GatheringReportType>> GetAvailableReportsForGatheringAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
-            var gathering = await GetGatheringAsync(gatheringId);
+            var gathering = await GetCircleAsync(gatheringId);
 
             // Verify user can report
             Verify(await user.CanReport(),
@@ -99,7 +99,7 @@ namespace Core.Controls
             GatheringReportType reportType, string reportDetails)
         {
             var user = await GetUserAsync(userId);
-            var gathering = await GetGatheringAsync(gatheringId);
+            var gathering = await GetCircleAsync(gatheringId);
 
             // Verify user can report
             Verify(await user.CanReport(),
@@ -135,7 +135,7 @@ namespace Core.Controls
         public async Task<List<PostReportType>> GetAvailableReportsForPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
+            var targetSnapshot = await Issues.GetPostAsync(snapshotId);
             User targetUser = await GetUserAsync(targetSnapshot.User.Id);
 
             // Verify user can report
@@ -150,7 +150,7 @@ namespace Core.Controls
             PostReportType reportType, string reportDetails)
         {
             var user = await GetUserAsync(userId);
-            var targetSnapshot = await Snapshots.GetPostAsync(snapshotId);
+            var targetSnapshot = await Issues.GetPostAsync(snapshotId);
             User targetUser = await GetUserAsync(targetSnapshot.User.Id);
 
             // Verify user can report

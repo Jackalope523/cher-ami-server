@@ -87,9 +87,9 @@ namespace Core.Boundaries
         Task DeleteCircleAsync(long userId, long circleId);
         
         Task<List<CircleMembershipShard>> GetMembersForCircleAsync(long userId, long circleId);
-        Task SendInvitationAsync(long userId, string phoneNumber = null, string email = null);
+        Task SendInvitationAsync(long userId, long circleId, string phoneNumber = null, string email = null);
         Task JoinCircleAsync(long userId, string circleCode);
-        Task RemoveMemberAsync(long userId, long targetId, long circleId);
+        Task RemoveMemberAsync(long userId, long circleId, long targetId);
 
         Task<List<RecipientShard>> GetRecipientsForCircleAsync(long userId, long circleId);
         Task AddRecipientAsync(long userId, long circleId);

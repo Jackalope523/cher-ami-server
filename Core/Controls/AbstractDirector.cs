@@ -19,14 +19,12 @@ namespace Core.Controls
 		protected ILogger Log { get; private set; }
 
 		protected IAccountDatabase Accounts { get; private set; }
-		protected IConnectionDatabase Connections { get; private set; }
-		protected ICircleDatabase Gatherings { get; private set; }
-		protected IIssueDatabase Snapshots { get; private set; }
+		protected ICircleDatabase Circles { get; private set; }
+		protected IIssueDatabase Issues { get; private set; }
 		protected IReportDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
 		protected IMediaDatabase Media { get; private set; }
-		protected IChatDatabase Messages { get; private set; }
-		protected IProfileDatabase Nests { get; private set; }
+		protected IProfileDatabase Profiles { get; private set; }
 		protected INotificationDatabase Notifications { get; private set; }
         protected IMiscellaneousDatabase Miscellaneous { get; private set; }
 
@@ -42,14 +40,12 @@ namespace Core.Controls
 			Log = Terminal.Log;
 			
 			Accounts = Terminal.AccountDatabase;
-			Connections = Terminal.ConnectionDatabase;
-			Gatherings = Terminal.CircleDatabase;
-			Snapshots = Terminal.IssueDatabase;
+			Circles = Terminal.CircleDatabase;
+			Issues = Terminal.IssueDatabase;
 			Reports = Terminal.ReportDatabase;
 			Keys = Terminal.KeyDatabase;
 			Media = Terminal.MediaDatabase;
-			Messages = Terminal.ChatDatabase;
-			Nests = Terminal.ProfileDatabase;
+			Profiles = Terminal.ProfileDatabase;
 			Notifications = Terminal.NotificationDatabase;
 			Miscellaneous = Terminal.MiscellaneousDatabase;
         }
@@ -78,14 +74,9 @@ namespace Core.Controls
             return new(await Accounts.GetUserByIdAsync(userId));
         }
 
-        protected async Task<Issue> GetGatheringAsync(long gatheringId)
+        protected async Task<Circle> GetCircleAsync(long circleId)
         {
-            return new(await Gatherings.FindGatheringAsync(gatheringId));
-        }
-
-        protected async Task<Chat> GetConversationAsync(long chatId)
-        {
-            return new(await Messages.GetChatAsync(conversationId));
+            return new(await Circles.GetCircleAsync(circleId));
         }
 
         #endregion

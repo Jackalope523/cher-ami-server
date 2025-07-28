@@ -19,7 +19,7 @@ namespace Frontier.Manifests
         [Required]
         public string Comments { get; set; }
 
-        public string Pseudonym { get; set; }
+        public bool Anonymous { get; set; }
     }
 
     public class ImageManifest

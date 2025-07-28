@@ -62,9 +62,10 @@ namespace Core.Entities
 
         public Circle()
         {
-            Members = new(() => Terminal.CircleDirector.RequestAllUsersFromGatheringAsync(this));
+            Members = new(() => Terminal.CircleDirector.RequestCircleMembersAsync(this));
+            Recipients = new(() => Terminal.CircleDirector.RequestCircleRecipientsAsync(this));
 
-            Issues = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
+            Issues = new(() => Terminal.IssueDirector.RequestCircleIssuesAsync(this));
         }
 
         public Circle(CoreCircle fromCircle) : this()

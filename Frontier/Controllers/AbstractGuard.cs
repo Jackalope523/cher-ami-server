@@ -26,8 +26,6 @@ namespace Frontier.Controllers
 		public ILogger log;
 
 		public IAccountOperations accounts;
-		public IChatOperations chats;
-		public IConnectionOperations connections;
 		public ICircleOperations circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
@@ -49,8 +47,6 @@ namespace Frontier.Controllers
 			log = box.log;
 
 			accounts = box.accounts;
-			chats = box.chat;
-			connections = box.connections;
 			circles = box.circles;
 			issues = box.issues;
 			keys = box.keys;
@@ -113,6 +109,7 @@ namespace Frontier.Controllers
             }
         }
 
+		// Execute and return an object to client
         [NonAction]
 		public async Task<IActionResult> Execute(Func<Task<object>> action)
 		{
@@ -128,6 +125,7 @@ namespace Frontier.Controllers
 			});
 		}
 
+		// Execute and don't return anything to client
 		[NonAction]
 		public async Task<IActionResult> Execute(Func<Task> action)
 		{
@@ -138,26 +136,24 @@ namespace Frontier.Controllers
 			});
 		}
 
+		// Execute as a user and don't return anything to client
 		[NonAction]
-		public async Task<IActionResult> Execute(Func<CoreUser, Task> action, bool allowUnverified = false)
+		public async Task<IActionResult> Execute(Func<CoreUser, Task> action)
 		{
 			return await Execute(async user =>
 			{
 				await action.Invoke(user);
 				return "";
-			},
-			allowUnverified);
+			});
 		}
 
+		// Execute as a user and return an object to client
 		[NonAction]
-		public async Task<IActionResult> Execute(Func<CoreUser, Task<object>> action, bool allowUnverified = false)
+		public async Task<IActionResult> Execute(Func<CoreUser, Task<object>> action)
 		{
 			return await Execute(async () =>
 			{
 				var user = await GetCurrentUserAsync();
-
-				if (!allowUnverified)
-				{ ThrowIfUnverified(user); }
 
 				return await action.Invoke(user);
 			});

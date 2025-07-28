@@ -46,13 +46,13 @@ namespace Frontier.Controllers
 
             return await Execute(user =>
 			{
-				if (string.IsNullOrEmpty(feedback.Pseudonym))
+				if (feedback.Anonymous)
 				{
-					return miscellaneous.ReceiveFeedback(user.Id, feedback.Comments);
+					return miscellaneous.ReceiveAnonymousFeedback(user.Id, feedback.Comments);
 				}
 				else
 				{
-					return miscellaneous.ReceiveAnonymousFeedback(user.Id, feedback.Pseudonym, feedback.Comments);
+					return miscellaneous.ReceiveFeedback(user.Id, feedback.Comments);
 				}
 			});
         }

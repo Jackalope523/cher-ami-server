@@ -65,8 +65,8 @@ namespace Core.Entities
         public Issue()
         {
             Circle = new(() => Entities.Circle.GetCircleAsync(CircleId));
-            Posts = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
-            Orders = new(() => Terminal.IssueDirector.RequestGatheringSnapshotsAsync(this));
+            Posts = new(() => Terminal.IssueDirector.RequestIssuePostsAsync(this));
+            Orders = new(() => Terminal.IssueDirector.RequestIssuePostsAsync(this));
         }
 
         public Issue(CoreIssue fromIssue) : this()

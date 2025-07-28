@@ -164,8 +164,8 @@ namespace Core.Controls
 
         public async Task DeleteUserAsync(long userId)
         {
-            // TODO Gracefully delete data
-            await Accounts.SoftDeleteAsync(userId);
+            // TODO Gracefully delete data?
+            await Accounts.DeleteUserAsync(userId);
         }
 
 		#endregion

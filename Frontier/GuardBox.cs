@@ -8,8 +8,6 @@ namespace Frontier.Controllers
 		public ILogger log;
 
 		public IAccountOperations accounts;
-		public IChatOperations chat;
-		public IConnectionOperations connections;
 		public ICircleOperations circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
@@ -20,19 +18,16 @@ namespace Frontier.Controllers
 		public IReportOperations reports;
 
         public GuardBox(EnvironmentOptions environment, ILogger logger,
-			IAccountOperations accountOperations, IConnectionOperations connectionOperations,
+			IAccountOperations accountOperations,
 			IProfileOperations profileOperations, ICircleOperations circleOperations,
 			IIssueOperations issueOperations, IKeyOperations keyOperations,
 			IReportOperations reportOperations,IMediaOperations mediaOperations,
-			IChatOperations chatOperations,
 			INotificationOperations notificationOperations, IMiscellaneousOperations miscellaneousOperations)
 		{
 			env = environment;
 			log = logger;
 
 			accounts = accountOperations;
-			chat = chatOperations;
-			connections = connectionOperations;
 			circles = circleOperations;
 			issues = issueOperations;
 			keys = keyOperations;

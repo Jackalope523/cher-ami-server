@@ -396,6 +396,10 @@ namespace Core.Entities
         public DateTimeOffset DateJoined { get; set; }
         public CircleMembershipType MembershipType { get; set; }
 
+        private CircleMember(CoreUser fromUser) : base(fromUser)
+        {
+        }
+
         public static async Task<CircleMember> GetMemberAsync(long id)
         {
             return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
@@ -410,6 +414,17 @@ namespace Core.Entities
             };
 
             return user;
+        }
+
+        public static CircleMember FromComplete(CoreUser user, CoreCircleMembership membership)
+        {
+            CircleMember member = new(user)
+            {
+                DateJoined = membership.DateJoined,
+                MembershipType = membership.Type
+            };
+
+            return member;
         }
 
         public CircleMembershipShard ToCircleMembershipShard()

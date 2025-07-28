@@ -24,7 +24,7 @@ namespace Core.Controls
         public async Task<PostShard> GetPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetPostAsync(snapshotId);
+            var snapshot = await Issues.GetPostAsync(snapshotId);
 
             var snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var gathering = await GetGatheringAsync(snapshot.GatheringId);
@@ -43,7 +43,7 @@ namespace Core.Controls
         public async Task<GalleryShard> GetPostsForIssueAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
-            var gathering = await GetGatheringAsync(gatheringId);
+            var gathering = await GetCircleAsync(gatheringId);
 
             // Fail if user cannot view gathering
             Verify(await user.CanView(gathering),
@@ -59,7 +59,7 @@ namespace Core.Controls
                 // Remove strangers if gallery is in pre mode
                 if (gathering.IsUpcoming)
                 {
-                    var strangers = await Nests.ReturnStrangerDangerAsync(user.Id, filteredGallery.Snapshots.Select(snapshot => snapshot.User.Id).ToArray());
+                    var strangers = await Profiles.ReturnStrangerDangerAsync(user.Id, filteredGallery.Snapshots.Select(snapshot => snapshot.User.Id).ToArray());
 
                     strangers.Remove(gathering.HostId);
                     strangers.Remove(user.Id);
@@ -86,14 +86,14 @@ namespace Core.Controls
         public async Task<PostShard> AddPostAsync(long userId, long gatheringId, MemoryStream image)
         {
             var userSync = GetUserAsync(userId);
-            var targetGatheringSync = GetGatheringAsync(gatheringId);
+            var targetGatheringSync = GetCircleAsync(gatheringId);
             var user = await userSync;
             var gathering = await targetGatheringSync;
 
             await user.CanPostTo(gathering);
 
             // Try to etch
-            var snapshot = await Snapshots.AddPostAsync(gathering.Id, user.Id, Time);
+            var snapshot = await Issues.AddPostAsync(gathering.Id, user.Id, Time);
 
             try
             {
@@ -103,7 +103,7 @@ namespace Core.Controls
             catch (Exception ex)
             {
                 // If failed, remove snapshot
-                await Snapshots.HardDeleteAsync(snapshot.Id);
+                await Issues.HardDeleteAsync(snapshot.Id);
                 throw new UnexpectedFailureException($"Failed to upload snapshot for user {userId} at {gatheringId}.", ex, HollowErrorCode.UPLOAD_FAILED);
             }
 
@@ -113,7 +113,7 @@ namespace Core.Controls
         public async Task DeletePostAsync(long userId, long snapshotId)
         {
             var userSync = GetUserAsync(userId);
-            var snapshot = await Snapshots.GetPostAsync(snapshotId);
+            var snapshot = await Issues.GetPostAsync(snapshotId);
             var gatheringTaken = await GetGatheringAsync(snapshot.GatheringId);
             var user = await userSync;
 
@@ -121,13 +121,13 @@ namespace Core.Controls
             Verify(user.Owns(snapshot) || gatheringTaken.IsModifiableBy(user),
                 new UserErrorException(IssueErrorCode.CANNOT_DELETE));
 
-            await Snapshots.SoftDeleteAsync(snapshot.Id);
+            await Issues.SoftDeleteAsync(snapshot.Id);
         }
 
         public async Task AcclaimSnapshotAsync(long userId, long snapshotId, SnapshotAcclaim acclaim)
         {
             var userSync = GetUserAsync(userId);
-            var snapshot = await Snapshots.GetPostAsync(snapshotId);
+            var snapshot = await Issues.GetPostAsync(snapshotId);
             var gatheringTaken = await GetGatheringAsync(snapshot.GatheringId);
             var user = await userSync;
 
@@ -141,11 +141,11 @@ namespace Core.Controls
             // Check action
             if (acclaim == SnapshotAcclaim.Acclaim)
             {
-                await Snapshots.AcclaimSnapshotAsync(snapshot.Id, user.Id);
+                await Issues.AcclaimSnapshotAsync(snapshot.Id, user.Id);
             }
             else
             {
-                await Snapshots.DeleteSnapshotAcclaimAsync(snapshot.Id, user.Id);
+                await Issues.DeleteSnapshotAcclaimAsync(snapshot.Id, user.Id);
             }
         }
 
@@ -161,7 +161,7 @@ namespace Core.Controls
             // Retrieve companion-populated gathering snapshots after a specified time excluding previously viewed gatherings
             DateTimeOffset depthCharge = Time - TimeSpan.FromDays(depth);
             DateTimeOffset lastDepthCharge = Time - TimeSpan.FromDays(lastDepth);
-            var generatedWall = await Snapshots.GenerateColumnForUserAsync(user.Id, depthCharge, lastDepthCharge);
+            var generatedWall = await Issues.GenerateColumnForUserAsync(user.Id, depthCharge, lastDepthCharge);
 
             // Get the respective gathering headers for the snapshots
             foreach (var snapshot in generatedWall)
@@ -185,36 +185,39 @@ namespace Core.Controls
             return new(gatheringHeaders.Values.ToList(), generatedWall);
         }
 
-		#endregion
+        #endregion
 
-		#region Favours
+        #region Favours
 
-		internal async Task<List<PostShard>> RequestGatheringSnapshotsAsync(Issue gathering)
-            => await Snapshots.GetPostsForIssueAsync(gathering.Id);
+        internal async Task<List<Issue>> RequestCircleIssuesAsync(Circle circle)
+            => (await Issues.GetIssuesForCircleAsync(circle.Id)).ConvertAll(issue => new Issue(issue));
 
-		internal async Task<List<PostShard>> RequestVisibleSnapshotsAsync(User user, Issue gathering)
+		internal async Task<List<CorePost>> RequestIssuePostsAsync(Issue gathering)
+            => await Issues.GetPostsForIssueAsync(gathering.Id);
+
+		internal async Task<List<PostShard>> RequestVisiblePostsAsync(User user, Issue issue)
         {
-            // Verify user can see the gathering
-            if (!await user.CanView(gathering))
+            // Verify user can see the issue
+            if (!await user.CanView(issue))
             {
                 return new List<PostShard> { };
             }
 
-            _ = gathering.Posts.Sync();
+            _ = issue.Posts.Sync();
 
             // Determine the level of visibility to the user
 
             // Check if the user attended the gathering
-            if (await gathering.WasAttendedBy(user) || gathering.IsModifiableBy(user))
+            if (await issue.WasAttendedBy(user) || issue.IsModifiableBy(user))
             {
-                return await gathering.Posts;
+                return await issue.Posts;
             }
             else
             {
                 // Get all companion snapshots
                 var companions = await user.Companions;
 
-                var companionSnapshots = (await gathering.Posts)
+                var companionSnapshots = (await issue.Posts)
                     .Where(snapshot => companions.Exists(cmp => cmp.Id.Equals(snapshot.User.Id)))
                     .ToList();
 
@@ -222,48 +225,28 @@ namespace Core.Controls
             }
         }
 
-        internal List<PostShard>
-            HideStrangersAsync(List<PostShard> snapshots, List<long> strangers)
-        {
-            List<PostShard> collection = new();
-
-            foreach (PostShard snapshot in snapshots)
-            {
-                if (strangers.Contains(snapshot.User.Id))
-                {
-                    collection.Add(new(snapshot.Id, snapshot.GatheringId,
-                        User.Hidden.ToUserShard(),
-                        snapshot.TimeTaken, snapshot.Acclaim));
-                }
-                else
-                {
-                    collection.Add(snapshot);
-                }
-            }
-
-            return collection;
-        }
-
         internal async Task<List<PostShard>>
-            RemoveBlockedSnapshotsAsync(User user, List<PostShard> snapshots)
+            RemoveBlockedPostsAsync(User user, List<PostShard> posts)
         {
-            List<PostShard> accessibleSnapshots = new();
+            // Probably want a more client friendly way to hide blocked posts
 
-            foreach (PostShard snapshot in snapshots)
+            List<PostShard> accessiblePosts = new();
+
+            foreach (PostShard post in posts)
             {
-                if (user.Id != snapshot.User.Id)
+                if (user.Id != post.User.Id)
                 {
-                    User snapshotOwner = await GetUserAsync(snapshot.User.Id);
+                    User snapshotOwner = await GetUserAsync(post.User.Id);
 
                     // Check if blocking link exists
                     if (await user.IsBlocking(snapshotOwner) || await user.IsBlockedBy(snapshotOwner))
                     { continue; }
                 }
 
-                accessibleSnapshots.Add(snapshot);
+                accessiblePosts.Add(post);
             }
 
-            return accessibleSnapshots;
+            return accessiblePosts;
         }
 
         #endregion

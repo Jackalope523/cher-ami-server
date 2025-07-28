@@ -16,13 +16,6 @@ namespace Core.Controls
 
         #region Operations
 
-        public async Task<string> GetCanaryMapKeyAsync(long userId)
-        {
-            await GetUserAsync(userId);
-
-            return await Keys.GetCanaryMapKeyAsync();
-        }
-
         public async Task<string> GetClassifiedAccountCodeAsync(long userId)
         {
             return userId switch

@@ -22,7 +22,7 @@ namespace Core.Boundaries
     public interface IMiscellaneousOperations
     {
 		Task ReceiveFeedback(long userId, string comments);
-		Task ReceiveAnonymousFeedback(long userId, string pseudonym, string comments);
+		Task ReceiveAnonymousFeedback(long userId, string comments);
 	}
 
     #endregion

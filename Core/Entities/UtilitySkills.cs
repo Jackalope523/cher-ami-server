@@ -126,10 +126,5 @@ namespace Core.Entities
 
             return (trueList, falseList);
         }
-
-        public static MembershipShard ToShard(this CoreMembership membership)
-        {
-            return new(membership.UserId, membership.Type, membership.LastSeen);
-        }
     }
 }

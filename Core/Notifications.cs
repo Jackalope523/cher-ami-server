@@ -100,29 +100,17 @@ namespace Core.Notifications
         }
     }
 
-    public struct ProfileDeepLink : IDeepLink
+    public struct IssueDeepLink : IDeepLink
     {
         public string RelativePath { get; private set; }
 
-        public ProfileDeepLink(long userId)
+        public IssueDeepLink(long userId)
         {
             string path = $"profile/{userId}";
 
             string options = "";
 
             RelativePath = IDeepLink.FormatPath(path, options);
-        }
-    }
-
-    public struct ChatDeepLink : IDeepLink
-    {
-        public string RelativePath { get; private set; }
-
-        public ChatDeepLink(long chatId)
-        {
-            string path = $"chat/{chatId}";
-
-            RelativePath = IDeepLink.FormatPath(path);
         }
     }
 
@@ -169,16 +157,16 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification CompanionshipRequest(UserShard addingUser, string lastMet = null)
+        public static CardinalNotification UserPosted(UserShard addingUser)
             => IssuePost(new("Companion Request",
-                $"{addingUser.Name} sent you a companionship request.",
-                new ProfileDeepLink(addingUser.Id, lastMet),
+                $"{addingUser.GivenName} posted to the issue.",
+                new IssueDeepLink(addingUser.Id),
                 "1"));
 
         public static CardinalNotification CompanionshipForged(UserShard addingUser)
             => IssuePost(new("New Companion",
                 $"Companionship forged with {addingUser.Name} accepted.",
-                new ProfileDeepLink(addingUser.Id),
+                new IssueDeepLink(addingUser.Id),
                 "1"));
 
         public static CardinalNotification GatheringInvitation(UserShard invitingUser, GatheringShard gathering)
@@ -210,43 +198,5 @@ namespace Core.Notifications
             => IssueReminder(new("Companion Gathering",
                 $"{companion.Name} just created {gathering.Title}",
                 new GatheringDeepLink(gathering.Id)));
-    }
-
-    //////
-    // Messages
-    /////////////
-
-    public partial class CardinalNotification
-    {
-        protected static CardinalNotification Message(CardinalNotification notification)
-        {
-            return notification;
-        }
-
-        public static CardinalNotification IndividualMessage(ChatShard conversation, UserShard sender, MessageShard message)
-            => Message(new(sender.Name,
-                ParseMessage(message),
-                new ChatDeepLink(conversation.Id),
-                $"chat:{conversation.Id}"));
-
-        public static CardinalNotification CircleMessage(CircleShard circle, ChatShard conversation, UserShard sender, MessageShard message)
-            => Message(new(sender.Name,
-                circle.Title,
-                ParseMessage(message),
-                new ChatDeepLink(conversation.Id),
-                $"chat:{conversation.Id}"));
-
-        private static string ParseMessage(MessageShard message)
-        {
-            return message.Type switch
-            {
-                MessageType.Text => message.Value.ToString(),
-                MessageType.Photo => "Sent a photo.",
-                MessageType.Issue => "Shared a segment.",
-                MessageType.Post => "Shared a post.",
-                MessageType.Profile => "Shared a profile.",
-                _ => "",
-            };
-        }
     }
 }

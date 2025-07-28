@@ -31,7 +31,7 @@ namespace Core.Controls
             FailIf(await user.IsBlockedBy(targetUser),
                 new UserErrorException(UserErrorCode.CANNOT_VIEW));
             
-            ProfileShard nest = new(new());
+            ProfileShard profile = new(new());
 
             // Check if user is themself
             if (user.Equals(targetUser))
@@ -47,7 +47,7 @@ namespace Core.Controls
                     .ToList()
                     .ConvertAll(e => e.ToTwigShard());
 
-                nest = nest with
+                profile = profile with
                 {
                     Twigs = twigs
                 };
@@ -70,14 +70,14 @@ namespace Core.Controls
 
                 if (await haveMutualSync)
                 {
-                    nest = new(twigs, (await Profiles.GetFirstMutualGathering(user.Id, targetUser.Id)).Id);
+                    profile = new(twigs, (await Profiles.GetFirstMutualGathering(user.Id, targetUser.Id)).Id);
                 }
                 else
                 {
-                    nest = new(twigs, default);
+                    profile = new(twigs, default);
                 }
 
-                nest = await RemoveUnviewableNestTwigsAsync(user, nest);
+                profile = await RemoveUnviewableNestTwigsAsync(user, profile);
             }
             // User is a stranger
             else
@@ -103,17 +103,17 @@ namespace Core.Controls
 
                 if (await haveMutualSync)
                 {
-                    nest = new(twigs, (await Profiles.GetLatestMutualGathering(user.Id, targetUser.Id)).Id);
+                    profile = new(twigs, (await Profiles.GetLatestMutualGathering(user.Id, targetUser.Id)).Id);
                 }
                 else
                 {
-                    nest = new(twigs, default);
+                    profile = new(twigs, default);
                 }
 
-                nest = await RemoveUnviewableNestTwigsAsync(user, nest);
+                profile = await RemoveUnviewableNestTwigsAsync(user, profile);
             }
 
-            return nest;
+            return profile;
         }
 
         public async Task<AgendaShard> GetUserAgendaAsync(long userId)

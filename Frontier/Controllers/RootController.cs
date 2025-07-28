@@ -10,11 +10,11 @@ namespace Frontier.Controllers
 {
     [Route("")]
 	[AllowAnonymous]
-    public class RootGuard : AbstractGuard
+    public class RootController : AbstractController
     {
 		#region Initialisation
 
-		public RootGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public RootController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion

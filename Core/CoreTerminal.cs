@@ -35,6 +35,7 @@ namespace Core
         public IMediaDatabase MediaDatabase { get; init; }
         public IMiscellaneousDatabase MiscellaneousDatabase { get; init; }
         public INotificationDatabase NotificationDatabase { get; init; }
+        public IOrderDatabase OrderDatabase { get; init; }
         public IProfileDatabase ProfileDatabase { get; init; }
         public IReportDatabase ReportDatabase { get; init; }
 
@@ -52,6 +53,8 @@ namespace Core
             => MiscellaneousDirector;
         public INotificationOperations NotificationOperations
             => NotificationDirector;
+        public IOrderOperations OrderOperations
+            => OrderDirector;
         public IProfileOperations ProfileOperations
             => ProfileDirector;
         public IReportOperations ReportOperations
@@ -66,6 +69,7 @@ namespace Core
         internal MediaDirector MediaDirector { get; private set; }
         internal MiscellaneousDirector MiscellaneousDirector { get; private set; }
         internal NotificationDirector NotificationDirector { get; private set; }
+        internal OrderDirector OrderDirector { get; private set; }
         internal ProfileDirector ProfileDirector { get; private set; }
         internal ReportDirector ReportDirector { get; private set; }
 
@@ -78,7 +82,9 @@ namespace Core
             ICircleDatabase circleDatabase, IIssueDatabase issueDatabase,
             IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
             IMediaDatabase mediaDatabase,
-            INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
+            INotificationDatabase notificationDatabase,
+            IOrderDatabase orderDatabase,
+            IProfileDatabase profileDatabase,
             IMiscellaneousDatabase miscellaneousDatabase,
             INotificationService notificationService)
         {
@@ -96,6 +102,7 @@ namespace Core
                     MediaDatabase = mediaDatabase,
                     MiscellaneousDatabase = miscellaneousDatabase,
                     NotificationDatabase = notificationDatabase,
+                    OrderDatabase = orderDatabase,
                     ProfileDatabase = profileDatabase,
                     ReportDatabase = reportDatabase,
 
@@ -120,6 +127,7 @@ namespace Core
             MediaDirector = new MediaDirector(this);
             MiscellaneousDirector = new MiscellaneousDirector(this);
             NotificationDirector = new NotificationDirector(this);
+            OrderDirector = new OrderDirector(this);
             ProfileDirector = new ProfileDirector(this);
             ReportDirector = new ReportDirector(this);
         }

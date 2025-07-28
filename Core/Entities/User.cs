@@ -57,7 +57,7 @@ namespace Core.Entities
         public string Title { get; set; }
         public string GivenName { get; set; }
         public string FamilyName { get; set; }
-        public DateTimeOffset DateOfBirth { get; init; }
+        public DateTimeOffset DateOfBirth { get; set; }
 
         public DateTimeOffset JoinDate { get; init; }
 
@@ -92,10 +92,6 @@ namespace Core.Entities
         public Synced<List<UserReport>> UserReports { get; }
         public Synced<List<PostReport>> PostReports { get; }
 
-        public Synced<List<string>> Connections { get; }
-
-        public Synced<List<(Chat Conversation, CoreMembership Membership)>> Conversations { get; }
-
         #endregion
 
         #region Initialisation & Extraction
@@ -109,7 +105,7 @@ namespace Core.Entities
         {
             NotificationProfile = new(() => Terminal.NotificationDirector.RequestNotificationProfileAsync(this));
 
-            Circles = new(() => Terminal.CircleDirector.RequestUpcomingGatheringsForUserAsync(this));
+            Circles = new(() => Terminal.CircleDirector.RequestCirclesForUserAsync(this));
             PaymentMethod = new(() => Terminal);
 
             Blocking = new(() => Terminal.ProfileDirector.RequestBlockedUsersAsync(this));
@@ -118,10 +114,6 @@ namespace Core.Entities
             ReportsSync = new(() => Terminal.ReportDirector.RequestAllReportsAsync(this));
             UserReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).UserReports);
             PostReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).PostReports);
-
-            Connections = new(() => Terminal.ConnectionDirector.RequestUserConnectionsAsync(this));
-
-            Conversations = new(() => Terminal.ChatDirector.RequestChatsForUserAsync(this));
         }
 
         public User(CoreUser fromUser) : this()
@@ -129,7 +121,7 @@ namespace Core.Entities
             Id = fromUser.Id;
             PhoneNumber = fromUser.PhoneNumber;
             Email = fromUser.Email;
-            Email = fromUser.Email;
+            NormalisedEmail = fromUser.NormalisedEmail;
             Title = fromUser.Title;
             GivenName = fromUser.GivenName;
             FamilyName = fromUser.FamilyName;
@@ -219,47 +211,43 @@ namespace Core.Entities
 			return false;
 		}
 
-        public async Task<bool> IsOnline()
+        public async Task<bool> CanView(Circle circle)
         {
-            return (await Connections).Count > 0;
-        }
+            // Note: This is efficient with multiple circles/issues. For multiple users, see Circle.IsVisibleTo
 
-		public async Task<bool> CanView(Issue gathering)
-		{
-            // Note: This is efficient with multiple gatherings. For multiple users, see Gathering.IsVisibleTo
-
-            // Check if user is host
-            if (gathering.IsHostedBy(this))
+            // Check if user is admin
+            if (await circle.IsModifiableBy(this))
             { return true; }
 
-            // Check if gathering is deleted
-            if (gathering.IsDeleted)
+            // Check if circle is deleted
+            if (circle.IsDeleted)
             { return false; }
 
-			// Check if user account is locked
-			if (IsLocked)
-			{ return false; }
+            // Check if user account is locked
+            if (IsLocked)
+            { return false; }
 
-			// Check if user's account is limited
-			if (!CanAttend)
-			{
-                // User cannot join normal gatherings
-                // Check if user can join companion gatherings and Host is companions with the user
-				if (!(CanAttendCompanions && await IsCompanionsWith(await gathering.Host)))
-				{ return false; }
-			}
+            // Check if user is member
+            if (!await circle.HasMember(this))
+            { return true; }
 
-            // Check if user is blocked by or blocking gathering host
-            if (await IsBlockedBy(await gathering.Host) || await IsBlocking(await gathering.Host))
-			{ return false; }
+            return false;
 
-			return true;
+        }
+
+		public async Task<bool> CanView(Issue issue)
+		{
+            return await CanView(await issue.Circle);
 		}
 
-        public async Task CanPostTo(Issue issue)
+        public async Task<bool> CanPostTo(Circle circle)
 		{
-			Verify(await issue.HasOnGuestList(this),
-				new UserErrorException(CircleErrorCode.NOT_GUEST));
+            return await circle.HasMember(this);
+		}
+
+        public async Task<bool> CanPostTo(Issue issue)
+		{
+            return await CanPostTo(await issue.Circle);
 		}
 
 		public bool Owns(PostShard post)
@@ -321,13 +309,6 @@ namespace Core.Entities
 
             // Return exclusion
             return availableReportTypes.ToList();
-        }
-
-        public async Task<bool> CanMessage(User target)
-        {
-            bool blocked = await IsBlocking(target) || await IsBlockedBy(target);
-
-            return !blocked;
         }
 
 		#endregion

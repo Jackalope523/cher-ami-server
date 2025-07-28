@@ -10,11 +10,11 @@ using Microsoft.Extensions.Logging;
 namespace Frontier.Controllers
 {
 	[Route("keys")]
-	public class KeyGuard : AbstractGuard
+	public class KeyController : AbstractController
 	{
 		#region Initialisation
 
-		public KeyGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public KeyController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
         { }
 
 		#endregion

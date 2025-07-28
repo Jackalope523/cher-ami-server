@@ -7,11 +7,11 @@ using System.IO;
 namespace Frontier.Controllers
 {
     [Route("circle")]
-    public class CircleGuard : AbstractGuard
+    public class CircleController : AbstractController
 	{
 		#region Initialisation
 
-		public CircleGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public CircleController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion

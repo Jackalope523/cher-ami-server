@@ -674,6 +674,13 @@ namespace Core.Controls
 
 		#region Favours
 		
+		internal async Task<List<Circle>> RequestCirclesForUserAsync(User user)
+		{
+			var circles = await Circles.GetCirclesForUserAsync(user.Id);
+
+			return circles.ConvertAll(c => new Circle(c));
+		}
+
 		internal async Task<List<CircleMember>> RequestCircleMembersAsync(Circle circle)
 		{
 			var users = await Circles.GetCircleMembersAsync(circle.Id);

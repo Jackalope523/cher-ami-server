@@ -82,86 +82,36 @@ namespace Core.Controls
             }
         }
 
-        public async Task<List<GatheringReportType>> GetAvailableReportsForGatheringAsync(long userId, long gatheringId)
+        public async Task<List<PostReportType>> GetAvailableReportsForPostAsync(long userId, long postId)
         {
             var user = await GetUserAsync(userId);
-            var gathering = await GetCircleAsync(gatheringId);
+            var targetPost = await Issues.GetPostAsync(postId);
+            User targetUser = await GetUserAsync(targetPost.UserId);
 
             // Verify user can report
             Verify(await user.CanReport(),
                 new UserErrorException(UserErrorCode.CANNOT_REPORT_COOLDOWN));
 
             // Gather recent reports by user against target 
-            return await user.AvailableReportTypes(gathering);
-        }
-
-        public async Task ReportGatheringAsync(long userId, long gatheringId,
-            GatheringReportType reportType, string reportDetails)
-        {
-            var user = await GetUserAsync(userId);
-            var gathering = await GetCircleAsync(gatheringId);
-
-            // Verify user can report
-            Verify(await user.CanReport(),
-                new UserErrorException(UserErrorCode.CANNOT_REPORT_COOLDOWN));
-
-            // Prevent double reports
-            Verify(await user.CanReport(gathering, reportType),
-                new UserErrorException(UserErrorCode.CANNOT_REPORT_DUPLICATE));
-
-            await Reports.ReportGatheringAsync(user.Id, gathering.Id, Time, reportType, reportDetails);
-
-            // Check if action is to be taken
-            if (await gathering.Reported())
-            {
-                var host = await GetUserAsync(gathering.HostId);
-
-                // Threshold hit, seal gathering
-                await Terminal.CircleDatabase.UpdateGatheringAsync(gathering.Id, new() { (nameof(CoreGathering.Visibility), GatheringVisibility.Sealed) });
-
-                await gathering.NotifyGuests(CardinalNotification.GatheringSealed(await gathering.ToIssueShard()));
-
-                // Compute host's standing
-                var status = await host.GatheringReported();
-
-                // Check if host should be punished
-                if (host.AccountStatus != status)
-                {
-                    _ = Accounts.UpdateUserAsync(host.Id, new() { (nameof(CoreUser.AccountStatus), status) });
-                }
-            }
-        }
-
-        public async Task<List<PostReportType>> GetAvailableReportsForPostAsync(long userId, long snapshotId)
-        {
-            var user = await GetUserAsync(userId);
-            var targetSnapshot = await Issues.GetPostAsync(snapshotId);
-            User targetUser = await GetUserAsync(targetSnapshot.User.Id);
-
-            // Verify user can report
-            Verify(await user.CanReport(),
-                new UserErrorException(UserErrorCode.CANNOT_REPORT_COOLDOWN));
-
-            // Gather recent reports by user against target 
-            return await user.AvailableReportTypes(targetSnapshot, targetUser);
+            return await user.AvailableReportTypes(targetPost, targetUser);
         }
 
         public async Task ReportPostAsync(long userId, long snapshotId,
             PostReportType reportType, string reportDetails)
         {
             var user = await GetUserAsync(userId);
-            var targetSnapshot = await Issues.GetPostAsync(snapshotId);
-            User targetUser = await GetUserAsync(targetSnapshot.User.Id);
+            var targetPost = await Issues.GetPostAsync(snapshotId);
+            User targetUser = await GetUserAsync(targetPost.UserId);
 
             // Verify user can report
             Verify(await user.CanReport(),
                 new UserErrorException(UserErrorCode.CANNOT_REPORT_COOLDOWN));
 
             // Prevent double reports
-            Verify(await user.CanReport(targetSnapshot, targetUser, reportType),
+            Verify(await user.CanReport(targetPost, targetUser, reportType),
                 new UserErrorException(UserErrorCode.CANNOT_REPORT_DUPLICATE));
 
-            await Reports.ReportPostAsync(user.Id, targetSnapshot.Id, Time, reportType, reportDetails);
+            await Reports.ReportPostAsync(user.Id, targetPost.Id, Time, reportType, reportDetails);
 
             // Compute user's standing
             var status = await targetUser.Reported();
@@ -177,18 +127,12 @@ namespace Core.Controls
 
 		#region Favours
 
-        internal async Task<List<PenaltyShard>> RequestPenaltiesForUserAsync(User user)
-            => await Reports.GetPenaltiesForUserAsync(user.Id);
-
-        internal async Task PenaliseUserAsync(User user, PenaltyType offense, DateTimeOffset timeOfPenalty)
-            => await Reports.PenaliseUserAsync(user.Id, offense, timeOfPenalty);
-
-		internal async Task<(List<UserReport> UserReports, List<PostReport> GatheringReports, List<PostReport> SnapshotReports)>
+		internal async Task<(List<UserReport> UserReports, List<PostReport> PostReports)>
             RequestAllReportsAsync(User user)
             => await Reports.GetReportsForUserAsync(user.Id);
 
-        internal async Task<List<PostReport>> RequestGatheringReportsAsync(Issue gathering)
-            => await Reports.GetReportsForGatheringAsync(gathering.Id);
+        internal async Task<List<PostReport>> RequestPostReportsAsync(long postId)
+            => await Reports.GetReportsForPostAsync(postId);
 
 		#endregion
 	}

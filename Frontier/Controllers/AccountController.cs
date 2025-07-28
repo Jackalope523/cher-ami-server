@@ -11,7 +11,7 @@ using Core;
 namespace Frontier.Controllers
 {
     [Route("account")]
-    public class AccountGuard : AbstractGuard
+    public class AccountController : AbstractController
 	{
         #region Initialisation
 
@@ -21,7 +21,7 @@ namespace Frontier.Controllers
         IEmailService emailService;
         ISMSService smsService;
 
-		public AccountGuard(GuardBox box, UserManager<CoreUser> aspUserManager,
+		public AccountController(ControllerBox box, UserManager<CoreUser> aspUserManager,
             SignInManager<CoreUser> aspSignInManager,
             IEmailService externalEmailService, ISMSService externalSMSService) :
             base(box, aspUserManager)

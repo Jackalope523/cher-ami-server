@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 namespace Frontier.Controllers
 {
     [Route("profile")]
-    public class ProfileGuard : AbstractGuard
+    public class ProfileController : AbstractController
 	{
 		#region Initialisation
 
-		public ProfileGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public ProfileController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion

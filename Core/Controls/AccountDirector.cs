@@ -51,13 +51,15 @@ namespace Core.Controls
             return (await GetUserAsync(userId)).ToUserShard();
         }
 
-        public async Task CreateUserAsync(string phoneNumber, string email, string name, DateTimeOffset dateOfBirth)
+        public async Task CreateUserAsync(string phoneNumber, string email, string title, string givenName, string familyName, DateTimeOffset dateOfBirth)
         {
             User newUser = new()
             {
                 PhoneNumber = phoneNumber,
                 Email = email,
-                Name = name,
+                Title = title,
+                GivenName = givenName,
+                FamilyName = familyName,
                 DateOfBirth = dateOfBirth,
                 JoinDate = Time
             };
@@ -73,15 +75,16 @@ namespace Core.Controls
             if (!string.IsNullOrEmpty(email))
             { await ThrowIfEmailTaken(newUser.Email); }
 
-            // Store nest
+            // Store created user
             var user = await Accounts.CreateUserAsync(newUser.PhoneNumber, email, newUser.Email,
-                newUser.Name, newUser.DateOfBirth, Time,
+                newUser.Title, newUser.GivenName, newUser.FamilyName, newUser.DateOfBirth, Time,
                 Guid.NewGuid());
         }
 
         public async Task EditUserAsync(long userId,
-            string phoneNumber = null, string email = null, string name = null,
-			bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
+            string phoneNumber = null, string email = null,
+            string title = null, string givenName = null, string familyName = null,
+			DateTimeOffset? dateOfBirth = null, bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null)
         {
             // Throws if user not found or locked
@@ -90,12 +93,18 @@ namespace Core.Controls
             // Check unique details changed to avoid errors
             bool phoneNumberChanged = !string.IsNullOrEmpty(phoneNumber) && user.PhoneNumber != phoneNumber;
             bool emailChanged = !string.IsNullOrEmpty(email) && user.Email != email;
-            bool nameChanged = !string.IsNullOrEmpty(name);
+            bool dateOfBirthChanged = dateOfBirth.HasValue;
+            bool titleChanged = !string.IsNullOrEmpty(title);
+            bool givenNameChanged = !string.IsNullOrEmpty(givenName);
+            bool familyNameChanged = !string.IsNullOrEmpty(familyName);
 
             // Modify user for validation
             user.PhoneNumber = phoneNumberChanged ? phoneNumber : user.PhoneNumber;
             user.Email = emailChanged ? email : user.Email;
-            user.Name = nameChanged ? name : user.Name;
+            user.Title = titleChanged ? title : user.Title;
+            user.GivenName = givenNameChanged ? givenName : user.GivenName;
+            user.FamilyName = familyNameChanged ? familyName : user.FamilyName;
+            user.DateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
 
             // Validate and Normalise
             Verify(user.ValidateAndNormalise(out string issues),
@@ -110,10 +119,6 @@ namespace Core.Controls
                 edits.Add((nameof(CoreUser.PhoneNumber), user.PhoneNumber));
                 // edits.Add((nameof(CoreUser.IsPhoneConfirmed), false));
             }
-			if (nameChanged)
-			{
-                edits.Add((nameof(CoreUser.Name), user.Name));
-			}
 			if (emailChanged)
 			{
                 await ThrowIfEmailTaken(user.Email);
@@ -121,6 +126,22 @@ namespace Core.Controls
                 edits.Add(("NormalisedEmail", user.Email));
                 edits.Add((nameof(CoreUser.IsEmailConfirmed), false));
             }
+			if (titleChanged)
+			{
+                edits.Add((nameof(CoreUser.Title), user.Title));
+			}
+			if (givenNameChanged)
+			{
+                edits.Add((nameof(CoreUser.GivenName), user.GivenName));
+			}
+			if (familyNameChanged)
+			{
+                edits.Add((nameof(CoreUser.FamilyName), user.FamilyName));
+			}
+			if (dateOfBirthChanged)
+			{
+                edits.Add((nameof(CoreUser.DateOfBirth), user.DateOfBirth));
+			}
             // Internal attributes for account store
 			if (IsNotNull(isPhoneNumberConfirmed))
 			{
@@ -171,11 +192,6 @@ namespace Core.Controls
 		#endregion
 
 		#region Favours
-
-        internal async Task UpdateAllAsync(List<User> users, Func<User,List<(string Property, object Value)>> edits)
-        {
-            users.ForEach(user => Accounts.UpdateUserAsync(user.Id, edits(user)));
-		}
 
 		#endregion
 

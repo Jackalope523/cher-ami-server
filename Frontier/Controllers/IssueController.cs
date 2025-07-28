@@ -8,11 +8,11 @@ using System.IO;
 namespace Frontier.Controllers
 {
     [Route("issue")]
-    public class IssueGuard : AbstractGuard
+    public class IssueController : AbstractController
     {
 		#region Initialisation
 
-		public IssueGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public IssueController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion
@@ -40,7 +40,7 @@ namespace Frontier.Controllers
         }
 
         [HttpGet("{issueId}/posts")]
-        public async Task<IActionResult> GetGallery(long issueId)
+        public async Task<IActionResult> GetIssuePosts(long issueId)
         {
             return await Execute(async user =>
                 await issues.GetPostsForIssueAsync(user.Id, issueId)
@@ -95,7 +95,7 @@ namespace Frontier.Controllers
         }
 
         [HttpDelete("post/{postId}")]
-        public async Task<IActionResult> RemovePost(long issueId, long postId)
+        public async Task<IActionResult> RemovePost(long postId)
         {
             return await Execute(async user =>
                 await issues.DeletePostAsync(user.Id, postId)
@@ -103,7 +103,7 @@ namespace Frontier.Controllers
         }
 
 		[HttpGet("post/{postId}/report")]
-        public async Task<IActionResult> AvailablePostReports(long issueId, long postId)
+        public async Task<IActionResult> AvailablePostReports(long postId)
         {
             return await Execute(async user =>
                 await reports.GetAvailableReportsForPostAsync(user.Id, postId)
@@ -111,7 +111,7 @@ namespace Frontier.Controllers
         }
 
         [HttpPost("post/{postId}/report")]
-        public async Task<IActionResult> ReportPost(long issueId, long postId, [FromBody] PostReportManifest report)
+        public async Task<IActionResult> ReportPost(long postId, [FromBody] PostReportManifest report)
         {
             // Verify parameters
             if (report == null || !ModelState.IsValid)

@@ -2,7 +2,7 @@
 
 namespace Frontier.Controllers
 {
-	public class GuardBox
+	public class ControllerBox
 	{
 		public EnvironmentOptions env;
 		public ILogger log;
@@ -14,15 +14,18 @@ namespace Frontier.Controllers
 		public IMediaOperations media;
         public IMiscellaneousOperations miscellaneous;
 		public INotificationOperations notifications;
+		public IOrderOperations orders;
 		public IProfileOperations profiles;
 		public IReportOperations reports;
 
-        public GuardBox(EnvironmentOptions environment, ILogger logger,
+        public ControllerBox(EnvironmentOptions environment, ILogger logger,
 			IAccountOperations accountOperations,
 			IProfileOperations profileOperations, ICircleOperations circleOperations,
 			IIssueOperations issueOperations, IKeyOperations keyOperations,
 			IReportOperations reportOperations,IMediaOperations mediaOperations,
-			INotificationOperations notificationOperations, IMiscellaneousOperations miscellaneousOperations)
+			INotificationOperations notificationOperations,
+			IOrderOperations orderOperations,
+			IMiscellaneousOperations miscellaneousOperations)
 		{
 			env = environment;
 			log = logger;
@@ -34,6 +37,7 @@ namespace Frontier.Controllers
 			media = mediaOperations;
 			miscellaneous = miscellaneousOperations;
 			notifications = notificationOperations;
+			orders = orderOperations;
 			profiles = profileOperations;
 			reports = reportOperations;
 		}

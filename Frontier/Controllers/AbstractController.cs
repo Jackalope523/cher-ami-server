@@ -18,7 +18,7 @@ namespace Frontier.Controllers
 {
 	[ApiController]
 	[Authorize]
-	public class AbstractGuard : ControllerBase
+	public class AbstractController : ControllerBase
 	{
 		#region Variables
 
@@ -41,7 +41,7 @@ namespace Frontier.Controllers
 
 		#region Initialisation
 
-		public AbstractGuard(GuardBox box, UserManager<CoreUser> aspUserManager)
+		public AbstractController(ControllerBox box, UserManager<CoreUser> aspUserManager)
 		{
 			env = box.env;
 			log = box.log;

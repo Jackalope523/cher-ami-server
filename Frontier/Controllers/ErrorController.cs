@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace Frontier.Controllers
 {
     [Route("error")]
-    public class ErrorGuard : AbstractGuard
+    public class ErrorController : AbstractController
     {
 		#region Initialisation
 
-		public ErrorGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public ErrorController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion

@@ -24,8 +24,9 @@ namespace Core.Controls
 		protected IReportDatabase Reports { get; private set; }
 		protected IKeyDatabase Keys { get; private set; }
 		protected IMediaDatabase Media { get; private set; }
-		protected IProfileDatabase Profiles { get; private set; }
 		protected INotificationDatabase Notifications { get; private set; }
+		protected IOrderDatabase Orders { get; private set; }
+		protected IProfileDatabase Profiles { get; private set; }
         protected IMiscellaneousDatabase Miscellaneous { get; private set; }
 
         #endregion
@@ -45,8 +46,9 @@ namespace Core.Controls
 			Reports = Terminal.ReportDatabase;
 			Keys = Terminal.KeyDatabase;
 			Media = Terminal.MediaDatabase;
-			Profiles = Terminal.ProfileDatabase;
 			Notifications = Terminal.NotificationDatabase;
+			Orders = Terminal.OrderDatabase;
+			Profiles = Terminal.ProfileDatabase;
 			Miscellaneous = Terminal.MiscellaneousDatabase;
         }
 

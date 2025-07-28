@@ -166,12 +166,13 @@ namespace Frontier
                 harbor.KeyDatabaseAccess,
                 harbor.MediaDatabaseAccess,
                 harbor.NotificationDatabaseAccess,
+                harbor.OrderDatabaseAccess,
                 harbor.ProfileDatabaseAccess,
                 harbor.MiscellaneousDatabaseAccess,
                 oneSignalInstance
             );
 
-            GuardBox box = new(
+            ControllerBox box = new(
                 environment,
                 frontierLogger,
 
@@ -183,6 +184,7 @@ namespace Frontier
                 terminal.ReportOperations,
                 terminal.MediaOperations,
                 terminal.NotificationOperations,
+                terminal.OrderOperations,
                 terminal.MiscellaneousOperations
             );
 

@@ -11,14 +11,13 @@ namespace Repository
         internal static ILogger logger;
 
         public IAccountDatabase AccountDatabaseAccess { get; private set; }
-        public IChatDatabase ChatDatabaseAccess { get; private set; }
-        public IConnectionDatabase ConnectionDatabaseAccess { get; private set; }
         public ICircleDatabase CircleDatabaseAccess { get; private set; }
         public IIssueDatabase IssueDatabaseAccess { get; private set; }
         public IKeyDatabase KeyDatabaseAccess { get; private set; }
         public IMediaDatabase MediaDatabaseAccess { get; private set; }
         public IMiscellaneousDatabase MiscellaneousDatabaseAccess { get; private set; }
         public INotificationDatabase NotificationDatabaseAccess { get; private set; }
+        public IOrderDatabase OrderDatabaseAccess { get; private set; }
         public IProfileDatabase ProfileDatabaseAccess { get; private set; }
         public IReportDatabase ReportDatabaseAccess { get; private set; }
 
@@ -46,7 +45,6 @@ namespace Repository
             }
 
             AccountDatabaseAccess = new AccountRepository(factory);
-            ConnectionDatabaseAccess = new ConnectionRepository(factory);
             ProfileDatabaseAccess = new ProfileRepository(factory);
             NotificationDatabaseAccess = new NotificationRepository(factory);
             CircleDatabaseAccess = new CircleRepository(factory);
@@ -54,7 +52,6 @@ namespace Repository
             ReportDatabaseAccess = new ReportRepository(factory);
             KeyDatabaseAccess = new KeyStoreRepository();
             MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
-            ChatDatabaseAccess = new ChatRepository(factory);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);
         }
 

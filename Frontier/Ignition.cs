@@ -148,7 +148,6 @@ namespace Frontier
                 keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
 
             services.AddTransient<INotificationService, OneSignalService>(service => oneSignalInstance);
-            services.AddTransient<IEmailService, OneSignalService>(service => oneSignalInstance);
             services.AddTransient<ISMSService, TwilioService>();
 
             //////

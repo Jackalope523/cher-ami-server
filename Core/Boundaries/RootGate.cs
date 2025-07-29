@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Core.Boundaries
@@ -7,7 +8,7 @@ namespace Core.Boundaries
 
     public record CoreOnlyData();
 
-    public record ErrorShard(string Code, object Details = null);
+    public record ErrorShard(HttpStatusCode Code, string Details);
 
     #endregion
 

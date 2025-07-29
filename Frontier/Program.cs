@@ -51,6 +51,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
 });
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 
 var frontierLogger = loggerFactory.CreateLogger("Frontier");
@@ -136,6 +138,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web v1"));
 }
+
+app.UseExceptionHandler("/error");
 
 app.UseRouting();
 

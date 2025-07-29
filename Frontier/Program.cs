@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.Boundaries;
+using Frontier;
 using Frontier.Controllers;
 using Frontier.Services;
 using Frontier.Stores;
@@ -23,7 +24,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 var configuration = builder.Configuration;
-var services = builder.Services;
 
 string env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 var flag = env switch
@@ -44,9 +44,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-services.AddControllers();
+builder.Services.AddControllers();
 
-services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
 });
@@ -75,8 +75,8 @@ TwilioService.Initialise(environment, frontierLogger,
     keyProvider.GetHollowTwilioAuthTokenAsync().Result,
     keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
 
-services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
-services.AddTransient<ISMSService, TwilioService>();
+builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
+builder.Services.AddTransient<ISMSService, TwilioService>();
 
 CoreTerminal terminal = CoreTerminal.CreateTerminal(
     environment,
@@ -109,9 +109,9 @@ ControllerBox box = new(
     terminal.MiscellaneousOperations
 );
 
-services.AddSingleton(box);
+builder.Services.AddSingleton(box);
 
-services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
@@ -119,12 +119,12 @@ services.AddAuthentication(options =>
 })
 .AddIdentityCookies();
 
-services.AddIdentityCore<CoreUser>()
+builder.Services.AddIdentityCore<CoreUser>()
     .AddUserStore<UserAccountStore>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-services.AddDataProtection()
+builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/home/data-protection-keys"))
     .SetApplicationName($"cardinal-{env}-keys");
 

@@ -237,6 +237,8 @@ namespace Frontier
             app.UseCookiePolicy();
             app.UseAuthorization();
 
+            app.UseExceptionHandler("/error");
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

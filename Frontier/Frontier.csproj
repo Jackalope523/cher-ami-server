@@ -1,34 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <UserSecretsId>79588733-8746-49d2-a899-27b0df99893b</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Web' " />
   <ItemGroup>
-	  <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.2" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+	  <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
+	  <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.7" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.13">
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="8.0.4" />
-    <PackageReference Include="SendGrid" Version="9.28.1" />
-    <PackageReference Include="Serilog" Version="3.1.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.7" />
+    <PackageReference Include="SendGrid" Version="9.29.3" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.AzureApp" Version="3.1.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
-    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.3" />
-    <PackageReference Include="Twilio" Version="6.2.2" />
-    <PackageReference Include="OneSignalApi" Version="2.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.7" />
+    <PackageReference Include="Twilio" Version="7.12.0" />
+    <PackageReference Include="OneSignalApi" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,7 +11,7 @@ using OneSignalApi.Model;
 
 namespace Frontier.Services
 {
-    public class OneSignalService : INotificationService
+    public class OneSignalService : INotificationService, IEmailService
     {
         private static ILogger log;
         private static DefaultApi instance;
@@ -117,7 +117,15 @@ namespace Frontier.Services
             await instance.CancelNotificationAsync(appId, notificationId);
         }
 
-        public List<string> RetrieveValidTargets(CardinalNotification notification, params NotificationProfile[] notificationProfiles)
+        public Task SendEmailAsync(string email, string subject, string body)
+        {
+            // Figure out how to do OneSignal emails (or change provider)
+
+            Console.WriteLine($"Email to {email} [{subject}]: {body}");
+            return Task.FromResult(0);
+        }
+
+        private List<string> RetrieveValidTargets(CardinalNotification notification, params NotificationProfile[] notificationProfiles)
         {
             List<string> targets = new();
 

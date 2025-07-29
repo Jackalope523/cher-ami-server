@@ -18,7 +18,7 @@ namespace Frontier.Stores
 	{
 		private IAccountOperations accounts { get; init; }
 
-		public UserAccountStore(GuardBox box)
+		public UserAccountStore(ControllerBox box)
 		{
 			accounts = box.accounts;
 		}

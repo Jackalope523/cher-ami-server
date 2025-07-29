@@ -73,7 +73,7 @@ namespace Core.Controls
         public async Task<MemoryStream> GetHeaderAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
-			var gathering = await GetGatheringAsync(gatheringId);
+			var gathering = await GetCircleAsync(gatheringId);
 
             Verify(await gathering.IsVisibleTo(user),
                 new UserErrorException(CircleErrorCode.CANNOT_VIEW));
@@ -93,7 +93,7 @@ namespace Core.Controls
         public async Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long gatheringId)
         {
             var user = await GetUserAsync(userId);
-            var gathering = await GetGatheringAsync(gatheringId);
+            var gathering = await GetCircleAsync(gatheringId);
 
             Verify(await gathering.IsVisibleTo(user),
                 new UserErrorException(CircleErrorCode.CANNOT_VIEW));
@@ -125,7 +125,7 @@ namespace Core.Controls
         public async Task<MemoryStream> GetPostAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetPostAsync(snapshotId);
+            var snapshot = await Issues.GetPostAsync(snapshotId);
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 
@@ -149,7 +149,7 @@ namespace Core.Controls
         public async Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long snapshotId)
         {
             var user = await GetUserAsync(userId);
-            var snapshot = await Snapshots.GetPostAsync(snapshotId);
+            var snapshot = await Issues.GetPostAsync(snapshotId);
             User snapshotOwner = await GetUserAsync(snapshot.User.Id);
             var etchedGathering = await GetGatheringAsync(snapshot.GatheringId);
 

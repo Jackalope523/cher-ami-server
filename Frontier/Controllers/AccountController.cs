@@ -11,7 +11,7 @@ using Core;
 namespace Frontier.Controllers
 {
     [Route("account")]
-    public class AccountGuard : AbstractGuard
+    public class AccountController : AbstractController
 	{
         #region Initialisation
 
@@ -21,7 +21,7 @@ namespace Frontier.Controllers
         IEmailService emailService;
         ISMSService smsService;
 
-		public AccountGuard(GuardBox box, UserManager<CoreUser> aspUserManager,
+		public AccountController(ControllerBox box, UserManager<CoreUser> aspUserManager,
             SignInManager<CoreUser> aspSignInManager,
             IEmailService externalEmailService, ISMSService externalSMSService) :
             base(box, aspUserManager)
@@ -300,19 +300,19 @@ namespace Frontier.Controllers
                     email: details.Email,
                     title: details.Title, givenName: details.GivenName, familyName: details.FamilyName,
                     dateOfBirth: details.DateOfBirth);
-            }, allowUnverified: true);
+            });
         }
 
         [HttpGet("agreement")]
         public async Task<IActionResult> GetLastUserAgreement()
         {
-            return await Execute(user => Task.FromResult(user.TimeOfUserAgreement), allowUnverified: true);
+            return await Execute(user => Task.FromResult(user.TimeOfUserAgreement));
         }
 
         [HttpPost("agreement")]
         public async Task<IActionResult> UpdateUserAgreement()
         {
-            return await Execute(async user => await accounts.UpdateUserAgreementAsync(user.Id), allowUnverified: true);
+            return await Execute(async user => await accounts.UpdateUserAgreementAsync(user.Id));
         }
 
         [HttpPost("avatar")]
@@ -329,7 +329,7 @@ namespace Frontier.Controllers
                 await avatar.Image.CopyToAsync(stream);
 
                 await accounts.EditAvatarAsync(user.Id, stream);
-            }, allowUnverified: true);
+            });
         }
 
         [HttpDelete]
@@ -338,7 +338,7 @@ namespace Frontier.Controllers
             return await Execute(async user =>
             {
                 await accounts.DeleteUserAsync(user.Id);
-            }, allowUnverified: true);
+            });
         }
 
         #endregion

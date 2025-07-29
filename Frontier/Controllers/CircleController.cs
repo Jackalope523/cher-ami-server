@@ -7,11 +7,11 @@ using System.IO;
 namespace Frontier.Controllers
 {
     [Route("circle")]
-    public class CircleGuard : AbstractGuard
+    public class CircleController : AbstractController
 	{
 		#region Initialisation
 
-		public CircleGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public CircleController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion
@@ -108,11 +108,11 @@ namespace Frontier.Controllers
 		}
 
 		[HttpPost("{circleId}/members")]
-		public async Task<IActionResult> InviteUser(long circleId, long target_id)
+		public async Task<IActionResult> InviteUser(long circleId, string phone_number, string email)
 		{
 			return await Execute(async user =>
 			{
-				await circles.AddMemberAsync(user.Id, target_id, circleId);
+				await circles.SendInvitationAsync(user.Id, circleId, phone_number, email);
 			});
         }
 
@@ -121,7 +121,7 @@ namespace Frontier.Controllers
 		{
 			return await Execute(async user =>
 			{
-				await circles.RemoveMemberAsync(user.Id, target_id, circleId);
+				await circles.RemoveMemberAsync(user.Id, circleId, target_id);
 			});
 		}
 

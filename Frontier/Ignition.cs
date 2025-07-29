@@ -42,11 +42,6 @@ namespace Frontier
                 var loggerFactory = new LoggerFactory()
                     .AddSerilog(Log.Logger);
 
-                var socketLogger = loggerFactory.CreateLogger("Socket");
-                var hubContext = app.Services.GetRequiredService<IHubContext<SocketHub, IClientSocket>>();
-
-                SocketConnection.Initialise(socketLogger, hubContext);
-
                 app.Run();
             }
             catch (Exception ex)
@@ -142,7 +137,7 @@ namespace Frontier
             // Services 
             /////////////
 
-            OneSignalService pushNotifications = new();
+            OneSignalService oneSignalInstance = new();
             OneSignalService.Initialise(frontierLogger,
                 keyProvider.GetHollowOneSignalApiKeyAsync().Result,
                 keyProvider.GetHollowOneSignalAppIdAsync().Result);
@@ -152,12 +147,9 @@ namespace Frontier
                 keyProvider.GetHollowTwilioAuthTokenAsync().Result,
                 keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
 
-            services.AddTransient<INotificationService, OneSignalService>(service => pushNotifications);
+            services.AddTransient<INotificationService, OneSignalService>(service => oneSignalInstance);
+            services.AddTransient<IEmailService, OneSignalService>(service => oneSignalInstance);
             services.AddTransient<ISMSService, TwilioService>();
-            services.AddTransient<IEmailService, SendGridService>();
-            services.AddTransient<ISocketService, SocketConnection>();
-
-            SocketConnection socket = new();
 
             //////
             // Connections
@@ -168,34 +160,31 @@ namespace Frontier
                 coreLogger,
 
                 harbor.AccountDatabaseAccess,
-                harbor.ConnectionDatabaseAccess,
                 harbor.CircleDatabaseAccess,
                 harbor.IssueDatabaseAccess,
                 harbor.ReportDatabaseAccess,
                 harbor.KeyDatabaseAccess,
                 harbor.MediaDatabaseAccess,
-                harbor.ChatDatabaseAccess,
                 harbor.NotificationDatabaseAccess,
+                harbor.OrderDatabaseAccess,
                 harbor.ProfileDatabaseAccess,
                 harbor.MiscellaneousDatabaseAccess,
-                pushNotifications,
-                socket
+                oneSignalInstance
             );
 
-            GuardBox box = new(
+            ControllerBox box = new(
                 environment,
                 frontierLogger,
 
                 terminal.AccountOperations,
-                terminal.ConnectionOperations,
                 terminal.ProfileOperations,
                 terminal.CircleOperations,
                 terminal.IssueOperations,
                 terminal.KeyOperations,
                 terminal.ReportOperations,
                 terminal.MediaOperations,
-                terminal.ChatOperations,
                 terminal.NotificationOperations,
+                terminal.OrderOperations,
                 terminal.MiscellaneousOperations
             );
 
@@ -227,12 +216,6 @@ namespace Frontier
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(@"/home/data-protection-keys"))
                 .SetApplicationName($"cardinal-{env}-keys");
-
-            /////
-            // Sockets
-            ////////////
-            
-            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -258,7 +241,6 @@ namespace Frontier
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<SocketHub>("/hub");
             });
         }
 

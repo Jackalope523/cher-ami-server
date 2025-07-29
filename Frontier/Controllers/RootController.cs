@@ -10,11 +10,11 @@ namespace Frontier.Controllers
 {
     [Route("")]
 	[AllowAnonymous]
-    public class RootGuard : AbstractGuard
+    public class RootController : AbstractController
     {
 		#region Initialisation
 
-		public RootGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public RootController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion
@@ -46,13 +46,13 @@ namespace Frontier.Controllers
 
             return await Execute(user =>
 			{
-				if (string.IsNullOrEmpty(feedback.Pseudonym))
+				if (feedback.Anonymous)
 				{
-					return miscellaneous.ReceiveFeedback(user.Id, feedback.Comments);
+					return miscellaneous.ReceiveAnonymousFeedback(user.Id, feedback.Comments);
 				}
 				else
 				{
-					return miscellaneous.ReceiveAnonymousFeedback(user.Id, feedback.Pseudonym, feedback.Comments);
+					return miscellaneous.ReceiveFeedback(user.Id, feedback.Comments);
 				}
 			});
         }

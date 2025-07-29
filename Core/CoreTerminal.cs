@@ -29,23 +29,18 @@ namespace Core
         public ILogger Log { get; init; }
 
         public IAccountDatabase AccountDatabase { get; init; }
-        public IChatDatabase ChatDatabase { get; init; }
-        public IConnectionDatabase ConnectionDatabase { get; init; }
         public ICircleDatabase CircleDatabase { get; init; }
         public IIssueDatabase IssueDatabase { get; init; }
         public IKeyDatabase KeyDatabase { get; init; }
         public IMediaDatabase MediaDatabase { get; init; }
         public IMiscellaneousDatabase MiscellaneousDatabase { get; init; }
         public INotificationDatabase NotificationDatabase { get; init; }
+        public IOrderDatabase OrderDatabase { get; init; }
         public IProfileDatabase ProfileDatabase { get; init; }
         public IReportDatabase ReportDatabase { get; init; }
 
         public IAccountOperations AccountOperations
             => AccountDirector;
-        public IChatOperations ChatOperations
-            => ChatDirector;
-        public IConnectionOperations ConnectionOperations
-            => ConnectionDirector;
         public ICircleOperations CircleOperations
             => CircleDirector;
         public IIssueOperations IssueOperations
@@ -58,23 +53,23 @@ namespace Core
             => MiscellaneousDirector;
         public INotificationOperations NotificationOperations
             => NotificationDirector;
+        public IOrderOperations OrderOperations
+            => OrderDirector;
         public IProfileOperations ProfileOperations
             => ProfileDirector;
         public IReportOperations ReportOperations
             => ReportDirector;
 
         public INotificationService NotificationService { get; init; }
-        public ISocketService SocketService { get; init; }
 
         internal AccountDirector AccountDirector { get; private set; }
-        internal ConnectionDirector ConnectionDirector { get; private set; }
-        internal ChatDirector ChatDirector { get; private set; }
         internal CircleDirector CircleDirector { get; private set; }
         internal IssueDirector IssueDirector { get; private set; }
         internal KeyDirector KeyDirector { get; private set; }
         internal MediaDirector MediaDirector { get; private set; }
         internal MiscellaneousDirector MiscellaneousDirector { get; private set; }
         internal NotificationDirector NotificationDirector { get; private set; }
+        internal OrderDirector OrderDirector { get; private set; }
         internal ProfileDirector ProfileDirector { get; private set; }
         internal ReportDirector ReportDirector { get; private set; }
 
@@ -83,13 +78,15 @@ namespace Core
         #region Initialisation
 
         public static CoreTerminal CreateTerminal(EnvironmentOptions environment, ILogger logger,
-            IAccountDatabase accountDatabase, IConnectionDatabase connectionDatabase,
+            IAccountDatabase accountDatabase,
             ICircleDatabase circleDatabase, IIssueDatabase issueDatabase,
             IReportDatabase reportDatabase, IKeyDatabase keyDatabase,
-            IMediaDatabase mediaDatabase, IChatDatabase chatDatabase,
-            INotificationDatabase notificationDatabase, IProfileDatabase profileDatabase,
+            IMediaDatabase mediaDatabase,
+            INotificationDatabase notificationDatabase,
+            IOrderDatabase orderDatabase,
+            IProfileDatabase profileDatabase,
             IMiscellaneousDatabase miscellaneousDatabase,
-            INotificationService notificationService, ISocketService socketService)
+            INotificationService notificationService)
         {
             lock (initLock)
             {
@@ -99,19 +96,17 @@ namespace Core
                     Log = logger,
 
                     AccountDatabase = accountDatabase,
-                    ChatDatabase = chatDatabase,
-                    ConnectionDatabase = connectionDatabase,
                     CircleDatabase = circleDatabase,
                     IssueDatabase = issueDatabase,
                     KeyDatabase = keyDatabase,
                     MediaDatabase = mediaDatabase,
                     MiscellaneousDatabase = miscellaneousDatabase,
                     NotificationDatabase = notificationDatabase,
+                    OrderDatabase = orderDatabase,
                     ProfileDatabase = profileDatabase,
                     ReportDatabase = reportDatabase,
 
                     NotificationService = notificationService,
-                    SocketService = socketService,
                 };
 
                 Terminal.CreateManagers();
@@ -126,14 +121,13 @@ namespace Core
         protected void CreateManagers()
         {
             AccountDirector = new AccountDirector(this);
-            ChatDirector = new ChatDirector(this);
-            ConnectionDirector = new ConnectionDirector(this);
             CircleDirector = new CircleDirector(this);
             IssueDirector = new IssueDirector(this);
             KeyDirector = new KeyDirector(this);
             MediaDirector = new MediaDirector(this);
             MiscellaneousDirector = new MiscellaneousDirector(this);
             NotificationDirector = new NotificationDirector(this);
+            OrderDirector = new OrderDirector(this);
             ProfileDirector = new ProfileDirector(this);
             ReportDirector = new ReportDirector(this);
         }

@@ -31,7 +31,7 @@ namespace Core.Controls
             FailIf(await user.IsBlockedBy(targetUser),
                 new UserErrorException(UserErrorCode.CANNOT_VIEW));
             
-            ProfileShard nest = new(new());
+            ProfileShard profile = new(new());
 
             // Check if user is themself
             if (user.Equals(targetUser))
@@ -47,7 +47,7 @@ namespace Core.Controls
                     .ToList()
                     .ConvertAll(e => e.ToTwigShard());
 
-                nest = nest with
+                profile = profile with
                 {
                     Twigs = twigs
                 };
@@ -55,7 +55,7 @@ namespace Core.Controls
             // Check if users are companions
             else if (await targetUser.IsCompanionsWith(user))
             {
-                var haveMutualSync = Nests.HaveMutualGathering(user.Id, targetUser.Id);
+                var haveMutualSync = Profiles.HaveMutualGathering(user.Id, targetUser.Id);
 
                 var pastGatheringsSync = targetUser.PastGatherings;
                 var ongoingGatheringsSync = targetUser.OngoingGatherings;
@@ -70,23 +70,23 @@ namespace Core.Controls
 
                 if (await haveMutualSync)
                 {
-                    nest = new(twigs, (await Nests.GetFirstMutualGathering(user.Id, targetUser.Id)).Id);
+                    profile = new(twigs, (await Profiles.GetFirstMutualGathering(user.Id, targetUser.Id)).Id);
                 }
                 else
                 {
-                    nest = new(twigs, default);
+                    profile = new(twigs, default);
                 }
 
-                nest = await RemoveUnviewableNestTwigsAsync(user, nest);
+                profile = await RemoveUnviewableNestTwigsAsync(user, profile);
             }
             // User is a stranger
             else
             {
                 // Check if has a mutual gathering
-                var haveMutualSync = Nests.HaveMutualGathering(user.Id, targetUser.Id);
+                var haveMutualSync = Profiles.HaveMutualGathering(user.Id, targetUser.Id);
 
                 // Get public hosted gatherings
-                var hostedGatherings = (await Gatherings.FindGatheringsByUserAsync(targetUser.Id))
+                var hostedGatherings = (await Circles.FindGatheringsByUserAsync(targetUser.Id))
                     .ConvertAll(e => new Gathering(e));
 
                 var twigs = hostedGatherings
@@ -103,17 +103,17 @@ namespace Core.Controls
 
                 if (await haveMutualSync)
                 {
-                    nest = new(twigs, (await Nests.GetLatestMutualGathering(user.Id, targetUser.Id)).Id);
+                    profile = new(twigs, (await Profiles.GetLatestMutualGathering(user.Id, targetUser.Id)).Id);
                 }
                 else
                 {
-                    nest = new(twigs, default);
+                    profile = new(twigs, default);
                 }
 
-                nest = await RemoveUnviewableNestTwigsAsync(user, nest);
+                profile = await RemoveUnviewableNestTwigsAsync(user, profile);
             }
 
-            return nest;
+            return profile;
         }
 
         public async Task<AgendaShard> GetUserAgendaAsync(long userId)
@@ -155,7 +155,7 @@ namespace Core.Controls
         {
             var user = await GetUserAsync(userId);
 
-            var requests = await Nests.GetIncomingRequestsAsync(user.Id);
+            var requests = await Profiles.GetIncomingRequestsAsync(user.Id);
 
             return requests;
         }
@@ -164,7 +164,7 @@ namespace Core.Controls
         {
             var user = await GetUserAsync(userId);
 
-            var requests = await Nests.GetOutgoingRequestsAsync(user.Id);
+            var requests = await Profiles.GetOutgoingRequestsAsync(user.Id);
 
             return requests;
         }
@@ -173,7 +173,7 @@ namespace Core.Controls
         {
             var user = await GetUserAsync(userId);
 
-            var recentlyMet = await Nests.GetRecentlyMetAsync(user.Id);
+            var recentlyMet = await Profiles.GetRecentlyMetAsync(user.Id);
 
             return recentlyMet
                 .ConvertAll(u => new User(u).ToUserShard());
@@ -181,7 +181,7 @@ namespace Core.Controls
 
         public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long userId)
         {
-            return await Nests.GetBlockedUsersAsync(userId);
+            return await Profiles.GetBlockedUsersAsync(userId);
         }
 
         public async Task AcceptOrRequestCompanionshipAsync(long userId, long targetId)
@@ -195,14 +195,14 @@ namespace Core.Controls
             Verify(await user.CanFollow(targetUser),
                 new UserErrorException(UserErrorCode.CANNOT_FOLLOW));
 
-            await Nests.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
+            await Profiles.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
 
             CardinalNotification targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard());
 
             // Should always hit
-            if (await Nests.HaveMutualGathering(user.Id, targetUser.Id))
+            if (await Profiles.HaveMutualGathering(user.Id, targetUser.Id))
             {
-                var lastMutualGathering = await Nests.GetLatestMutualGathering(user.Id, targetUser.Id);
+                var lastMutualGathering = await Profiles.GetLatestMutualGathering(user.Id, targetUser.Id);
 
                 targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard(), lastMutualGathering.Title);
             }
@@ -242,7 +242,7 @@ namespace Core.Controls
             Verify(await user.CanFollow(targetUser, hasCode: true),
                 new UserErrorException(UserErrorCode.CANNOT_FOLLOW));
 
-            await Nests.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
+            await Profiles.FollowUserAsync(user.Id, targetUser.Id, Psijic.Time);
 
             CardinalNotification targetNotification = CardinalNotification.CompanionshipRequest(user.ToUserShard());
 
@@ -261,8 +261,8 @@ namespace Core.Controls
 
         public async Task DenyOrRemoveUserAsync(long userId, long targetId)
         {
-            await Nests.UnfollowUserAsync(targetId, userId);
-            await Nests.UnfollowUserAsync(userId, targetId);
+            await Profiles.UnfollowUserAsync(targetId, userId);
+            await Profiles.UnfollowUserAsync(userId, targetId);
         }
 
         public async Task BlockUserAsync(long userId, long targetId)
@@ -273,7 +273,7 @@ namespace Core.Controls
 			FailIf(user.Equals(targetUser),
 				new UserErrorException(UserErrorCode.CANNOT_BLOCK_SELF));
 
-			await Nests.BlockUserAsync(userId, targetId, Psijic.Time);
+			await Profiles.BlockUserAsync(userId, targetId, Psijic.Time);
 
             // Ensure removal from upcoming hosted gatherings
             foreach (var gathering in await user.UpcomingGatherings)
@@ -284,7 +284,7 @@ namespace Core.Controls
                     try
                     {
                         // Blind-remove target
-                        await Gatherings.DeleteUserStateAsync(targetUser.Id, gathering.Id);
+                        await Circles.DeleteUserStateAsync(targetUser.Id, gathering.Id);
                     }
                     catch { }
                 }
@@ -293,7 +293,7 @@ namespace Core.Controls
 
         public async Task UnblockUserAsync(long userId, long targetId)
         {
-            await Nests.UnblockUserAsync(userId, targetId);
+            await Profiles.UnblockUserAsync(userId, targetId);
         }
 
         public async Task<bool> AuthorisedToFollow(long userId, long targetId)
@@ -310,25 +310,25 @@ namespace Core.Controls
 
         internal async Task<List<User>> RequestCompanionsAsync(User user)
         {
-            return (await Nests.GetCompanionsAsync(user.Id))
+            return (await Profiles.GetCompanionsAsync(user.Id))
                 .ConvertAll(user => new User(user));
 		}
 
         internal async Task<List<User>> RequestFollowedUsersAsync(User user)
         {
-            return (await Nests.GetFollowedUsersAsync(user.Id))
+            return (await Profiles.GetFollowedUsersAsync(user.Id))
                 .ConvertAll(user => new User(user));
 		}
 
         internal async Task<List<User>> RequestFollowersAsync(User user)
         {
-            return (await Nests.GetUserFollowersAsync(user.Id))
+            return (await Profiles.GetUserFollowersAsync(user.Id))
                 .ConvertAll(user => new User(user));
 		}
 
 		internal async Task<List<User>> RequestBlockedUsersAsync(User user)
         {
-            var users = await Nests.GetBlockedUsersAsync(user.Id);
+            var users = await Profiles.GetBlockedUsersAsync(user.Id);
 
             return (await Psijic.Once(users.Select(u => User.GetUserAsync(u.Id)).ToArray()))
                 .ToList();
@@ -336,32 +336,18 @@ namespace Core.Controls
 
 		internal async Task<List<User>> RequestUsersBlockingAsync(User user)
         {
-            return (await Nests.GetUsersBlockingAsync(user.Id))
+            return (await Profiles.GetUsersBlockingAsync(user.Id))
 				.ConvertAll(user => new User(user));
         }
 
         internal async Task<bool> RequestAttendedMutualGatheringAsync(User user, User target)
         {
-            return await Nests.HaveMutualGathering(user.Id, target.Id);
+            return await Profiles.HaveMutualGathering(user.Id, target.Id);
         }
 
         #endregion
 
         #region Tools
-
-        private async Task<AgendaShard> RequestAgenda(User user)
-        {
-            _ = user.OngoingGatherings.Sync();
-            _ = user.UpcomingGatherings.Sync();
-
-            // Gather all user gathering data
-            AgendaShard agenda = new((await user.OngoingGatherings)
-                .Concat(await user.UpcomingGatherings)
-                .ToList()
-                .ConvertAll(gathering => new CardShard(gathering.Id, gathering.StartTime, GatheringBond.Guest)));
-
-            return agenda;
-        }
 
         private async Task<AgendaShard>
             RemoveUnviewableAgendaCardsAsync(User user, AgendaShard agenda)

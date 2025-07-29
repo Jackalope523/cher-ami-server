@@ -15,11 +15,11 @@ using System.Security.Cryptography;
 namespace Frontier.Controllers
 {
 	[Route("media")]
-	public class MediaGuard : AbstractGuard
+	public class MediaController : AbstractController
 	{
 		#region Initialisation
 
-		public MediaGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public MediaController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
         #endregion

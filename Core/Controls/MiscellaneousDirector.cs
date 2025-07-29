@@ -23,9 +23,9 @@ namespace Core.Controls
             await Miscellaneous.SaveFeedbackAsync(comments, Time, user.Id);
         }
 
-        public async Task ReceiveAnonymousFeedback(long userId, string pseudonym, string comments)
+        public async Task ReceiveAnonymousFeedback(long userId, string comments)
         {
-            await GetUserAsync(userId); // Just to verify account, promise :)
+            await GetUserAsync(userId); // Just to verify account
 
             await Miscellaneous.SaveFeedbackAsync(comments, Time);
         }

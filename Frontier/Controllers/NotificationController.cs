@@ -10,11 +10,11 @@ using Microsoft.Extensions.Logging;
 namespace Frontier.Controllers
 {
 	[Route("notifications")]
-	public class NotificationGuard : AbstractGuard
+	public class NotificationController : AbstractController
 	{
 		#region Initialisation
 
-		public NotificationGuard(GuardBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
+		public NotificationController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
 		{ }
 
 		#endregion

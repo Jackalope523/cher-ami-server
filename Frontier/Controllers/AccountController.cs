@@ -1,12 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Core;
+using Frontier.Manifests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Frontier.Manifests;
+using System;
 using System.IO;
-using Core;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Frontier.Controllers
 {
@@ -41,15 +42,38 @@ namespace Frontier.Controllers
 		[HttpGet]
         public async Task<IActionResult> GetAccount()
         {
-            return await Execute(async user =>
-                await accounts.GetAccountShardAsync(user.Id));
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+
+            AccountShard toReturn = new
+            (
+                user.Id,
+                user.PhoneNumber,
+                user.Email,
+                user.Title,
+                user.GivenName,
+                user.FamilyName,
+                user.DateOfBirth,
+                user.IsPhoneConfirmed,
+                user.IsEmailConfirmed,
+                user.AccountStatus,
+                user.JoinDate,
+                user.TimeOfUserAgreement,
+                user.NotificationId
+
+            );
+
+            return Ok(toReturn);
         }
 
 		[HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(long userId)
         {
-            return await Execute(async user =>
-                await accounts.GetUserShardAsync(userId));
+            UserShard userShard = await accounts.GetUserShardAsync(userId);
+
+            if (userShard == null)
+                return NotFound($"User with ID {userId} not found.");
+
+            return Ok(userShard);
         }
 
         [HttpPost("login")]
@@ -306,13 +330,18 @@ namespace Frontier.Controllers
         [HttpGet("agreement")]
         public async Task<IActionResult> GetLastUserAgreement()
         {
-            return await Execute(user => Task.FromResult(user.TimeOfUserAgreement));
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+
+            return Ok(user.TimeOfUserAgreement);
         }
 
         [HttpPost("agreement")]
         public async Task<IActionResult> UpdateUserAgreement()
         {
-            return await Execute(async user => await accounts.UpdateUserAgreementAsync(user.Id));
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+
+            await accounts.UpdateUserAgreementAsync(user.Id);
+            return NoContent();
         }
 
         [HttpPost("avatar")]
@@ -335,10 +364,10 @@ namespace Frontier.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAccount()
         {
-            return await Execute(async user =>
-            {
-                await accounts.DeleteUserAsync(user.Id);
-            });
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+
+            await accounts.DeleteUserAsync(user.Id);
+            return NoContent();
         }
 
         #endregion

@@ -21,10 +21,9 @@ namespace Frontier.Controllers
 		[HttpGet]
         public async Task<IActionResult> GetUserCircles()
         {
-			return await Execute(async user =>
-			{
-				return await circles.GetUserCirclesAsync(user.Id);
-			});
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+
+            return Ok(await circles.GetUserCirclesAsync(user.Id));
         }
 
 		[HttpGet("{circleId}")]

@@ -14,7 +14,7 @@ namespace Frontier.Endpoints.Account
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            long userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             await accounts.DeleteUserAsync(userId);
             await Send.NoContentAsync(cancellationToken);

@@ -3,8 +3,8 @@ using System.Security.Claims;
 
 namespace Frontier.Contracts.Requests
 {
-    public class UserIdRequest
+    public class CircleIdRequest
     {
-        public long UserId { get; set; }
+        public long CircleId { get; set; }
     }
 }

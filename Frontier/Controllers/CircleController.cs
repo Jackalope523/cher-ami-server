@@ -18,17 +18,6 @@ namespace Frontier.Controllers
 		#endregion
 
 		#region Actions
-
-		[HttpGet("{circleId}")]
-        public async Task<IActionResult> GetCircle(long circleId)
-        {
-			long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            CircleShard toReturn = await circles.GetCircleInformationAsync(userId, circleId);
-
-			return toReturn != null ? Ok(toReturn) : NotFound();
-        }
-
         [HttpPost]
         public async Task<IActionResult> CreateCircle([FromForm] CircleCreationManifest circleDetails)
         {

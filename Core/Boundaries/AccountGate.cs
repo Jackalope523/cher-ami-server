@@ -22,7 +22,7 @@ namespace Core.Boundaries
 		bool IsPhoneConfirmed, bool IsEmailConfirmed, UserAccountStatus AccountStatus,
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId);
 
-    public record UserShard(long Id, string GivenName, string FamilyName);
+    public record UserShard(long Id, string FirstName, string FamilyName);
 	
     #endregion
 

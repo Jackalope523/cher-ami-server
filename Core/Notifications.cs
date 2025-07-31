@@ -159,21 +159,21 @@ namespace Core.Notifications
 
         public static CardinalNotification UserPosted(UserShard addingUser)
             => IssuePost(new("Companion Request",
-                $"{addingUser.GivenName} posted to the issue.",
+                $"{addingUser.FirstName} posted to the issue.",
                 new IssueDeepLink(addingUser.Id),
                 "1"));
 
         public static CardinalNotification CompanionshipForged(UserShard addingUser)
             => IssuePost(new("New Companion",
-                $"Companionship forged with {addingUser.Name} accepted.",
+                $"Companionship forged with {addingUser.FirstName} accepted.",
                 new IssueDeepLink(addingUser.Id),
                 "1"));
 
-        public static CardinalNotification GatheringInvitation(UserShard invitingUser, GatheringShard gathering)
+        public static CardinalNotification GatheringInvitation(UserShard invitingUser, CircleShard circle)
             => IssuePost(new("Gathering Invitation",
-                $"{invitingUser.Name} invited you to {gathering.Title}.",
-                new GatheringDeepLink(gathering.Id, invitedBy: invitingUser.Name),
-                $"{gathering.Id}:1"));
+                $"{invitingUser.FirstName} invited you to {circle.Title}.",
+                new CircleDeepLink(circle.Id, invitedBy: invitingUser.FirstName),
+                $"{circle.Id}:1"));
     }
 
     ///////
@@ -188,15 +188,15 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification CompanionJoined(UserShard companion, GatheringShard gathering)
-            => IssueReminder(new(gathering.Title,
-                $"{companion.Name} joined the gathering.",
-                new GatheringDeepLink(gathering.Id, focus: CircleDeepLink.FocusTarget.guestlist),
-                $"{gathering.Id}:10"));
+        public static CardinalNotification CompanionJoined(UserShard companion, CircleShard circle)
+            => IssueReminder(new(circle.Title,
+                $"{companion.FirstName} joined the gathering.",
+                new CircleDeepLink(circle.Id, focus: CircleDeepLink.FocusTarget.guestlist),
+                $"{circle.Id}:10"));
 
-        public static CardinalNotification CompanionGatheringCreated(UserShard companion, GatheringShard gathering)
+        public static CardinalNotification CompanionGatheringCreated(UserShard companion, CircleShard circle)
             => IssueReminder(new("Companion Gathering",
-                $"{companion.Name} just created {gathering.Title}",
-                new GatheringDeepLink(gathering.Id)));
+                $"{companion.FirstName} just created {circle.Title}",
+                new CircleDeepLink(circle.Id)));
     }
 }

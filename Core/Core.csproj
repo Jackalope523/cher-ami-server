@@ -15,6 +15,7 @@
 	  <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.8.0" />
 	  <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.8.0" />
 	  <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.8.0" />
+	  <PackageReference Include="FastEndpoints" Version="7.0.1" />
 	  <PackageReference Include="libphonenumber-csharp" Version="9.0.10" />
 	  <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
 	  <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.7" />

@@ -39,32 +39,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-		[HttpGet]
-        public async Task<IActionResult> GetAccount()
-        {
-            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
-
-            AccountShard toReturn = new
-            (
-                user.Id,
-                user.PhoneNumber,
-                user.Email,
-                user.Title,
-                user.GivenName,
-                user.FamilyName,
-                user.DateOfBirth,
-                user.IsPhoneConfirmed,
-                user.IsEmailConfirmed,
-                user.AccountStatus,
-                user.JoinDate,
-                user.TimeOfUserAgreement,
-                user.NotificationId
-
-            );
-
-            return Ok(toReturn);
-        }
-
 		[HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(long userId)
         {

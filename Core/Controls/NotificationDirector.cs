@@ -16,7 +16,7 @@ namespace Core.Controls
 		public async Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId)
 		{
 			var user = await GetUserAsync(userId);
-			var profile = await user.NotificationProfile;
+			var profile = user.NotificationProfile;
 
 			return new(profile.NotificationId, profile.IssuePosts, profile.IssueReminders);
 		}
@@ -50,11 +50,11 @@ namespace Core.Controls
 
 			if (IsNotNull(notifyAt))
 			{
-                notificationId = await Terminal.NotificationService.ScheduleNotification(notification, notifyAt.Value, await user.NotificationProfile);
+                notificationId = await Terminal.NotificationService.ScheduleNotification(notification, notifyAt.Value, user.NotificationProfile);
 			}
 			else
 			{
-				notificationId = await Terminal.NotificationService.DispatchNotification(notification, await user.NotificationProfile);
+				notificationId = await Terminal.NotificationService.DispatchNotification(notification, user.NotificationProfile);
             }
 
 			return notificationId;
@@ -62,7 +62,7 @@ namespace Core.Controls
 
 		internal async Task<string> NotifyUsersAsync(CardinalNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
 		{
-			var profiles = await Task.WhenAll(users.Select(user => user.NotificationProfile.Value()));
+			var profiles = users.Select(user => user.NotificationProfile).ToArray();
 
 			string notificationId;
 

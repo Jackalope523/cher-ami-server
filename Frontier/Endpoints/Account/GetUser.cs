@@ -9,7 +9,7 @@ namespace Frontier.Endpoints.Account
     {
         public override void Configure()
         {
-            Get("/users/{userId}");
+            Get("/account/{userId}");
         }
 
         public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)

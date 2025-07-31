@@ -39,17 +39,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-		[HttpGet("{userId}")]
-        public async Task<IActionResult> GetUser(long userId)
-        {
-            UserShard userShard = await accounts.GetUserShardAsync(userId);
-
-            if (userShard == null)
-                return NotFound($"User with ID {userId} not found.");
-
-            return Ok(userShard);
-        }
-
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] AccountCredentialsManifest credentials)
@@ -333,15 +322,6 @@ namespace Frontier.Controllers
 
                 await accounts.EditAvatarAsync(user.Id, stream);
             });
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAccount()
-        {
-            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
-
-            await accounts.DeleteUserAsync(user.Id);
-            return NoContent();
         }
 
         #endregion

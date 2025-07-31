@@ -13,8 +13,11 @@ using Microsoft.OpenApi.Models;
 using Repository;
 using Serilog;
 using System.IO;
+using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddFastEndpoints();
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.AzureApp()
@@ -149,6 +152,8 @@ app.UseCors("_HollowSpecificOrigins");
 app.UseAuthentication();
 app.UseCookiePolicy();
 app.UseAuthorization();
+
+app.UseFastEndpoints();
 
 app.MapControllers();
 

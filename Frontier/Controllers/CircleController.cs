@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using Frontier.Manifests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Frontier.Manifests;
 using System.IO;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Frontier.Controllers
 {
@@ -29,10 +30,11 @@ namespace Frontier.Controllers
 		[HttpGet("{circleId}")]
         public async Task<IActionResult> GetCircle(long circleId)
         {
-			return await Execute(async user =>
-			{
-				return await circles.GetCircleInformationAsync(user.Id, circleId);
-			});
+			long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            CircleShard toReturn = await circles.GetCircleInformationAsync(userId, circleId);
+
+			return toReturn != null ? Ok(toReturn) : NotFound();
         }
 
         [HttpPost]
@@ -43,17 +45,20 @@ namespace Frontier.Controllers
 				circleDetails.Image == null || circleDetails.Image.Length == 0)
             { return MissingInformation(); }
 
-			return await Execute(async user =>
-            {
-                using var stream = new MemoryStream();
-                await circleDetails.Image.CopyToAsync(stream);
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-                return await circles.CreateCircleAsync(user.Id,
-                    circleDetails.Title,
-                    circleDetails.Plan,
-                    circleDetails.Schedule,
-                    stream);
-            });
+            using MemoryStream stream = new();
+            await circleDetails.Image.CopyToAsync(stream);
+
+            CircleShard response = await circles.CreateCircleAsync(
+										userId,
+										circleDetails.Title,
+										circleDetails.Plan,
+										circleDetails.Schedule,
+										stream
+									);
+
+			return Ok(response);
         }
 
         [HttpPost("{circleId}/edit")]

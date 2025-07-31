@@ -249,6 +249,26 @@ namespace Core.Controls
             return accessiblePosts;
         }
 
+        public Task<IssueShard> GetIssueAsync(long userId, long issueId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<IssueShard>> GetIssuesForCircleAsync(long userId, long CircleId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task EditPostAsync(long userId, long postId, DateTimeOffset? timestamp = null, string caption = null, MemoryStream image = null)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

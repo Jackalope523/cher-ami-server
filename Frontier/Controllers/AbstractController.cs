@@ -1,18 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Core;
+using Core.Boundaries;
+using Frontier.Manifests;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
-using Core.Boundaries;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Frontier.Manifests;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Claims;
 using System.Text;
-using Core;
+using System.Threading.Tasks;
 
 namespace Frontier.Controllers
 {
@@ -193,6 +194,6 @@ namespace Frontier.Controllers
 			return BadRequest(error);
 		}
 
-		#endregion
-	}
+        #endregion
+    }
 }

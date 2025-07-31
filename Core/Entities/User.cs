@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Core.Boundaries;
+using Core.Notifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Core.Boundaries;
-using Core.Notifications;
-
 using static Core.Entities.Psijic;
-using static Core.Entities.Arbiter;
 
 namespace Core.Entities
 {
@@ -15,8 +13,6 @@ namespace Core.Entities
 
     public class User
     {
-        #region Olive Branches
-
         public static async Task<string> NotifyAll(CardinalNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
         {
             return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, users);
@@ -27,24 +23,11 @@ namespace Core.Entities
             return await NotifyAll(notification, null, users);
         }
 
-        #endregion
-
-        #region Variables
-
         //////
         // Constants
         //////////////
 
         public readonly static TimeSpan DuplicateReportFrequency = TimeSpan.FromDays(14);
-
-        public static User Redacted
-            => new() { Id = 0 };
-
-        public static User Hidden
-            => new() { Id = -1, GivenName = "Hidden User" };
-
-        public static User Hollow
-            => new() { Id = -2 };
 
         ///////
         // Properties
@@ -79,20 +62,17 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
 
-        public Synced<NotificationProfile> NotificationProfile { get; }
+        public NotificationProfile NotificationProfile { get; }
 
-        public Synced<List<Circle>> Circles { get; }
+        public List<Circle> Circles { get; }
 
-        public Synced<CorePaymentMethod> PaymentMethod { get; }
+        public CorePaymentMethod PaymentMethod { get; }
 
-        public Synced<List<User>> Blocking { get; }
-        public Synced<List<User>> BlockedBy { get; }
+        public List<User> Blocking { get; }
+        public List<User> BlockedBy { get; }
 
-        private Synced<(List<UserReport> UserReports, List<PostReport> PostReports)> ReportsSync { get; }
-        public Synced<List<UserReport>> UserReports { get; }
-        public Synced<List<PostReport>> PostReports { get; }
-
-        #endregion
+        public List<UserReport> UserReports { get; }
+        public List<PostReport> PostReports { get; }
 
         #region Initialisation & Extraction
 
@@ -101,22 +81,21 @@ namespace Core.Entities
             return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
         }
 
-        public User()
+        public User(NotificationProfile notificationProfile, List<Circle> circles, CorePaymentMethod paymentMethod, List<User> blocking, List<User> blockedBy, List<UserReport> userReports, List<PostReport> postReports)
         {
-            NotificationProfile = new(() => Terminal.NotificationDirector.RequestNotificationProfileAsync(this));
+            NotificationProfile = notificationProfile;
 
-            Circles = new(() => Terminal.CircleDirector.RequestCirclesForUserAsync(this));
-            PaymentMethod = new(() => Terminal);
+            Circles = circles;
+            PaymentMethod = paymentMethod;
 
-            Blocking = new(() => Terminal.ProfileDirector.RequestBlockedUsersAsync(this));
-            BlockedBy = new(() => Terminal.ProfileDirector.RequestUsersBlockingAsync(this));
+            Blocking = blocking;
+            BlockedBy = blockedBy;
 
-            ReportsSync = new(() => Terminal.ReportDirector.RequestAllReportsAsync(this));
-            UserReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).UserReports);
-            PostReports = new(async () => (await ReportsSync.Value().ConfigureAwait(false)).PostReports);
+            UserReports = userReports;
+            PostReports = postReports;
         }
 
-        public User(CoreUser fromUser) : this()
+        public User(CoreUser fromUser)
         {
             Id = fromUser.Id;
             PhoneNumber = fromUser.PhoneNumber;
@@ -196,7 +175,7 @@ namespace Core.Entities
         public async Task<bool> IsBlocking(User otherUser)
         {
 			// Check if user is blocking target
-			if ((await Blocking).Contains(otherUser))
+			if (Blocking.Contains(otherUser))
 			{ return true; }
 
             return false;
@@ -205,7 +184,7 @@ namespace Core.Entities
 		public async Task<bool> IsBlockedBy(User otherUser)
 		{
 			// Check if user is blocked by target
-			if ((await BlockedBy).Contains(otherUser))
+			if (BlockedBy.Contains(otherUser))
 			{ return true; }
 
 			return false;
@@ -237,7 +216,7 @@ namespace Core.Entities
 
 		public async Task<bool> CanView(Issue issue)
 		{
-            return await CanView(await issue.Circle);
+            return await CanView(issue.Circle);
 		}
 
         public async Task<bool> CanPostTo(Circle circle)
@@ -247,7 +226,7 @@ namespace Core.Entities
 
         public async Task<bool> CanPostTo(Issue issue)
 		{
-            return await CanPostTo(await issue.Circle);
+            return await CanPostTo(issue.Circle);
 		}
 
 		public bool Owns(PostShard post)
@@ -257,8 +236,8 @@ namespace Core.Entities
 
         public async Task<bool> CanReport()
         {
-            var recentReportCount = (await UserReports).Count(report => After(report.ReportTime, Time - FifteenMinutes))
-                + (await PostReports).Count(report => After(report.ReportTime, Time - FifteenMinutes));
+            var recentReportCount = UserReports.Count(report => After(report.ReportTime, Time - FifteenMinutes))
+                + PostReports.Count(report => After(report.ReportTime, Time - FifteenMinutes));
 
             if (recentReportCount > 10)
             { return false; }
@@ -276,7 +255,7 @@ namespace Core.Entities
         public async Task<List<UserReportType>> AvailableReportTypes(User otherUser)
         {
             // Gather recent reports by user against target 
-            var reportedTypesByUser = (await otherUser.UserReports)
+            var reportedTypesByUser = otherUser.UserReports
                 .Where(report => report.ReportingUserId.Equals(Id) &&
                 Psijic.HappenedBefore(Time - DuplicateReportFrequency, report.ReportTime))
                 .Select(report => report.ReportType);
@@ -299,7 +278,7 @@ namespace Core.Entities
         public async Task<List<PostReportType>> AvailableReportTypes(PostShard post, User postAuthor)
         {
             // Gather recent reports by user against target 
-            var reportedTypesByUser = (await postAuthor.PostReports)
+            var reportedTypesByUser = postAuthor.PostReports
                 .Where(report => report.ReportedPostId == post.Id && report.ReportingUserId.Equals(Id))
                 .Select(report => report.ReportType);
 
@@ -318,7 +297,7 @@ namespace Core.Entities
 		public async Task<UserAccountStatus> PostReported()
         {
 			// Check if there are enough reports
-			if ((await PostReports).Count < 4)
+			if (PostReports.Count < 4)
 			{ return AccountStatus; }
 
 			return UserAccountStatus.Limited;
@@ -330,11 +309,11 @@ namespace Core.Entities
             UserAccountStatus nextStatus;
 
 			// Check if there are enough reports
-			if ((await UserReports).Count < 4)
+			if (UserReports.Count < 4)
 			{ return AccountStatus; }
-			else if ((await UserReports).Count < 6)
+			else if (UserReports.Count < 6)
 			{ nextStatus = UserAccountStatus.Limited; }
-            else if ((await UserReports).Count < 10)
+            else if (UserReports.Count < 10)
 			{ nextStatus = UserAccountStatus.Suspended; }
             else
             { nextStatus = UserAccountStatus.Blacklisted; }

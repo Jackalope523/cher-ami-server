@@ -13,7 +13,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class User
+    public class User
     {
         #region Olive Branches
 
@@ -372,7 +372,7 @@ namespace Core.Entities
 		#endregion
 	}
 
-    internal class CircleMember : User
+    public class CircleMember : User
     {
         public DateTimeOffset DateJoined { get; set; }
         public CircleMembershipType MembershipType { get; set; }

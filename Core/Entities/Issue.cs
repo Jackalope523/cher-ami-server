@@ -11,7 +11,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class Issue
+    public class Issue
     {
 		#region Variables
 

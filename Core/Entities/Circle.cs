@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Pkcs;
 using System.Threading.Tasks;
 using Core.Boundaries;
 using Core.Notifications;
@@ -21,9 +22,6 @@ namespace Core.Entities
         //////////////
 
         public const int MaximumTitleLength = 30;
-
-        public static Circle None
-            => new() { Id = -1, Exists = false };
 
         ///////
         // Properties
@@ -46,10 +44,10 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
         
-        public Synced<List<CircleMember>> Members { get; }
-        public Synced<List<CoreRecipient>> Recipients { get; }
+        public List<CircleMember> Members { get; }
+        public List<CoreRecipient> Recipients { get; }
 
-        public Synced<List<Issue>> Issues { get; }
+        public List<Issue> Issues { get; }
 
         #endregion
 
@@ -60,15 +58,15 @@ namespace Core.Entities
             return new(await Terminal.CircleDatabase.GetCircleAsync(id));
         }
 
-        public Circle()
+        public Circle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
         {
-            Members = new(() => Terminal.CircleDirector.RequestCircleMembersAsync(this));
-            Recipients = new(() => Terminal.CircleDirector.RequestCircleRecipientsAsync(this));
+            Members = members;
+            Recipients = recipients;
 
-            Issues = new(() => Terminal.IssueDirector.RequestCircleIssuesAsync(this));
+            Issues = Issues;
         }
 
-        public Circle(CoreCircle fromCircle) : this()
+        public Circle(CoreCircle fromCircle)
         {
             Id = fromCircle.Id;
             InviteCode = fromCircle.InviteCode;
@@ -113,12 +111,12 @@ namespace Core.Entities
 
         public async Task<bool> HasMember(User user)
         {
-            return (await Members).Contains(user);
+            return Members.Contains(user);
         }
 
         public async Task<bool> IsModifiableBy(User user)
         {
-            var admins = (await Members).Where(member => member.MembershipType.Equals(CircleMembershipType.Owner));
+            var admins = Members.Where(member => member.MembershipType.Equals(CircleMembershipType.Owner));
 
             if (admins.Contains(user))
 			{ return true; }
@@ -136,7 +134,7 @@ namespace Core.Entities
 
         public async Task<string> NotifyMembers(CardinalNotification notification, DateTimeOffset? notifyAt = null)
         {
-            return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, (await Members).ToArray());
+            return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, Members.ToArray());
         }
 
 		#endregion

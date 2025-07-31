@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Circle
 {
-    public class GetUserCircles(IAccountOperations accounts) : Endpoint<UserIdRequest, List<CircleShard>>
+    public class GetUserCircles(ICircleOperations circles) : Endpoint<UserIdRequest, List<CircleShard>>
     {
         public override void Configure()
         {
@@ -17,9 +17,7 @@ namespace Frontier.Endpoints.Circle
 
         public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
         {
-            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
-
-            return Ok(await circles.GetUserCirclesAsync(user.Id));
+            await Send.OkAsync(await circles.GetUserCirclesAsync(request.UserId));
         }
     }
 }

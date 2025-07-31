@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Core.Boundaries;
 using Microsoft.AspNetCore.Http;
 
-namespace Frontier.Manifests
+namespace Frontier.Contracts.Requests
 {
 	public class ClientDetailsManifest
     {

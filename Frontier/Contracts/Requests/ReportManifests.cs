@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Frontier.Manifests
+namespace Frontier.Contracts.Requests
 {
 	public class UserReportManifest
     {

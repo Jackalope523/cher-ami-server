@@ -1,4 +1,4 @@
-﻿using Frontier.Manifests;
+﻿using Frontier.Contracts.Requests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;

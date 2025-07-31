@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Core.Boundaries;
 using Microsoft.Extensions.Logging;
-using Frontier.Manifests;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
+using Frontier.Contracts.Requests;
 
 namespace Frontier.Controllers
 {

@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
 using Microsoft.AspNetCore.Http;
 
-namespace Frontier.Manifests
+namespace Frontier.Contracts.Requests
 {
 	public class CircleCreationManifest
     {

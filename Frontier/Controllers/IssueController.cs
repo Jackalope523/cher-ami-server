@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Frontier.Manifests;
 using System.IO;
+using Frontier.Contracts.Requests;
 
 namespace Frontier.Controllers
 {

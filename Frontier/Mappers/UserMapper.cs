@@ -9,24 +9,13 @@ using System.Threading.Tasks;
 
 namespace Mappers
 {
-    public class UserMapper : ResponseMapper<AccountShard, CoreUser>
+    public class UserMapper : ResponseMapper<UserShard, CoreUser>
     {
-        public override AccountShard FromEntity(CoreUser user) => new
+        public override UserShard FromEntity(CoreUser user) => new
         (
             user.Id,
-            user.PhoneNumber,
-            user.Email,
-            user.Title,
             user.GivenName,
-            user.FamilyName,
-            user.DateOfBirth,
-            user.IsPhoneConfirmed,
-            user.IsEmailConfirmed,
-            user.AccountStatus,
-            user.JoinDate,
-            user.TimeOfUserAgreement,
-            user.NotificationId
-
+            user.FamilyName
         );
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Core;
-using Frontier.Manifests;
+using Frontier.Contracts.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

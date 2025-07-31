@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Core.Boundaries;
 
-using static Core.Entities.Arbiter;
 using static Core.Entities.Psijic;
 
 namespace Core.Entities
@@ -20,9 +18,6 @@ namespace Core.Entities
 		//////////////
 
 		public const int MaximumTitleLength = 30;
-
-        public static Issue None
-            => new() { Id = -1, Exists = false };
 
 		///////
 		// Properties
@@ -47,11 +42,11 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
         
-        public Synced<Circle> Circle { get; }
+        public Circle Circle { get; }
 
-        public Synced<List<PostShard>> Posts { get; }
+        public List<PostShard> Posts { get; }
 
-        public Synced<List<CoreOrder>> Orders { get; }
+        public List<CoreOrder> Orders { get; }
 
         #endregion
 
@@ -62,14 +57,14 @@ namespace Core.Entities
             return new(await Terminal.IssueDatabase.GetIssueAsync(id));
         }
 
-        public Issue()
+        public Issue(Circle circle, List<PostShard> posts, List<CoreOrder> orders)
         {
-            Circle = new(() => Entities.Circle.GetCircleAsync(CircleId));
-            Posts = new(() => Terminal.IssueDirector.RequestIssuePostsAsync(this));
-            Orders = new(() => Terminal.IssueDirector.RequestIssuePostsAsync(this));
+            Circle = circle;
+            Posts = posts;
+            Orders = orders;
         }
 
-        public Issue(CoreIssue fromIssue) : this()
+        public Issue(CoreIssue fromIssue)
         {
             Id = fromIssue.Id;
             CircleId = fromIssue.CircleId;
@@ -115,62 +110,6 @@ namespace Core.Entities
             if (HappenedBefore(EndDate, StartDate)) { issues += "End date before start date. "; }
 
             return issues.Equals("");
-        }
-
-        public async Task<List<PostShard>> GetPostsOf(User user)
-        {
-            return (await Posts).Where(snapshot => snapshot.UserId.Equals(user.Id)).ToList();
-        }
-
-		#endregion
-
-		#region Checks
-
-		public async Task<bool> IsVisibleTo(User user)
-		{
-            return await (await Circle).HasMember(user);
-		}
-
-		#endregion
-
-		#region Effects
-
-        public async Task<List<User>> Ended()
-        {
-            List<User> updatedGuests = new();
-
-            // Update all participants' vectors and notify
-			foreach ((var guest, var joined, var left) in await GuestHistory)
-			{
-                if (left.HasValue)
-                { guest.CalculateCharacter(this, left.Value - joined); }
-                else
-                { guest.CalculateCharacter(this, Time - joined); }
-
-                updatedGuests.Add(guest);
-			}
-
-            return updatedGuests;
-		}
-
-        public async Task Taken(User user)
-        {
-            // Verify snapshot is not before gathering starting or user is host
-            Verify(HasAlready(StartDate) || IsModifiableBy(user),
-                new UserErrorException(CircleErrorCode.NOT_STARTED));
-
-            // Verify user can etch into the gathering
-            Verify(await WasAttendedBy(user) || IsModifiableBy(user),
-                new UserErrorException(CircleErrorCode.NOT_GUEST));
-		}
-
-        #endregion
-
-        #region Actions
-
-        public async Task Export()
-        {
-
         }
 
 		#endregion

@@ -12,7 +12,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    internal class Circle
+    public class Circle
     {
         #region Variables
 

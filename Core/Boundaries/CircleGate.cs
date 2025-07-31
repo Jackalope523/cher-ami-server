@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -72,10 +73,10 @@ namespace Core.Boundaries
 
     public interface ICircleOperations
     {
-        Task<List<CircleShard>> GetUserCirclesAsync(long userId);
-        Task<CircleShard> GetCircleInformationAsync(long userId, long circleId);
+        Task<List<Circle>> GetUserCirclesAsync(long userId);
+        Task<Circle> GetCircleInformationAsync(long userId, long circleId);
 
-        Task<CircleShard> CreateCircleAsync(long userId,
+        Task<Circle> CreateCircleAsync(long userId,
             string title,
             CirclePlan plan, IssueSchedule schedule,
             MemoryStream header);

@@ -27,10 +27,6 @@ namespace Core.Boundaries
         Task<MemoryStream> DownloadSnapshotAsync(string path);
         Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image);
         Task DeleteSnapshotAsync(string path);
-
-        Task<MemoryStream> DownloadPhotoAsync(string path);
-        Task UploadPhotoAsync(long chatId, long messageId, MemoryStream image);
-        Task DeletePhotoAsync(string path);
     }
 
     public interface IMediaOperations

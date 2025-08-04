@@ -4,7 +4,6 @@ using Azure.Storage.Blobs.Models;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
-using Repository.Entities.Messages;
 
 namespace Repository.Repositories
 {
@@ -151,37 +150,6 @@ namespace Repository.Repositories
             Where(s => s.Path == path).
             ExecuteUpdateAsync(setters => setters.
             SetProperty(s => s.Path, ""));
-
-            await DeleteBlobAsync(path);
-        }
-
-        public async Task<MemoryStream> DownloadPhotoAsync(string path)
-        {
-            return await DownloadBlobAsync(path);
-        }
-
-        public async Task UploadPhotoAsync(long chatId, long messageId, MemoryStream image)
-        {
-            await using CardinalContext ctx = initContext();
-
-            string path = $"{chatId}/messages/{messageId}.jpg";
-
-            PhotoMessage toUpdate = new() { Id = messageId, Path = path };
-            ctx.PhotoMessages.Attach(toUpdate);
-            ctx.Entry(toUpdate).Property(nameof(PhotoMessage.Path)).IsModified = true;
-            await ctx.SaveChangesAsync();
-
-            await UploadBlobAsync(path, image);
-        }
-
-        public async Task DeletePhotoAsync(string path)
-        {
-            await using CardinalContext ctx = initContext();
-
-            await ctx.PhotoMessages.
-            Where(m => m.Path == path).
-            ExecuteUpdateAsync(setters => setters.
-            SetProperty(m => m.Path, ""));
 
             await DeleteBlobAsync(path);
         }

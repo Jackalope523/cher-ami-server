@@ -1,7 +1,4 @@
-﻿using Microsoft.Net.Http.Headers;
-using Repository.Entities.Chats;
-
-namespace Repository.Entities
+﻿namespace Repository.Entities
 {
     public class Circle : Entity
     {
@@ -18,7 +15,6 @@ namespace Repository.Entities
         public List<RecipientLink>? CircleRecipients { get; set; }
         public List<Issue>? Issues { get; set; }
         public List<Notification>? Notifications { get; set; }
-        public CircleChat? Chat { get; set; }
 
         // Default Values
 

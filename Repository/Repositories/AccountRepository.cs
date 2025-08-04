@@ -81,13 +81,9 @@ namespace Repository.Repositories
 
             try
             {
-                await ctx.Connections.Where(c => c.UserId == id).ExecuteDeleteAsync();
-                await ctx.ChatMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteDeleteAsync();
                 await ctx.Subscriptions.Where(s => s.UserId == id).ExecuteDeleteAsync();
                 await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
-                await ctx.ProfileMessages.Where(m => m.ProfileId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.ProfileId, (long?)null));
-                await ctx.Messages.Where(m => m.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
                 await ctx.Feedback.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
                 await ctx.Reports.Where(r => r.FilingUserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.FilingUserId, (long?)null));
                 await ctx.Users.Where(u => u.Id == id).ExecuteDeleteAsync();

@@ -26,7 +26,6 @@ namespace Repository.Contexts
         internal DbSet<Feedback> Feedback { get; set; }
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
-        internal DbSet<Connection> Connections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -163,21 +162,6 @@ namespace Repository.Contexts
             modelBuilder.Entity<User>()
              .HasMany(u => u.Feedback)
              .WithOne(f => f.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.ChatLinks)
-             .WithOne(l => l.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.Messages)
-             .WithOne(m => m.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.Shares)
-             .WithOne(m => m.Profile)
              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
@@ -399,14 +383,6 @@ namespace Repository.Contexts
             modelBuilder.Entity<Word>()
                 .Property(w => w.Text)
                 .HasMaxLength(50);
-
-            // Connections
-            modelBuilder.Entity<Connection>()
-              .HasQueryFilter(c => !c.SoftDeleted);
-
-            modelBuilder.Entity<Connection>()
-             .Property(c => c.ConnectionId)
-             .HasMaxLength(36);
         }
     }
 }

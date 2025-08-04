@@ -1,5 +1,4 @@
-﻿using Repository.Entities.Messages;
-using PostReport = Repository.Entities.Reports.PostReport;
+﻿using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace Repository.Entities
@@ -39,10 +38,6 @@ namespace Repository.Entities
         public List<Subscription>? Subscriptions { get; set; }
         public List<Feedback>? Feedback { get; set; }
         public List<Notification>? Notifications { get; set; }
-        public List<ChatMembership>? ChatLinks { get; set; }
-        public List<Message>? Messages { get; set; }
-        public List<ProfileMessage>? Shares { get; set; }
-        public List<Connection>? Connections { get; set; }
         public List<Post>? Posts { get; set; }
         public List<Recipient>? Recipients { get; set; }
 

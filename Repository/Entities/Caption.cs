@@ -9,7 +9,6 @@
 
         // Navigation Properties
         public Post? Post { get; set; }
-        public List<CaptionReport>? Reports { get; set; }
 
         // Default Values
         public static string DefaultText { get; set; } = "";

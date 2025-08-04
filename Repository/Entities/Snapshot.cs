@@ -1,5 +1,3 @@
-using Repository.Databases.Entities.Reports;
-
 namespace Repository.Entities
 {
     public class Snapshot : Entity

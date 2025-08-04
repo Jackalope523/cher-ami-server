@@ -58,10 +58,6 @@ namespace Core.Entities
         public bool CanPost => AccountStatus == UserAccountStatus.Active;
         public bool IsLocked => AccountStatus == UserAccountStatus.Blacklisted;
 
-        ////////
-        // Synced Properties
-        //////////////////////
-
         public NotificationProfile NotificationProfile { get; }
 
         public List<Circle> Circles { get; }
@@ -79,6 +75,10 @@ namespace Core.Entities
         public static async Task<User> GetUserAsync(long id)
         {
             return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
+        }
+
+        public User()
+        { 
         }
 
         public User(NotificationProfile notificationProfile, List<Circle> circles, CorePaymentMethod paymentMethod, List<User> blocking, List<User> blockedBy, List<UserReport> userReports, List<PostReport> postReports)

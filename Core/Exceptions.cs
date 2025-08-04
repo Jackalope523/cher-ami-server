@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Core.Boundaries;
 
 namespace Core.Exceptions
@@ -25,7 +26,7 @@ namespace Core.Exceptions
 
         public ErrorShard ToErrorShard()
         {
-            return new(ErrorCode, Details);
+            return new(HttpStatusCode.InternalServerError, "Fix in Exceptions.cs.");
         }
     }
 

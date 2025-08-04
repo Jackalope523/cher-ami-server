@@ -268,7 +268,7 @@ namespace Repository.Repositories
             {
                 switch (Property)
                 {
-                    case nameof(CoreRecipient.):
+                    case nameof(CoreCircle.InviteCode):
                         c.CircleCode = (string)Value;
                         break;
                     case nameof(CoreCircle.Title):

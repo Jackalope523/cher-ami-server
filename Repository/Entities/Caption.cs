@@ -1,6 +1,4 @@
-﻿using Repository.Databases.Entities.Reports;
-
-namespace Repository.Entities
+﻿namespace Repository.Entities
 {
     public class Caption : Entity
     {

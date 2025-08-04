@@ -178,9 +178,7 @@ namespace Core.Controls
 
         public async Task EditAvatarAsync(long userId, MemoryStream image)
         {
-            var user = await GetUserAsync(userId);
-
-            await Terminal.MediaDirector.UploadAvatarAsync(user.Id, image);
+            throw new NotImplementedException();
         }
 
         public async Task DeleteUserAsync(long userId)

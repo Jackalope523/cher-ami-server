@@ -8,7 +8,7 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal abstract class AbstractDirector
+    public abstract class AbstractDirector
 	{
 		#region Variables
 
@@ -76,9 +76,9 @@ namespace Core.Controls
             return new(await Accounts.GetUserByIdAsync(userId));
         }
 
-        protected async Task<Circle> GetCircleAsync(long circleId)
+        protected async Task<Boundaries.CoreCircle> GetCircleAsync(long circleId)
         {
-            return new(await Circles.GetCircleAsync(circleId));
+            return await Circles.GetCircleAsync(circleId);
         }
 
         #endregion

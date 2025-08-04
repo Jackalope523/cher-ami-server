@@ -13,7 +13,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    public class Circle
+    public class CoreCircle
     {
         #region Variables
 
@@ -53,12 +53,12 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<Circle> GetCircleAsync(long id)
+        public static async Task<Boundaries.CoreCircle> GetCircleAsync(long id)
         {
-            return new(await Terminal.CircleDatabase.GetCircleAsync(id));
+            return await Terminal.CircleDatabase.GetCircleAsync(id);
         }
 
-        public Circle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
+        public CoreCircle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
         {
             Members = members;
             Recipients = recipients;
@@ -66,23 +66,6 @@ namespace Core.Entities
             Issues = Issues;
         }
 
-        public Circle(CoreCircle fromCircle)
-        {
-            Id = fromCircle.Id;
-            InviteCode = fromCircle.InviteCode;
-            Title = fromCircle.Title;
-            DateCreated = fromCircle.DateCreated;
-            Plan = fromCircle.Plan;
-            Schedule = fromCircle.Schedule;
-            IsDeleted = fromCircle.IsPendingDeletion;
-        }
-
-        public CoreCircle ToCoreCircle()
-        {
-            return new(Id, InviteCode, Title,
-                DateCreated, Plan, Schedule,
-                IsDeleted);
-        }
 
         public CircleShard ToCircleShard()
         {
@@ -143,7 +126,7 @@ namespace Core.Entities
 
 		public override bool Equals(object obj)
 		{
-			return obj is Circle other &&
+			return obj is CoreCircle other &&
                 Exists == other.Exists &&
                 Id.Equals(other.Id);
 		}

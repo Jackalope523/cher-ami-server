@@ -8,7 +8,6 @@ namespace Repository
     {
         public enum Flag { Development, Staging, Production }
 
-        internal static ILogger logger;
 
         public IAccountDatabase AccountDatabaseAccess { get; private set; }
         public ICircleDatabase CircleDatabaseAccess { get; private set; }
@@ -53,11 +52,6 @@ namespace Repository
             KeyDatabaseAccess = new KeyStoreRepository();
             MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);
-        }
-
-        public Harbor(Flag flag, ILogger logger) : this(flag)
-        {
-            Harbor.logger = logger;
         }
     }
 }

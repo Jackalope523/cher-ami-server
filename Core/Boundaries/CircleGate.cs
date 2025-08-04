@@ -73,10 +73,10 @@ namespace Core.Boundaries
 
     public interface ICircleOperations
     {
-        Task<List<Circle>> GetUserCirclesAsync(long userId);
-        Task<Circle> GetCircleInformationAsync(long userId, long circleId);
+        Task<List<Entities.CoreCircle>> GetUserCirclesAsync(long userId);
+        Task<Entities.CoreCircle> GetCircleInformationAsync(long userId, long circleId);
 
-        Task<Circle> CreateCircleAsync(long userId,
+        Task<Entities.CoreCircle> CreateCircleAsync(long userId,
             string title,
             CirclePlan plan, IssueSchedule schedule,
             MemoryStream header);

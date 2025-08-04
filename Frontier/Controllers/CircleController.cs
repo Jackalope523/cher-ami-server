@@ -31,7 +31,7 @@ namespace Frontier.Controllers
             using MemoryStream stream = new();
             await circleDetails.Image.CopyToAsync(stream);
 
-            CircleShard response = await circles.CreateCircleAsync(
+            Core.Entities.CoreCircle coreCircle = await circles.CreateCircleAsync(
 										userId,
 										circleDetails.Title,
 										circleDetails.Plan,
@@ -39,7 +39,17 @@ namespace Frontier.Controllers
 										stream
 									);
 
-			return Ok(response);
+			CircleShard response = new CircleShard(
+                coreCircle.Id,
+                coreCircle.InviteCode,
+                coreCircle.Title,
+                coreCircle.DateCreated,
+                coreCircle.Plan,
+                coreCircle.Schedule
+            );
+
+
+            return Ok(response);
         }
 
         [HttpPost("{circleId}/edit")]

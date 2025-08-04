@@ -165,11 +165,6 @@ namespace Repository.Contexts
              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-             .HasMany(u => u.Connections)
-             .WithOne(c => c.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
              .HasMany(u => u.Recipients)
              .WithOne(r => r.Manager)
              .OnDelete(DeleteBehavior.Restrict);
@@ -347,11 +342,6 @@ namespace Repository.Contexts
             // Caption
             modelBuilder.Entity<Caption>()
                 .HasQueryFilter(s => !s.SoftDeleted);
-
-            modelBuilder.Entity<Caption>()
-                .HasMany(s => s.Reports)
-                .WithOne(r => r.Caption)
-                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Caption>()
                 .Property(c => c.Text)

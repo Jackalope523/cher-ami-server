@@ -2,10 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Frontier.Manifests;
-using Core.Boundaries;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 
 namespace Frontier.Controllers
 {

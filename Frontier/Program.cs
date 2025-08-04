@@ -14,6 +14,7 @@ using Repository;
 using Serilog;
 using System.IO;
 using FastEndpoints;
+using Core.Controls;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+builder.Services.AddSingleton(Log.Logger);
 
 var configuration = builder.Configuration;
 
@@ -61,13 +64,12 @@ var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 
 var frontierLogger = loggerFactory.CreateLogger("Frontier");
 var coreLogger = loggerFactory.CreateLogger("Core");
-var repositoryLogger = loggerFactory.CreateLogger("Repository");
 
 Harbor harbor = environment.IsProduction ?
-    new Harbor(Harbor.Flag.Production, repositoryLogger) :
+    new Harbor(Harbor.Flag.Production) :
     (environment.Flag == EnvironmentFlag.Staging ?
-        new Harbor(Harbor.Flag.Staging, repositoryLogger) :
-        new Harbor(Harbor.Flag.Development, repositoryLogger));
+        new Harbor(Harbor.Flag.Staging) :
+        new Harbor(Harbor.Flag.Development));
 
 var keyProvider = harbor.KeyDatabaseAccess;
 
@@ -83,6 +85,11 @@ TwilioService.Initialise(environment, frontierLogger,
 
 builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
 builder.Services.AddTransient<ISMSService, TwilioService>();
+
+// Endpoint DI
+//builder.Services.AddScoped<Core.CoreTerminal>();
+//builder.Services.AddScoped<ICircleOperations, CircleDirector>();
+//builder.Services.AddScoped<IAccountOperations, AccountDirector>();
 
 CoreTerminal terminal = CoreTerminal.CreateTerminal(
     environment,

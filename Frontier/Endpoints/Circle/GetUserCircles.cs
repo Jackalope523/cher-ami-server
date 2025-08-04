@@ -2,6 +2,7 @@
 using Frontier.Contracts.Requests;
 using Microsoft.AspNetCore.Identity;
 using Repository.Entities;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -18,8 +19,10 @@ namespace Frontier.Endpoints.Circle
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await Send.OkAsync(await circles.GetUserCirclesAsync(userId));
+            //long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            //await Send.OkAsync(await circles.GetUserCirclesAsync(userId));
+
+            throw new NotImplementedException();
         }
     }
 }

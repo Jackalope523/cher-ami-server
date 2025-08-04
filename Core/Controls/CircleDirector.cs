@@ -15,21 +15,21 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class CircleDirector : AbstractDirector, ICircleOperations
+    public class CircleDirector : AbstractDirector, ICircleOperations
 	{
 		public CircleDirector(CoreTerminal terminal) : base(terminal) { }
 
-        public Task<List<Circle>> GetUserCirclesAsync(long userId)
+        public Task<List<Entities.CoreCircle>> GetUserCirclesAsync(long userId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Circle> GetCircleInformationAsync(long userId, long circleId)
+        public Task<Entities.CoreCircle> GetCircleInformationAsync(long userId, long circleId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Circle> CreateCircleAsync(long userId, string title, CirclePlan plan, IssueSchedule schedule, MemoryStream header)
+        public Task<Entities.CoreCircle> CreateCircleAsync(long userId, string title, CirclePlan plan, IssueSchedule schedule, MemoryStream header)
         {
             throw new NotImplementedException();
         }

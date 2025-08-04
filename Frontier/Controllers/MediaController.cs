@@ -2,15 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Frontier.Manifests;
-using Core.Boundaries;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using System.IO;
-using System.Net.Http.Headers;
-using Repository;
-using Twilio.TwiML.Voice;
-using System.Security.Cryptography;
 
 namespace Frontier.Controllers
 {

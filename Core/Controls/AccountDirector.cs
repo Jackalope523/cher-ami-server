@@ -12,7 +12,7 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class AccountDirector : AbstractDirector, IAccountOperations
+    public class AccountDirector : AbstractDirector, IAccountOperations
     {
 		#region Initialisation
 

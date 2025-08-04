@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
-using Repository.Entities.Chats;
-using Repository.Entities.Messages;
 using Repository.Entities.Reports;
 using static Repository.Entities.Reports.Report;
 using PostReport = Repository.Entities.Reports.PostReport;
@@ -28,20 +26,7 @@ namespace Repository.Contexts
         internal DbSet<Feedback> Feedback { get; set; }
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
-        internal DbSet<Chat> Chats { get; set; }
-        internal DbSet<PrivateChat> PrivateChats { get; set; }
-        internal DbSet<CircleChat> CircleChats { get; set; }
-        internal DbSet<BroadcastChat> BroadcastChats { get; set; }
-        internal DbSet<ChatMembership> ChatMemberships { get; set; }
         internal DbSet<Connection> Connections { get; set; }
-        internal DbSet<Message> Messages { get; set; }
-        internal DbSet<TextMessage> TextMessages { get; set; }
-        internal DbSet<PhotoMessage> PhotoMessages { get; set; }
-        internal DbSet<IssueMessage> IssueMessages { get; set; }
-        internal DbSet<PostMessage> PostMessages { get; set; }
-        internal DbSet<ProfileMessage> ProfileMessages { get; set; }
-        internal DbSet<ActivityMessage> ActivityMessages { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -245,11 +230,6 @@ namespace Repository.Contexts
                .WithOne(cr => cr.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Circle>()
-               .HasOne(c => c.Chat)
-               .WithOne(c => c.Circle)
-               .OnDelete(DeleteBehavior.Restrict);
-
             // Recipient
             modelBuilder.Entity<Recipient>()
                .HasQueryFilter(g => !g.SoftDeleted);
@@ -419,88 +399,6 @@ namespace Repository.Contexts
             modelBuilder.Entity<Word>()
                 .Property(w => w.Text)
                 .HasMaxLength(50);
-
-            // Chats
-            modelBuilder.Entity<Chat>()
-                .HasQueryFilter(w => !w.SoftDeleted);
-
-            modelBuilder.Entity<Chat>()
-                .HasMany(c => c.ChatLinks)
-                .WithOne(l => l.Chat)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Chat>()
-                .HasMany(c => c.Messages)
-                .WithOne(m => m.Chat)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<BroadcastChat>()
-                .Property(c => c.Title)
-                .HasColumnName("Title")
-                .HasMaxLength(200);
-
-            modelBuilder.Entity<Chat>()
-               .HasDiscriminator<ChatType>("Type")
-               .HasValue<PrivateChat>(ChatType.Individual)
-               .HasValue<CircleChat>(ChatType.Circle)
-               .HasValue<BroadcastChat>(ChatType.Broadcast);
-
-            modelBuilder.Entity<BroadcastChat>()
-                .HasData(new BroadcastChat()
-                {
-                    Id = -2,
-                    Type = ChatType.Broadcast,
-                    Title = "CANARY Team"
-                });
-
-            // Messages
-            modelBuilder.Entity<Message>()
-                .HasQueryFilter(w => !w.SoftDeleted);
-
-            modelBuilder.Entity<Message>()
-                .HasDiscriminator<MessageType>("Type")
-                .HasValue<TextMessage>(MessageType.Text)
-                .HasValue<PhotoMessage>(MessageType.Photo)
-                .HasValue<ActivityMessage>(MessageType.Activity)
-                .HasValue<ProfileMessage>(MessageType.Profile)
-                .HasValue<PostMessage>(MessageType.Post)
-                .HasValue<IssueMessage>(MessageType.Issue);
-
-            modelBuilder.Entity<PostMessage>()
-                .Property(g => g.GatheringId)
-                .HasColumnName("GatheringId");
-
-            modelBuilder.Entity<IssueMessage>()
-                .Property(g => g.GatheringId)
-                .HasColumnName("GatheringId");
-
-            modelBuilder.Entity<TextMessage>()
-                .Property(m => m.Text)
-                .HasColumnName("Text")
-                .HasMaxLength(2000);
-
-            modelBuilder.Entity<ActivityMessage>()
-               .Property(m => m.Text)
-               .HasColumnName("Text")
-               .HasMaxLength(2000);
-
-            modelBuilder.Entity<PhotoMessage>()
-               .Property(p => p.Path)
-               .HasMaxLength(1024);
-
-            // Chat Links
-            modelBuilder.Entity<ChatMembership>()
-                .HasQueryFilter(w => !w.SoftDeleted);
-
-            modelBuilder.Entity<ChatMembership>()
-                .HasData(new ChatMembership()
-                {
-                    Id = -2,
-                    UserId = -2,
-                    ChatId = -2,
-                    Type = ChatMembershipType.Owner,
-                    Muted = false,
-                });
 
             // Connections
             modelBuilder.Entity<Connection>()

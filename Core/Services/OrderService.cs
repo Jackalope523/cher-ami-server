@@ -5,7 +5,7 @@ using Core.Boundaries;
 
 using static Core.Entities.Arbiter;
 
-namespace Core.Controls
+namespace Core.Services
 {
     internal class OrderService : AbstractService, IOrderOperations
 	{

@@ -60,7 +60,7 @@ namespace Core.Entities
 
         public NotificationProfile NotificationProfile { get; }
 
-        public List<CoreCircle> Circles { get; }
+        public List<Circle> Circles { get; }
 
         public CorePaymentMethod PaymentMethod { get; }
 
@@ -81,7 +81,7 @@ namespace Core.Entities
         { 
         }
 
-        public User(NotificationProfile notificationProfile, List<CoreCircle> circles, CorePaymentMethod paymentMethod, List<User> blocking, List<User> blockedBy, List<UserReport> userReports, List<PostReport> postReports)
+        public User(NotificationProfile notificationProfile, List<Circle> circles, CorePaymentMethod paymentMethod, List<User> blocking, List<User> blockedBy, List<UserReport> userReports, List<PostReport> postReports)
         {
             NotificationProfile = notificationProfile;
 
@@ -190,7 +190,7 @@ namespace Core.Entities
 			return false;
 		}
 
-        public async Task<bool> CanView(CoreCircle circle)
+        public async Task<bool> CanView(Circle circle)
         {
             // Note: This is efficient with multiple circles/issues. For multiple users, see Circle.IsVisibleTo
 
@@ -219,7 +219,7 @@ namespace Core.Entities
             return await CanView(issue.Circle);
 		}
 
-        public async Task<bool> CanPostTo(CoreCircle circle)
+        public async Task<bool> CanPostTo(Circle circle)
 		{
             return await circle.HasMember(this);
 		}

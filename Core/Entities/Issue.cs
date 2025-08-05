@@ -42,7 +42,7 @@ namespace Core.Entities
         // Synced Properties
         //////////////////////
         
-        public CoreCircle Circle { get; }
+        public Circle Circle { get; }
 
         public List<PostShard> Posts { get; }
 
@@ -57,7 +57,7 @@ namespace Core.Entities
             return new(await Terminal.IssueDatabase.GetIssueAsync(id));
         }
 
-        public Issue(CoreCircle circle, List<PostShard> posts, List<CoreOrder> orders)
+        public Issue(Circle circle, List<PostShard> posts, List<CoreOrder> orders)
         {
             Circle = circle;
             Posts = posts;

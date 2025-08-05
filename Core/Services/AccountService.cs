@@ -1,6 +1,5 @@
 ﻿using Core.Boundaries;
 using Core.Entities;
-using Core.Notifications;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +9,7 @@ using static Core.Entities.Arbiter;
 using static Core.Entities.Artificer;
 using static Core.Entities.Psijic;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public class AccountService(IAccountRepository accountRepository) : IAccountService
     {
@@ -85,7 +84,6 @@ namespace Core.Controls
             DateTimeOffset newDateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
 
             List<(string Property, object Value)> edits = new();
-
             // Gather individual edits
 			if (phoneNumberChanged)
             {
@@ -93,6 +91,7 @@ namespace Core.Controls
             }
 			if (emailChanged)
 			{
+
                 edits.Add((nameof(CoreUser.Email), email));
                 edits.Add(("NormalisedEmail", user.Email));
                 edits.Add((nameof(CoreUser.IsEmailConfirmed), false));

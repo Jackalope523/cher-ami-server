@@ -7,7 +7,7 @@ using Core.Entities;
 
 using static Core.Entities.Arbiter;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public class MediaService : AbstractService, IMediaOperations
 	{

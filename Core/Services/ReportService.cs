@@ -8,7 +8,7 @@ using Core.Notifications;
 using static Core.Entities.Arbiter;
 using static Core.Entities.Psijic;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public class ReportService : AbstractService, IReportOperations
 	{

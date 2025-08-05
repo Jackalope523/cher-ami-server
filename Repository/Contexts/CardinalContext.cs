@@ -14,7 +14,7 @@ namespace Repository.Contexts
         internal DbSet<Circle> Circles { get; set; }
         internal DbSet<CircleMembership> CircleMemberships { get; set; }
         internal DbSet<Recipient> Recipients { get; set; }
-        internal DbSet<RecipientLink> CircleRecipients { get; set; }
+        internal DbSet<RecipientLink> RecipientLinks { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
         internal DbSet<PostReport> PostReports { get; set; }

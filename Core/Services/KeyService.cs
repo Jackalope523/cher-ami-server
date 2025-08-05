@@ -4,7 +4,7 @@ using Core.Boundaries;
 
 using static Core.Entities.Arbiter;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public class KeyService : AbstractService, IKeyOperations
 	{

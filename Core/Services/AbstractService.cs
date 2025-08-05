@@ -6,7 +6,7 @@ using Core.Entities;
 using Microsoft.Extensions.Logging;
 using static Core.Entities.Arbiter;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public abstract class AbstractService
 	{

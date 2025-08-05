@@ -7,7 +7,7 @@ using Core.Entities;
 using Core.Notifications;
 using static Core.Entities.Artificer;
 
-namespace Core.Controls
+namespace Core.Services
 {
     public class NotificationService : AbstractService, INotificationOperations
 	{

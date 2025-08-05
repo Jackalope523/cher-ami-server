@@ -31,7 +31,7 @@ namespace Frontier.Controllers
             using MemoryStream stream = new();
             await circleDetails.Image.CopyToAsync(stream);
 
-            Core.Entities.CoreCircle coreCircle = await circles.CreateCircleAsync(
+            Core.Entities.Circle coreCircle = await circles.CreateCircleAsync(
 										userId,
 										circleDetails.Title,
 										circleDetails.Plan,
@@ -98,7 +98,7 @@ namespace Frontier.Controllers
 		{
 			return await Execute(async user =>
 			{
-				return await circles.GetMembersForCircleAsync(user.Id, circleId);
+				return await circles.GetCircleMembers(user.Id, circleId);
 			});
 		}
 

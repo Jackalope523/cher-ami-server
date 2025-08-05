@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using Circle = Repository.Entities.Circle;
 
 namespace Repository.Repositories
 {
@@ -182,7 +184,7 @@ namespace Repository.Repositories
 
             try
             {
-                await ctx.CircleRecipients.Where(cr => cr.CircleId == circleId).ExecuteDeleteAsync();
+                await ctx.RecipientLinks.Where(cr => cr.CircleId == circleId).ExecuteDeleteAsync();
                 await ctx.CircleMemberships.Where(m => m.CircleId == circleId).ExecuteDeleteAsync();
 
                 List<long> issuesToDelete = await ctx.Issues.Where(i => i.CircleId == circleId).Select(i => i.Id).ToListAsync();
@@ -217,22 +219,24 @@ namespace Repository.Repositories
                    ToListAsync();
         }
 
-        public async Task<List<RecipientShard>> GetRecipientsForCircleAsync(long circleId)
+        public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)
         {
             await using CardinalContext ctx = initContext();
 
-            return await ctx.CircleRecipients.
+            return await ctx.RecipientLinks.
                    Where(cr => cr.CircleId == circleId).
                    Join
                    (
                       ctx.Recipients,
                       cr => cr.RecipientId,
                       r => r.Id,
-                      (_, r) => new RecipientShard
+                      (_, r) => new CoreRecipient
                       (
                           r.Id,
                           r.ManagerId,
-                          $"{r.Title} {r.FirstName} {r.LastName}",
+                          r.Title,
+                          r.FirstName,
+                          r.LastName,
                           r.DateOfBirth,
                           new Address
                           (
@@ -291,9 +295,14 @@ namespace Repository.Repositories
             await ctx.SaveChangesAsync();
         }
 
-        public async Task AddCircleMemberAsync(long userId, long circleId)
+        public async Task AddCircleMemberAsync(long userId, string circleCode)
         {
             await using CardinalContext ctx = initContext();
+
+            long circleId = await ctx.Circles.
+                      Where(c => c.CircleCode == circleCode).
+                      Select(c => c.Id).
+                      SingleAsync();
 
             CircleMembership toAdd = new() 
             {
@@ -379,7 +388,7 @@ namespace Repository.Repositories
 
             try
             {
-                await ctx.CircleRecipients.Where(cr => cr.RecipientId == recipientId).ExecuteDeleteAsync();
+                await ctx.RecipientLinks.Where(cr => cr.RecipientId == recipientId).ExecuteDeleteAsync();
                 
                 ctx.Recipients.Remove(new() { Id = recipientId });
                 await ctx.SaveChangesAsync();
@@ -393,7 +402,7 @@ namespace Repository.Repositories
             }
         }
 
-        public async Task AddRecipientAsync(long circleId, string title, string firstName, string lastName, string streetAddress, string city, string provinceOrState, string postalCode, string country)
+        public async Task AddRecipientAsync(long circleId, CoreRecipient recipient)
         {
             await using CardinalContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
@@ -402,14 +411,14 @@ namespace Repository.Repositories
             {
                 Recipient toAdd = new()
                 {
-                    Title = title,
-                    FirstName = firstName,
-                    LastName = lastName,
-                    StreetAddress = streetAddress,
-                    City = city,
-                    ProvinceOrState = provinceOrState,
-                    PostalCode = postalCode,
-                    Country = country,
+                    Title = recipient.Title,
+                    FirstName = recipient.FirstName,
+                    LastName = recipient.LastName,
+                    StreetAddress = recipient.Address.Street,
+                    City = recipient.Address.City,
+                    ProvinceOrState = recipient.Address.ProvinceOrState,
+                    PostalCode = recipient.Address.PostalCode,
+                    Country = recipient.Address.Country,
                 };
 
                 ctx.Recipients.Add(toAdd);
@@ -422,7 +431,7 @@ namespace Repository.Repositories
                     JoinDate = DateTimeOffset.UtcNow,
                 };
 
-                ctx.CircleRecipients.Add(link);
+                ctx.RecipientLinks.Add(link);
                 await ctx.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -432,6 +441,54 @@ namespace Repository.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task AddRecipientAsync(long circleId, long recipientId)
+        {
+            await using CardinalContext ctx = initContext();
+
+            RecipientLink link = new()
+            {
+                CircleId = circleId,
+                RecipientId = recipientId,
+                JoinDate = DateTimeOffset.UtcNow,
+            };
+
+            ctx.RecipientLinks.Add(link);
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task RemoveRecipientAsync(long circleId, long recipientId)
+        {
+            await using CardinalContext ctx = initContext();
+
+            long id = await ctx.RecipientLinks.
+                      Where(l => l.RecipientId == recipientId && l.CircleId == circleId).
+                      Select(l => l.Id).
+                      SingleAsync();
+
+            ctx.RecipientLinks.Remove(new() { Id = id });
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task CreateRecipient(CoreRecipient recipient)
+        {
+            await using CardinalContext ctx = initContext();
+
+            Recipient toAdd = new()
+            {
+                Title = recipient.Title,
+                FirstName = recipient.FirstName,
+                LastName = recipient.LastName,
+                StreetAddress = recipient.Address.Street,
+                City = recipient.Address.City,
+                ProvinceOrState = recipient.Address.ProvinceOrState,
+                PostalCode = recipient.Address.PostalCode,
+                Country = recipient.Address.Country,
+            };
+
+            ctx.Recipients.Add(toAdd);
+            await ctx.SaveChangesAsync();
         }
     }
 }

@@ -14,7 +14,7 @@ using Repository;
 using Serilog;
 using System.IO;
 using FastEndpoints;
-using Core.Controls;
+using Core.Services;
 using Repository.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

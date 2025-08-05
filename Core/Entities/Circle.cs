@@ -10,7 +10,7 @@ namespace Core.Entities
 {
     using static CoreTerminal;
 
-    public class CoreCircle
+    public class Circle
     {
         #region Variables
 
@@ -55,7 +55,7 @@ namespace Core.Entities
             return await Terminal.CircleDatabase.GetCircleAsync(id);
         }
 
-        public CoreCircle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
+        public Circle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
         {
             Members = members;
             Recipients = recipients;
@@ -123,7 +123,7 @@ namespace Core.Entities
 
 		public override bool Equals(object obj)
 		{
-			return obj is CoreCircle other &&
+			return obj is Circle other &&
                 Exists == other.Exists &&
                 Id.Equals(other.Id);
 		}

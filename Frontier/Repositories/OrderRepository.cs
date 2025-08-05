@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repository.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    class OrderRepository : IOrderRepository
+    class OrderRepository(LLContext ctx) : IOrderRepository
     {
         public Task<CorePaymentMethod> AddPaymentMethodAsync(long userId)
         {

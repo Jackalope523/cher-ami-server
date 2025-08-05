@@ -1,19 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class ProfileRepository : Repository, IProfileRepository
+    public class ProfileRepository(LLContext ctx) : IProfileRepository
     {
-        internal ProfileRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
 
         public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)
         {
-            await using LLContext ctx = initContext();
-
             Block toAdd = new()
             {
                 BlockerId = blockerId,
@@ -28,8 +27,6 @@ namespace Repository.Repositories
 
         public async Task UnblockUserAsync(long blockerId, long blockedId)
         {
-            await using LLContext ctx = initContext();
-
             await ctx.Blocks.
             Where(b => b.BlockerId == blockerId && b.BlockedId == blockedId).
             ExecuteDeleteAsync();
@@ -37,8 +34,6 @@ namespace Repository.Repositories
 
         public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long id)
         {
-            await using LLContext ctx = initContext();
-
             return await
             ctx.Blocks.
             Where(l => l.BlockerId == id).
@@ -53,8 +48,6 @@ namespace Repository.Repositories
 
         public async Task<List<CoreUser>> GetUsersBlockingAsync(long userId)
         {
-            await using LLContext ctx = initContext();
-
             return await
             ctx.Blocks.Where(l => l.BlockedId == userId).
             Join(ctx.Users,
@@ -86,8 +79,6 @@ namespace Repository.Repositories
 
         public async Task<DateTimeOffset> BlockedSince(long userId, long targetId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Blocks.
                    Where(l => l.BlockerId == userId && l.BlockedId == targetId).
                    Select(l => l.BlockDate).

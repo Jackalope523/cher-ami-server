@@ -1,16 +1,15 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Repository.Contexts;
+using System;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class KeyStoreRepository : IKeyRepository
+    public class KeyStoreRepository(LLContext ctx) : IKeyRepository
     {
         public Uri Uri = new Uri("https://thesparrowkeys.vault.azure.net/");
         public readonly Func<Azure.Core.TokenCredential> credentials = () => new DefaultAzureCredential();
-
-        public KeyStoreRepository()
-        {
-        }
 
         private async Task<string> GetSecretAsync(string secretName)
         {

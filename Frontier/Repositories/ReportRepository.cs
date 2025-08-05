@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities.Reports;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UserReport = Repository.Entities.Reports.UserReport;
 
 
 namespace Repository.Repositories
 {
-    public class ReportRepository : Repository, IReportRepository
+    public class ReportRepository(LLContext ctx) : IReportRepository
     {
-        internal ReportRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
 
         public async Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport, UserReportType reportType, string reportDetails)
         {
@@ -23,14 +24,11 @@ namespace Repository.Repositories
                 Notes = reportDetails
             };
 
-            await using LLContext ctx = initContext();
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
         public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
         {
-            await using LLContext ctx = initContext();
-
             List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
                                                            Where(r => r.UserId == userId).
                                                            Select(r => new Core.Boundaries.UserReport
@@ -67,8 +65,6 @@ namespace Repository.Repositories
 
         public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long userId)
         {
-            await using LLContext ctx = initContext();
-
             List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
 
             return (reports.OfType<Core.Boundaries.UserReport>().ToList(), reports.OfType<Core.Boundaries.PostReport>().ToList());
@@ -76,8 +72,6 @@ namespace Repository.Repositories
 
         public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)
         {
-            await using LLContext ctx = initContext();
-
             return await 
             ctx.PostReports.
             Where(r => r.PostId == postId).
@@ -104,7 +98,6 @@ namespace Repository.Repositories
                 Notes = reportDetails
             };
 
-            await using LLContext ctx = initContext();
             ctx.PostReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }

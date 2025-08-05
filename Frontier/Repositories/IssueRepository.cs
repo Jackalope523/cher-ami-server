@@ -1,19 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class IssueRepository : Repository, IIssueRepository
+    public class IssueRepository(LLContext ctx) : IIssueRepository
     {   
-        internal IssueRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
-
         public async Task<CoreIssue> GetIssueAsync(long issueId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Issues.
                    Where(i => i.Id == issueId).
                    Select(i => new CoreIssue
@@ -30,8 +28,6 @@ namespace Repository.Repositories
 
         public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Issues.
                    Where(i => i.CircleId == circleId).
                    Select(i => new CoreIssue
@@ -48,7 +44,6 @@ namespace Repository.Repositories
 
         public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -100,8 +95,6 @@ namespace Repository.Repositories
 
         public async Task<List<CorePost>> GetPostsForIssueAsync(long issueId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Issues.
             Where(i => i.Id == issueId).
             Join
@@ -123,8 +116,6 @@ namespace Repository.Repositories
 
         public async Task<CorePost> GetPostAsync(long postId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Posts.
             Where(p => p.Id == postId).
             Join
@@ -139,7 +130,6 @@ namespace Repository.Repositories
 
         public async Task DeletePostAsync(long postId)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try

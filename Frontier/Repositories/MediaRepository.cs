@@ -6,6 +6,7 @@ using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
@@ -63,8 +64,6 @@ namespace Repository.Repositories
 
         public async Task UploadAvatarAsync(long userId, MemoryStream image)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             string path = $"{userId}/avatar/avatar.jpg";
 
             User toUpdate = new() { Id = userId, AvatarPath = path };
@@ -77,8 +76,6 @@ namespace Repository.Repositories
 
         public async Task DeleteAvatarAsync(string path)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             await ctx.Users.
             Where(u => u.AvatarPath == path).
             ExecuteUpdateAsync(setters => setters.
@@ -94,8 +91,6 @@ namespace Repository.Repositories
 
         public async Task UploadCircleHeaderAsync(long circleId, MemoryStream image)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             string path = $"{circleId}/header/header.jpg";
 
             Circle toUpdate = new() { Id = circleId, HeaderPath = path };
@@ -108,8 +103,6 @@ namespace Repository.Repositories
 
         public async Task DeleteCircleHeaderAsync(string path)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             await ctx.Circles.
             Where(c => c.HeaderPath == path).
             ExecuteUpdateAsync(setters => setters.
@@ -125,8 +118,6 @@ namespace Repository.Repositories
 
         public async Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
             Snapshot toUpdate = new() { Id = snapshotId, Path = path };
@@ -139,8 +130,6 @@ namespace Repository.Repositories
 
         public async Task DeleteSnapshotAsync(string path)
         {
-            await using Contexts.LLContext ctx = initContext();
-
             await ctx.Snapshots.
             Where(s => s.Path == path).
             ExecuteUpdateAsync(setters => setters.

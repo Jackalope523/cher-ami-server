@@ -1,23 +1,19 @@
 ﻿using Repository.Contexts;
+using System;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class MiscellaneousRepository : Repository, IMiscellaneousRepository
+    public class MiscellaneousRepository(LLContext ctx) : IMiscellaneousRepository
     {
-        internal MiscellaneousRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
-
         public async Task SaveFeedbackAsync(string comments, DateTimeOffset time)
         {
-            await using LLContext ctx = initContext();
             ctx.Feedback.Add(new() { Comments = comments, Time = time });
             await ctx.SaveChangesAsync();
         }
 
         public async Task SaveFeedbackAsync(string comments, DateTimeOffset time, long userId)
         {
-            await using LLContext ctx = initContext();
             ctx.Feedback.Add(new() { Comments = comments, Time = time, UserId = userId });
             await ctx.SaveChangesAsync();
         }

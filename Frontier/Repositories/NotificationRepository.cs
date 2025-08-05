@@ -1,20 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using static Repository.Entities.Notification;
 
 namespace Repository.Repositories
 {
-    public class NotificationRepository : Repository, INotificationRepository
+    public class NotificationRepository(LLContext ctx) : INotificationRepository
     {
-        internal NotificationRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
-
         public async Task<NotificationProfile> GetNotificationProfileAsync(long userId)
         {
-            await using LLContext ctx = initContext();
-
             return await
                 ctx.Users.
                 Where(u => u.Id == userId).
@@ -28,8 +26,6 @@ namespace Repository.Repositories
 
         public async Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits)
         {
-            await using LLContext ctx = initContext();
-
             User u = new() { Id = userId };
 
             ctx.Users.Attach(u);
@@ -45,7 +41,7 @@ namespace Repository.Repositories
                         u.IssueReminders = (bool)Value;
                         break;
                     default:
-                        throw new InvalidInputException("Property named \"" + Property + "\" can not be updated using this method.");
+                        throw new ArgumentException("Property named \"" + Property + "\" can not be updated using this method.");
                 }
                 ctx.Entry(u).Property(Property).IsModified = true;
             }
@@ -54,8 +50,6 @@ namespace Repository.Repositories
 
         public async Task ClearGatheringNotificationScheduleAsync(long gatheringId)
         {
-            await using LLContext ctx = initContext();
-
             await ctx.Notifications.
             Where(n => n.GatheringId == gatheringId).
             ExecuteDeleteAsync();

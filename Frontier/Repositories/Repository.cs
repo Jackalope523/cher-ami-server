@@ -4,9 +4,9 @@ namespace Repository.Repositories
 {
     public abstract class Repository
     {
-        internal readonly Func<CardinalContext> initContext;
+        internal readonly Func<LLContext> initContext;
 
-        internal Repository(Func<CardinalContext> contextFactory)
+        internal Repository(Func<LLContext> contextFactory)
         {
             initContext = contextFactory;
         }

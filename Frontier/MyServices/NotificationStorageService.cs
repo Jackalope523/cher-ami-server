@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boundaries;
-using static Core.Entities.Artificer;
+using static LazyLizardBackend.Artificer;
 
 namespace Core.Services
 {

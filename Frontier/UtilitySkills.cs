@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Boundaries;
 
-namespace Core.Entities
+namespace LazyLizardBackend
 {
 	internal static class Arbiter
 	{

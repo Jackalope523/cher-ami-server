@@ -8,7 +8,7 @@ namespace Repository.Repositories
 {
     public class ReportRepository : Repository, IReportRepository
     {
-        internal ReportRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal ReportRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -23,13 +23,13 @@ namespace Repository.Repositories
                 Notes = reportDetails
             };
 
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
         public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
                                                            Where(r => r.UserId == userId).
@@ -67,7 +67,7 @@ namespace Repository.Repositories
 
         public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long userId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
 
@@ -76,7 +76,7 @@ namespace Repository.Repositories
 
         public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await 
             ctx.PostReports.
@@ -104,7 +104,7 @@ namespace Repository.Repositories
                 Notes = reportDetails
             };
 
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             ctx.PostReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }

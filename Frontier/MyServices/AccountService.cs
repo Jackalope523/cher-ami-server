@@ -1,13 +1,12 @@
 ﻿using Core.Boundaries;
-using Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-using static Core.Entities.Arbiter;
-using static Core.Entities.Artificer;
-using static Core.Entities.Psijic;
+using static LazyLizardBackend.Arbiter;
+using static LazyLizardBackend.Artificer;
+using static LazyLizardBackend.Psijic;
 
 namespace Core.Services
 {

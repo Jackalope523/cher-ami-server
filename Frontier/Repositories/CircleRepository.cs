@@ -9,11 +9,11 @@ namespace Repository.Repositories
     public class CircleRepository : Repository, ICircleRepository
     {
 
-        internal CircleRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal CircleRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
-        private async Task<string> GenerateUniqueCircleCodeAsync(CardinalContext ctx)
+        private async Task<string> GenerateUniqueCircleCodeAsync(LLContext ctx)
         {
             List<string> adjectives = await ctx.Words.
                                       Where(w => w.Type == Word.WordType.Adjective).
@@ -46,7 +46,7 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> GetCircleAsync(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
@@ -56,7 +56,7 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> GetCircleByCodeAsync(string circleCode)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
@@ -66,7 +66,7 @@ namespace Repository.Repositories
 
         public async Task<List<CoreCircle>> GetCirclesForUserAsync(long userId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(c => c.UserId == userId).
@@ -80,7 +80,7 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, CirclePlan plan, IssueSchedule schedule)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -132,7 +132,7 @@ namespace Repository.Repositories
 
         public async Task UpdateCircleAsync(long circleId, List<(string Property, object Value)> edits)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
@@ -166,7 +166,7 @@ namespace Repository.Repositories
 
         public async Task<string> RerollCircleCode(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Circle c = new() { Id = circleId, CircleCode = await GenerateUniqueCircleCodeAsync(ctx) };
 
@@ -179,7 +179,7 @@ namespace Repository.Repositories
 
         public async Task DeleteCircleAsync(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -211,7 +211,7 @@ namespace Repository.Repositories
 
         public async Task<List<CoreCircleMembership>> GetCircleMembersAsync(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(m => m.CircleId == circleId).
@@ -221,7 +221,7 @@ namespace Repository.Repositories
 
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.RecipientLinks.
                    Where(cr => cr.CircleId == circleId).
@@ -253,7 +253,7 @@ namespace Repository.Repositories
 
         public async Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.CircleMemberships.
                    Where(m => m.UserId == userId && m.CircleId == circleId).
@@ -263,7 +263,7 @@ namespace Repository.Repositories
 
         public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
@@ -297,7 +297,7 @@ namespace Repository.Repositories
 
         public async Task AddCircleMemberAsync(long userId, string circleCode)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             long circleId = await ctx.Circles.
                       Where(c => c.CircleCode == circleCode).
@@ -318,7 +318,7 @@ namespace Repository.Repositories
 
         public async Task RemoveCircleMembershipAsync(long userId, long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             long id = await ctx.CircleMemberships.
                       Where(m => m.UserId == userId && m.CircleId == circleId).
@@ -331,7 +331,7 @@ namespace Repository.Repositories
 
         public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Recipient r = new() { Id = recipientId };
             ctx.Recipients.Attach(r);
@@ -383,7 +383,7 @@ namespace Repository.Repositories
 
         public async Task DeleteRecipientAsync(long recipientId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -404,7 +404,7 @@ namespace Repository.Repositories
 
         public async Task AddRecipientAsync(long circleId, CoreRecipient recipient)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -445,7 +445,7 @@ namespace Repository.Repositories
 
         public async Task AddRecipientAsync(long circleId, long recipientId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             RecipientLink link = new()
             {
@@ -460,7 +460,7 @@ namespace Repository.Repositories
 
         public async Task RemoveRecipientAsync(long circleId, long recipientId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             long id = await ctx.RecipientLinks.
                       Where(l => l.RecipientId == recipientId && l.CircleId == circleId).
@@ -473,7 +473,7 @@ namespace Repository.Repositories
 
         public async Task CreateRecipient(CoreRecipient recipient)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Recipient toAdd = new()
             {

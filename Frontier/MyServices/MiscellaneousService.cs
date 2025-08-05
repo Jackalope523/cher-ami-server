@@ -1,8 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Core.Boundaries;
-
-using static Core.Entities.Psijic;
+using static LazyLizardBackend.Psijic;
 
 namespace Core.Services
 {

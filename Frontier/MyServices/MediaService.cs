@@ -3,9 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Core.Boundaries;
-using Core.Entities;
-
-using static Core.Entities.Arbiter;
+using static LazyLizardBackend.Arbiter;
 
 namespace Core.Services
 {

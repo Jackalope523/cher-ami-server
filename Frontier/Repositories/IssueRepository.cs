@@ -6,13 +6,13 @@ namespace Repository.Repositories
 {
     public class IssueRepository : Repository, IIssueRepository
     {   
-        internal IssueRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal IssueRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task<CoreIssue> GetIssueAsync(long issueId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Issues.
                    Where(i => i.Id == issueId).
@@ -30,7 +30,7 @@ namespace Repository.Repositories
 
         public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Issues.
                    Where(i => i.CircleId == circleId).
@@ -48,7 +48,7 @@ namespace Repository.Repositories
 
         public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -100,7 +100,7 @@ namespace Repository.Repositories
 
         public async Task<List<CorePost>> GetPostsForIssueAsync(long issueId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Issues.
             Where(i => i.Id == issueId).
@@ -123,7 +123,7 @@ namespace Repository.Repositories
 
         public async Task<CorePost> GetPostAsync(long postId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Posts.
             Where(p => p.Id == postId).
@@ -139,7 +139,7 @@ namespace Repository.Repositories
 
         public async Task DeletePostAsync(long postId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try

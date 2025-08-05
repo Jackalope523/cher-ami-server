@@ -6,7 +6,7 @@ namespace Repository.Repositories
 {
     public class AccountRepository : Repository, IAccountRepository
     {
-        internal AccountRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal AccountRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
@@ -25,7 +25,7 @@ namespace Repository.Repositories
                 NotificationId = notificationId,
             };
 
-            await using (CardinalContext ctx = initContext())
+            await using (LLContext ctx = initContext())
             {
                 ctx.Users.Add(toCreate);
                 await ctx.SaveChangesAsync();
@@ -76,7 +76,7 @@ namespace Repository.Repositories
             // [ ] Words
             // [ ] CircleRecipients
 
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -99,7 +99,7 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Users.
               Where(u => u.Id == id).
@@ -128,7 +128,7 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Users.
                  Where(u => u.PhoneNumber == phoneNumber).
@@ -157,7 +157,7 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByEmailAsync(string email) 
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Users.
               Where(u => u.Email == email).
@@ -186,7 +186,7 @@ namespace Repository.Repositories
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             User u = new() { Id = id };
 
@@ -245,13 +245,13 @@ namespace Repository.Repositories
 
         public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.PhoneNumber == phoneNumber);
         }
 
         public async Task<bool> EmailExistsAsync(string normalisedEmail)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.NormalizedEmail == normalisedEmail);
         }
     }

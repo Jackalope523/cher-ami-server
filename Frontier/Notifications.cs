@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Core.Boundaries;
+using Frontier.Contracts.Responses;
 
 namespace Core.Notifications
 {

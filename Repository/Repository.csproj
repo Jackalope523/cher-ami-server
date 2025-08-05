@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\TestDBMigrations\**" />
+    <Compile Remove="Migrations\**" />
     <Compile Remove="TestDBMigrations\**" />
-    <EmbeddedResource Remove="Migrations\TestDBMigrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
     <EmbeddedResource Remove="TestDBMigrations\**" />
-    <None Remove="Migrations\TestDBMigrations\**" />
+    <None Remove="Migrations\**" />
     <None Remove="TestDBMigrations\**" />
   </ItemGroup>
 
@@ -40,16 +40,6 @@
     <PackageReference Include="Serilog.Sinks.AzureApp" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\ProductionMigrations\" />
-    <Folder Include="Migrations\StagingMigrations\" />
-    <Folder Include="Migrations\TestMigrations\" />
   </ItemGroup>
 
 </Project>

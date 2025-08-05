@@ -7,13 +7,13 @@ namespace Repository.Repositories
 {
     public class NotificationRepository : Repository, INotificationRepository
     {
-        internal NotificationRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal NotificationRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task<NotificationProfile> GetNotificationProfileAsync(long userId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await
                 ctx.Users.
@@ -28,7 +28,7 @@ namespace Repository.Repositories
 
         public async Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             User u = new() { Id = userId };
 
@@ -54,7 +54,7 @@ namespace Repository.Repositories
 
         public async Task ClearGatheringNotificationScheduleAsync(long gatheringId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             await ctx.Notifications.
             Where(n => n.GatheringId == gatheringId).

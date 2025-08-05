@@ -4,27 +4,22 @@ using Azure.Storage.Blobs.Models;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class MediaRepository : Repository, IMediaRepository
+    public class MediaRepository(string storageAccountUri, LLContext ctx) : IMediaRepository
     {
-        private readonly string _storageAccountUri;
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
-
-        internal MediaRepository(Func<CardinalContext> contextFactory, string storageAccountUri) : base(contextFactory)
-        {
-            _storageAccountUri = storageAccountUri;
-
-
-        }
 
         private async Task UploadBlobAsync(string path, MemoryStream blob)
         {
             string[] parts = path.Split(new[] { '/' }, 2);
             var (containerName, blobName) = (parts[0], parts[1]);
 
-            BlobContainerClient containerClient = new(new Uri($"{_storageAccountUri}/{containerName}"), _credentials());
+            BlobContainerClient containerClient = new(new Uri($"{storageAccountUri}/{containerName}"), _credentials());
 
             await containerClient.CreateIfNotExistsAsync();
             blob.Position = 0;
@@ -35,7 +30,7 @@ namespace Repository.Repositories
         private async Task<MemoryStream> DownloadBlobAsync(string path)
         {
             MemoryStream stream = new MemoryStream();
-            BlobClient blobClient = new(new Uri($"{_storageAccountUri}/{path}"), _credentials());
+            BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 
             try
             {
@@ -51,7 +46,7 @@ namespace Repository.Repositories
 
         private async Task DeleteBlobAsync(string path)
         {
-            BlobClient blobClient = new(new Uri($"{_storageAccountUri}/{path}"), _credentials());
+            BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 
             await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
         }
@@ -68,7 +63,7 @@ namespace Repository.Repositories
 
         public async Task UploadAvatarAsync(long userId, MemoryStream image)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             string path = $"{userId}/avatar/avatar.jpg";
 
@@ -82,7 +77,7 @@ namespace Repository.Repositories
 
         public async Task DeleteAvatarAsync(string path)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             await ctx.Users.
             Where(u => u.AvatarPath == path).
@@ -99,7 +94,7 @@ namespace Repository.Repositories
 
         public async Task UploadCircleHeaderAsync(long circleId, MemoryStream image)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             string path = $"{circleId}/header/header.jpg";
 
@@ -113,7 +108,7 @@ namespace Repository.Repositories
 
         public async Task DeleteCircleHeaderAsync(string path)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             await ctx.Circles.
             Where(c => c.HeaderPath == path).
@@ -130,7 +125,7 @@ namespace Repository.Repositories
 
         public async Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
@@ -144,7 +139,7 @@ namespace Repository.Repositories
 
         public async Task DeleteSnapshotAsync(string path)
         {
-            await using CardinalContext ctx = initContext();
+            await using Contexts.LLContext ctx = initContext();
 
             await ctx.Snapshots.
             Where(s => s.Path == path).

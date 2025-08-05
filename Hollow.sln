@@ -3,14 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frontier", "Frontier\Frontier.csproj", "{C523E3DE-81A9-45B7-8BE1-08F3AF9CBE9C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{517374C8-4EEE-4B43-9C64-2C073BFAC781} = {517374C8-4EEE-4B43-9C64-2C073BFAC781}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{517374C8-4EEE-4B43-9C64-2C073BFAC781}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyLizardBackend", "Frontier\LazyLizardBackend.csproj", "{C523E3DE-81A9-45B7-8BE1-08F3AF9CBE9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,14 +15,6 @@ Global
 		{C523E3DE-81A9-45B7-8BE1-08F3AF9CBE9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C523E3DE-81A9-45B7-8BE1-08F3AF9CBE9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C523E3DE-81A9-45B7-8BE1-08F3AF9CBE9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{517374C8-4EEE-4B43-9C64-2C073BFAC781}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F62B3546-E5B2-4BE6-8C4F-CD7E58188F44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

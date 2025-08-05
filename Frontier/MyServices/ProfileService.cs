@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boundaries;
-using Core.Entities;
+using LazyLizardBackend;
 
 namespace Core.Services
 {

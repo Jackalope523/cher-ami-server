@@ -6,13 +6,13 @@ namespace Repository.Repositories
 {
     public class ProfileRepository : Repository, IProfileRepository
     {
-        internal ProfileRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
+        internal ProfileRepository(Func<LLContext> contextFactory) : base(contextFactory)
         {
         }
 
         public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             Block toAdd = new()
             {
@@ -28,7 +28,7 @@ namespace Repository.Repositories
 
         public async Task UnblockUserAsync(long blockerId, long blockedId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             await ctx.Blocks.
             Where(b => b.BlockerId == blockerId && b.BlockedId == blockedId).
@@ -37,7 +37,7 @@ namespace Repository.Repositories
 
         public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long id)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await
             ctx.Blocks.
@@ -53,7 +53,7 @@ namespace Repository.Repositories
 
         public async Task<List<CoreUser>> GetUsersBlockingAsync(long userId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await
             ctx.Blocks.Where(l => l.BlockedId == userId).
@@ -86,7 +86,7 @@ namespace Repository.Repositories
 
         public async Task<DateTimeOffset> BlockedSince(long userId, long targetId)
         {
-            await using CardinalContext ctx = initContext();
+            await using LLContext ctx = initContext();
 
             return await ctx.Blocks.
                    Where(l => l.BlockerId == userId && l.BlockedId == targetId).

@@ -1,7 +1,4 @@
-﻿using Core;
-using Core.Boundaries;
-using Frontier;
-using Frontier.Controllers;
+﻿using Frontier;
 using Frontier.Services;
 using Frontier.Stores;
 using Microsoft.AspNetCore.Builder;
@@ -16,6 +13,9 @@ using System.IO;
 using FastEndpoints;
 using Core.Services;
 using Repository.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Repository.Contexts;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,12 +83,34 @@ TwilioService.Initialise(env, frontierLogger,
 builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
 builder.Services.AddTransient<ISMSService, TwilioService>();
 
-// Endpoint DI
+string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
+
+builder.Services.AddDbContext<LLContext>(options =>
+   options.
+   UseSqlServer
+   (
+       prodString,
+       x => x.
+       MigrationsHistoryTable("__ProductionMigrationsHistory").
+       EnableRetryOnFailure()
+   )
+);
+
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
 builder.Services.AddScoped<IIssueRepository, IssueRepository>();
 builder.Services.AddScoped<IKeyRepository, KeyStoreRepository>();
-builder.Services.AddScoped<IMediaRepository, MediaRepository>();
+
+
+string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
+
+builder.Services.AddScoped<IMediaRepository>(provider =>
+{
+    var dbContext = provider.GetRequiredService<LLContext>();
+    return new MediaRepository(prodUri, dbContext);
+});
+
+
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();

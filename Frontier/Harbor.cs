@@ -22,7 +22,7 @@ namespace Repository
 
         public Harbor(Flag flag)
         {
-            Func<CardinalContext> factory;
+            Func<LLContext> factory;
             string storageAccountUri = "https://{0}.blob.core.windows.net";
 
             switch (flag)

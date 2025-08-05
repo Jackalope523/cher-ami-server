@@ -53,8 +53,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contracts\Responses\" />
-  </ItemGroup>
-
 </Project>

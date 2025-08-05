@@ -17,11 +17,6 @@ namespace Core.Boundaries
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)
 		: CoreOnlyData();
 
-	public record AccountShard(long Id, string PhoneNumber, string Email,
-		string Title, string GivenName, string FamilyName, DateTimeOffset DateOfBirth,
-		bool IsPhoneConfirmed, bool IsEmailConfirmed, UserAccountStatus AccountStatus,
-		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId);
-
     public record UserShard(long Id, string FirstName, string FamilyName);
 	
     #endregion

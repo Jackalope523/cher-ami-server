@@ -1,32 +1,26 @@
-﻿using Azure;
-using Core.Boundaries;
-using FastEndpoints;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FastEndpoints;
+using Frontier.Contracts.Responses;
 
 namespace Mappers
 {
     public class AccountMapper : ResponseMapper<AccountShard, CoreUser>
     {
-        public override AccountShard FromEntity(CoreUser user) => new
-        (
-            user.Id,
-            user.PhoneNumber,
-            user.Email,
-            user.Title,
-            user.GivenName,
-            user.FamilyName,
-            user.DateOfBirth,
-            user.IsPhoneConfirmed,
-            user.IsEmailConfirmed,
-            user.AccountStatus,
-            user.JoinDate,
-            user.TimeOfUserAgreement,
-            user.NotificationId
+        public override AccountShard FromEntity(CoreUser user) => new()
+        { 
+            Id = user.Id,
+            PhoneNumber = user.PhoneNumber,
+            Email = user.Email,
+            Title = user.Title,
+            GivenName = user.GivenName,
+            FamilyName = user.FamilyName,
+            DateOfBirth = user.DateOfBirth,
+            IsPhoneConfirmed = user.IsPhoneConfirmed,
+            IsEmailConfirmed = user.IsEmailConfirmed,
+            AccountStatus = user.AccountStatus,
+            JoinDate = user.JoinDate,
+            TimeOfUserAgreement = user.TimeOfUserAgreement,
+            NotificationId = user.NotificationId
 
-        );
+        };
     }
 }

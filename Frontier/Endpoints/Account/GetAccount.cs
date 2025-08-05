@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Frontier.Contracts.Responses;
 using Mappers;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;

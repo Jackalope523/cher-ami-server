@@ -9,7 +9,7 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Services
 {
-    public class MediaService(IMediaRepository mediaRepository) : IMediaOperations
+    public class MediaService(IMediaRepository mediaRepository) : IMediaService
 	{
         public MediaService(CoreTerminal terminal) : base(terminal) { }
 

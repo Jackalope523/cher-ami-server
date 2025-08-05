@@ -6,7 +6,7 @@ using static Core.Entities.Psijic;
 
 namespace Core.Services
 {
-    public class MiscellaneousService(IMiscellaneousRepository miscellaneousRepository) : IMiscellaneousOperations
+    public class MiscellaneousService(IMiscellaneousRepository miscellaneousRepository) : IMiscellaneousService
     {
         public async Task ReceiveFeedback(long userId, string comments)
         {

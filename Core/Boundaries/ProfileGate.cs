@@ -27,7 +27,7 @@ namespace Core.Boundaries
         Task<DateTimeOffset> BlockedSince(long userId, long targetId);
     }
 
-	public interface IProfileOperations
+	public interface IProfileService
     {
         Task<ProfileShard> GetProfileAsync(long userId, long targetId);
 

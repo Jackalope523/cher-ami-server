@@ -3,7 +3,7 @@ using Core.Boundaries;
 
 namespace Core.Services
 {
-    public class KeyService(IKeyRepository keyRepository) : IKeyOperations
+    public class KeyService(IKeyRepository keyRepository) : IKeyService
 	{
         public async Task<string> GetClassifiedAccountCodeAsync(long userId)
         {

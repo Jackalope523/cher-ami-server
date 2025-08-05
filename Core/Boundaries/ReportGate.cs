@@ -41,7 +41,7 @@ namespace Core.Boundaries
             PostReportType reportType, string reportDetails);
     }
 
-    public interface IReportOperations
+    public interface IReportService
     {
         Task<List<UserReportType>> GetAvailableReportsForUserAsync(long userId, long targetId);
         Task ReportUserAsync(long userId, long targetId,

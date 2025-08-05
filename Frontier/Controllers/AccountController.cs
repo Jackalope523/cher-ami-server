@@ -335,7 +335,7 @@ namespace Frontier.Controllers
             private string appleAccountCode;
             private string googleAccountCode;
 
-            public BypassHandler(EnvironmentOptions environment, IKeyOperations keys)
+            public BypassHandler(EnvironmentOptions environment, IKeyService keys)
             {
                 env = environment;
                 

@@ -12,7 +12,7 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Services
 {
-    public class ProfileService : AbstractService, IProfileOperations
+    public class ProfileService : AbstractService, IProfileService
 	{
 		public ProfileService(CoreTerminal terminal) : base(terminal) { }
         public Task BlockUserAsync(long userId, long targetId)

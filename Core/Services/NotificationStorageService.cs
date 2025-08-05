@@ -9,19 +9,17 @@ using static Core.Entities.Artificer;
 
 namespace Core.Services
 {
-    public class NotificationService(INotificationRepository notificationRepository) : INotificationOperations
+    public class NotificationStorageService(INotificationRepository notificationRepository, IAccountRepository accountRepository, INotificationService notificationService) : INotificationStorageService
 	{
 		public async Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId)
 		{
-			var user = await GetUserAsync(userId);
-			var profile = user.NotificationProfile;
-
+			NotificationProfile profile = await notificationRepository.GetNotificationProfileAsync(userId);
 			return new(profile.NotificationId, profile.IssuePosts, profile.IssueReminders);
 		}
 
         public async Task UpdateNotificationPreferencesAsync(long userId, bool? issuePosts = null, bool? issueReminders = null)
         {
-            var user = await GetUserAsync(userId);
+            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
 
             List<(string Property, object Value)> edits = new();
 
@@ -48,11 +46,11 @@ namespace Core.Services
 
 			if (IsNotNull(notifyAt))
 			{
-                notificationId = await Terminal.NotificationService.ScheduleNotification(notification, notifyAt.Value, user.NotificationProfile);
+                notificationId = await notificationService.ScheduleNotification(notification, notifyAt.Value, user.NotificationProfile);
 			}
 			else
 			{
-				notificationId = await Terminal.NotificationService.DispatchNotification(notification, user.NotificationProfile);
+				notificationId = await notificationService.DispatchNotification(notification, user.NotificationProfile);
             }
 
 			return notificationId;
@@ -66,11 +64,11 @@ namespace Core.Services
 
 			if (IsNotNull(notifyAt))
 			{
-				notificationId = await Terminal.NotificationService.ScheduleNotification(notification, notifyAt.Value, profiles);
+				notificationId = await notificationService.ScheduleNotification(notification, notifyAt.Value, profiles);
 			}
 			else
 			{
-				notificationId = await Terminal.NotificationService.DispatchNotification(notification, profiles);
+				notificationId = await notificationService.DispatchNotification(notification, profiles);
 			}
 
 			return notificationId;
@@ -80,7 +78,7 @@ namespace Core.Services
 		{
 			foreach (var id in notificationIds)
 			{
-				await Terminal.NotificationService.CancelNotification(id);
+				await notificationService.CancelNotification(id);
 			}
 		}
     }

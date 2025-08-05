@@ -29,7 +29,7 @@ namespace Core.Boundaries
         Task DeleteSnapshotAsync(string path);
     }
 
-    public interface IMediaOperations
+    public interface IMediaService
     {
         Task<MemoryStream> GetAssetAsync(string asset);
 

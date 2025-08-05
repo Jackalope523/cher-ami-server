@@ -20,7 +20,7 @@ namespace Core.Boundaries
         Task SaveFeedbackAsync(string comments, DateTimeOffset time, long userId);
     }
 
-    public interface IMiscellaneousOperations
+    public interface IMiscellaneousService
     {
 		Task ReceiveFeedback(long userId, string comments);
 		Task ReceiveFeedback(string comments);

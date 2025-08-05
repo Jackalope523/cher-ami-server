@@ -100,13 +100,13 @@ builder.Services.AddScoped<IMiscellaneousRepository, MiscellaneousRepository>();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICircleService, CircleService>();
-builder.Services.AddScoped<IIssueOperations, IssueService>();
-builder.Services.AddScoped<IKeyOperations, KeyService>();
-builder.Services.AddScoped<IMediaOperations, MediaService>();
-builder.Services.AddScoped<INotificationOperations, NotificationService>();
-builder.Services.AddScoped<IProfileOperations, ProfileService>();
-builder.Services.AddScoped<IReportOperations, ReportService>();
-builder.Services.AddScoped<IMiscellaneousOperations, MiscellaneousService>();
+builder.Services.AddScoped<IIssueService, IssueService>();
+builder.Services.AddScoped<IKeyService, KeyService>();
+builder.Services.AddScoped<IMediaService, MediaService>();
+builder.Services.AddScoped<INotificationStorageService, NotificationStorageService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
 
 
 CoreTerminal terminal = CoreTerminal.CreateTerminal(

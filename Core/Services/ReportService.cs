@@ -10,7 +10,7 @@ using static Core.Entities.Psijic;
 
 namespace Core.Services
 {
-    public class ReportService : AbstractService, IReportOperations
+    public class ReportService : AbstractService, IReportService
 	{
 		#region Initialisation
 

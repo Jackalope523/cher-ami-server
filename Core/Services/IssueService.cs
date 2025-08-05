@@ -6,7 +6,7 @@ using Core.Boundaries;
 
 namespace Core.Services
 {
-    public class IssueService(IIssueRepository issueRepository) : IIssueOperations
+    public class IssueService(IIssueRepository issueRepository) : IIssueService
 	{
         public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {

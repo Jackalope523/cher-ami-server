@@ -38,7 +38,7 @@ namespace Core.Boundaries
         Task DeletePostAsync(long postId);
     }
 
-    public interface IIssueOperations
+    public interface IIssueService
     {
         Task<IssueShard> GetIssueAsync(long userId, long issueId);
 

@@ -20,13 +20,13 @@ namespace Frontier.Controllers
 
 		public IAccountService accounts;
 		public ICircleService circles;
-		public IIssueOperations issues;
-		public IKeyOperations keys;
-		public IMediaOperations media;
-		public IMiscellaneousOperations miscellaneous;
-		public INotificationOperations notifications;
-		public IProfileOperations profiles;
-		public IReportOperations reports;
+		public IIssueService issues;
+		public IKeyService keys;
+		public IMediaService media;
+		public IMiscellaneousService miscellaneous;
+		public INotificationStorageService notifications;
+		public IProfileService profiles;
+		public IReportService reports;
 
 		public UserManager<CoreUser> userManager;
 

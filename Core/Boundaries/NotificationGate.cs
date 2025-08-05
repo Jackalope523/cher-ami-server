@@ -26,7 +26,7 @@ namespace Core.Boundaries
         Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits);
 	}
 
-	public interface INotificationOperations
+	public interface INotificationStorageService
 	{
 		Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId);
 		Task UpdateNotificationPreferencesAsync(long userId,

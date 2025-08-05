@@ -9,23 +9,23 @@ namespace Frontier.Controllers
 
 		public IAccountService accounts;
 		public ICircleService circles;
-		public IIssueOperations issues;
-		public IKeyOperations keys;
-		public IMediaOperations media;
-        public IMiscellaneousOperations miscellaneous;
-		public INotificationOperations notifications;
+		public IIssueService issues;
+		public IKeyService keys;
+		public IMediaService media;
+        public IMiscellaneousService miscellaneous;
+		public INotificationStorageService notifications;
 		public IOrderOperations orders;
-		public IProfileOperations profiles;
-		public IReportOperations reports;
+		public IProfileService profiles;
+		public IReportService reports;
 
         public ControllerBox(EnvironmentOptions environment, ILogger logger,
 			IAccountService accountOperations,
-			IProfileOperations profileOperations, ICircleService circleOperations,
-			IIssueOperations issueOperations, IKeyOperations keyOperations,
-			IReportOperations reportOperations,IMediaOperations mediaOperations,
-			INotificationOperations notificationOperations,
+			IProfileService profileOperations, ICircleService circleOperations,
+			IIssueService issueOperations, IKeyService keyOperations,
+			IReportService reportOperations,IMediaService mediaOperations,
+			INotificationStorageService notificationOperations,
 			IOrderOperations orderOperations,
-			IMiscellaneousOperations miscellaneousOperations)
+			IMiscellaneousService miscellaneousOperations)
 		{
 			env = environment;
 			log = logger;

@@ -43,21 +43,21 @@ namespace Core
             => AccountDirector;
         public ICircleService CircleOperations
             => CircleDirector;
-        public IIssueOperations IssueOperations
+        public IIssueService IssueOperations
             => IssueDirector;
-        public IKeyOperations KeyOperations
+        public IKeyService KeyOperations
             => KeyDirector;
-        public IMediaOperations MediaOperations
+        public IMediaService MediaOperations
             => MediaDirector;
-        public IMiscellaneousOperations MiscellaneousOperations
+        public IMiscellaneousService MiscellaneousOperations
             => MiscellaneousDirector;
-        public INotificationOperations NotificationOperations
+        public INotificationStorageService NotificationOperations
             => NotificationDirector;
         public IOrderOperations OrderOperations
             => OrderDirector;
-        public IProfileOperations ProfileOperations
+        public IProfileService ProfileOperations
             => ProfileDirector;
-        public IReportOperations ReportOperations
+        public IReportService ReportOperations
             => ReportDirector;
 
         public INotificationService NotificationService { get; init; }
@@ -68,7 +68,7 @@ namespace Core
         internal KeyService KeyDirector { get; private set; }
         internal MediaService MediaDirector { get; private set; }
         internal MiscellaneousService MiscellaneousDirector { get; private set; }
-        internal NotificationService NotificationDirector { get; private set; }
+        internal NotificationStorageService NotificationDirector { get; private set; }
         internal OrderService OrderDirector { get; private set; }
         internal ProfileService ProfileDirector { get; private set; }
         internal ReportService ReportDirector { get; private set; }

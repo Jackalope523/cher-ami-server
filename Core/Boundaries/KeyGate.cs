@@ -21,7 +21,7 @@ namespace Core.Boundaries
 		Task<string> GetGoogleAccountCodeAsync();
     }
 
-    public interface IKeyOperations
+    public interface IKeyService
 	{
 		Task<string> GetClassifiedAccountCodeAsync(long userId);
 	}

@@ -6,35 +6,16 @@ using static Core.Entities.Psijic;
 
 namespace Core.Services
 {
-    public class MiscellaneousService : AbstractService, IMiscellaneousOperations
+    public class MiscellaneousService(IMiscellaneousRepository miscellaneousRepository) : IMiscellaneousOperations
     {
-		#region Initialisation
-
-		public MiscellaneousService(CoreTerminal terminal) : base(terminal) { }
-
-        #endregion
-
-        #region Operations
-
         public async Task ReceiveFeedback(long userId, string comments)
         {
-            var user = await GetUserAsync(userId);
-
-            await Miscellaneous.SaveFeedbackAsync(comments, Time, user.Id);
+            await miscellaneousRepository.SaveFeedbackAsync(comments, Time, userId);
         }
 
-        public async Task ReceiveAnonymousFeedback(long userId, string comments)
+        public async Task ReceiveFeedback(string comments)
         {
-            await GetUserAsync(userId); // Just to verify account
-
-            await Miscellaneous.SaveFeedbackAsync(comments, Time);
+            await miscellaneousRepository.SaveFeedbackAsync(comments, Time);
         }
-
-        #endregion
-
-        #region Favours
-
-
-        #endregion
     }
 }

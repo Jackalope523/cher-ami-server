@@ -16,7 +16,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IProfileDatabase
+    public interface IProfileRepository
     {
         Task<List<BlockedUserShard>> GetBlockedUsersAsync(long userId);
         Task<List<CoreUser>> GetUsersBlockingAsync(long userId);

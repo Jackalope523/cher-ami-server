@@ -10,7 +10,6 @@ namespace Frontier.Endpoints.Account
         public override void Configure()
         {
             Get("/test");
-            AllowAnonymous();
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)

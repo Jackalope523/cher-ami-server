@@ -8,7 +8,7 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    public abstract class AbstractDirector
+    public abstract class AbstractService
 	{
 		#region Variables
 
@@ -18,22 +18,22 @@ namespace Core.Controls
 
 		protected ILogger Log { get; private set; }
 
-		protected IAccountDatabase Accounts { get; private set; }
-		protected ICircleDatabase Circles { get; private set; }
-		protected IIssueDatabase Issues { get; private set; }
-		protected IReportDatabase Reports { get; private set; }
-		protected IKeyDatabase Keys { get; private set; }
-		protected IMediaDatabase Media { get; private set; }
-		protected INotificationDatabase Notifications { get; private set; }
-		protected IOrderDatabase Orders { get; private set; }
-		protected IProfileDatabase Profiles { get; private set; }
-        protected IMiscellaneousDatabase Miscellaneous { get; private set; }
+		protected IAccountRepository Accounts { get; private set; }
+		protected ICircleRepository Circles { get; private set; }
+		protected IIssueRepository Issues { get; private set; }
+		protected IReportRepository Reports { get; private set; }
+		protected IKeyRepository Keys { get; private set; }
+		protected IMediaRepository Media { get; private set; }
+		protected INotificationRepository Notifications { get; private set; }
+		protected IOrderRepository Orders { get; private set; }
+		protected IProfileRepository Profiles { get; private set; }
+        protected IMiscellaneousRepository Miscellaneous { get; private set; }
 
         #endregion
 
         #region Initialisation
 
-        public AbstractDirector(CoreTerminal terminal)
+        public AbstractService(CoreTerminal terminal)
 		{
 			Terminal = terminal;
 			Environment = terminal.Environment;

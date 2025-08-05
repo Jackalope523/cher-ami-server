@@ -11,15 +11,12 @@ namespace Frontier.Endpoints.Account
         public override void Configure()
         {
             Get("/account");
-            AllowAnonymous();
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            //CoreUser user = await userManager.GetUserAsync(HttpContext.User);
-            //await SendMapped(user, 200, cancellationToken);
-
-            await Send.OkAsync();
+            CoreUser user = await userManager.GetUserAsync(HttpContext.User);
+            await SendMapped(user, 200, cancellationToken);
         }
     }
 }

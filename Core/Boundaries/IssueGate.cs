@@ -26,7 +26,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IIssueDatabase
+    public interface IIssueRepository
     {
         Task<CoreIssue> GetIssueAsync(long issueId);
 

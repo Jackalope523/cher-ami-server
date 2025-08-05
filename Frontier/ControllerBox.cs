@@ -7,8 +7,8 @@ namespace Frontier.Controllers
 		public EnvironmentOptions env;
 		public ILogger log;
 
-		public IAccountOperations accounts;
-		public ICircleOperations circles;
+		public IAccountService accounts;
+		public ICircleService circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;
@@ -19,8 +19,8 @@ namespace Frontier.Controllers
 		public IReportOperations reports;
 
         public ControllerBox(EnvironmentOptions environment, ILogger logger,
-			IAccountOperations accountOperations,
-			IProfileOperations profileOperations, ICircleOperations circleOperations,
+			IAccountService accountOperations,
+			IProfileOperations profileOperations, ICircleService circleOperations,
 			IIssueOperations issueOperations, IKeyOperations keyOperations,
 			IReportOperations reportOperations,IMediaOperations mediaOperations,
 			INotificationOperations notificationOperations,

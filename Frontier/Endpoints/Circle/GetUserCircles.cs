@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Circle
 {
-    public class GetUserCircles(ICircleOperations circles) : EndpointWithoutRequest<List<CircleShard>>
+    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleShard>>
     {
         public override void Configure()
         {

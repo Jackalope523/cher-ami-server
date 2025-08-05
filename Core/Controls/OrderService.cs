@@ -7,11 +7,11 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal class OrderDirector : AbstractDirector, IOrderOperations
+    internal class OrderService : AbstractService, IOrderOperations
 	{
 		#region Initialisation
 
-		public OrderDirector(CoreTerminal terminal) : base(terminal) { }
+		public OrderService(CoreTerminal terminal) : base(terminal) { }
 
         #endregion
 

@@ -3,7 +3,7 @@ using Azure.Security.KeyVault.Secrets;
 
 namespace Repository.Repositories
 {
-    public class KeyStoreRepository : IKeyDatabase
+    public class KeyStoreRepository : IKeyRepository
     {
         public Uri Uri = new Uri("https://thesparrowkeys.vault.azure.net/");
         public readonly Func<Azure.Core.TokenCredential> credentials = () => new DefaultAzureCredential();

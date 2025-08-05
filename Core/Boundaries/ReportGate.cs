@@ -29,7 +29,7 @@ namespace Core.Boundaries
 
 	#region Gates
 
-	public interface IReportDatabase
+	public interface IReportRepository
     {
         Task<(List<UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId);
         Task<(List<UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId);

@@ -40,7 +40,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IOrderDatabase
+    public interface IOrderRepository
     {
         Task<CorePaymentMethod> GetPaymentMethodForUserAsync(long userId);
 

@@ -15,9 +15,9 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    public class CircleDirector : AbstractDirector, ICircleOperations
+    public class CircleService : AbstractService, ICircleService
 	{
-		public CircleDirector(CoreTerminal terminal) : base(terminal) { }
+		public CircleService(CoreTerminal terminal) : base(terminal) { }
 
         public Task<List<Entities.CoreCircle>> GetUserCirclesAsync(long userId)
         {

@@ -18,8 +18,8 @@ namespace Frontier.Controllers
 		public EnvironmentOptions env;
 		public ILogger log;
 
-		public IAccountOperations accounts;
-		public ICircleOperations circles;
+		public IAccountService accounts;
+		public ICircleService circles;
 		public IIssueOperations issues;
 		public IKeyOperations keys;
 		public IMediaOperations media;

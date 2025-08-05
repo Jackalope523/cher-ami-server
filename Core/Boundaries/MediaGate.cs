@@ -12,7 +12,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IMediaDatabase
+    public interface IMediaRepository
     {
         Task<MemoryStream> DownloadAssetAsync(string asset);
 

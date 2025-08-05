@@ -16,7 +16,7 @@ namespace Frontier.Stores
 		IUserSecurityStampStore<CoreUser>,
 		IUserLockoutStore<CoreUser>
 	{
-		private IAccountOperations accounts { get; init; }
+		private IAccountService accounts { get; init; }
 
 		public UserAccountStore(ControllerBox box)
 		{

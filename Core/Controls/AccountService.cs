@@ -12,43 +12,21 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    public class AccountDirector : AbstractDirector, IAccountOperations
+    public class AccountService(IAccountRepository accountRepository) : IAccountService
     {
-		#region Initialisation
-
-		public AccountDirector(CoreTerminal terminal) : base(terminal) { }
-
-		#endregion
-
-		#region Operations
-
         public async Task<bool> GetUserExistsAsync(string phoneNumber)
         {
-            return await Accounts.PhoneNumberExistsAsync(phoneNumber);
+            return await accountRepository.PhoneNumberExistsAsync(phoneNumber);
         }
 
 		public async Task<CoreUser> GetCoreUserAsync(long userId)
         {
-            return (await GetUserAsync(userId)).ToCoreUser();
+            return await accountRepository.GetUserByIdAsync(userId);
         }
 
         public async Task<CoreUser> GetCoreUserAsync(string phoneNumber)
 		{
-            // Verify phone number is valid
-            Verify(ContentValidation.TryNormalisePhoneNumber(phoneNumber, out string normalisedPhoneNumber),
-                new UserErrorException(AccountErrorCode.INVALID_PHONE_NUMBER));
-
-            return (await GetUser(normalisedPhoneNumber)).ToCoreUser();
-		}
-
-		public async Task<AccountShard> GetAccountShardAsync(long userId)
-        {
-            return (await GetUserAsync(userId)).ToAccountShard();
-        }
-
-		public async Task<UserShard> GetUserShardAsync(long userId)
-        {
-            return (await GetUserAsync(userId)).ToUserShard();
+            return await accountRepository.GetUserByPhoneNumberAsync(phoneNumber);
         }
 
         public async Task CreateUserAsync(string phoneNumber, string email, string title, string givenName, string familyName, DateTimeOffset dateOfBirth)
@@ -76,7 +54,7 @@ namespace Core.Controls
             { await ThrowIfEmailTaken(newUser.Email); }
 
             // Store created user
-            var user = await Accounts.CreateUserAsync(newUser.PhoneNumber, email, newUser.Email,
+            var user = await accountRepository.CreateUserAsync(newUser.PhoneNumber, email, newUser.Email,
                 newUser.Title, newUser.GivenName, newUser.FamilyName, newUser.DateOfBirth, Time,
                 Guid.NewGuid());
         }
@@ -88,7 +66,7 @@ namespace Core.Controls
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null)
         {
             // Throws if user not found or locked
-            var user = await base.GetUserAsync(userId);
+            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
             
             // Check unique details changed to avoid errors
             bool phoneNumberChanged = !string.IsNullOrEmpty(phoneNumber) && user.PhoneNumber != phoneNumber;
@@ -99,29 +77,22 @@ namespace Core.Controls
             bool familyNameChanged = !string.IsNullOrEmpty(familyName);
 
             // Modify user for validation
-            user.PhoneNumber = phoneNumberChanged ? phoneNumber : user.PhoneNumber;
-            user.Email = emailChanged ? email : user.Email;
-            user.Title = titleChanged ? title : user.Title;
-            user.GivenName = givenNameChanged ? givenName : user.GivenName;
-            user.FamilyName = familyNameChanged ? familyName : user.FamilyName;
-            user.DateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
-
-            // Validate and Normalise
-            Verify(user.ValidateAndNormalise(out string issues),
-                new UserErrorException(AccountErrorCode.INVALID_DETAILS, new { issues }));
+            string newPhoneNumber = phoneNumberChanged ? phoneNumber : user.PhoneNumber;
+            string newEmail = emailChanged ? email : user.Email;
+            string newTitle = titleChanged ? title : user.Title;
+            string newGivenName = givenNameChanged ? givenName : user.GivenName;
+            string newFamilyName = familyNameChanged ? familyName : user.FamilyName;
+            DateTimeOffset newDateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
 
             List<(string Property, object Value)> edits = new();
 
             // Gather individual edits
 			if (phoneNumberChanged)
             {
-                await ThrowIfPhoneNumberTaken(user.PhoneNumber);
                 edits.Add((nameof(CoreUser.PhoneNumber), user.PhoneNumber));
-                // edits.Add((nameof(CoreUser.IsPhoneConfirmed), false));
             }
 			if (emailChanged)
 			{
-                await ThrowIfEmailTaken(user.Email);
                 edits.Add((nameof(CoreUser.Email), email));
                 edits.Add(("NormalisedEmail", user.Email));
                 edits.Add((nameof(CoreUser.IsEmailConfirmed), false));
@@ -165,14 +136,14 @@ namespace Core.Controls
 			}
 
             // Push update
-            await Accounts.UpdateUserAsync(user.Id, edits);
+            await accountRepository.UpdateUserAsync(user.Id, edits);
 		}
 
         public async Task UpdateUserAgreementAsync(long userId)
         {
-            var user = await GetUserAsync(userId);
+            var user = await accountRepository.GetUserByIdAsync(userId);
 
-            await Accounts.UpdateUserAsync(user.Id,
+            await accountRepository.UpdateUserAsync(user.Id,
                 new() { (nameof(CoreUser.TimeOfUserAgreement), Time) });
         }
 
@@ -183,15 +154,10 @@ namespace Core.Controls
 
         public async Task DeleteUserAsync(long userId)
         {
-            // TODO Gracefully delete data?
-            await Accounts.DeleteUserAsync(userId);
+            await accountRepository.DeleteUserAsync(userId);
         }
 
-		#endregion
-
-		#region Favours
-
-		#endregion
+	
 
 		#region Tools
 
@@ -201,7 +167,7 @@ namespace Core.Controls
 
             try
             {
-                user = new(await Accounts.GetUserByPhoneNumberAsync(phoneNumber));
+                user = new(await accountRepository.GetUserByPhoneNumberAsync(phoneNumber));
             }
             catch
             { throw new UserErrorException(AccountErrorCode.NOT_FOUND); }
@@ -234,7 +200,7 @@ namespace Core.Controls
 			try
 			{
                 // Throws an exception if there is no user
-                await Accounts.GetUserByEmailAsync(normalisedEmail);
+                await accountRepository.GetUserByEmailAsync(normalisedEmail);
 				emailTaken = true;
 			}
 			catch { }

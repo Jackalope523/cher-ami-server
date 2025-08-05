@@ -7,7 +7,7 @@ using Repository.Entities;
 
 namespace Repository.Repositories
 {
-    public class MediaRepository : Repository, IMediaDatabase
+    public class MediaRepository : Repository, IMediaRepository
     {
         private readonly string _storageAccountUri;
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();

@@ -6,11 +6,11 @@ using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class MiscellaneousDirector : AbstractDirector, IMiscellaneousOperations
+    public class MiscellaneousService : AbstractService, IMiscellaneousOperations
     {
 		#region Initialisation
 
-		public MiscellaneousDirector(CoreTerminal terminal) : base(terminal) { }
+		public MiscellaneousService(CoreTerminal terminal) : base(terminal) { }
 
         #endregion
 

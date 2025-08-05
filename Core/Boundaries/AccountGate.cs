@@ -28,7 +28,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IAccountDatabase
+    public interface IAccountRepository
 	{
 		Task<bool> PhoneNumberExistsAsync(string phoneNumber);
 		Task<bool> EmailExistsAsync(string normalisedEmail);
@@ -44,14 +44,12 @@ namespace Core.Boundaries
 		Task DeleteUserAsync(long userId);
     }
 
-	public interface IAccountOperations
+	public interface IAccountService
 	{
 		Task<bool> GetUserExistsAsync(string phoneNumber);
 
 		Task<CoreUser> GetCoreUserAsync(long userId);
 		Task<CoreUser> GetCoreUserAsync(string phoneNumber);
-		Task<AccountShard> GetAccountShardAsync(long userId);
-		Task<UserShard> GetUserShardAsync(long userId);
 
 		Task CreateUserAsync(string phoneNumber, string email,
 			string title, string givenName, string familyName,

@@ -4,7 +4,7 @@ using Repository.Entities;
 
 namespace Repository.Repositories
 {
-    public class CircleRepository : Repository, ICircleDatabase
+    public class CircleRepository : Repository, ICircleRepository
     {
 
         internal CircleRepository(Func<CardinalContext> contextFactory) : base(contextFactory)

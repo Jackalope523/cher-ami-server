@@ -4,21 +4,21 @@ using Repository.Repositories;
 
 namespace Repository
 {
-    public class Harbor
+    public class Harbor()
     {
         public enum Flag { Development, Staging, Production }
 
 
-        public IAccountDatabase AccountDatabaseAccess { get; private set; }
-        public ICircleDatabase CircleDatabaseAccess { get; private set; }
-        public IIssueDatabase IssueDatabaseAccess { get; private set; }
-        public IKeyDatabase KeyDatabaseAccess { get; private set; }
-        public IMediaDatabase MediaDatabaseAccess { get; private set; }
-        public IMiscellaneousDatabase MiscellaneousDatabaseAccess { get; private set; }
-        public INotificationDatabase NotificationDatabaseAccess { get; private set; }
-        public IOrderDatabase OrderDatabaseAccess { get; private set; }
-        public IProfileDatabase ProfileDatabaseAccess { get; private set; }
-        public IReportDatabase ReportDatabaseAccess { get; private set; }
+        public IAccountRepository AccountDatabaseAccess { get; private set; }
+        public ICircleRepository CircleDatabaseAccess { get; private set; }
+        public IIssueRepository IssueDatabaseAccess { get; private set; }
+        public IKeyRepository KeyDatabaseAccess { get; private set; }
+        public IMediaRepository MediaDatabaseAccess { get; private set; }
+        public IMiscellaneousRepository MiscellaneousDatabaseAccess { get; private set; }
+        public INotificationRepository NotificationDatabaseAccess { get; private set; }
+        public IOrderRepository OrderDatabaseAccess { get; private set; }
+        public IProfileRepository ProfileDatabaseAccess { get; private set; }
+        public IReportRepository ReportDatabaseAccess { get; private set; }
 
         public Harbor(Flag flag)
         {
@@ -52,6 +52,7 @@ namespace Repository
             KeyDatabaseAccess = new KeyStoreRepository();
             MediaDatabaseAccess = new MediaRepository(factory, storageAccountUri);
             MiscellaneousDatabaseAccess = new MiscellaneousRepository(factory);
+            OrderDatabaseAccess = new OrderRepository();
         }
     }
 }

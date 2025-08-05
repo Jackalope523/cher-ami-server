@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Core.Boundaries;
-using Core.Entities;
-
-using static Core.Entities.Arbiter;
-using static Core.Entities.Psijic;
 
 namespace Core.Controls
 {
-    internal class IssueDirector : AbstractDirector, IIssueOperations
+    public class IssueService : AbstractService, IIssueOperations
 	{
-		public IssueDirector(CoreTerminal terminal) : base(terminal) { }
+		public IssueService(CoreTerminal terminal) : base(terminal) { }
 
         public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {

@@ -20,7 +20,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface INotificationDatabase
+    public interface INotificationRepository
     {
 		Task<NotificationProfile> GetNotificationProfileAsync(long userId);
         Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits);

@@ -4,7 +4,7 @@ using Repository.Entities;
 
 namespace Repository.Repositories
 {
-    public class ProfileRepository : Repository, IProfileDatabase
+    public class ProfileRepository : Repository, IProfileRepository
     {
         internal ProfileRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {

@@ -4,7 +4,7 @@ using Repository.Entities;
 
 namespace Repository.Repositories
 {
-    public class AccountRepository : Repository, IAccountDatabase
+    public class AccountRepository : Repository, IAccountRepository
     {
         internal AccountRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {

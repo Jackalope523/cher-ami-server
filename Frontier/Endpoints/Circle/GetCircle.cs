@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetCircle(ICircleOperations circles) : Endpoint<CircleIdRequest, CircleShard>
+    public class GetCircle(ICircleService circles) : Endpoint<CircleIdRequest, CircleShard>
     {
         public override void Configure()
         {

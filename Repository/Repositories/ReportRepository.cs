@@ -6,7 +6,7 @@ using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace Repository.Repositories
 {
-    public class ReportRepository : Repository, IReportDatabase
+    public class ReportRepository : Repository, IReportRepository
     {
         internal ReportRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {

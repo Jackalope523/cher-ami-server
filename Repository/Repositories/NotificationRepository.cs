@@ -5,7 +5,7 @@ using static Repository.Entities.Notification;
 
 namespace Repository.Repositories
 {
-    public class NotificationRepository : Repository, INotificationDatabase
+    public class NotificationRepository : Repository, INotificationRepository
     {
         internal NotificationRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {

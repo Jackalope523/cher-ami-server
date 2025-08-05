@@ -2,7 +2,7 @@
 
 namespace Repository.Repositories
 {
-    internal class MiscellaneousRepository : Repository, IMiscellaneousDatabase
+    public class MiscellaneousRepository : Repository, IMiscellaneousRepository
     {
         internal MiscellaneousRepository(Func<CardinalContext> contextFactory) : base(contextFactory)
         {

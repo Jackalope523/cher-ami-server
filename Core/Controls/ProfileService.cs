@@ -12,9 +12,9 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal class ProfileDirector : AbstractDirector, IProfileOperations
+    public class ProfileService : AbstractService, IProfileOperations
 	{
-		public ProfileDirector(CoreTerminal terminal) : base(terminal) { }
+		public ProfileService(CoreTerminal terminal) : base(terminal) { }
         public Task BlockUserAsync(long userId, long targetId)
         {
             throw new NotImplementedException();

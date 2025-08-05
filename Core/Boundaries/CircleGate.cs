@@ -47,7 +47,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface ICircleDatabase
+    public interface ICircleRepository
     {
         Task<CoreCircle> GetCircleAsync(long circleId);
         Task<CoreCircle> GetCircleByCodeAsync(string circleCode);
@@ -71,7 +71,7 @@ namespace Core.Boundaries
         Task DeleteRecipientAsync(long recipientId);
     }
 
-    public interface ICircleOperations
+    public interface ICircleService
     {
         Task<List<Entities.CoreCircle>> GetUserCirclesAsync(long userId);
         Task<Entities.CoreCircle> GetCircleInformationAsync(long userId, long circleId);

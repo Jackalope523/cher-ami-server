@@ -14,7 +14,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IMiscellaneousDatabase
+    public interface IMiscellaneousRepository
     {
 		Task SaveFeedbackAsync(string comments, DateTimeOffset time);
         Task SaveFeedbackAsync(string comments, DateTimeOffset time, long userId);

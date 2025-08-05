@@ -8,7 +8,7 @@ namespace Core.Boundaries
 
     #region Gates
 
-    public interface IKeyDatabase
+    public interface IKeyRepository
     {
 		Task<string> GetHollowOneSignalApiKeyAsync();
 		Task<string> GetHollowOneSignalAppIdAsync();

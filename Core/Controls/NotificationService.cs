@@ -9,9 +9,9 @@ using static Core.Entities.Artificer;
 
 namespace Core.Controls
 {
-    internal class NotificationDirector : AbstractDirector, INotificationOperations
+    public class NotificationService : AbstractService, INotificationOperations
 	{
-		public NotificationDirector(CoreTerminal terminal) : base(terminal) { }
+		public NotificationService(CoreTerminal terminal) : base(terminal) { }
 
 		public async Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId)
 		{

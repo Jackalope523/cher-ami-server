@@ -6,11 +6,11 @@ using static Core.Entities.Arbiter;
 
 namespace Core.Controls
 {
-    internal class KeyDirector : AbstractDirector, IKeyOperations
+    public class KeyService : AbstractService, IKeyOperations
 	{
 		#region Initialisation
 
-		public KeyDirector(CoreTerminal terminal) : base(terminal) { }
+		public KeyService(CoreTerminal terminal) : base(terminal) { }
 
         #endregion
 

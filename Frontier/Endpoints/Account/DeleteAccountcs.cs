@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class DeleteAccount(IAccountOperations accounts) : EndpointWithoutRequest
+    public class DeleteAccount(IAccountService accounts) : EndpointWithoutRequest
     {
         public override void Configure()
         {

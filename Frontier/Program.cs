@@ -15,6 +15,7 @@ using Serilog;
 using System.IO;
 using FastEndpoints;
 using Core.Controls;
+using Repository.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,9 +88,26 @@ builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSi
 builder.Services.AddTransient<ISMSService, TwilioService>();
 
 // Endpoint DI
-//builder.Services.AddScoped<Core.CoreTerminal>();
-//builder.Services.AddScoped<ICircleOperations, CircleDirector>();
-//builder.Services.AddScoped<IAccountOperations, AccountDirector>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ICircleRepository, CircleRepository>();
+builder.Services.AddScoped<IIssueRepository, IssueRepository>();
+builder.Services.AddScoped<IKeyRepository, KeyStoreRepository>();
+builder.Services.AddScoped<IMediaRepository, MediaRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IMiscellaneousRepository, MiscellaneousRepository>();
+
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICircleService, CircleService>();
+builder.Services.AddScoped<IIssueOperations, IssueService>();
+builder.Services.AddScoped<IKeyOperations, KeyService>();
+builder.Services.AddScoped<IMediaOperations, MediaService>();
+builder.Services.AddScoped<INotificationOperations, NotificationService>();
+builder.Services.AddScoped<IProfileOperations, ProfileService>();
+builder.Services.AddScoped<IReportOperations, ReportService>();
+builder.Services.AddScoped<IMiscellaneousOperations, MiscellaneousService>();
+
 
 CoreTerminal terminal = CoreTerminal.CreateTerminal(
     environment,

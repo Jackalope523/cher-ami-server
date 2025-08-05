@@ -9,10 +9,8 @@ using static Core.Entities.Artificer;
 
 namespace Core.Services
 {
-    public class NotificationService : AbstractService, INotificationOperations
+    public class NotificationService(INotificationRepository notificationRepository) : INotificationOperations
 	{
-		public NotificationService(CoreTerminal terminal) : base(terminal) { }
-
 		public async Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId)
 		{
 			var user = await GetUserAsync(userId);
@@ -36,12 +34,12 @@ namespace Core.Services
                 edits.Add((nameof(NotificationProfile.IssueReminders), issueReminders.Value));
             }
 
-            await Notifications.UpdateNotificationProfileAsync(user.Id, edits);
+            await notificationRepository.UpdateNotificationProfileAsync(user.Id, edits);
         }
 
 		internal async Task<NotificationProfile> RequestNotificationProfileAsync(User user)
 		{
-			return await Notifications.GetNotificationProfileAsync(user.Id);
+			return await notificationRepository.GetNotificationProfileAsync(user.Id);
 		}
 
 		internal async Task<string> NotifyUserAsync(User user, CardinalNotification notification, DateTimeOffset? notifyAt = null)

@@ -10,7 +10,6 @@ namespace Core.Services
 	{
         public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
-            // Test
             throw new NotImplementedException();
         }
 

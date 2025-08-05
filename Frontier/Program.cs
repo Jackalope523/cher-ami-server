@@ -62,11 +62,6 @@ var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 var frontierLogger = loggerFactory.CreateLogger("Frontier");
 var coreLogger = loggerFactory.CreateLogger("Core");
 
-Harbor harbor = env == "Production" ?
-    new Harbor(Harbor.Flag.Production) :
-    (env == "Staging" ?
-        new Harbor(Harbor.Flag.Staging) :
-        new Harbor(Harbor.Flag.Development));
 
 var keyProvider = harbor.KeyDatabaseAccess;
 

@@ -6,12 +6,11 @@ using Core.Boundaries;
 
 namespace Core.Services
 {
-    public class IssueService : AbstractService, IIssueOperations
+    public class IssueService(IIssueRepository issueRepository) : IIssueOperations
 	{
-		public IssueService(CoreTerminal terminal) : base(terminal) { }
-
         public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
+            // Test
             throw new NotImplementedException();
         }
 

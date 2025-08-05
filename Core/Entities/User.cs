@@ -9,14 +9,9 @@ using static Core.Entities.Psijic;
 
 namespace Core.Entities
 {
-    using static CoreTerminal;
 
     public class User
     {
-        public static async Task<string> NotifyAll(CardinalNotification notification, DateTimeOffset? notifyAt = null, params User[] users)
-        {
-            return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, users);
-        }
 
         public static async Task<string> NotifyAll(CardinalNotification notification, params User[] users)
         {
@@ -72,10 +67,7 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<User> GetUserAsync(long id)
-        {
-            return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
-        }
+
 
         public User()
         { 
@@ -329,11 +321,6 @@ namespace Core.Entities
 
 		#region Actions
 
-        public async Task<string> Notify(CardinalNotification notification, DateTimeOffset? notifyAt = null)
-        {
-             return await Terminal.NotificationDirector.NotifyUserAsync(this, notification, notifyAt);
-        }
-
 		#endregion
 
 		#region Dissimilation
@@ -358,38 +345,6 @@ namespace Core.Entities
 
         private CircleMember(CoreUser fromUser) : base(fromUser)
         {
-        }
-
-        public static async Task<CircleMember> GetMemberAsync(long id)
-        {
-            return new(await Terminal.AccountDatabase.GetUserByIdAsync(id));
-        }
-
-        public static async Task<CircleMember> FromMembershipAsync(CoreCircleMembership membership)
-        {
-            CircleMember user = new(await Terminal.AccountDatabase.GetUserByIdAsync(membership.UserId))
-            {
-                DateJoined = membership.DateJoined,
-                MembershipType = membership.Type
-            };
-
-            return user;
-        }
-
-        public static CircleMember FromComplete(CoreUser user, CoreCircleMembership membership)
-        {
-            CircleMember member = new(user)
-            {
-                DateJoined = membership.DateJoined,
-                MembershipType = membership.Type
-            };
-
-            return member;
-        }
-
-        public CircleMembershipShard ToCircleMembershipShard()
-        {
-            return new(Id, DateJoined, MembershipType);
         }
     }
 }

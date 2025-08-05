@@ -11,11 +11,11 @@ namespace Frontier.Services
 	public class TwilioService : ISMSService
 	{
 		private static ILogger log;
-		private static EnvironmentOptions env;
+		private static string env;
 
 		private static string messagingServiceSid = "";
 
-		public static void Initialise(EnvironmentOptions environment, ILogger logger, string accountId, string accountToken, string messagingService)
+		public static void Initialise(string environment, ILogger logger, string accountId, string accountToken, string messagingService)
 		{
 			env = environment;
 			log = logger;
@@ -32,7 +32,7 @@ namespace Frontier.Services
 
             log.LogInformation("Want to send SMS to {phoneNumber}", formattedPhoneNumber);
 
-            if (env.IsProduction)
+            if (env == "Prodution")
             {
                 log.LogInformation("Sending SMS to {phoneNumber}: {message}", formattedPhoneNumber, message);
 
@@ -53,7 +53,7 @@ namespace Frontier.Services
 
             log.LogInformation("Want to send WhatsApp auth message to {phoneNumber}", phoneNumber);
 
-            if (env.IsProduction)
+            if (env == "Production")
             {
                 log.LogInformation("Sending WhatsApp auth message to {phoneNumber}: {message}", phoneNumber, code);
 

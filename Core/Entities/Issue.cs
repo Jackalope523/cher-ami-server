@@ -7,7 +7,6 @@ using static Core.Entities.Psijic;
 
 namespace Core.Entities
 {
-    using static CoreTerminal;
 
     public class Issue
     {
@@ -52,10 +51,7 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<Issue> GetIssueAsync(long id)
-        {
-            return new(await Terminal.IssueDatabase.GetIssueAsync(id));
-        }
+  
 
         public Issue(Circle circle, List<PostShard> posts, List<CoreOrder> orders)
         {

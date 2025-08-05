@@ -33,15 +33,11 @@ builder.Services.AddSingleton(Log.Logger);
 var configuration = builder.Configuration;
 
 string env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
-var flag = env switch
-{
-    "Production" => EnvironmentFlag.Production,
-    "Staging" => EnvironmentFlag.Staging,
-    "Development" => EnvironmentFlag.Development,
-    _ => throw new InvalidEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.")
-};
 
-var environment = new EnvironmentOptions { Flag = flag };
+if (env != "Production" || env != "Staging" || env != "Development")
+{
+    throw new InvalidEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.");
+}
 
 builder.Services.AddCors(options =>
 {
@@ -66,9 +62,9 @@ var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 var frontierLogger = loggerFactory.CreateLogger("Frontier");
 var coreLogger = loggerFactory.CreateLogger("Core");
 
-Harbor harbor = environment.IsProduction ?
+Harbor harbor = env == "Production" ?
     new Harbor(Harbor.Flag.Production) :
-    (environment.Flag == EnvironmentFlag.Staging ?
+    (env == "Staging" ?
         new Harbor(Harbor.Flag.Staging) :
         new Harbor(Harbor.Flag.Development));
 
@@ -79,7 +75,7 @@ OneSignalService.Initialise(frontierLogger,
     keyProvider.GetHollowOneSignalApiKeyAsync().Result,
     keyProvider.GetHollowOneSignalAppIdAsync().Result);
 
-TwilioService.Initialise(environment, frontierLogger,
+TwilioService.Initialise(env, frontierLogger,
     keyProvider.GetHollowTwilioAccountKeyAsync().Result,
     keyProvider.GetHollowTwilioAuthTokenAsync().Result,
     keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
@@ -108,39 +104,6 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
 
-
-CoreTerminal terminal = CoreTerminal.CreateTerminal(
-    environment,
-    coreLogger,
-    harbor.AccountDatabaseAccess,
-    harbor.CircleDatabaseAccess,
-    harbor.IssueDatabaseAccess,
-    harbor.ReportDatabaseAccess,
-    harbor.KeyDatabaseAccess,
-    harbor.MediaDatabaseAccess,
-    harbor.NotificationDatabaseAccess,
-    harbor.OrderDatabaseAccess,
-    harbor.ProfileDatabaseAccess,
-    harbor.MiscellaneousDatabaseAccess,
-    oneSignalInstance
-);
-
-ControllerBox box = new(
-    environment,
-    frontierLogger,
-    terminal.AccountOperations,
-    terminal.ProfileOperations,
-    terminal.CircleOperations,
-    terminal.IssueOperations,
-    terminal.KeyOperations,
-    terminal.ReportOperations,
-    terminal.MediaOperations,
-    terminal.NotificationOperations,
-    terminal.OrderOperations,
-    terminal.MiscellaneousOperations
-);
-
-builder.Services.AddSingleton(box);
 
 builder.Services.AddAuthentication(options =>
 {

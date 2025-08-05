@@ -8,8 +8,6 @@ using Core.Notifications;
 
 namespace Core.Entities
 {
-    using static CoreTerminal;
-
     public class Circle
     {
         #region Variables
@@ -50,10 +48,7 @@ namespace Core.Entities
 
         #region Initialisation & Extraction
 
-        public static async Task<Boundaries.CoreCircle> GetCircleAsync(long id)
-        {
-            return await Terminal.CircleDatabase.GetCircleAsync(id);
-        }
+ 
 
         public Circle(List<CircleMember> members, List<CoreRecipient> recipients, List<Issue> issues)
         {
@@ -112,10 +107,7 @@ namespace Core.Entities
 
         #region Actions
 
-        public async Task<string> NotifyMembers(CardinalNotification notification, DateTimeOffset? notifyAt = null)
-        {
-            return await Terminal.NotificationDirector.NotifyUsersAsync(notification, notifyAt, Members.ToArray());
-        }
+    
 
 		#endregion
 

@@ -31,7 +31,7 @@ namespace Frontier.Controllers
             using MemoryStream stream = new();
             await circleDetails.Image.CopyToAsync(stream);
 
-            Core.Entities.Circle coreCircle = await circles.CreateCircleAsync(
+            CoreCircle coreCircle = await circles.CreateCircleAsync(
 										userId,
 										circleDetails.Title,
 										circleDetails.Plan,

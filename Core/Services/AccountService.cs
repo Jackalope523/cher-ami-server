@@ -30,31 +30,8 @@ namespace Core.Services
 
         public async Task CreateUserAsync(string phoneNumber, string email, string title, string givenName, string familyName, DateTimeOffset dateOfBirth)
         {
-            User newUser = new()
-            {
-                PhoneNumber = phoneNumber,
-                Email = email,
-                Title = title,
-                GivenName = givenName,
-                FamilyName = familyName,
-                DateOfBirth = dateOfBirth,
-                JoinDate = Time
-            };
-
-            // Validate and normalise user
-            Verify(newUser.ValidateAndNormalise(out string issues),
-                new UserErrorException(AccountErrorCode.INVALID_DETAILS, new { issues }));
-
-            // Verify phone number is not in use
-            await ThrowIfPhoneNumberTaken(newUser.PhoneNumber);
-
-            // Check if email is in use
-            if (!string.IsNullOrEmpty(email))
-            { await ThrowIfEmailTaken(newUser.Email); }
-
-            // Store created user
-            var user = await accountRepository.CreateUserAsync(newUser.PhoneNumber, email, newUser.Email,
-                newUser.Title, newUser.GivenName, newUser.FamilyName, newUser.DateOfBirth, Time,
+            await accountRepository.CreateUserAsync(phoneNumber, email, email,
+                title, givenName, familyName, dateOfBirth, Time,
                 Guid.NewGuid());
         }
 
@@ -155,59 +132,5 @@ namespace Core.Services
         {
             await accountRepository.DeleteUserAsync(userId);
         }
-
-	
-
-		#region Tools
-
-		private async Task<User> GetUser(string phoneNumber)
-        {
-            User user;
-
-            try
-            {
-                user = new(await accountRepository.GetUserByPhoneNumberAsync(phoneNumber));
-            }
-            catch
-            { throw new UserErrorException(AccountErrorCode.NOT_FOUND); }
-
-            // Check if user account is locked
-            FailIf(user.IsLocked,
-                new UserErrorException(AccountErrorCode.LOCKED));
-
-            return user;
-        }
-
-		private async Task ThrowIfPhoneNumberTaken(string phoneNumber)
-        {
-			bool numberTaken = false;
-			try
-			{
-				// Throws an exception if there is no user
-				await GetUser(phoneNumber);
-				numberTaken = true;
-			}
-			catch { }
-
-            FailIf(numberTaken,
-                new UserErrorException(AccountErrorCode.PHONE_NUMBER_EXISTS));
-		}
-
-        private async Task ThrowIfEmailTaken(string normalisedEmail)
-        {
-			bool emailTaken = false;
-			try
-			{
-                // Throws an exception if there is no user
-                await accountRepository.GetUserByEmailAsync(normalisedEmail);
-				emailTaken = true;
-			}
-			catch { }
-
-			FailIf(emailTaken,
-                new UserErrorException(AccountErrorCode.EMAIL_EXISTS));
-        }
-
-		#endregion
 	}
 }

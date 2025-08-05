@@ -16,8 +16,6 @@ namespace Core.Boundaries
 		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)
 		: CoreOnlyData();
-
-    public record UserShard(long Id, string FirstName, string FamilyName);
 	
     #endregion
 

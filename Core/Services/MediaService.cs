@@ -11,8 +11,6 @@ namespace Core.Services
 {
     public class MediaService(IMediaRepository mediaRepository) : IMediaService
 	{
-        public MediaService(CoreTerminal terminal) : base(terminal) { }
-
         public Task<MemoryStream> GetAssetAsync(string asset)
         {
             throw new NotImplementedException();

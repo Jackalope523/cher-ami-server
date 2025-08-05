@@ -1,22 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Core.Boundaries;
 
-using static Core.Entities.Arbiter;
-
 namespace Core.Services
 {
-    internal class OrderService : AbstractService, IOrderOperations
+    internal class OrderService(IOrderRepository orderRepository) : IOrderOperations
 	{
-		#region Initialisation
-
-		public OrderService(CoreTerminal terminal) : base(terminal) { }
-
-        #endregion
-
-        #region Operations
-
         public Task<PaymentMethodShard> AddPaymentMethodAsync(long userId)
         {
             throw new System.NotImplementedException();
@@ -41,12 +30,5 @@ namespace Core.Services
         {
             throw new System.NotImplementedException();
         }
-
-        #endregion
-
-        #region Favours
-
-
-        #endregion
     }
 }

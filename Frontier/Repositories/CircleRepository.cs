@@ -2,16 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Circle = Repository.Entities.Circle;
 
 namespace Repository.Repositories
 {
-    public class CircleRepository : Repository, ICircleRepository
+    public class CircleRepository(LLContext ctx) : ICircleRepository
     {
-
-        internal CircleRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
 
         private async Task<string> GenerateUniqueCircleCodeAsync(LLContext ctx)
         {
@@ -46,8 +46,6 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> GetCircleAsync(long circleId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
                    Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
@@ -56,8 +54,6 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> GetCircleByCodeAsync(string circleCode)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
                    Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
@@ -66,8 +62,6 @@ namespace Repository.Repositories
 
         public async Task<List<CoreCircle>> GetCirclesForUserAsync(long userId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.CircleMemberships.
                    Where(c => c.UserId == userId).
                    Join(
@@ -80,7 +74,6 @@ namespace Repository.Repositories
 
         public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, CirclePlan plan, IssueSchedule schedule)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -132,8 +125,6 @@ namespace Repository.Repositories
 
         public async Task UpdateCircleAsync(long circleId, List<(string Property, object Value)> edits)
         {
-            await using LLContext ctx = initContext();
-
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
 
@@ -157,7 +148,7 @@ namespace Repository.Repositories
                         c.IssueSchedule = (IssueSchedule)Value;
                         break;
                     default:
-                        throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
+                        throw new ArgumentException($"Property named \"{Property}\" can not be updated using this method.");
                 }
                 ctx.Entry(c).Property(Property).IsModified = true;
             }
@@ -166,8 +157,6 @@ namespace Repository.Repositories
 
         public async Task<string> RerollCircleCode(long circleId)
         {
-            await using LLContext ctx = initContext();
-
             Circle c = new() { Id = circleId, CircleCode = await GenerateUniqueCircleCodeAsync(ctx) };
 
             ctx.Circles.Attach(c);
@@ -179,7 +168,6 @@ namespace Repository.Repositories
 
         public async Task DeleteCircleAsync(long circleId)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -211,8 +199,6 @@ namespace Repository.Repositories
 
         public async Task<List<CoreCircleMembership>> GetCircleMembersAsync(long circleId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.CircleMemberships.
                    Where(m => m.CircleId == circleId).
                    Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
@@ -221,8 +207,6 @@ namespace Repository.Repositories
 
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.RecipientLinks.
                    Where(cr => cr.CircleId == circleId).
                    Join
@@ -253,8 +237,6 @@ namespace Repository.Repositories
 
         public async Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId)
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.CircleMemberships.
                    Where(m => m.UserId == userId && m.CircleId == circleId).
                    Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
@@ -263,8 +245,6 @@ namespace Repository.Repositories
 
         public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
         {
-            await using LLContext ctx = initContext();
-
             Circle c = new() { Id = circleId };
             ctx.Circles.Attach(c);
 
@@ -288,7 +268,7 @@ namespace Repository.Repositories
                         c.IssueSchedule = (IssueSchedule)Value;
                         break;
                     default:
-                        throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
+                        throw new ArgumentException($"Property named \"{Property}\" can not be updated using this method.");
                 }
                 ctx.Entry(c).Property(Property).IsModified = true;
             }
@@ -297,8 +277,6 @@ namespace Repository.Repositories
 
         public async Task AddCircleMemberAsync(long userId, string circleCode)
         {
-            await using LLContext ctx = initContext();
-
             long circleId = await ctx.Circles.
                       Where(c => c.CircleCode == circleCode).
                       Select(c => c.Id).
@@ -318,8 +296,6 @@ namespace Repository.Repositories
 
         public async Task RemoveCircleMembershipAsync(long userId, long circleId)
         {
-            await using LLContext ctx = initContext();
-
             long id = await ctx.CircleMemberships.
                       Where(m => m.UserId == userId && m.CircleId == circleId).
                       Select(m => m.Id).
@@ -331,8 +307,6 @@ namespace Repository.Repositories
 
         public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
         {
-            await using LLContext ctx = initContext();
-
             Recipient r = new() { Id = recipientId };
             ctx.Recipients.Attach(r);
 
@@ -374,7 +348,7 @@ namespace Repository.Repositories
                         r.ManagerId = (long)Value;
                         break;
                     default:
-                        throw new InvalidInputException($"Property named \"{Property}\" can not be updated using this method.");
+                        throw new ArgumentException($"Property named \"{Property}\" can not be updated using this method.");
                 }
                 ctx.Entry(r).Property(Property).IsModified = true;
             }
@@ -383,7 +357,6 @@ namespace Repository.Repositories
 
         public async Task DeleteRecipientAsync(long recipientId)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -404,7 +377,6 @@ namespace Repository.Repositories
 
         public async Task AddRecipientAsync(long circleId, CoreRecipient recipient)
         {
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -445,8 +417,6 @@ namespace Repository.Repositories
 
         public async Task AddRecipientAsync(long circleId, long recipientId)
         {
-            await using LLContext ctx = initContext();
-
             RecipientLink link = new()
             {
                 CircleId = circleId,
@@ -460,8 +430,6 @@ namespace Repository.Repositories
 
         public async Task RemoveRecipientAsync(long circleId, long recipientId)
         {
-            await using LLContext ctx = initContext();
-
             long id = await ctx.RecipientLinks.
                       Where(l => l.RecipientId == recipientId && l.CircleId == circleId).
                       Select(l => l.Id).
@@ -473,8 +441,6 @@ namespace Repository.Repositories
 
         public async Task CreateRecipient(CoreRecipient recipient)
         {
-            await using LLContext ctx = initContext();
-
             Recipient toAdd = new()
             {
                 Title = recipient.Title,

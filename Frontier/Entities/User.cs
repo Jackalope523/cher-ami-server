@@ -1,4 +1,6 @@
-﻿using PostReport = Repository.Entities.Reports.PostReport;
+﻿using System;
+using System.Collections.Generic;
+using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace Repository.Entities

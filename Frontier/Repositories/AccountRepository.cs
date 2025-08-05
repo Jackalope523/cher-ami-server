@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class AccountRepository : Repository, IAccountRepository
+    public class AccountRepository(LLContext ctx) : IAccountRepository
     {
-        internal AccountRepository(Func<LLContext> contextFactory) : base(contextFactory)
-        {
-        }
 
         public async Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
         {
@@ -25,11 +26,8 @@ namespace Repository.Repositories
                 NotificationId = notificationId,
             };
 
-            await using (LLContext ctx = initContext())
-            {
-                ctx.Users.Add(toCreate);
-                await ctx.SaveChangesAsync();
-            }
+            ctx.Users.Add(toCreate);
+            await ctx.SaveChangesAsync();
 
             return new CoreUser
               (
@@ -76,7 +74,6 @@ namespace Repository.Repositories
             // [ ] Words
             // [ ] CircleRecipients
 
-            await using LLContext ctx = initContext();
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
@@ -99,8 +96,6 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByIdAsync(long id) 
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Users.
               Where(u => u.Id == id).
               Select(u => new CoreUser
@@ -128,8 +123,6 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Users.
                  Where(u => u.PhoneNumber == phoneNumber).
                  Select(u => new CoreUser
@@ -157,8 +150,6 @@ namespace Repository.Repositories
 
         public async Task<CoreUser> GetUserByEmailAsync(string email) 
         {
-            await using LLContext ctx = initContext();
-
             return await ctx.Users.
               Where(u => u.Email == email).
               Select(u => new CoreUser
@@ -186,8 +177,6 @@ namespace Repository.Repositories
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)
         {
-            await using LLContext ctx = initContext();
-
             User u = new() { Id = id };
 
             ctx.Users.Attach(u);
@@ -236,7 +225,7 @@ namespace Repository.Repositories
                         u.Reputation = (int)Value;
                         break;
                     default:
-                        throw new InvalidInputException("Property named \"" + Property + "\" can not be updated using this method.");
+                        throw new ArgumentException("Property named \"" + Property + "\" can not be updated using this method.");
                 }
                 ctx.Entry(u).Property(Property).IsModified = true;
             }
@@ -245,13 +234,11 @@ namespace Repository.Repositories
 
         public async Task<bool> PhoneNumberExistsAsync(string phoneNumber)
         {
-            await using LLContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.PhoneNumber == phoneNumber);
         }
 
         public async Task<bool> EmailExistsAsync(string normalisedEmail)
         {
-            await using LLContext ctx = initContext();
             return await ctx.Users.AnyAsync(u => u.NormalizedEmail == normalisedEmail);
         }
     }

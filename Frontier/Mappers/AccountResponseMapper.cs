@@ -3,7 +3,7 @@ using Frontier.Contracts.Responses;
 
 namespace Mappers
 {
-    public class AccountMapper : ResponseMapper<AccountShard, CoreUser>
+    public class AccountResponseMapper : ResponseMapper<AccountShard, CoreUser>
     {
         public override AccountShard FromEntity(CoreUser user) => new()
         { 

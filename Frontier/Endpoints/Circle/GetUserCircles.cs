@@ -1,16 +1,15 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
-using Microsoft.AspNetCore.Identity;
-using Repository.Entities;
-using System;
+using LazyLizardBackend.Contracts.Responses;
+using Mappers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Circle
 {
-    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleShard>>
+    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleShard>, CircleResponseMapper>
     {
         public override void Configure()
         {
@@ -19,10 +18,10 @@ namespace Frontier.Endpoints.Circle
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            //long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            //await Send.OkAsync(await circles.GetUserCirclesAsync(userId));
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            throw new NotImplementedException();
+            List<CoreCircle> coreCircles = await circles.GetUserCirclesAsync(userId);
+            await Send.OkAsync(coreCircles.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }
 }

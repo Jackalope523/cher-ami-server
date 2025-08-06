@@ -13,6 +13,7 @@ namespace Frontier.Endpoints.Account
         public override void Configure()
         {
             Post("/circle");
+            AllowFileUploads();
         }
 
         public override async Task HandleAsync(CircleCreationManifest request, CancellationToken cancellationToken)

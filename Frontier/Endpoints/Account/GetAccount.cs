@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetAccount(UserManager<CoreUser> userManager) : EndpointWithoutRequest<AccountShard, AccountMapper>
+    public class GetAccount(UserManager<CoreUser> userManager) : EndpointWithoutRequest<AccountShard, AccountResponseMapper>
     {
         public override void Configure()
         {

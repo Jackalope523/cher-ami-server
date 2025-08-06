@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using LazyLizardBackend.Contracts.Responses;
 using Microsoft.AspNetCore.Http;
 
 namespace Frontier.Contracts.Requests

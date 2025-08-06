@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetUser(IAccountService accountService) : Endpoint<UserIdRequest, UserShard, UserMapper>
+    public class GetUser(IAccountService accountService) : Endpoint<UserIdRequest, UserShard, UserResponseMapper>
     {
         public override void Configure()
         {

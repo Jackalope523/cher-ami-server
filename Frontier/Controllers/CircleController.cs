@@ -15,35 +15,7 @@ namespace Frontier.Controllers
 		#endregion
 
 		#region Actions
-        [HttpPost]
-        public async Task<IActionResult> CreateCircle([FromForm] CircleCreationManifest circleDetails)
-        {
-            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            using MemoryStream stream = new();
-            await circleDetails.Image.CopyToAsync(stream);
-
-            CoreCircle coreCircle = await circles.CreateCircleAsync(
-										userId,
-										circleDetails.Title,
-										circleDetails.Plan,
-										circleDetails.Schedule,
-										stream
-									);
-
-			CircleShard response = new CircleShard(
-                coreCircle.Id,
-                coreCircle.InviteCode,
-                coreCircle.Title,
-                coreCircle.DateCreated,
-                coreCircle.Plan,
-                coreCircle.Schedule
-            );
-
-
-            return Ok(response);
-        }
-
+ 
         [HttpPost("{circleId}/edit")]
         public async Task<IActionResult> EditCircle(long circleId, [FromForm] CircleEditManifest circleDetails)
 		{

@@ -8,12 +8,9 @@ using System.Threading.Tasks;
 namespace Frontier.Controllers
 {
     [Route("circle")]
-    public class CircleController : AbstractController
-	{
+    public class CircleController(UserManager<CoreUser> aspUserManager, ICircleService circles) : ControllerBase
+    {
 		#region Initialisation
-
-		public CircleController(ControllerBox box, UserManager<CoreUser> aspUserManager) : base(box, aspUserManager)
-		{ }
 
 		#endregion
 
@@ -21,11 +18,6 @@ namespace Frontier.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCircle([FromForm] CircleCreationManifest circleDetails)
         {
-			// Verify parameters
-            if (circleDetails == null || !ModelState.IsValid ||
-				circleDetails.Image == null || circleDetails.Image.Length == 0)
-            { return MissingInformation(); }
-
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             using MemoryStream stream = new();
@@ -55,78 +47,69 @@ namespace Frontier.Controllers
         [HttpPost("{circleId}/edit")]
         public async Task<IActionResult> EditCircle(long circleId, [FromForm] CircleEditManifest circleDetails)
 		{
-			// Verify parameters
-			if (circleDetails == null)
-			{ return MissingInformation(); }
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-			return await Execute(async user =>
-			{
-                using var stream = new MemoryStream();
-				if (circleDetails.Image != null && circleDetails.Image.Length > 0)
-				{
-					await circleDetails.Image.CopyToAsync(stream);
-				}
+            using var stream = new MemoryStream();
+            if (circleDetails.Image != null && circleDetails.Image.Length > 0)
+            {
+                await circleDetails.Image.CopyToAsync(stream);
+            }
 
-				await circles.EditCircleAsync(user.Id, circleId,
-					title: circleDetails.Title,
-					plan: circleDetails.Plan,
-					schedule: circleDetails.Schedule,
-					header: stream);
-			});
-		}
+            await circles.EditCircleAsync(userId, circleId,
+                title: circleDetails.Title,
+                plan: circleDetails.Plan,
+                schedule: circleDetails.Schedule,
+                header: stream);
+
+            return NoContent();
+        }
 
         [HttpPost("{circleId}/code")]
         public async Task<IActionResult> RerollCode(long circleId)
 		{
-			return await Execute(async user =>
-			{
-				return await circles.RerollCircleCodeAsync(user.Id, circleId);
-			});
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            return Ok(await circles.RerollCircleCodeAsync(userId, circleId));
         }
 
         [HttpDelete("{circleId}")]
         public async Task<IActionResult> DeleteCircle(long circleId)
 		{
-			return await Execute(async user =>
-			{
-				await circles.DeleteCircleAsync(user.Id, circleId);
-			});
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            await circles.DeleteCircleAsync(userId, circleId);
+
+            return NoContent();
         }
 
 		[HttpGet("{circleId}/members")]
 		public async Task<IActionResult> GetMembers(long circleId)
 		{
-			return await Execute(async user =>
-			{
-				return await circles.GetCircleMembers(user.Id, circleId);
-			});
-		}
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return Ok(await circles.GetCircleMembers(userId, circleId));
+        }
 
 		[HttpPost("{circleId}/members")]
 		public async Task<IActionResult> InviteUser(long circleId, string phone_number, string email)
-		{
-			return await Execute(async user =>
-			{
-				await circles.SendInvitationAsync(user.Id, circleId, phone_number, email);
-			});
+        {
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            await circles.SendInvitationAsync(userId, circleId, phone_number, email);
+            return NoContent();
         }
 
 		[HttpPut("{circleId}/members")]
-		public async Task<IActionResult> RemoveUser(long circleId, long target_id)
+		public async Task<IActionResult> RemoveCircleMember(long circleId, long target_id)
 		{
-			return await Execute(async user =>
-			{
-				await circles.RemoveMemberAsync(user.Id, circleId, target_id);
-			});
-		}
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            await circles.RemoveMemberAsync(userId, circleId);
+            return NoContent();
+        }
 
 		[HttpGet("{circleId}/recipients")]
 		public async Task<IActionResult> GetRecipients(long circleId)
 		{
-			return await Execute(async user =>
-			{
-				return await circles.GetRecipientsForCircleAsync(user.Id, circleId);
-			});
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return Ok(await circles.GetRecipientsForCircleAsync(userId, circleId));
         }
 
 		#endregion

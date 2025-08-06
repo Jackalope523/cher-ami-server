@@ -67,7 +67,10 @@ namespace Repository.Repositories
         {
             List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
 
-            return (reports.OfType<Core.Boundaries.UserReport>().ToList(), reports.OfType<Core.Boundaries.PostReport>().ToList());
+            List<UserReport> userReports = reports.OfType<UserReport>().ToList();
+            List<Core.Boundaries.PostReport> postReports = reports.OfType<Core.Boundaries.PostReport>().ToList();
+
+            return (userReports, reports.OfType<Core.Boundaries.PostReport>().ToList());
         }
 
         public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)

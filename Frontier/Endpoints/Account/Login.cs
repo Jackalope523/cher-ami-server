@@ -18,13 +18,6 @@ namespace Frontier.Endpoints.Account
         {
             var user = await accountService.GetCoreUserAsync(request.PhoneNumber);
 
-            #region UNSAFE — MODIFICATION AUTHORISATION FROM CHRONOS REQUIRED
-            // Skip if bypass or classified
-            if (bypass.IsGlobalBypassEnabled() ||
-                bypass.IsClassifiedAccount(user.Id))
-            { return; }
-            #endregion
-
             string code;
 
             // Verify that the account is activated

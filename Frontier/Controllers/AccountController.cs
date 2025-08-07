@@ -39,19 +39,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-        [HttpGet("logout")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Logout()
-        {
-            return await Execute(async () =>
-            {
-                if (signInManager.IsSignedIn(HttpContext.User))
-                {
-                    await signInManager.SignOutAsync();
-                }
-            });
-        }
-
         [HttpPost("verify")]
         [AllowAnonymous]
         public async Task<IActionResult> VerifyCode([FromBody] LoginRequest credentials)

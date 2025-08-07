@@ -1,27 +1,25 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
-using Frontier.Contracts.Responses;
-using Mappers;
+using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetUser(IAccountService accountService) : Endpoint<UserIdRequest, UserShard, UserResponseMapper>
+    public class Logout(SignInManager<CoreUser> userManager) : EndpointWithoutRequest
     {
         public override void Configure()
         {
-            Get("/account/{userId}");
+            Get("/account/logout");
         }
 
-        public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            CoreUser userShard = await accountService.GetCoreUserAsync(request.UserId);
+            if (userManager.IsSignedIn(HttpContext.User))
+            {
+                await userManager.SignOutAsync();
+            }
 
-            if (userShard == null)
-                await Send.NotFoundAsync(cancellationToken);
-
-            await SendMappedAsync(userShard, 200, cancellationToken);
+            await Send.NoContentAsync();
         }
     }
 }

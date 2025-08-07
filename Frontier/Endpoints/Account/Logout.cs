@@ -19,7 +19,7 @@ namespace Frontier.Endpoints.Account
                 await userManager.SignOutAsync();
             }
 
-            await Send.NoContentAsync();
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

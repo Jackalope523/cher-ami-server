@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;

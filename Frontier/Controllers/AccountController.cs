@@ -39,53 +39,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] AccountCredentialsManifest credentials)
-        {
-            // Verify parameters
-            if (credentials == null || !ModelState.IsValid)
-            { return MissingInformation(); }
-
-            return await Execute(async () =>
-            {
-                var user = await accounts.GetCoreUserAsync(credentials.PhoneNumber);
-
-                #region UNSAFE — MODIFICATION AUTHORISATION FROM CHRONOS REQUIRED
-                // Skip if bypass or classified
-                if (bypass.IsGlobalBypassEnabled() ||
-                    bypass.IsClassifiedAccount(user.Id))
-                { return; }
-                #endregion
-
-                string code;
-
-                // Verify that the account is activated
-                if (await userManager.IsPhoneNumberConfirmedAsync(user))
-                {
-                    // Account is activated, generate regular 2FA token
-                    code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
-                }
-                else
-                {
-                    // Account is not activated, generate change number token
-                    code = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
-                }
-
-                bool useWhatsApp = credentials.UseWhatsApp ?? false;
-
-                // Send user code
-                if (useWhatsApp)
-                {
-                    await smsService.SendWhatsAppAuthMessageAsync(user.PhoneNumber, code);
-                }
-                else
-                {
-                    await smsService.SendTextMessageAsync(user.PhoneNumber, $"Your Canary code is {code}");
-                }
-            });
-        }
-
         [HttpGet("logout")]
         [AllowAnonymous]
         public async Task<IActionResult> Logout()
@@ -101,7 +54,7 @@ namespace Frontier.Controllers
 
         [HttpPost("verify")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyCode([FromBody] AccountCredentialsManifest credentials)
+        public async Task<IActionResult> VerifyCode([FromBody] LoginRequest credentials)
         {
             // Verify parameters
 			if (credentials == null || !ModelState.IsValid || credentials.Code == null)

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Frontier.Contracts.Requests
 {
-	public class CircleCreationManifest
+	public class CreateCircleRequest
     {
         [Required]
         public string Title { get; set; }

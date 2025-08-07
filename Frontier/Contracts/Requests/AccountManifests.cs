@@ -14,7 +14,7 @@ namespace Frontier.Contracts.Requests
         public long TargetId { get; set; }
     }
 
-    public class AccountCredentialsManifest
+    public class LoginRequest
     {
 		[Required]
 		public string PhoneNumber { get; set; }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class CreateCircle(ICircleService circles) : Endpoint<CircleCreationManifest>
+    public class CreateCircle(ICircleService circles) : Endpoint<CreateCircleRequest>
     {
         public override void Configure()
         {
@@ -16,7 +16,7 @@ namespace Frontier.Endpoints.Account
             AllowFileUploads();
         }
 
-        public override async Task HandleAsync(CircleCreationManifest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(CreateCircleRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

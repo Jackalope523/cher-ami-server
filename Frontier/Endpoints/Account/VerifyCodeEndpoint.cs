@@ -1,6 +1,9 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,12 +29,28 @@ namespace Frontier.Endpoints.Account
         }
     }
 
-    public class VerifyCodeEndpoint(SignInManager<CoreUser> signInManager, UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService) : Endpoint<VerifyLoginRequest>
+    public class VerifyCodeEndpoint(SignInManager<CoreUser> signInManager, UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService, IHostEnvironment environment, IKeyService keyService) : Endpoint<VerifyLoginRequest>
     {
         public override void Configure()
         {
             Post("/account/verify");
             AllowAnonymous();
+        }
+
+        public async Task<bool> CheckStaticCode(long userId, string code)
+        {
+            if (!(userId == -2 || userId == -7 || userId == -8))
+            { return false; }
+
+            string staticCode = userId switch
+            {
+                -2 => await keyService.GetClassifiedAccountCodeAsync(-7),
+                -7 => await keyService.GetClassifiedAccountCodeAsync(-7),
+                -8 => await keyService.GetClassifiedAccountCodeAsync(-8),
+                _ => throw new UserErrorException(AccountErrorCode.NOT_FOUND)
+            };
+
+            return !string.IsNullOrEmpty(staticCode) && code.Equals(staticCode);
         }
 
         public override async Task HandleAsync(VerifyLoginRequest request, CancellationToken cancellationToken)
@@ -45,17 +64,17 @@ namespace Frontier.Endpoints.Account
 
             #region UNSAFE — MODIFICATION AUTHORISATION FROM CHRONOS REQUIRED
             // Check if development environment or special account
-            if (bypass.IsGlobalBypassEnabled())
+            if (!environment.IsProduction())
             {
                 var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
                 await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, code);
                 await signInManager.SignInAsync(user, false);
                 return;
             }
-            else if (bypass.IsClassifiedAccount(user.Id))
+            else if (user.Id < 1)
             {
                 // Verify static code
-                if (bypass.IsGlobalBypassEnabled() || bypass.CheckStaticCode(user.Id, request.Code))
+                if (!environment.IsProduction() || await CheckStaticCode(user.Id, request.Code))
                 {
                     await signInManager.SignInAsync(user, false);
                     return;
@@ -96,7 +115,7 @@ namespace Frontier.Endpoints.Account
                     {
                         // Send verification email if an email is added
                         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                        var confirmationLink = Url.Action("email", "account", new { token, email = user.Email }, Request.Scheme);
+                        string confirmationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/account/email?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
                         await emailService.SendEmailAsync(user.Email, "Welcome to CANARY!", $"Verify your CANARY email.\n\n{confirmationLink}");
                     }
                 }

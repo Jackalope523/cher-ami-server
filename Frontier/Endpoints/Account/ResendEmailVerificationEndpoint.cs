@@ -37,10 +37,10 @@ namespace Frontier.Endpoints.Account
 
             if (!user.IsEmailConfirmed)
             {
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                string token = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 // Replace this with your own method to generate a URL
-                var confirmationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/account/email?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
+                string confirmationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/account/email?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
 
                 await emailService.SendEmailAsync(
                     user.Email,

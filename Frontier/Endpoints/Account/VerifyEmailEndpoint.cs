@@ -1,11 +1,31 @@
 ﻿using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Frontier.Endpoints.Account
 {
-    public class VerifyEmail(UserManager<CoreUser> userManager) : Endpoint<VerifyEmailRequest>
+    public class VerifyEmailRequest
+    {
+        public string Token { get; set; }
+        public string Email { get; set; }
+    }
+
+    public class VerifyEmailRequestValidator : Validator<VerifyEmailRequest>
+    {
+        public VerifyEmailRequestValidator()
+        {
+            RuleFor(x => x.Token)
+                .NotEmpty().WithMessage("Token is required.");
+
+            RuleFor(x => x.Email)
+              .NotEmpty().WithMessage("Email is required.")
+              .EmailAddress().WithMessage("Email must be valid.")
+              .MaximumLength(255).WithMessage("Email cannot exceed 255 characters");
+        }
+    }
+
+    public class VerifyEmailEndpoint(UserManager<CoreUser> userManager) : Endpoint<VerifyEmailRequest>
     {
         public override void Configure()
         {

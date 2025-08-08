@@ -11,7 +11,7 @@ namespace LazyLizardBackend.Contracts.Responses
         Magazine_30 
     }
 
-    public record CircleShard
+    public record CircleDTO
     {
         public long Id { get; init; }
         public string InviteCode { get; init; }

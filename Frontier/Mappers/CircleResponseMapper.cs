@@ -3,9 +3,9 @@ using LazyLizardBackend.Contracts.Responses;
 
 namespace Mappers
 {
-    public class CircleResponseMapper : ResponseMapper<CircleShard, CoreCircle>
+    public class CircleResponseMapper : ResponseMapper<CircleDTO, CoreCircle>
     {
-        public override CircleShard FromEntity(CoreCircle circle) => new()
+        public override CircleDTO FromEntity(CoreCircle circle) => new()
         {
             Id = circle.Id,
             InviteCode = circle.InviteCode,

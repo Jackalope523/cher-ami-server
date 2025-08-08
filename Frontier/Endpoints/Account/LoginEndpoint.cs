@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class Login(UserManager<CoreUser> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<LoginRequest>
+    public class LoginEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<LoginRequest>
     {
         public override void Configure()
         {

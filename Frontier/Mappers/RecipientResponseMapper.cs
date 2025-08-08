@@ -3,9 +3,9 @@ using Frontier.Contracts.Responses;
 
 namespace Mappers
 {
-    public class RecipientResponseMapper : ResponseMapper<RecipientShard, CoreRecipient>
+    public class RecipientResponseMapper : ResponseMapper<RecipientDTO, CoreRecipient>
     {
-        public override RecipientShard FromEntity(CoreRecipient coreRecipient) => new RecipientShard()
+        public override RecipientDTO FromEntity(CoreRecipient coreRecipient) => new RecipientDTO()
         {
             Id = coreRecipient.Id,
             ManagerId = coreRecipient.ManagerId,

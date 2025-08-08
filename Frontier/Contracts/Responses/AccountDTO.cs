@@ -2,7 +2,7 @@
 
 namespace Frontier.Contracts.Responses
 {
-    public record AccountShard
+    public record AccountDTO
     {
         public long Id { get; init; }
         public string PhoneNumber { get; init; }

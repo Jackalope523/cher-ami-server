@@ -1,16 +1,32 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
-using Frontier.Contracts.Requests;
-using LazyLizardBackend.Contracts.Requests;
+﻿using FastEndpoints;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Http.ModelBinding;
 
 namespace Frontier.Endpoints.Account
 {
-    public class VerifyCode(SignInManager<CoreUser> signInManager, UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService) : Endpoint<VerifyLoginRequest>
+    public class VerifyLoginRequest
+    {
+        public string PhoneNumber { get; set; }
+        public string Code { get; set; }
+    }
+
+    public class VerifyLoginRequestValidator : Validator<VerifyLoginRequest>
+    {
+        public VerifyLoginRequestValidator()
+        {
+            RuleFor(x => x.PhoneNumber)
+                .NotEmpty().WithMessage("Phone number is required.")
+                .MaximumLength(20).WithMessage("Title cannot exceed 20 characters.");
+
+            RuleFor(x => x.Code)
+                .NotEmpty().WithMessage("Code is required.")
+                .MaximumLength(6).WithMessage("Code cannot exceed 6 characters.");
+        }
+    }
+
+    public class VerifyCodeEndpoint(SignInManager<CoreUser> signInManager, UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService) : Endpoint<VerifyLoginRequest>
     {
         public override void Configure()
         {

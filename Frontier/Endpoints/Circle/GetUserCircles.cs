@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Circle
 {
-    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleShard>, CircleResponseMapper>
+    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleDTO>, CircleResponseMapper>
     {
         public override void Configure()
         {

@@ -158,19 +158,19 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification UserPosted(UserShard addingUser)
+        public static CardinalNotification UserPosted(UserDTO addingUser)
             => IssuePost(new("Companion Request",
                 $"{addingUser.FirstName} posted to the issue.",
                 new IssueDeepLink(addingUser.Id),
                 "1"));
 
-        public static CardinalNotification CompanionshipForged(UserShard addingUser)
+        public static CardinalNotification CompanionshipForged(UserDTO addingUser)
             => IssuePost(new("New Companion",
                 $"Companionship forged with {addingUser.FirstName} accepted.",
                 new IssueDeepLink(addingUser.Id),
                 "1"));
 
-        public static CardinalNotification GatheringInvitation(UserShard invitingUser, CircleShard circle)
+        public static CardinalNotification GatheringInvitation(UserDTO invitingUser, CircleShard circle)
             => IssuePost(new("Gathering Invitation",
                 $"{invitingUser.FirstName} invited you to {circle.Title}.",
                 new CircleDeepLink(circle.Id, invitedBy: invitingUser.FirstName),
@@ -189,13 +189,13 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification CompanionJoined(UserShard companion, CircleShard circle)
+        public static CardinalNotification CompanionJoined(UserDTO companion, CircleShard circle)
             => IssueReminder(new(circle.Title,
                 $"{companion.FirstName} joined the gathering.",
                 new CircleDeepLink(circle.Id, focus: CircleDeepLink.FocusTarget.guestlist),
                 $"{circle.Id}:10"));
 
-        public static CardinalNotification CompanionGatheringCreated(UserShard companion, CircleShard circle)
+        public static CardinalNotification CompanionGatheringCreated(UserDTO companion, CircleShard circle)
             => IssueReminder(new("Companion Gathering",
                 $"{companion.FirstName} just created {circle.Title}",
                 new CircleDeepLink(circle.Id)));

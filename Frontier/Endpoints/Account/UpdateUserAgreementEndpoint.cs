@@ -1,23 +1,24 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class DeleteAccount(IAccountService accounts) : EndpointWithoutRequest
+    public class UpdateUserAgreementEndpoint(UserManager<CoreUser> userManager, IAccountService accountService) : EndpointWithoutRequest
     {
         public override void Configure()
         {
-            Delete("/account");
+            Post("/account/agreement");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            await accounts.DeleteUserAsync(userId);
-            await Send.NoContentAsync(cancellationToken);
+            await accountService.UpdateUserAgreementAsync(userId);
+            await Send.NoContentAsync();
         }
     }
 }

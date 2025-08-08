@@ -3,9 +3,9 @@ using LazyLizardBackend.Contracts.Responses;
 
 namespace Mappers
 {
-    public class CircleMembershipResponseMapper : ResponseMapper<CircleMembershipShard, CoreCircleMembership>
+    public class CircleMembershipResponseMapper : ResponseMapper<CircleMembershipDTO, CoreCircleMembership>
     {
-        public override CircleMembershipShard FromEntity(CoreCircleMembership membership) => new()
+        public override CircleMembershipDTO FromEntity(CoreCircleMembership membership) => new()
         {
             UserId = membership.UserId,
             DateJoined = membership.DateJoined,

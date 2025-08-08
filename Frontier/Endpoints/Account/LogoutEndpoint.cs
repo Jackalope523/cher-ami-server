@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class Logout(SignInManager<CoreUser> userManager) : EndpointWithoutRequest
+    public class LogoutEndpoint(SignInManager<CoreUser> userManager) : EndpointWithoutRequest
     {
         public override void Configure()
         {

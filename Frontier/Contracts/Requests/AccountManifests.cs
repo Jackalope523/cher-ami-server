@@ -18,13 +18,5 @@ namespace Frontier.Contracts.Requests
 
    
 
-    public class AccountEditManifest
-    {
-        public string Email { get; set; }
-
-        public string Title { get; set; }
-        public string GivenName { get; set; }
-        public string FamilyName { get; set; }
-		public DateTime DateOfBirth { get; set; }
-    }
+    
 }

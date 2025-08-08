@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Responses;
+using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
@@ -7,15 +8,27 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class EditCircle(ICircleService circles) : Endpoint<CircleEditManifest>
+    public class CircleEditRequest
+    {
+        public string Title { get; set; }
+
+        public CirclePlan Plan { get; set; }
+
+        public IssueSchedule Schedule { get; set; }
+
+        public IFormFile Image { get; set; }
+    }
+
+    public class EditCircle(ICircleService circles) : Endpoint<CircleEditRequest>
     {
         public override void Configure()
         {
             Post("/circle/{circleId}/edit");
             AllowFileUploads();
+            AllowFormData();
         }
 
-        public override async Task HandleAsync(CircleEditManifest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(CircleEditRequest request, CancellationToken cancellationToken)
         {
             var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var circleId = Route<long>("circleId");

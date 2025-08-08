@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetMembers(ICircleService circles) : Endpoint<CircleIdRequest, List<CircleMembershipShard>, CircleMembershipResponseMapper>
+    public class GetMembers(ICircleService circles) : Endpoint<CircleIdRequest, List<CircleMembershipDTO>, CircleMembershipResponseMapper>
     {
         public override void Configure()
         {

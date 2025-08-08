@@ -8,7 +8,7 @@ namespace LazyLizardBackend.Contracts.Responses
         Owner 
     }
 
-    public record CircleMembershipShard
+    public record CircleMembershipDTO
     {
         public long UserId { get; init; }
         public DateTimeOffset DateJoined { get; init; }

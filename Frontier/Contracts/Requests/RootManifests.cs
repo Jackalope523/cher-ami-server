@@ -22,7 +22,7 @@ namespace Frontier.Contracts.Requests
         public bool Anonymous { get; set; }
     }
 
-    public class ImageManifest
+    public class ImageRequest
     {
         [Required]
         public IFormFile Image { get; set; }

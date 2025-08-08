@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class GetRecipients(ICircleService circles) : Endpoint<CircleIdRequest, List<RecipientShard>, RecipientResponseMapper>
+    public class GetRecipients(ICircleService circles) : Endpoint<CircleIdRequest, List<RecipientDTO>, RecipientResponseMapper>
     {
         public override void Configure()
         {

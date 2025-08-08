@@ -1,7 +1,4 @@
-﻿using FastEndpoints;
-using System.Security.Claims;
-
-namespace Frontier.Contracts.Requests
+﻿namespace Frontier.Contracts.Requests
 {
     public class CircleIdRequest
     {

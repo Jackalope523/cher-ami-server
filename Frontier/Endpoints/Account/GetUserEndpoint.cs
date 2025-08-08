@@ -5,9 +5,9 @@ using Mappers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Frontier.Endpoints.Account
+namespace LazyLizardBackend.Endpoints.Account
 {
-    public class GetUser(IAccountService accountService) : Endpoint<UserIdRequest, UserShard, UserResponseMapper>
+    public class GetUserEndpoint(IAccountService accountService) : Endpoint<UserIdRequest, UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {

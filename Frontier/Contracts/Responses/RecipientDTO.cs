@@ -2,7 +2,7 @@
 
 namespace Frontier.Contracts.Responses
 {
-    public record RecipientShard
+    public record RecipientDTO
     {
         public long Id { get; init; }
         public long ManagerId { get; init; }

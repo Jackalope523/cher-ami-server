@@ -9,12 +9,9 @@ namespace Core.Boundaries
 {
     #region Schemas
 
-	public record NotificationProfile(long UserId, Guid NotificationId,
+	public record CoreNotificationProfile(long UserId, Guid NotificationId,
 		bool IssuePosts, bool IssueReminders)
 		: CoreOnlyData();
-
-	public record NotificationPreferencesShard(Guid NotificationId,
-		bool IssuePosts, bool IssueReminders);
 
     #endregion
 
@@ -22,21 +19,21 @@ namespace Core.Boundaries
 
     public interface INotificationRepository
     {
-		Task<NotificationProfile> GetNotificationProfileAsync(long userId);
+		Task<CoreNotificationProfile> GetNotificationProfileAsync(long userId);
         Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits);
 	}
 
 	public interface INotificationStorageService
 	{
-		Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId);
+		Task<CoreNotificationProfile> GetNotificationPreferencesAsync(long userId);
 		Task UpdateNotificationPreferencesAsync(long userId,
 			bool? issuePosts = null, bool? issueReminders = null);
 	}
 
 	public interface INotificationService
 	{
-		Task<string> DispatchNotification(CardinalNotification notification, params NotificationProfile[] notificationProfiles);
-		Task<string> ScheduleNotification(CardinalNotification notification, DateTimeOffset dispatchAt, params NotificationProfile[] notificationProfiles);
+		Task<string> DispatchNotification(CardinalNotification notification, params CoreNotificationProfile[] notificationProfiles);
+		Task<string> ScheduleNotification(CardinalNotification notification, DateTimeOffset dispatchAt, params CoreNotificationProfile[] notificationProfiles);
 		Task CancelNotification(string notificationId);
 	}
 

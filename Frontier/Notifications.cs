@@ -14,7 +14,7 @@ namespace Core.Notifications
 
     public static class NotificationGroupExtensions
     {
-        public static bool HasEnabled(this NotificationGroup group, NotificationProfile profile)
+        public static bool HasEnabled(this NotificationGroup group, CoreNotificationProfile profile)
         {
             return group switch
             {
@@ -140,7 +140,7 @@ namespace Core.Notifications
             Subtitle = subtitle;
         }
 
-        public bool CheckEnabled(NotificationProfile profile)
+        public bool CheckEnabled(CoreNotificationProfile profile)
         {
             return Group.HasEnabled(profile);
         }

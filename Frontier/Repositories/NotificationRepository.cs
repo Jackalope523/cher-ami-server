@@ -11,12 +11,12 @@ namespace Repository.Repositories
 {
     public class NotificationRepository(LLContext ctx) : INotificationRepository
     {
-        public async Task<NotificationProfile> GetNotificationProfileAsync(long userId)
+        public async Task<CoreNotificationProfile> GetNotificationProfileAsync(long userId)
         {
             return await
                 ctx.Users.
                 Where(u => u.Id == userId).
-                Select(u => new NotificationProfile(
+                Select(u => new CoreNotificationProfile(
                     u.Id, 
                     u.NotificationId, 
                     u.IssuePosts,
@@ -34,10 +34,10 @@ namespace Repository.Repositories
             {
                 switch (Property)
                 {
-                    case nameof(NotificationProfile.IssuePosts):
+                    case nameof(CoreNotificationProfile.IssuePosts):
                         u.IssuePosts = (bool)Value;
                         break;
-                    case nameof(NotificationProfile.IssueReminders):
+                    case nameof(CoreNotificationProfile.IssueReminders):
                         u.IssueReminders = (bool)Value;
                         break;
                     default:

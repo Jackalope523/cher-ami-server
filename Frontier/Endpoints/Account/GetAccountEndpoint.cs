@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 using Frontier.Contracts.Responses;
-using Mappers;
+using LazyLizardBackend.Shared.SharedMappers;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;

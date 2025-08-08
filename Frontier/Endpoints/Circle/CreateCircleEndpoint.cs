@@ -2,7 +2,7 @@
 using FluentValidation;
 using Frontier.Contracts.Requests;
 using LazyLizardBackend.Contracts.Responses;
-using Mappers;
+using LazyLizardBackend.Shared.SharedMappers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -41,8 +41,8 @@ namespace Frontier.Endpoints.Account
                 .NotEmpty().WithMessage("Plan is required.");
 
             RuleFor(x => x.Image)
-                    .NotNull().WithMessage("Image is required.")
-                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.");
+                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.")
+                    .When(x => x.Image != null);
         }
     }
 
@@ -69,7 +69,7 @@ namespace Frontier.Endpoints.Account
                                         stream
                                     );
 
-            await Send.CreatedAtAsync<GetCircle>(new CircleIdRequest() { CircleId = coreCircle.Id }, Map.FromEntity(coreCircle), cancellation: cancellationToken);
+            await Send.CreatedAtAsync<GetCircleEndpoint>(new CircleIdRequest() { CircleId = coreCircle.Id }, Map.FromEntity(coreCircle), cancellation: cancellationToken);
         }
     }
 }

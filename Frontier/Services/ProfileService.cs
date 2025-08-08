@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Core.Boundaries;
 using LazyLizardBackend;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class ProfileService(IProfileRepository profileRepository) : IProfileService
 	{

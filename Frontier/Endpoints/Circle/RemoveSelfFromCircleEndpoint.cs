@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class RemoveSelfFromCircle(ICircleService circles) : Endpoint<CircleIdRequest>
+    public class RemoveSelfFromCircleEndpoint(ICircleService circles) : Endpoint<CircleIdRequest>
     {
         public override void Configure()
         {

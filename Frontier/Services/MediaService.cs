@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Core.Boundaries;
 using static LazyLizardBackend.Arbiter;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class MediaService(IMediaRepository mediaRepository) : IMediaService
 	{

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Core.Boundaries;
 using static LazyLizardBackend.Artificer;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class NotificationStorageService(INotificationRepository notificationRepository, IAccountRepository accountRepository) : INotificationStorageService
 	{

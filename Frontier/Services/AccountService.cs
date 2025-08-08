@@ -8,7 +8,7 @@ using static LazyLizardBackend.Arbiter;
 using static LazyLizardBackend.Artificer;
 using static LazyLizardBackend.Psijic;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class AccountService(IAccountRepository accountRepository) : IAccountService
     {

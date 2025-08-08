@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Core.Boundaries;
 using static LazyLizardBackend.Psijic;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class MiscellaneousService(IMiscellaneousRepository miscellaneousRepository) : IMiscellaneousService
     {

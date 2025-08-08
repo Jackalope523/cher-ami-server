@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class CircleService(ICircleRepository circleRepository, IMediaRepository mediaRepository) : ICircleService
 	{

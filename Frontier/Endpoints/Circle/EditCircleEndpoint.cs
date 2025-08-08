@@ -1,4 +1,6 @@
 ﻿using FastEndpoints;
+using FluentValidation;
+using Frontier.Endpoints.Account;
 using LazyLizardBackend.Contracts.Responses;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -19,7 +21,21 @@ namespace LazyLizardBackend.Endpoints.Circle
         public IFormFile Image { get; set; }
     }
 
-    public class EditCircle(ICircleService circles) : Endpoint<CircleEditRequest>
+    public class CircleEditRequestValidator : Validator<CircleEditRequest>
+    {
+        public CircleEditRequestValidator()
+        {
+            RuleFor(x => x.Title)
+                .MaximumLength(100).WithMessage("Title cannot exceed 100 characters.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Title));
+
+            RuleFor(x => x.Image)
+                .Must(x => x.Length > 0).WithMessage("Image cannot be empty.")
+                .When(x => x.Image != null);
+        }
+    }
+
+    public class EditCircleEndpoint(ICircleService circles) : Endpoint<CircleEditRequest>
     {
         public override void Configure()
         {

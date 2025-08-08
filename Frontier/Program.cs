@@ -11,11 +11,11 @@ using Repository;
 using Serilog;
 using System.IO;
 using FastEndpoints;
-using Core.Services;
 using Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Microsoft.Extensions.Configuration;
+using LazyLizardBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

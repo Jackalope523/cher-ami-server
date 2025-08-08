@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using Frontier.Contracts.Requests;
 using Frontier.Contracts.Responses;
-using Mappers;
+using LazyLizardBackend.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
 

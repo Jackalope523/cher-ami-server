@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using LazyLizardBackend.Contracts.Responses;
 
-namespace Mappers
+namespace LazyLizardBackend.Shared.SharedMappers
 {
     public class CircleResponseMapper : ResponseMapper<CircleDTO, CoreCircle>
     {

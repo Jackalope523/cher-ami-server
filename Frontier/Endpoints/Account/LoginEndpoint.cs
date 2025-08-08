@@ -1,12 +1,30 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
-using LazyLizardBackend.Contracts.Requests;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
+    public class LoginRequest
+    {
+        [Required]
+        public string PhoneNumber { get; set; }
+
+        public bool? UseWhatsApp { get; set; }
+    }
+
+    public class LoginRequestValidator : Validator<LoginRequest>
+    {
+        public LoginRequestValidator()
+        {
+            RuleFor(x => x.PhoneNumber)
+                .NotEmpty().WithMessage("PhoneNumber is required.");
+        }
+    }
+
+
     public class LoginEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<LoginRequest>
     {
         public override void Configure()

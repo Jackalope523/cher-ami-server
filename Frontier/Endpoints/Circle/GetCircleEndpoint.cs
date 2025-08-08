@@ -1,29 +1,30 @@
 ﻿using FastEndpoints;
 using Frontier.Contracts.Requests;
 using LazyLizardBackend.Contracts.Responses;
-using Mappers;
-using System.Collections.Generic;
-using System.Linq;
+using LazyLizardBackend.Shared.SharedMappers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetMembers(ICircleService circles) : Endpoint<CircleIdRequest, List<CircleMembershipDTO>, CircleMembershipResponseMapper>
+    public class GetCircleEndpoint(ICircleService circles) : Endpoint<CircleIdRequest, CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
-            Get("/circle/{circleId}/members");
+            Get("/circle/{circleId}");
         }
 
         public override async Task HandleAsync(CircleIdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreCircleMembership> coreCircleMemberships = await circles.GetCircleMembers(userId, request.CircleId);
+            CoreCircle coreCircle = await circles.GetCircleInformationAsync(userId, request.CircleId);
 
-            await Send.OkAsync(coreCircleMemberships.Select(Map.FromEntity).ToList(), cancellationToken);
+            if (coreCircle == null) 
+                await Send.NotFoundAsync(cancellationToken);
+            
+            await Send.OkAsync(Map.FromEntity(coreCircle), cancellationToken);
         }
     }
 }

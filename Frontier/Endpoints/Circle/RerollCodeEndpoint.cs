@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class RerollCode(ICircleService circles) : Endpoint<CircleIdRequest>
+    public class RerollCodeEndpoint(ICircleService circles) : Endpoint<CircleIdRequest>
     {
         public override void Configure()
         {

@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 using LazyLizardBackend.Contracts.Responses;
-using Mappers;
+using LazyLizardBackend.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Circle
 {
-    public class GetUserCircles(ICircleService circles) : EndpointWithoutRequest<List<CircleDTO>, CircleResponseMapper>
+    public class GetUserCirclesEndpoint(ICircleService circles) : EndpointWithoutRequest<List<CircleDTO>, CircleResponseMapper>
     {
         public override void Configure()
         {

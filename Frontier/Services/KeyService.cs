@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Core.Boundaries;
 
-namespace Core.Services
+namespace LazyLizardBackend.Services
 {
     public class KeyService(IKeyRepository keyRepository) : IKeyService
 	{

@@ -7,10 +7,9 @@ namespace LazyLizardBackend.Services
 {
     public class NotificationStorageService(INotificationRepository notificationRepository, IAccountRepository accountRepository) : INotificationStorageService
 	{
-		public async Task<NotificationPreferencesShard> GetNotificationPreferencesAsync(long userId)
+		public async Task<CoreNotificationProfile> GetNotificationPreferencesAsync(long userId)
 		{
-			NotificationProfile profile = await notificationRepository.GetNotificationProfileAsync(userId);
-			return new(profile.NotificationId, profile.IssuePosts, profile.IssueReminders);
+			return await notificationRepository.GetNotificationProfileAsync(userId);
 		}
 
         public async Task UpdateNotificationPreferencesAsync(long userId, bool? issuePosts = null, bool? issueReminders = null)
@@ -21,11 +20,11 @@ namespace LazyLizardBackend.Services
 
             if (IsNotNull(issuePosts))
             {
-                edits.Add((nameof(NotificationProfile.IssuePosts), issuePosts.Value));
+                edits.Add((nameof(CoreNotificationProfile.IssuePosts), issuePosts.Value));
             }
             if (IsNotNull(issueReminders))
             {
-                edits.Add((nameof(NotificationProfile.IssueReminders), issueReminders.Value));
+                edits.Add((nameof(CoreNotificationProfile.IssueReminders), issueReminders.Value));
             }
 
             await notificationRepository.UpdateNotificationProfileAsync(user.Id, edits);

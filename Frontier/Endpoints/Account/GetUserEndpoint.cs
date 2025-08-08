@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Account
 {
-    public class GetUserEndpoint(IAccountService accountService) : Endpoint<UserIdRequest, UserDTO, UserResponseMapper>
+    public class GetNotificationPreferencesEndpoint(IAccountService accountService) : Endpoint<UserIdRequest, UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {

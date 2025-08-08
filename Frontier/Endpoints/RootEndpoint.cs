@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints
 {
-    public class HealthCheckEndpoint : EndpointWithoutRequest<string>
+    public class RootEndpoint : EndpointWithoutRequest<string>
     {
         public override void Configure()
         {
@@ -12,7 +12,7 @@ namespace LazyLizardBackend.Endpoints
             AllowAnonymous();
         }
 
-        public override async Task HandleAsync(CancellationToken ct)
+        public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             await Send.OkAsync("" +
                 "   @@@@@@@                                        \r\n" +
@@ -46,8 +46,8 @@ namespace LazyLizardBackend.Endpoints
                 "                     PRODUCTION                   \r\n" +
                 "                       ONLINE                     \r\n" +
                 "                                                  \r\n" +
-                "                                                  \r\n");
+                "                                                  \r\n"
+                , cancellationToken);
         }
-              
     }
 }

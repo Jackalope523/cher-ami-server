@@ -8,8 +8,8 @@ namespace LazyLizardBackend.Shared.SharedMappers
         public override UserDTO FromEntity(CoreUser user) => new UserDTO()
         {
             Id = user.Id,
-            FirstName = user.GivenName,
-            FamilyName = user.FamilyName
+            FirstName = user.FirstName,
+            FamilyName = user.LastName
         };
     }
 }

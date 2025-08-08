@@ -55,8 +55,8 @@ namespace LazyLizardBackend.Services
             string newPhoneNumber = phoneNumberChanged ? phoneNumber : user.PhoneNumber;
             string newEmail = emailChanged ? email : user.Email;
             string newTitle = titleChanged ? title : user.Title;
-            string newGivenName = givenNameChanged ? givenName : user.GivenName;
-            string newFamilyName = familyNameChanged ? familyName : user.FamilyName;
+            string newGivenName = givenNameChanged ? givenName : user.FirstName;
+            string newFamilyName = familyNameChanged ? familyName : user.LastName;
             DateTimeOffset newDateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
 
             List<(string Property, object Value)> edits = new();
@@ -78,11 +78,11 @@ namespace LazyLizardBackend.Services
 			}
 			if (givenNameChanged)
 			{
-                edits.Add((nameof(CoreUser.GivenName), user.GivenName));
+                edits.Add((nameof(CoreUser.FirstName), user.FirstName));
 			}
 			if (familyNameChanged)
 			{
-                edits.Add((nameof(CoreUser.FamilyName), user.FamilyName));
+                edits.Add((nameof(CoreUser.LastName), user.LastName));
 			}
 			if (dateOfBirthChanged)
 			{

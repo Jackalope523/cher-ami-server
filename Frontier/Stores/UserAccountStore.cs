@@ -27,7 +27,7 @@ namespace Frontier.Stores
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			await accounts.CreateUserAsync(user.PhoneNumber, user.Email, user.Title, user.GivenName, user.FamilyName, user.DateOfBirth);
+			await accounts.CreateUserAsync(user.PhoneNumber, user.Email, user.Title, user.FirstName, user.LastName, user.DateOfBirth);
 			return IdentityResult.Success;
 		}
 

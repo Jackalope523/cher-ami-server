@@ -11,7 +11,7 @@ namespace Core.Boundaries
 	{ Active, Limited, Suspended, Blacklisted }
 
 	public record CoreUser(long Id, string PhoneNumber, string Email, string NormalisedEmail,
-		string Title, string GivenName, string FamilyName, DateTimeOffset DateOfBirth,
+		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
 		bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
 		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
 		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)

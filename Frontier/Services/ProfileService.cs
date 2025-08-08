@@ -18,11 +18,6 @@ namespace LazyLizardBackend.Services
             return await profileRepository.GetBlockedUsersAsync(userId);
         }
 
-        public async Task<ProfileShard> GetProfileAsync(long userId, long targetId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task UnblockUserAsync(long userId, long targetId)
         {
             await profileRepository.UnblockUserAsync(userId, targetId);

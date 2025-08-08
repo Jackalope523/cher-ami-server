@@ -32,7 +32,7 @@ namespace Repository.Repositories
             ExecuteDeleteAsync();
         }
 
-        public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long id)
+        public async Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long id)
         {
             return await
             ctx.Blocks.
@@ -41,7 +41,7 @@ namespace Repository.Repositories
                 ctx.Users,
                 l => l.BlockedId,
                 u => u.Id,
-                (l, u) => new BlockedUserShard(u.Id, u.FirstName, l.BlockDate)
+                (l, u) => new CoreBlockedUser(u.Id, $"{u.FirstName} {u.LastName}", l.BlockDate)
             ).
             ToListAsync();
         }

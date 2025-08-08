@@ -23,7 +23,7 @@ namespace LazyLizardBackend.Endpoints.Feedback
     }
 
 
-    public class FeedbackEndpoint(IMiscellaneousService miscellaneousService) : Endpoint<FeedbackRequest>
+    public class GetBlocked(IMiscellaneousService miscellaneousService) : Endpoint<FeedbackRequest>
     {
         public override void Configure()
         {

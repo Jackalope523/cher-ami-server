@@ -9,9 +9,9 @@ namespace LazyLizardBackend.SharedContracts.SharedValidators
     {
         public UserIdRequestValidator()
         {
-            RuleFor(x => x.UserId)
-                .GreaterThan(0).WithMessage("UserId must be greater than 0.")
-                .When(x => x.UserId != -2 || x.UserId != -7 || x.UserId != -8);
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Id must be greater than 0.")
+                .When(x => x.Id != -2 || x.Id != -7 || x.Id != -8);
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class CircleIdRequest
     {
-        public long CircleId { get; set; }
+        public long Id { get; set; }
     }
 }

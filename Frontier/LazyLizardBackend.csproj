@@ -58,8 +58,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Endpoints\Issue\" />
-  </ItemGroup>
-
 </Project>

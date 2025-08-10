@@ -19,7 +19,7 @@ namespace Frontier.Endpoints.Account
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            CoreCircle coreCircle = await circles.GetCircleInformationAsync(userId, request.CircleId);
+            CoreCircle coreCircle = await circles.GetCircleInformationAsync(userId, request.Id);
 
             if (coreCircle == null) 
                 await Send.NotFoundAsync(cancellationToken);

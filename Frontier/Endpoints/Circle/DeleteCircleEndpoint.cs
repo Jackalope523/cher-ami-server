@@ -17,7 +17,7 @@ namespace LazyLizardBackend.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            await circles.DeleteCircleAsync(userId, request.CircleId);
+            await circles.DeleteCircleAsync(userId, request.Id);
 
             await Send.NoContentAsync(cancellationToken);
         }

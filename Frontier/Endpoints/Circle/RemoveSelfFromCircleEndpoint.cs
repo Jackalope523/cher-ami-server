@@ -16,7 +16,7 @@ namespace LazyLizardBackend.Endpoints.Circle
         public override async Task HandleAsync(CircleIdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await circles.RemoveMemberAsync(userId, request.CircleId);
+            await circles.RemoveMemberAsync(userId, request.Id);
             await Send.NoContentAsync(cancellationToken);
         }
     }

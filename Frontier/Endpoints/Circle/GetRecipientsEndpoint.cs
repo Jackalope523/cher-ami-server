@@ -21,7 +21,7 @@ namespace LazyLizardBackend.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreRecipient> coreRecipients = await circles.GetRecipientsForCircleAsync(userId, request.CircleId);
+            List<CoreRecipient> coreRecipients = await circles.GetRecipientsForCircleAsync(userId, request.Id);
             await Send.OkAsync(coreRecipients.Select(Map.FromEntity).ToList());
         }
     }

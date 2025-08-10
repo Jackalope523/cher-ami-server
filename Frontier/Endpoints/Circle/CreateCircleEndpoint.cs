@@ -69,7 +69,7 @@ namespace Frontier.Endpoints.Account
                                         stream
                                     );
 
-            await Send.CreatedAtAsync<GetCircleEndpoint>(new CircleIdRequest() { CircleId = coreCircle.Id }, Map.FromEntity(coreCircle), cancellation: cancellationToken);
+            await Send.CreatedAtAsync<GetCircleEndpoint>(new CircleIdRequest() { Id = coreCircle.Id }, Map.FromEntity(coreCircle), cancellation: cancellationToken);
         }
     }
 }

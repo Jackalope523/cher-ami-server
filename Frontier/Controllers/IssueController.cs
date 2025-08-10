@@ -19,14 +19,6 @@ namespace Frontier.Controllers
 
 		#region Actions
 
-		[HttpGet("{issueId}")]
-        public async Task<IActionResult> GetIssue(long issueId)
-        {
-			return await Execute(async user =>
-				await issues.GetIssueAsync(user.Id, issueId)
-            );
-        }
-
 		[HttpGet("circle/{circleId}")]
         public async Task<IActionResult> GetCircleIssues(long circleId)
         {

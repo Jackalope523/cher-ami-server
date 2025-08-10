@@ -21,7 +21,7 @@ namespace Frontier.Endpoints.Account
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreCircleMembership> coreCircleMemberships = await circles.GetCircleMembers(userId, request.CircleId);
+            List<CoreCircleMembership> coreCircleMemberships = await circles.GetCircleMembers(userId, request.Id);
 
             await Send.OkAsync(coreCircleMemberships.Select(Map.FromEntity).ToList(), cancellationToken);
         }

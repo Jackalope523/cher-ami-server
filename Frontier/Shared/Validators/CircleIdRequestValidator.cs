@@ -9,8 +9,8 @@ namespace LazyLizardBackend.SharedContracts.SharedValidators
     {
         public CircleIdRequestValidator()
         {
-            RuleFor(x => x.CircleId)
-                .GreaterThan(0).WithMessage("CircleId must be greater than 0.");
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Id must be greater than 0.");
         }
     }
 }

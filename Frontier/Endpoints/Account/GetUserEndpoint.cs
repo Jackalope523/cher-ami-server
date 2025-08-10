@@ -16,7 +16,7 @@ namespace LazyLizardBackend.Endpoints.Account
 
         public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
         {
-            CoreUser userShard = await accountService.GetCoreUserAsync(request.UserId);
+            CoreUser userShard = await accountService.GetCoreUserAsync(request.Id);
 
             if (userShard == null)
                 await Send.NotFoundAsync(cancellationToken);

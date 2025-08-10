@@ -17,7 +17,7 @@ namespace LazyLizardBackend.Endpoints.Profile
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            await profileService.BlockUserAsync(userId, request.UserId);
+            await profileService.BlockUserAsync(userId, request.Id);
             await Send.NoContentAsync(cancellationToken);
         }
     }

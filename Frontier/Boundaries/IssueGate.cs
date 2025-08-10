@@ -16,7 +16,6 @@ namespace Core.Boundaries
     public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption) 
         : CoreOnlyData();
 
-    public record IssueShard(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate);
 
     public record PostShard(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
 

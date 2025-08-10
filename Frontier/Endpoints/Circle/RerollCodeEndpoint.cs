@@ -17,7 +17,7 @@ namespace LazyLizardBackend.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            string response = await circles.RerollCircleCodeAsync(userId, request.CircleId);
+            string response = await circles.RerollCircleCodeAsync(userId, request.Id);
             await Send.OkAsync(response, cancellationToken);
         }
     }

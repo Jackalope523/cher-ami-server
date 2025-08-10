@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
+using LazyLizardBackend.Shared.Responses;
+using LazyLizardBackend.Contracts.Responses;
 
 namespace Core.Boundaries
 {
@@ -15,11 +17,6 @@ namespace Core.Boundaries
 
     public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption) 
         : CoreOnlyData();
-
-
-    public record PostShard(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
-
-    public record GalleryShard(List<PostShard> Posts);
 
     #endregion
 
@@ -39,13 +36,13 @@ namespace Core.Boundaries
 
     public interface IIssueService
     {
-        Task<IssueShard> GetIssueAsync(long userId, long issueId);
+        Task<CoreIssue> GetIssueAsync(long userId, long issueId);
 
-        Task<List<IssueShard>> GetIssuesForCircleAsync(long userId, long CircleId);
-        Task<GalleryShard> GetPostsForIssueAsync(long userId, long issueId);
+        Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long CircleId);
+        Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId);
 
-        Task<PostShard> GetPostAsync(long userId, long postId);
-        Task<PostShard> AddPostAsync(long userId, long issueId,
+        Task<CorePost> GetPostAsync(long userId, long postId);
+        Task<CorePost> AddPostAsync(long userId, long issueId,
             DateTimeOffset timestamp, string caption,
             MemoryStream image);
         Task EditPostAsync(long userId, long postId,

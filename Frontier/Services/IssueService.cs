@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Core.Boundaries;
+using LazyLizardBackend.Shared.Responses;
 
 namespace LazyLizardBackend.Services
 {
     public class IssueService(IIssueRepository issueRepository) : IIssueService
-	{
-        public Task<PostShard> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
+    {
+        public Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
             throw new NotImplementedException();
         }
@@ -23,22 +24,22 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<IssueShard> GetIssueAsync(long userId, long issueId)
+        public Task<CoreIssue> GetIssueAsync(long userId, long issueId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<IssueShard>> GetIssuesForCircleAsync(long userId, long CircleId)
+        public Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long CircleId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PostShard> GetPostAsync(long userId, long postId)
+        public Task<CorePost> GetPostAsync(long userId, long postId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<GalleryShard> GetPostsForIssueAsync(long userId, long issueId)
+        public Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId)
         {
             throw new NotImplementedException();
         }

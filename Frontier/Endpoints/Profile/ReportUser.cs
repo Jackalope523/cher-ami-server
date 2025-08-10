@@ -32,7 +32,7 @@ namespace LazyLizardBackend.Endpoints.Profile
     }
 
 
-    public class ReportUser(IReportService reportService) : Endpoint<ReportUserRequest>
+    public class ReportPost(IReportService reportService) : Endpoint<ReportUserRequest>
     {
         public override void Configure()
         {

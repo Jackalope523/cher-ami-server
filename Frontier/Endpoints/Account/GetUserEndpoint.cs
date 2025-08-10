@@ -1,20 +1,20 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
 using Frontier.Contracts.Responses;
+using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Account
 {
-    public class GetNotificationPreferencesEndpoint(IAccountService accountService) : Endpoint<UserIdRequest, UserDTO, UserResponseMapper>
+    public class GetNotificationPreferencesEndpoint(IAccountService accountService) : Endpoint<IdRequest, UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {
-            Get("/account/{userId}");
+            Get("/account/{id}");
         }
 
-        public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             CoreUser userShard = await accountService.GetCoreUserAsync(request.Id);
 

@@ -1,6 +1,5 @@
 ﻿using FastEndpoints;
 using LazyLizardBackend.Shared.Mappers;
-using LazyLizardBackend.Shared.Requests;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Security.Claims;
@@ -10,6 +9,7 @@ using FluentValidation;
 using System.IO;
 using LazyLizardBackend.Contracts.Responses;
 using LazyLizardBackend.Endpoints.Issue;
+using LazyLizardBackend.Contracts.Requests;
 
 namespace Frontier.Endpoints.Account
 {
@@ -59,7 +59,7 @@ namespace Frontier.Endpoints.Account
 
             await Send.CreatedAtAsync<GetPostEndpoint>
                 (
-                    new PostIdRequest() { Id = corePost.Id }, 
+                    new IdRequest() { Id = corePost.Id }, 
                     Map.FromEntity(corePost), 
                     cancellation: cancellationToken
                 );

@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class GetRecipientsEndpoint(ICircleService circles) : Endpoint<CircleIdRequest, List<RecipientDTO>, RecipientResponseMapper>
+    public class GetRecipientsEndpoint(ICircleService circles) : Endpoint<IdRequest, List<RecipientDTO>, RecipientResponseMapper>
     {
         public override void Configure()
         {
             Get("/circle/{circleId}/recipients");
         }
 
-        public override async Task HandleAsync(CircleIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

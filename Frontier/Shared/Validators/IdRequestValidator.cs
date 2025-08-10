@@ -4,9 +4,9 @@ using Frontier.Contracts.Requests;
 
 namespace LazyLizardBackend.SharedContracts.SharedValidators
 {
-    public class PostIdRequestValidator : Validator<CircleIdRequest>
+    public class IdRequestValidator : Validator<IdRequest>
     {
-        public PostIdRequestValidator()
+        public IdRequestValidator()
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0).WithMessage("Id must be greater than 0.");

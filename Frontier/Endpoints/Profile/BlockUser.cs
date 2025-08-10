@@ -1,19 +1,19 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Profile
 {
-    public class BlockUser(IProfileService profileService) : Endpoint<UserIdRequest>
+    public class BlockUser(IProfileService profileService) : Endpoint<IdRequest>
     {
         public override void Configure()
         {
-            Post("/account/{userId}/block");
+            Post("/account/{id}/block");
         }
 
-        public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
+using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Contracts.Responses;
 using LazyLizardBackend.Shared.Mappers;
-using LazyLizardBackend.Shared.Requests;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Issue
 {
-    public class GetPostEndpoint(IIssueService issues) : Endpoint<PostIdRequest, List<PostDTO>, PostResponseMapper>
+    public class GetPostEndpoint(IIssueService issues) : Endpoint<IdRequest, List<PostDTO>, PostResponseMapper>
     {
         public override void Configure()
         {
-            Get("/issues/posts/{postId}");
+            Get("/issues/posts/{id}");
         }
 
-        public override async Task HandleAsync(PostIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

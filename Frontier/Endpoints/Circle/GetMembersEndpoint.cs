@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetMembersEndpoint(ICircleService circles) : Endpoint<CircleIdRequest, List<CircleMembershipDTO>, CircleMembershipResponseMapper>
+    public class GetMembersEndpoint(ICircleService circles) : Endpoint<IdRequest, List<CircleMembershipDTO>, CircleMembershipResponseMapper>
     {
         public override void Configure()
         {
             Get("/circle/{circleId}/members");
         }
 
-        public override async Task HandleAsync(CircleIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

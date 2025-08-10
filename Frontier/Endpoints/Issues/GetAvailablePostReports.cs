@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using LazyLizardBackend.Shared.Requests;
+using LazyLizardBackend.Contracts.Requests;
 
 namespace LazyLizardBackend.Endpoints.Profile
 {
-    public class GetAvailablePostReports(IReportService reportService) : Endpoint<PostIdRequest, List<PostReportType>>
+    public class GetAvailablePostReports(IReportService reportService) : Endpoint<IdRequest, List<PostReportType>>
     {
         public override void Configure()
         {
-            Get("issues/posts/{postId}/report");
+            Get("issues/posts/{id}/report");
         }
 
-        public override async Task HandleAsync(PostIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

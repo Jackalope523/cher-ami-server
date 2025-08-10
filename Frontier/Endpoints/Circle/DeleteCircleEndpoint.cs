@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Circle
 {
-    public class Delete(ICircleService circles) : Endpoint<CircleIdRequest>
+    public class Delete(ICircleService circles) : Endpoint<IdRequest>
     {
         public override void Configure()
         {
             Delete("/circle/{circleId}");
         }
 
-        public override async Task HandleAsync(CircleIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

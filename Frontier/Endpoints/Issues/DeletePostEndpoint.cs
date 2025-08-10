@@ -1,19 +1,19 @@
 ﻿using FastEndpoints;
-using LazyLizardBackend.Shared.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class DeletePostEndpoint(IIssueService issues) : Endpoint<PostIdRequest>
+    public class DeletePostEndpoint(IIssueService issues) : Endpoint<IdRequest>
     {
         public override void Configure()
         {
-            Delete("/issues/posts/{postId}");
+            Delete("/issues/posts/{id}");
         }
 
-        public override async Task HandleAsync(PostIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

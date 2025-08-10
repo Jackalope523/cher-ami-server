@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
+using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Contracts.Responses;
 using LazyLizardBackend.Shared.Mappers;
-using LazyLizardBackend.Shared.Requests;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class GetIssuePostsEndpoint(IIssueService issues) : Endpoint<IssueIdRequest, List<PostDTO>, PostResponseMapper>
+    public class GetIssuePostsEndpoint(IIssueService issues) : Endpoint<IdRequest, List<PostDTO>, PostResponseMapper>
     {
         public override void Configure()
         {
-            Get("/issues/{issueId}/posts");
+            Get("/issues/{id}/posts");
         }
 
-        public override async Task HandleAsync(IssueIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

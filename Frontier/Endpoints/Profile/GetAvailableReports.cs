@@ -1,5 +1,5 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Endpoints.Profile
 {
-    public class GetAvailableReports(IReportService reportService) : Endpoint<UserIdRequest, List<UserReportType>>
+    public class GetAvailableReports(IReportService reportService) : Endpoint<IdRequest, List<UserReportType>>
     {
         public override void Configure()
         {
-            Get("/account/{userId}/report-types");
+            Get("/account/{id}/report-types");
         }
 
-        public override async Task HandleAsync(UserIdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 

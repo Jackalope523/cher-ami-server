@@ -34,7 +34,7 @@ var configuration = builder.Configuration;
 
 string env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 
-if (env != "Production" || env != "Staging" || env != "Development")
+if (env != "Production" && env != "Staging" && env != "Development")
 {
     throw new InvalidEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.");
 }
@@ -63,7 +63,7 @@ var frontierLogger = loggerFactory.CreateLogger("Frontier");
 var coreLogger = loggerFactory.CreateLogger("Core");
 
 
-var keyProvider = harbor.KeyDatabaseAccess;
+var keyProvider = new KeyStorageRepository(new LLContext());
 
 OneSignalService oneSignalInstance = new();
 OneSignalService.Initialise(frontierLogger,
@@ -94,7 +94,7 @@ builder.Services.AddDbContext<LLContext>(options =>
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
 builder.Services.AddScoped<IIssueRepository, IssueRepository>();
-builder.Services.AddScoped<IKeyRepository, KeyStoreRepository>();
+builder.Services.AddScoped<IKeyRepository, KeyStorageRepository>();
 
 
 string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";

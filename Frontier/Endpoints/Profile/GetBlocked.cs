@@ -17,9 +17,9 @@ namespace LazyLizardBackend.Endpoints.Profile
 
     public class BlockedResponseMapper : ResponseMapper<BlockedUserResponse, CoreBlockedUser>
     {
-        public override BlockedUserResponse FromEntity(CoreBlockedUser user) => new BlockedUserResponse()
+        public override BlockedUserResponse FromEntity(CoreBlockedUser user) => new()
         {
-            Id = user.Id,
+            UserId = user.UserId,
             FullName = user.FullName,
             DateBlocked = user.DateBlocked,
         };

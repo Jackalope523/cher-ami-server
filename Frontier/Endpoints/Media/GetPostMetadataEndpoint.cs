@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using LazyLizardBackend.Contracts.Requests;
+using LazyLizardBackend.Shared.Responses;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;

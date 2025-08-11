@@ -1,4 +1,7 @@
-﻿namespace Repository.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace Repository.Entities
 {
     public class Recipient : Entity
     {
@@ -15,8 +18,8 @@
         public long ManagerId { get; set; }
 
         // Navigation Properties
-        public List<RecipientLink>? CircleRecipients { get; set; }
-        public User? Manager { get; set; }
+        public List<RecipientLink> CircleRecipients { get; set; }
+        public User Manager { get; set; }
 
         // Default Values
         public static string DefaultTitle { get; set; } = "";

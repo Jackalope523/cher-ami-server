@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 
 namespace LazyLizardBackend.SharedContracts.SharedValidators
 {

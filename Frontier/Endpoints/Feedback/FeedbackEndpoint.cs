@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,7 +41,8 @@ namespace LazyLizardBackend.Endpoints.Feedback
             }
             else
             {
-                await miscellaneousService.ReceiveFeedback(user.Id, request.Comments);
+                long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                await miscellaneousService.ReceiveFeedback(userId, request.Comments);
                 await Send.NoContentAsync(cancellationToken);
             }
         }

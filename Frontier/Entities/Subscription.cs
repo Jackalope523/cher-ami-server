@@ -6,7 +6,7 @@
         public string DeviceToken { get; set; }
 
         // Navigation Properties
-        public User? User { get; set; }
+        public User User { get; set; }
 
         // Default Values
     }

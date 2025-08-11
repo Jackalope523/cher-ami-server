@@ -1,4 +1,6 @@
-﻿namespace Repository.Entities
+﻿using System;
+
+namespace Repository.Entities
 {
     public class Feedback : Entity
     {
@@ -7,7 +9,7 @@
         public string Comments { get; set; }
 
         // Navigation Properties
-        public User? User { get; set; }
+        public User User { get; set; }
 
         // Default Values
     }

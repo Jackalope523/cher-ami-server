@@ -1,5 +1,5 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,28 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Core.Boundaries;
-using Frontier.Controllers;
 
 namespace Frontier.Stores
 {
-	public class UserAccountStore : IUserStore<CoreUser>,
+	public class UserAccountStore(IAccountService accounts) : IUserStore<CoreUser>,
 		IUserPhoneNumberStore<CoreUser>,
 		IUserEmailStore<CoreUser>,
 		IUserSecurityStampStore<CoreUser>,
 		IUserLockoutStore<CoreUser>
 	{
-		private IAccountService accounts { get; init; }
-
-		public UserAccountStore(ControllerBox box)
-		{
-			accounts = box.accounts;
-		}
-
 		public async Task<IdentityResult> CreateAsync(CoreUser user, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();

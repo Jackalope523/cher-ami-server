@@ -1,4 +1,6 @@
-﻿using PostReport = Repository.Entities.Reports.PostReport;
+﻿using System;
+using System.Collections.Generic;
+using PostReport = Repository.Entities.Reports.PostReport;
 
 namespace Repository.Entities
 {
@@ -12,11 +14,11 @@ namespace Repository.Entities
         public DateTimeOffset PostedAt { get; init; }
 
         // Navigation Properties
-        public User? Author { get; set; }
-        public Issue? Issue { get; set; }
-        public List<Snapshot>? Snapshots { get; set; }
-        public List<Caption>? Captions { get; set; }
-        public List<PostReport>? Reports { get; set; }
+        public User Author { get; set; }
+        public Issue Issue { get; set; }
+        public List<Snapshot> Snapshots { get; set; }
+        public List<Caption> Captions { get; set; }
+        public List<PostReport> Reports { get; set; }
 
         // Default Values
 

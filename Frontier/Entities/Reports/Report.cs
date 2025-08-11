@@ -1,4 +1,5 @@
 ﻿using Repository.Entities;
+using System;
 
 namespace Repository.Entities.Reports
 {
@@ -16,7 +17,7 @@ namespace Repository.Entities.Reports
         public string Notes { get; init; } = DefaultNotes;
 
         // Navigation Properties
-        public User? FilingUser { get; init; }
+        public User FilingUser { get; init; }
 
         // Default Values
         public static string DefaultNotes { get; set; } = "";

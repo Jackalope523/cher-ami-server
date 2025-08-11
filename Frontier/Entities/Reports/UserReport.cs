@@ -10,7 +10,7 @@ namespace Repository.Entities.Reports
         public long? GatheringId { get; init; }
 
         // Navigation Properties
-        public User? User { get; init; }
-        public Circle? Gathering { get; init; }
+        public User User { get; init; }
+        public Circle Gathering { get; init; }
     }
 }

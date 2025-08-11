@@ -1,9 +1,5 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using Frontier.Contracts.Requests;
-using Frontier.Contracts.Responses;
-using LazyLizardBackend.Endpoints.Account;
-using Mappers;
 using System;
 using System.Security.Claims;
 using System.Threading;

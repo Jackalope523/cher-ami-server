@@ -9,6 +9,6 @@ namespace Repository.Entities.Reports
         public long PostId { get; init; }
 
         // Navigation Properties
-        public Post? Post { get; init; }
+        public Post Post { get; init; }
     }
 }

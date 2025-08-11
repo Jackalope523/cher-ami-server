@@ -1,14 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Core.Boundaries;
-using static LazyLizardBackend.Arbiter;
+using LazyLizardBackend.Shared.Responses;
 
 namespace LazyLizardBackend.Services
 {
     public class MediaService(IMediaRepository mediaRepository) : IMediaService
-	{
+    {
         public Task<MemoryStream> GetAssetAsync(string asset)
         {
             throw new NotImplementedException();

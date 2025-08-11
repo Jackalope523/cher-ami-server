@@ -1,4 +1,8 @@
-﻿namespace Repository.Entities
+﻿using LazyLizardBackend.Contracts.Responses;
+using System;
+using System.Collections.Generic;
+
+namespace Repository.Entities
 {
     public class Circle : Entity
     {
@@ -11,10 +15,10 @@
 
 
         // Navigation Properties
-        public List<CircleMembership>? CircleMemberships { get; set; }
-        public List<RecipientLink>? CircleRecipients { get; set; }
-        public List<Issue>? Issues { get; set; }
-        public List<Notification>? Notifications { get; set; }
+        public List<CircleMembership> CircleMemberships { get; set; }
+        public List<RecipientLink> CircleRecipients { get; set; }
+        public List<Issue> Issues { get; set; }
+        public List<Notification> Notifications { get; set; }
 
         // Default Values
 

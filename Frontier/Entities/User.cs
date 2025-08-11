@@ -31,17 +31,17 @@ namespace Repository.Entities
         public bool IssueReminders { get; set; } = DefaultIssueReminders;
 
         // Navigation Properties
-        public List<CircleMembership>? CircleMemberships { get; set; }
-        public List<UserReport>? ReporterList { get; set; }
-        public List<UserReport>? ReportedList { get; set; }
-        public List<Block>? BlockerList { get; set; }
-        public List<Block>? BlockedList { get; set; }
-        public List<PostReport>? SnapshotReports { get; set; }
-        public List<Subscription>? Subscriptions { get; set; }
-        public List<Feedback>? Feedback { get; set; }
-        public List<Notification>? Notifications { get; set; }
-        public List<Post>? Posts { get; set; }
-        public List<Recipient>? Recipients { get; set; }
+        public List<CircleMembership> CircleMemberships { get; set; }
+        public List<UserReport> ReporterList { get; set; }
+        public List<UserReport> ReportedList { get; set; }
+        public List<Block> BlockerList { get; set; }
+        public List<Block> BlockedList { get; set; }
+        public List<PostReport> SnapshotReports { get; set; }
+        public List<Subscription> Subscriptions { get; set; }
+        public List<Feedback> Feedback { get; set; }
+        public List<Notification> Notifications { get; set; }
+        public List<Post> Posts { get; set; }
+        public List<Recipient> Recipients { get; set; }
 
         // Default Values
         public static string DefaultPhoneNumber { get; set; } = "";

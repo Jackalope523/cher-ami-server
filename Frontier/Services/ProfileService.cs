@@ -13,7 +13,7 @@ namespace LazyLizardBackend.Services
             await profileRepository.BlockUserAsync(userId, targetId, Psijic.Time);
         }
 
-        public async Task<List<BlockedUserShard>> GetBlockedUsersAsync(long userId)
+        public async Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long userId)
         {
             return await profileRepository.GetBlockedUsersAsync(userId);
         }

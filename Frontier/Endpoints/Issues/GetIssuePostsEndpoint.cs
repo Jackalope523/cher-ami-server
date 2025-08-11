@@ -22,7 +22,7 @@ namespace Frontier.Endpoints.Account
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             List<CorePost> corePosts = await issues.GetPostsForIssueAsync(userId, request.Id);
-            await Send.OkAsync(corePosts.Select(Map.FromEntity).ToList(), cancellationToken));
+            await Send.OkAsync(corePosts.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }
 }

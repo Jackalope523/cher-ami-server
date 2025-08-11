@@ -1,5 +1,5 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
+using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Shared.Mappers;
 using LazyLizardBackend.Shared.Responses;
 using System.Collections.Generic;

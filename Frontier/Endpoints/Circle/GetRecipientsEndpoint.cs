@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Requests;
 using Frontier.Contracts.Responses;
+using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;

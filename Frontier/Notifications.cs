@@ -2,6 +2,7 @@
 using System.Reflection;
 using Core.Boundaries;
 using Frontier.Contracts.Responses;
+using LazyLizardBackend.Contracts.Responses;
 
 namespace Core.Notifications
 {
@@ -170,7 +171,7 @@ namespace Core.Notifications
                 new IssueDeepLink(addingUser.Id),
                 "1"));
 
-        public static CardinalNotification GatheringInvitation(UserDTO invitingUser, CircleShard circle)
+        public static CardinalNotification GatheringInvitation(UserDTO invitingUser, CircleDTO circle)
             => IssuePost(new("Gathering Invitation",
                 $"{invitingUser.FirstName} invited you to {circle.Title}.",
                 new CircleDeepLink(circle.Id, invitedBy: invitingUser.FirstName),
@@ -189,13 +190,13 @@ namespace Core.Notifications
             return notification;
         }
 
-        public static CardinalNotification CompanionJoined(UserDTO companion, CircleShard circle)
+        public static CardinalNotification CompanionJoined(UserDTO companion, CircleDTO circle)
             => IssueReminder(new(circle.Title,
                 $"{companion.FirstName} joined the gathering.",
                 new CircleDeepLink(circle.Id, focus: CircleDeepLink.FocusTarget.guestlist),
                 $"{circle.Id}:10"));
 
-        public static CardinalNotification CompanionGatheringCreated(UserDTO companion, CircleShard circle)
+        public static CardinalNotification CompanionGatheringCreated(UserDTO companion, CircleDTO circle)
             => IssueReminder(new("Companion Gathering",
                 $"{companion.FirstName} just created {circle.Title}",
                 new CircleDeepLink(circle.Id)));

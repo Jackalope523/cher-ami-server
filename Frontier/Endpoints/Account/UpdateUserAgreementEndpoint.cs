@@ -1,12 +1,11 @@
 ﻿using FastEndpoints;
-using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class UpdateUserAgreementEndpoint(UserManager<CoreUser> userManager, IAccountService accountService) : EndpointWithoutRequest
+    public class UpdateUserAgreementEndpoint(IAccountService accountService) : EndpointWithoutRequest
     {
         public override void Configure()
         {

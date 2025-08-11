@@ -1,4 +1,7 @@
-﻿namespace Repository.Entities
+﻿using LazyLizardBackend.Contracts.Responses;
+using System;
+
+namespace Repository.Entities
 {
     public class CircleMembership : Entity
     {
@@ -8,8 +11,8 @@
         public CircleMembershipType Type { get; set; }
 
         // Navigation Properties
-        public User? User { get; set; }
-        public Circle? Circle { get; set; }
+        public User User { get; set; }
+        public Circle Circle { get; set; }
 
         // Default Values
     }

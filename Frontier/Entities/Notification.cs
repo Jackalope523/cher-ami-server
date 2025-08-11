@@ -11,8 +11,8 @@
 
 
         // Navigation Properties
-        public User? Recipient { get; set; }
-        public Circle? Circles { get; set; }
+        public User Recipient { get; set; }
+        public Circle Circles { get; set; }
 
         // Default Values
     }

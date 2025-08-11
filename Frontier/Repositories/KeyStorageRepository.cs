@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class KeyStoreRepository(LLContext ctx) : IKeyRepository
+    public class KeyStorageRepository(LLContext ctx) : IKeyRepository
     {
         public Uri Uri = new Uri("https://thesparrowkeys.vault.azure.net/");
         public readonly Func<Azure.Core.TokenCredential> credentials = () => new DefaultAzureCredential();

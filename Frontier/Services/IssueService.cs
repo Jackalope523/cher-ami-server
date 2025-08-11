@@ -7,7 +7,7 @@ using LazyLizardBackend.Shared.Responses;
 
 namespace LazyLizardBackend.Services
 {
-    public class IssueService(IIssueRepository issueRepository) : IIssueService
+    public class IssueService() : IIssueService
     {
         public Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {

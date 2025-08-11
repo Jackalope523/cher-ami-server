@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;
 
 
@@ -68,9 +69,13 @@ namespace Repository.Repositories
             List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
 
             List<UserReport> userReports = reports.OfType<UserReport>().ToList();
-            List<Core.Boundaries.PostReport> postReports = reports.OfType<Core.Boundaries.PostReport>().ToList();
+            List<PostReport> postReports = reports.OfType<PostReport>().ToList();
 
-            return (userReports, reports.OfType<Core.Boundaries.PostReport>().ToList());
+            return 
+                (
+                userReports.Select(r => new Core.Boundaries.UserReport(r.Id, r.FilingUserId ?? 0, r.UserId, r.FilingDate, r.Type, r.Notes)).ToList(), 
+                postReports.Select(r => new Core.Boundaries.PostReport(r.Id, r.FilingUserId ?? 0, r.PostId, r.FilingDate, r.Type, r.Notes)).ToList()
+                );
         }
 
         public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)

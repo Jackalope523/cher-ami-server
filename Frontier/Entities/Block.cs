@@ -1,4 +1,6 @@
-﻿namespace Repository.Entities
+﻿using System;
+
+namespace Repository.Entities
 {
     public class Block : Entity
     {
@@ -7,7 +9,7 @@
         public DateTimeOffset BlockDate { get; set; }
 
         // Navigation Properties
-        public User? Blocker { get; set; }
-        public User? Blocked { get; set; }
+        public User Blocker { get; set; }
+        public User Blocked { get; set; }
     }
 }

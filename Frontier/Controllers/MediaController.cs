@@ -104,31 +104,7 @@ namespace Frontier.Controllers
         {
             return await Execute(async user => await media.GetHeaderMetadataAsync(user.Id, circleId));
         }
-
-        [HttpGet("posts/{postId}")]
-		public async Task<IActionResult> GetPostImage(long postId)
-        {
-            return await ExecuteUnsafe(async () =>
-            {
-                var user = await GetCurrentUserAsync();
-
-                ThrowIfUnverified(user);
-
-                var imageStream = await media.GetPostAsync(user.Id, postId);
-
-                if (imageStream != null)
-                {
-                    imageStream.Seek(0, SeekOrigin.Begin);
-
-                    return new FileStreamResult(imageStream, "image/jpeg")
-                    {
-                        FileDownloadName = "post.jpg"
-                    };
-                }
-
-                throw new UnexpectedFailureException($"Could not download image. post:{postId}");
-            });
-        }
+      
 
         [HttpGet("posts/{postId}/metadata")]
         public async Task<IActionResult> GetPostMetadata(long postId)

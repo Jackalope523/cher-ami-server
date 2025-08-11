@@ -39,7 +39,7 @@ namespace Repository.Contexts
             modelBuilder.Entity<User>()
               .HasData(new User()
               {
-                  Id = -2,
+                  Id = 2,
                   PhoneNumber = "15734922666",
                   FirstName = "CANARY",
                   IsPhoneConfirmed = true,
@@ -49,7 +49,7 @@ namespace Repository.Contexts
             modelBuilder.Entity<User>()
                 .HasData(new User()
                 {
-                    Id = -7,
+                    Id = 7,
                     PhoneNumber = "11002003007",
                     FirstName = "Apple Test Account",
                     IsPhoneConfirmed = true,
@@ -58,7 +58,7 @@ namespace Repository.Contexts
             modelBuilder.Entity<User>()
                .HasData(new User()
                {
-                   Id = -8,
+                   Id = 8,
                    PhoneNumber = "11002003008",
                    FirstName = "Google Test Account",
                    IsPhoneConfirmed = true,

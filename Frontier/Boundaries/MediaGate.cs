@@ -1,14 +1,10 @@
 ﻿using System.Threading.Tasks;
 using System.IO;
 using System;
+using LazyLizardBackend.Shared.Responses;
 
 namespace Core.Boundaries
 {
-    #region Schemas
-
-    public record ImageMetadataShard(string Hash, bool Concealed);
-
-    #endregion
 
     #region Gates
 
@@ -34,16 +30,16 @@ namespace Core.Boundaries
         Task<MemoryStream> GetAssetAsync(string asset);
 
         Task<MemoryStream> GetAvatarAsync(long userId, long targetId);
-        Task<ImageMetadataShard> GetAvatarMetadataAsync(long userId, long targetId);
+        Task<ImageMetadataDTO> GetAvatarMetadataAsync(long userId, long targetId);
 
         Task<MemoryStream> GetHeaderAsync(long userId, long circleId);
-        Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long circleId);
+        Task<ImageMetadataDTO> GetHeaderMetadataAsync(long userId, long circleId);
 
         Task<MemoryStream> GetPostAsync(long userId, long postId);
-        Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId);
+        Task<ImageMetadataDTO> GetPostMetadataAsync(long userId, long postId);
 
         Task<MemoryStream> GetPhotoAsync(long userId, long chatId, Guid photoId);
-        Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId);
+        Task<ImageMetadataDTO> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId);
     }
 
     #endregion

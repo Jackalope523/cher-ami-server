@@ -19,7 +19,7 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<ImageMetadataShard> GetAvatarMetadataAsync(long userId, long targetId)
+        public Task<ImageMetadataDTO> GetAvatarMetadataAsync(long userId, long targetId)
         {
             throw new NotImplementedException();
         }
@@ -29,7 +29,7 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<ImageMetadataShard> GetHeaderMetadataAsync(long userId, long circleId)
+        public Task<ImageMetadataDTO> GetHeaderMetadataAsync(long userId, long circleId)
         {
             throw new NotImplementedException();
         }
@@ -39,7 +39,7 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<ImageMetadataShard> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId)
+        public Task<ImageMetadataDTO> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId)
         {
             throw new NotImplementedException();
         }
@@ -49,7 +49,7 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<ImageMetadataShard> GetPostMetadataAsync(long userId, long postId)
+        public Task<ImageMetadataDTO> GetPostMetadataAsync(long userId, long postId)
         {
             throw new NotImplementedException();
         }

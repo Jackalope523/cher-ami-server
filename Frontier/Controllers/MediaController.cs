@@ -135,38 +135,6 @@ namespace Frontier.Controllers
         {
             return await Execute(async user => await media.GetPostMetadataAsync(user.Id, postId));
         }
-
-        [HttpGet("chat/{chatId}/photos/{photoId}")]
-        public async Task<IActionResult> GetPhoto(long chatId, Guid photoId)
-        {
-            return await ExecuteUnsafe(async () =>
-            {
-                var user = await GetCurrentUserAsync();
-
-                ThrowIfUnverified(user);
-
-                var imageStream = await media.GetPhotoAsync(user.Id, chatId, photoId);
-
-                if (imageStream != null)
-                {
-                    imageStream.Seek(0, SeekOrigin.Begin);
-
-                    return new FileStreamResult(imageStream, "image/jpeg")
-                    {
-                        FileDownloadName = "photo.jpg"
-                    };
-                }
-
-                throw new UnexpectedFailureException($"Could not download image. photo:{photoId}");
-            });
-        }
-
-        [HttpGet("chat/{chatId}/photos/{photoId}/metadata")]
-        public async Task<IActionResult> GetPhotoMetadata(long chatId, Guid photoId)
-        {
-            return await Execute(async user => await media.GetPhotoMetadataAsync(user.Id, chatId, photoId));
-        }
-
         #endregion
     }
 }

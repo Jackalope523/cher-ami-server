@@ -7,7 +7,7 @@ using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace Repository.Contexts
 {
-    public class LLContext : DbContext
+    public class LLContext(DbContextOptions<LLContext> options) : DbContext(options)
     {
         internal DbSet<User> Users { get; set; }
         internal DbSet<Issue> Issues { get; set; }

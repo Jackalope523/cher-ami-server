@@ -7,14 +7,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Repository;
 using Serilog;
 using System.IO;
 using FastEndpoints;
 using Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
-using Microsoft.Extensions.Configuration;
 using LazyLizardBackend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,8 +45,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
@@ -63,19 +59,31 @@ var frontierLogger = loggerFactory.CreateLogger("Frontier");
 var coreLogger = loggerFactory.CreateLogger("Core");
 
 
-var keyProvider = new KeyStorageRepository(new LLContext());
+//var keyProvider = new KeyStorageRepository(new LLContext());
+
+//OneSignalService oneSignalInstance = new();
+//OneSignalService.Initialise(frontierLogger,
+//    keyProvider.GetHollowOneSignalApiKeyAsync().Result,
+//    keyProvider.GetHollowOneSignalAppIdAsync().Result);
+
+//TwilioService.Initialise(env, frontierLogger,
+//    keyProvider.GetHollowTwilioAccountKeyAsync().Result,
+//    keyProvider.GetHollowTwilioAuthTokenAsync().Result,
+//    keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
+
 
 OneSignalService oneSignalInstance = new();
 OneSignalService.Initialise(frontierLogger,
-    keyProvider.GetHollowOneSignalApiKeyAsync().Result,
-    keyProvider.GetHollowOneSignalAppIdAsync().Result);
+    "",
+    "");
 
 TwilioService.Initialise(env, frontierLogger,
-    keyProvider.GetHollowTwilioAccountKeyAsync().Result,
-    keyProvider.GetHollowTwilioAuthTokenAsync().Result,
-    keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
+    "",
+    "",
+    "");
 
 builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
+builder.Services.AddScoped<IEmailService, OneSignalService>();
 builder.Services.AddTransient<ISMSService, TwilioService>();
 
 string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
@@ -130,6 +138,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddIdentityCookies();
 
+builder.Services.AddAuthorization();
+
 builder.Services.AddIdentityCore<CoreUser>()
     .AddUserStore<UserAccountStore>()
     .AddSignInManager()
@@ -159,7 +169,5 @@ app.UseCookiePolicy();
 app.UseAuthorization();
 
 app.UseFastEndpoints();
-
-app.MapControllers();
 
 app.Run();

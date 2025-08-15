@@ -76,7 +76,6 @@ namespace Core.Boundaries
         Task DeleteCircleAsync(long userId, long circleId);
         
         Task<List<CoreCircleMembership>> GetCircleMembers(long userId, long circleId);
-        Task SendInvitationAsync(long userId, long circleId, string phoneNumber = null, string email = null);
         Task JoinCircleAsync(long userId, string circleCode);
         Task RemoveMemberAsync(long userId, long circleId);
 

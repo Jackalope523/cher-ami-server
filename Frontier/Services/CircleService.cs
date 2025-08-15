@@ -47,11 +47,6 @@ namespace LazyLizardBackend.Services
             return await circleRepository.GetCircleMembersAsync(circleId);
         }
 
-        public Task SendInvitationAsync(long userId, long circleId, string phoneNumber = null, string email = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task JoinCircleAsync(long userId, string circleCode)
         {
             await circleRepository.AddCircleMemberAsync(userId, circleCode);
@@ -67,9 +62,9 @@ namespace LazyLizardBackend.Services
             return await circleRepository.GetRecipientsForCircleAsync(circleId);
         }
 
-        public Task EditRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
+        public async Task EditRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
         {
-            throw new NotImplementedException();
+            await circleRepository.UpdateRecipientAsync(recipientId, edits);
         }
 
         public async Task AddRecipientAsync(long circleId, long recipientId)

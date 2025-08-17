@@ -1,4 +1,5 @@
-﻿using LazyLizardBackend.Contracts.Responses;
+﻿using Core.Boundaries;
+using LazyLizardBackend.Contracts.Responses;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;

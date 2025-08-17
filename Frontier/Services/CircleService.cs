@@ -1,4 +1,5 @@
-﻿using LazyLizardBackend.Contracts.Responses;
+﻿using Core.Boundaries;
+using LazyLizardBackend.Contracts.Responses;
 using LazyLizardBackend.Exceptions;
 using System.Collections.Generic;
 using System.IO;

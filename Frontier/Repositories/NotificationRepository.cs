@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Boundaries;
+using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
 using System;

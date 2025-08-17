@@ -14,6 +14,9 @@ using Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using LazyLizardBackend.Services;
+using Frontier.Exceptions;
+using Core.Boundaries;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 

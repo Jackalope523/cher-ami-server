@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Boundaries;
-using static LazyLizardBackend.Artificer;
 
 namespace LazyLizardBackend.Services
 {
@@ -18,11 +16,11 @@ namespace LazyLizardBackend.Services
 
             List<(string Property, object Value)> edits = new();
 
-            if (IsNotNull(issuePosts))
+            if (issuePosts != null)
             {
                 edits.Add((nameof(CoreNotificationProfile.IssuePosts), issuePosts.Value));
             }
-            if (IsNotNull(issueReminders))
+            if (issueReminders != null)
             {
                 edits.Add((nameof(CoreNotificationProfile.IssueReminders), issueReminders.Value));
             }

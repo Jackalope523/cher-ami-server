@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Boundaries;
-using LazyLizardBackend;
 
 namespace LazyLizardBackend.Services
 {
@@ -10,7 +8,7 @@ namespace LazyLizardBackend.Services
 	{
         public async Task BlockUserAsync(long userId, long targetId)
         {
-            await profileRepository.BlockUserAsync(userId, targetId, Psijic.Time);
+            await profileRepository.BlockUserAsync(userId, targetId, DateTimeOffset.UtcNow);
         }
 
         public async Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long userId)

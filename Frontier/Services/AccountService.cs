@@ -1,12 +1,7 @@
-﻿using Core.Boundaries;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-
-using static LazyLizardBackend.Arbiter;
-using static LazyLizardBackend.Artificer;
-using static LazyLizardBackend.Psijic;
 
 namespace LazyLizardBackend.Services
 {
@@ -30,7 +25,7 @@ namespace LazyLizardBackend.Services
         public async Task CreateUserAsync(string phoneNumber, string email, string title, string givenName, string familyName, DateTimeOffset dateOfBirth)
         {
             await accountRepository.CreateUserAsync(phoneNumber, email, email,
-                title, givenName, familyName, dateOfBirth, Time,
+                title, givenName, familyName, dateOfBirth, DateTimeOffset.UtcNow,
                 Guid.NewGuid());
         }
 
@@ -89,11 +84,11 @@ namespace LazyLizardBackend.Services
                 edits.Add((nameof(CoreUser.DateOfBirth), user.DateOfBirth));
 			}
             // Internal attributes for account store
-			if (IsNotNull(isPhoneNumberConfirmed))
+			if (isPhoneNumberConfirmed != null)
 			{
                 edits.Add((nameof(CoreUser.IsPhoneConfirmed), isPhoneNumberConfirmed.Value));
 			}
-			if (IsNotNull(isEmailConfirmed))
+			if (isEmailConfirmed != null)
 			{
                 edits.Add((nameof(CoreUser.IsEmailConfirmed), isEmailConfirmed.Value));
 			}
@@ -101,11 +96,11 @@ namespace LazyLizardBackend.Services
 			{
                 edits.Add((nameof(CoreUser.SecurityStamp), securityStamp));
 			}
-			if (IsNotNull(lockoutDate))
+			if (lockoutDate != null)
 			{
                 edits.Add((nameof(CoreUser.LockoutDate), lockoutDate.Value));
 			}
-			if (IsNotNull(accessTries))
+			if (accessTries != null)
 			{
                 edits.Add((nameof(CoreUser.AccessTries), accessTries.Value));
 			}
@@ -119,7 +114,7 @@ namespace LazyLizardBackend.Services
             var user = await accountRepository.GetUserByIdAsync(userId);
 
             await accountRepository.UpdateUserAsync(user.Id,
-                new() { (nameof(CoreUser.TimeOfUserAgreement), Time) });
+                new() { (nameof(CoreUser.TimeOfUserAgreement), DateTimeOffset.UtcNow) });
         }
 
         public async Task EditAvatarAsync(long userId, MemoryStream image)

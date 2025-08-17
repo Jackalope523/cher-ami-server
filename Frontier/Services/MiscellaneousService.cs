@@ -1,7 +1,5 @@
-﻿using System.IO;
+﻿using System;
 using System.Threading.Tasks;
-using Core.Boundaries;
-using static LazyLizardBackend.Psijic;
 
 namespace LazyLizardBackend.Services
 {
@@ -9,12 +7,12 @@ namespace LazyLizardBackend.Services
     {
         public async Task ReceiveFeedback(long userId, string comments)
         {
-            await miscellaneousRepository.SaveFeedbackAsync(comments, Time, userId);
+            await miscellaneousRepository.SaveFeedbackAsync(comments, DateTimeOffset.UtcNow, userId);
         }
 
         public async Task ReceiveFeedback(string comments)
         {
-            await miscellaneousRepository.SaveFeedbackAsync(comments, Time);
+            await miscellaneousRepository.SaveFeedbackAsync(comments, DateTimeOffset.UtcNow);
         }
     }
 }

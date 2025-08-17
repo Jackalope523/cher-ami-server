@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using LazyLizardBackend.Exceptions;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using ILogger = Serilog.ILogger;
@@ -19,6 +18,7 @@ namespace Frontier
             httpContext.Response.StatusCode = exception switch
             {
                 UserErrorException => StatusCodes.Status400BadRequest,
+                NoAccessException => StatusCodes.Status403Forbidden,
                 _ => StatusCodes.Status500InternalServerError
             };
 

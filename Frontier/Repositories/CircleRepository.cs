@@ -49,7 +49,7 @@ namespace Repository.Repositories
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
                    Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
-                   SingleAsync();
+                   SingleOrDefaultAsync();
         }
 
         public async Task<CoreCircle> GetCircleByCodeAsync(string circleCode)
@@ -57,7 +57,7 @@ namespace Repository.Repositories
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
                    Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
-                   SingleAsync();
+                   SingleOrDefaultAsync();
         }
 
         public async Task<List<CoreCircle>> GetCirclesForUserAsync(long userId)
@@ -455,6 +455,21 @@ namespace Repository.Repositories
 
             ctx.Recipients.Add(toAdd);
             await ctx.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsMemberAsync(long userId, long circleId)
+        {
+            return await ctx.CircleMemberships.AnyAsync(c => c.UserId == userId && c.CircleId == circleId);
+        }
+
+        public async Task<bool> IsMemberOfTypeAsync(long userId, long circleId, CircleMembershipType type)
+        {
+            return await ctx.CircleMemberships.AnyAsync(c => c.UserId == userId && c.CircleId == circleId && c.Type == type);
+        }
+
+        public async Task<bool> IsManagerAsync(long userId, long recipientId)
+        {
+            return await ctx.Recipients.AnyAsync(x => x.Id == recipientId && x.ManagerId == userId);
         }
     }
 }

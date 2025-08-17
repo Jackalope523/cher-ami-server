@@ -48,10 +48,13 @@ namespace Core.Boundaries
         Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId);
 
         Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId);
+        Task<bool> IsMemberAsync(long userId, long circleId);
+        Task<bool> IsMemberOfTypeAsync(long userId, long circleId, CircleMembershipType type);
         Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits);
         Task AddCircleMemberAsync(long userId, string circleCode);
         Task RemoveCircleMembershipAsync(long userId, long circleId);
 
+        Task<bool> IsManagerAsync(long userId, long recipientId);
         Task AddRecipientAsync(long circleId, long recipientId);
         Task RemoveRecipientAsync(long circleId, long recipientId);
         Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
@@ -80,11 +83,11 @@ namespace Core.Boundaries
         Task RemoveMemberAsync(long userId, long circleId);
 
         Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId, long circleId);
-        Task AddRecipientAsync(long circleId, long recipientId);
-        Task RemoveRecipientAsync(long circleId, long recipientId);
+        Task AddRecipientAsync(long userId, long circleId, long recipientId);
+        Task RemoveRecipientAsync(long userId, long circleId, long recipientId);
         Task CreateRecipient(CoreRecipient recipient);
-        Task DeleteRecipientAsync(long recipientId);
-        Task EditRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
+        Task DeleteRecipientAsync(long userId, long recipientId);
+        Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits);
 
     }
 

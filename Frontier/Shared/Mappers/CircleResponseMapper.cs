@@ -1,8 +1,8 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Responses;
+using CrazyLizard.Contracts.Responses;
 
-namespace LazyLizardBackend.Shared.SharedMappers
+namespace CrazyLizard.Shared.SharedMappers
 {
     public class CircleResponseMapper : ResponseMapper<CircleDTO, CoreCircle>
     {

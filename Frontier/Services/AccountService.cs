@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class AccountService(IAccountRepository accountRepository) : IAccountService
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using System.IO;
 using System;
-using LazyLizardBackend.Shared.Responses;
+using CrazyLizard.Shared.Responses;
 
 namespace Core.Boundaries
 {
@@ -12,34 +12,31 @@ namespace Core.Boundaries
     {
         Task<MemoryStream> DownloadAssetAsync(string asset);
 
-        Task<MemoryStream> DownloadAvatarAsync(string path);
+        Task<MemoryStream> DownloadAvatarAsync(long userId);
         Task UploadAvatarAsync(long userId, MemoryStream image);
-        Task DeleteAvatarAsync(string path);
+        Task DeleteAvatarAsync(long userId);
 
-        Task<MemoryStream> DownloadCircleHeaderAsync(string path);
+        Task<MemoryStream> DownloadCircleHeaderAsync(long circleId);
         Task UploadCircleHeaderAsync(long circleId, MemoryStream image);
-        Task DeleteCircleHeaderAsync(string path);
+        Task DeleteCircleHeaderAsync(long circleId);
 
-        Task<MemoryStream> DownloadSnapshotAsync(string path);
-        Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image);
-        Task DeleteSnapshotAsync(string path);
+        Task<MemoryStream> DownloadSnapshotAsync(long snapshotId);
+        Task UploadSnapshotAsync(long snapshotId, MemoryStream image);
+        Task DeleteSnapshotAsync(long snapshotId);
     }
 
     public interface IMediaService
     {
         Task<MemoryStream> GetAssetAsync(string asset);
 
-        Task<MemoryStream> GetAvatarAsync(long userId, long targetId);
-        Task<ImageMetadataDTO> GetAvatarMetadataAsync(long userId, long targetId);
+        Task<MemoryStream> GetAvatarAsync(long requesterId, long userId);
+        Task<ImageMetadataDTO> GetAvatarMetadataAsync(long requesterId, long userId);
 
-        Task<MemoryStream> GetHeaderAsync(long userId, long circleId);
-        Task<ImageMetadataDTO> GetHeaderMetadataAsync(long userId, long circleId);
+        Task<MemoryStream> GetHeaderAsync(long requesterId, long circleId);
+        Task<ImageMetadataDTO> GetHeaderMetadataAsync(long requesterId, long circleId);
 
-        Task<MemoryStream> GetPostAsync(long userId, long postId);
-        Task<ImageMetadataDTO> GetPostMetadataAsync(long userId, long postId);
-
-        Task<MemoryStream> GetPhotoAsync(long userId, long chatId, Guid photoId);
-        Task<ImageMetadataDTO> GetPhotoMetadataAsync(long userId, long chatId, Guid photoId);
+        Task<MemoryStream> GetSnapshotAsync(long requesterId, long postId);
+        Task<ImageMetadataDTO> GetSnapshotMetadataAsync(long requesterId, long postId);
     }
 
     #endregion

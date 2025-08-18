@@ -1,12 +1,12 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
 using Frontier.Contracts.Responses;
-using LazyLizardBackend.Contracts.Requests;
-using LazyLizardBackend.Shared.SharedMappers;
+using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Account
+namespace CrazyLizard.Endpoints.Account
 {
     public class GetNotificationPreferencesEndpoint(IAccountService accountService) : Endpoint<IdRequest, UserDTO, UserResponseMapper>
     {

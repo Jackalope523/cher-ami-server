@@ -2,7 +2,7 @@
 using FastEndpoints;
 using Frontier.Contracts.Responses;
 
-namespace LazyLizardBackend.Shared.SharedMappers
+namespace CrazyLizard.Shared.SharedMappers
 {
     public class AccountResponseMapper : ResponseMapper<AccountDTO, CoreUser>
     {

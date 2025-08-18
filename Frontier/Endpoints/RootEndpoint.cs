@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints
+namespace CrazyLizard.Endpoints
 {
     public class RootEndpoint : EndpointWithoutRequest<string>
     {

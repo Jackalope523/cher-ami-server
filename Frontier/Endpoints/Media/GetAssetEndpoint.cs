@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Media
+namespace CrazyLizard.Endpoints.Media
 {
     public class AssetRequest
     {

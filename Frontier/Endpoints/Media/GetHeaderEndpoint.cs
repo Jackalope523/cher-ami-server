@@ -1,13 +1,13 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Media
+namespace CrazyLizard.Endpoints.Media
 {
     public class GetHeaderEndpoint(IMediaService mediaService) : Endpoint<IdRequest, FileStreamResult>
     {

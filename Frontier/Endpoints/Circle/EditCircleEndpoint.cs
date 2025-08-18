@@ -2,14 +2,14 @@
 using FastEndpoints;
 using FluentValidation;
 using Frontier.Endpoints.Account;
-using LazyLizardBackend.Contracts.Responses;
+using CrazyLizard.Contracts.Responses;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circle
 {
     public class CircleEditRequest
     {

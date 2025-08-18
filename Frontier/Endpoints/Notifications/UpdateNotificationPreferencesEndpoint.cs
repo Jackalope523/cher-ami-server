@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Notifications
+namespace CrazyLizard.Endpoints.Notifications
 {
     public class UpdateNotificationPreferencesRequest
     {

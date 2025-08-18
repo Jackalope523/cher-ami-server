@@ -1,11 +1,11 @@
 ﻿using Core.Boundaries;
-using LazyLizardBackend.Exceptions;
+using CrazyLizard.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class IssueService(IIssueRepository issueRepository, ICircleRepository circleRepository) : IIssueService
     {

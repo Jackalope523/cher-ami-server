@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
 using System;
 
-namespace LazyLizardBackend.Contracts.Responses
+namespace CrazyLizard.Contracts.Responses
 {
     public enum CirclePlan
     { 

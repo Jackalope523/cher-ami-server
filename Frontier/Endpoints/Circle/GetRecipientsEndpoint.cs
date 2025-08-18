@@ -1,15 +1,15 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
 using Frontier.Contracts.Responses;
-using LazyLizardBackend.Contracts.Requests;
-using LazyLizardBackend.Shared.SharedMappers;
+using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circle
 {
     public class GetRecipientsEndpoint(ICircleService circles) : Endpoint<IdRequest, List<RecipientDTO>, RecipientResponseMapper>
     {

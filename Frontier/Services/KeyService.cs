@@ -2,7 +2,7 @@
 using Core.Boundaries;
 using Frontier.Exceptions;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class KeyService(IKeyRepository keyRepository) : IKeyService
 	{

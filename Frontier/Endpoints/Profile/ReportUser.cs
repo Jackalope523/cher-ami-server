@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Profile
+namespace CrazyLizard.Endpoints.Profile
 {
     public class ReportUserRequest
     {

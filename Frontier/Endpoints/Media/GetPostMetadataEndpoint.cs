@@ -1,12 +1,12 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
-using LazyLizardBackend.Shared.Responses;
+using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Shared.Responses;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Media
+namespace CrazyLizard.Endpoints.Media
 {
     public class GetPostMetadataEndpoint(IMediaService mediaService) : Endpoint<IdRequest, ImageMetadataDTO>
     {
@@ -19,7 +19,7 @@ namespace LazyLizardBackend.Endpoints.Media
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            ImageMetadataDTO response = await mediaService.GetPostMetadataAsync(userId, request.Id);
+            ImageMetadataDTO response = await mediaService.GetSnapshotMetadataAsync(userId, request.Id);
             await Send.OkAsync(response, cancellationToken);
         }
     }

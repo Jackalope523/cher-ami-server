@@ -1,12 +1,12 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Profile
+namespace CrazyLizard.Endpoints.Profile
 {
     public class GetAvailableReports(IReportService reportService) : Endpoint<IdRequest, List<UserReportType>>
     {

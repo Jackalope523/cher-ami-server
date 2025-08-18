@@ -1,8 +1,8 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Responses;
+using CrazyLizard.Contracts.Responses;
 
-namespace LazyLizardBackend.Shared.Mappers
+namespace CrazyLizard.Shared.Mappers
 {
     public class PostResponseMapper : ResponseMapper<PostDTO, CorePost>
     {

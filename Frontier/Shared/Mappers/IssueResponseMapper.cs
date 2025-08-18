@@ -1,8 +1,8 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Shared.Responses;
+using CrazyLizard.Shared.Responses;
 
-namespace LazyLizardBackend.Shared.Mappers
+namespace CrazyLizard.Shared.Mappers
 {
     public class IssueResponseMapper : ResponseMapper<IssueDTO, CoreIssue>
     {

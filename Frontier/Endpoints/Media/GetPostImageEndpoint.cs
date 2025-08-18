@@ -1,13 +1,13 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Media
+namespace CrazyLizard.Endpoints.Media
 {
     public class GetPostImageEndpoint(IMediaService mediaService) : Endpoint<IdRequest, FileStreamResult>
     {
@@ -20,7 +20,7 @@ namespace LazyLizardBackend.Endpoints.Media
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            MemoryStream imageStream = await mediaService.GetPostAsync(userId, request.Id);
+            MemoryStream imageStream = await mediaService.GetSnapshotAsync(userId, request.Id);
 
             if (imageStream != null)
             {

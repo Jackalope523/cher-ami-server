@@ -23,6 +23,7 @@ namespace Core.Boundaries
 
     public interface IAccountRepository
 	{
+		Task<bool> ShareCircle(long userId1, long userId2);
 		Task<bool> PhoneNumberExistsAsync(string phoneNumber);
 		Task<bool> EmailExistsAsync(string normalisedEmail);
 

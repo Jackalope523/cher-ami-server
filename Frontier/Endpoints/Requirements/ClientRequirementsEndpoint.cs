@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Endpoints.Requirments
+namespace CrazyLizard.Endpoints.Requirments
 {
     public class ClientDetailsDTO
     {

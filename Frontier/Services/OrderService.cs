@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Core.Boundaries;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     internal class OrderService(IOrderRepository orderRepository) : IOrderOperations
 	{

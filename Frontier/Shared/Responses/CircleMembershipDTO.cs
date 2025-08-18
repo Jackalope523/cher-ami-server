@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LazyLizardBackend.Contracts.Responses
+namespace CrazyLizard.Contracts.Responses
 {
     public enum CircleMembershipType
     { 

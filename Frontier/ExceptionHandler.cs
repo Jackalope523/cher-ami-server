@@ -1,5 +1,5 @@
 ﻿using Frontier.Exceptions;
-using LazyLizardBackend.Exceptions;
+using CrazyLizard.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +21,7 @@ namespace Frontier
                 UserErrorException => StatusCodes.Status400BadRequest,
                 NoAccessException => StatusCodes.Status403Forbidden,
                 DeleteException => StatusCodes.Status403Forbidden,
+                NotImplementedException => StatusCodes.Status500InternalServerError,
                 _ => StatusCodes.Status500InternalServerError
             };
 

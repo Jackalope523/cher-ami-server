@@ -1,4 +1,4 @@
-﻿namespace LazyLizardBackend.Contracts.Requests
+﻿namespace CrazyLizard.Contracts.Requests
 {
     public class IdRequest
     {

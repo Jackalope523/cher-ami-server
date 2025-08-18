@@ -1,11 +1,11 @@
 ﻿using Core.Boundaries;
-using LazyLizardBackend.Contracts.Responses;
-using LazyLizardBackend.Exceptions;
+using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Exceptions;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class CircleService(ICircleRepository circleRepository, IMediaRepository mediaRepository) : ICircleService
 	{

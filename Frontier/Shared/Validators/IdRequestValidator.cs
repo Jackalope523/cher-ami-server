@@ -1,8 +1,8 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 
-namespace LazyLizardBackend.SharedContracts.SharedValidators
+namespace CrazyLizard.SharedContracts.SharedValidators
 {
     public class IdRequestValidator : Validator<IdRequest>
     {

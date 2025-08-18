@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Repository.Contexts;
 using Repository.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -241,6 +242,14 @@ namespace Repository.Repositories
         public async Task<bool> EmailExistsAsync(string normalisedEmail)
         {
             return await ctx.Users.AnyAsync(u => u.NormalizedEmail == normalisedEmail);
+        }
+
+        public async Task<bool> ShareCircle(long userId1, long userId2)
+        {
+            List<long> userOneCircles = await ctx.CircleMemberships.Where(x => x.UserId == userId1).Select(x => x.CircleId).ToListAsync();
+            List<long> userTwoCircles = await ctx.CircleMemberships.Where(x => x.UserId == userId2).Select(x => x.CircleId).ToListAsync();
+
+            return userOneCircles.Intersect(userTwoCircles).Any();
         }
     }
 }

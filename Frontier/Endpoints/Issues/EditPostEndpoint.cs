@@ -8,7 +8,7 @@ using FluentValidation;
 using System.IO;
 using Core.Boundaries;
 
-namespace LazyLizardBackend.Endpoints.Issue
+namespace CrazyLizard.Endpoints.Issue
 {
     public class EditPostRequest
     {

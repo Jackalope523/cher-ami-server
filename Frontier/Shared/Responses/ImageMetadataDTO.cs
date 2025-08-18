@@ -1,4 +1,4 @@
-﻿namespace LazyLizardBackend.Shared.Responses
+﻿namespace CrazyLizard.Shared.Responses
 {
     public record ImageMetadataDTO
     {

@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Requests;
 using Core.Boundaries;
 
-namespace LazyLizardBackend.Endpoints.Profile
+namespace CrazyLizard.Endpoints.Profile
 {
     public class GetAvailablePostReports(IReportService reportService) : Endpoint<IdRequest, List<PostReportType>>
     {

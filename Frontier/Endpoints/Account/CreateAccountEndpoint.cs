@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Core.Boundaries;
 
-namespace LazyLizardBackend.Endpoints.Account
+namespace CrazyLizard.Endpoints.Account
 {
     public class CreateAccountRequest
     {

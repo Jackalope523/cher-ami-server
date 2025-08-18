@@ -1,9 +1,9 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
 using FluentValidation;
-using LazyLizardBackend.Contracts.Requests;
-using LazyLizardBackend.Contracts.Responses;
-using LazyLizardBackend.Shared.SharedMappers;
+using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Shared.SharedMappers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.IO;

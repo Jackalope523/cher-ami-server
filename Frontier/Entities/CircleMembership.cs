@@ -1,4 +1,4 @@
-﻿using LazyLizardBackend.Contracts.Responses;
+﻿using CrazyLizard.Contracts.Responses;
 using System;
 
 namespace Repository.Entities

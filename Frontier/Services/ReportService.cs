@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boundaries;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class ReportService(IReportRepository reportRepository, IAccountRepository accountRepository) : IReportService
 	{

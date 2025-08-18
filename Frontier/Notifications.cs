@@ -2,7 +2,7 @@
 using System.Reflection;
 using Core.Boundaries;
 using Frontier.Contracts.Responses;
-using LazyLizardBackend.Contracts.Responses;
+using CrazyLizard.Contracts.Responses;
 
 namespace Core.Notifications
 {

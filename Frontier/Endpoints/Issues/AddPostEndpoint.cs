@@ -1,5 +1,5 @@
 ﻿using FastEndpoints;
-using LazyLizardBackend.Shared.Mappers;
+using CrazyLizard.Shared.Mappers;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Security.Claims;
@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using System.IO;
-using LazyLizardBackend.Contracts.Responses;
-using LazyLizardBackend.Endpoints.Issue;
-using LazyLizardBackend.Contracts.Requests;
+using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Endpoints.Issue;
+using CrazyLizard.Contracts.Requests;
 using Core.Boundaries;
 
 namespace Frontier.Endpoints.Account

@@ -1,8 +1,8 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Requests;
-using LazyLizardBackend.Contracts.Responses;
-using LazyLizardBackend.Shared.SharedMappers;
+using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Shared.SharedMappers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;

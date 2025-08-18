@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class MiscellaneousService(IMiscellaneousRepository miscellaneousRepository) : IMiscellaneousService
     {

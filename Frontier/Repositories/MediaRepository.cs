@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using User = Repository.Entities.User;
 
 namespace Repository.Repositories
 {
@@ -58,9 +59,10 @@ namespace Repository.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<MemoryStream> DownloadAvatarAsync(string path)
+        public async Task<MemoryStream> DownloadAvatarAsync(long userId)
         {
-             return await DownloadBlobAsync(path);
+            string path = await ctx.Users.Where(x => x.Id == userId).Select(x => x.AvatarPath).SingleAsync();
+            return await DownloadBlobAsync(path);
         }
 
         public async Task UploadAvatarAsync(long userId, MemoryStream image)
@@ -75,18 +77,21 @@ namespace Repository.Repositories
             await UploadBlobAsync(path, image);
         }
 
-        public async Task DeleteAvatarAsync(string path)
+        public async Task DeleteAvatarAsync(long userId)
         {
+            string path = await ctx.Users.Where(x => x.Id == userId).Select(x => x.AvatarPath).SingleAsync();
+
             await ctx.Users.
-            Where(u => u.AvatarPath == path).
+            Where(u => u.Id == userId).
             ExecuteUpdateAsync(setters => setters.
             SetProperty(u => u.AvatarPath, ""));
 
             await DeleteBlobAsync(path);
         }
 
-        public async Task<MemoryStream> DownloadCircleHeaderAsync(string path)
+        public async Task<MemoryStream> DownloadCircleHeaderAsync(long circleId)
         {
+            string path = await ctx.Circles.Where(x => x.Id == circleId).Select(x => x.HeaderPath).SingleAsync();
             return await DownloadBlobAsync(path);
         }
 
@@ -102,8 +107,10 @@ namespace Repository.Repositories
             await UploadBlobAsync(path, image);
         }
 
-        public async Task DeleteCircleHeaderAsync(string path)
+        public async Task DeleteCircleHeaderAsync(long circleId)
         {
+            string path = await ctx.Circles.Where(x => x.Id == circleId).Select(x => x.HeaderPath).SingleAsync();
+
             await ctx.Circles.
             Where(c => c.HeaderPath == path).
             ExecuteUpdateAsync(setters => setters.
@@ -112,13 +119,18 @@ namespace Repository.Repositories
             await DeleteBlobAsync(path);
         }
 
-        public async Task<MemoryStream> DownloadSnapshotAsync(string path)
+        public async Task<MemoryStream> DownloadSnapshotAsync(long snapshotId)
         {
+            string path = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.Path).SingleAsync();
             return await DownloadBlobAsync(path);
         }
 
-        public async Task UploadSnapshotAsync(long circleId, long issueId, long postId, long snapshotId, MemoryStream image)
+        public async Task UploadSnapshotAsync(long snapshotId, MemoryStream image)
         {
+            long postId = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.PostId).SingleAsync();
+            long issueId = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.IssueId).SingleAsync();
+            long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
+
             string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
             Snapshot toUpdate = new() { Id = snapshotId, Path = path };
@@ -129,8 +141,10 @@ namespace Repository.Repositories
             await UploadBlobAsync(path, image);
         }
 
-        public async Task DeleteSnapshotAsync(string path)
+        public async Task DeleteSnapshotAsync(long snapshotId)
         {
+            string path = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.Path).SingleAsync();
+
             await ctx.Snapshots.
             Where(s => s.Path == path).
             ExecuteUpdateAsync(setters => setters.

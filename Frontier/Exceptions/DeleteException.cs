@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LazyLizardBackend.Exceptions
+namespace CrazyLizard.Exceptions
 {
     public class DeleteException : Exception
     {

@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using LazyLizardBackend.Contracts.Responses;
-using LazyLizardBackend.Shared.SharedMappers;
+using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;

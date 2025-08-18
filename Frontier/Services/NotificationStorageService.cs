@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LazyLizardBackend.Services
+namespace CrazyLizard.Services
 {
     public class NotificationStorageService(INotificationRepository notificationRepository, IAccountRepository accountRepository) : INotificationStorageService
 	{

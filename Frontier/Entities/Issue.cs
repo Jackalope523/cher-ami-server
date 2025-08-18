@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Boundaries;
+using System;
 using System.Collections.Generic;
 
 namespace Repository.Entities

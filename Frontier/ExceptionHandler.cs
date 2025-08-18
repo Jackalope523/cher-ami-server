@@ -1,4 +1,5 @@
-﻿using LazyLizardBackend.Exceptions;
+﻿using Frontier.Exceptions;
+using LazyLizardBackend.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ using ILogger = Serilog.ILogger;
 
 namespace Frontier
 {
-    public class GlobalExceptionHandler(ILogger logger, IProblemDetailsService problemDetailsService) : IExceptionHandler
+    public class ExceptionHandler(ILogger logger, IProblemDetailsService problemDetailsService) : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
@@ -19,6 +20,7 @@ namespace Frontier
             {
                 UserErrorException => StatusCodes.Status400BadRequest,
                 NoAccessException => StatusCodes.Status403Forbidden,
+                DeleteException => StatusCodes.Status403Forbidden,
                 _ => StatusCodes.Status500InternalServerError
             };
 

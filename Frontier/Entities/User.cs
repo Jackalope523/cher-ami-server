@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Boundaries;
+using System;
 using System.Collections.Generic;
 using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;

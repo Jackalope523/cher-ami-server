@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using FluentValidation;
 using Frontier.Endpoints.Account;
 using LazyLizardBackend.Contracts.Responses;

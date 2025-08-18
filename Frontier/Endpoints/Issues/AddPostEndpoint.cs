@@ -10,6 +10,7 @@ using System.IO;
 using LazyLizardBackend.Contracts.Responses;
 using LazyLizardBackend.Endpoints.Issue;
 using LazyLizardBackend.Contracts.Requests;
+using Core.Boundaries;
 
 namespace Frontier.Endpoints.Account
 {

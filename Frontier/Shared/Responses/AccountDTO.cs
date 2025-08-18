@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Boundaries;
+using System;
 
 namespace Frontier.Contracts.Responses
 {

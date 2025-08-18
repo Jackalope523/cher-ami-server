@@ -1,4 +1,5 @@
-﻿using Repository.Contexts;
+﻿using Core.Boundaries;
+using Repository.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

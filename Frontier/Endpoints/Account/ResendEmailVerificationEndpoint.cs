@@ -1,5 +1,7 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using FluentValidation;
+using Frontier.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading;

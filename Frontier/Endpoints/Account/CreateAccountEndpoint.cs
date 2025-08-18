@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
+using Core.Boundaries;
 
 namespace LazyLizardBackend.Endpoints.Account
 {

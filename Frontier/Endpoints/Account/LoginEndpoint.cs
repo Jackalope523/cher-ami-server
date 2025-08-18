@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
-using LazyLizardBackend.Shared.Responses;
-using LazyLizardBackend.Contracts.Responses;
 
 namespace Core.Boundaries
 {
@@ -24,13 +22,17 @@ namespace Core.Boundaries
 
     public interface IIssueRepository
     {
+        Task<bool> IsContributor(long userId, long issueId);
         Task<CoreIssue> GetIssueAsync(long issueId);
 
         Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId);
         Task<List<CorePost>> GetPostsForIssueAsync(long issueId);
 
+        Task<bool> IsOwner(long userId, long postId);
+        Task<bool> IsDraft(long postId, DateTimeOffset now);
+        Task<bool> IsContributorToIssueOf(long userId, long postId);
         Task<CorePost> GetPostAsync(long postId);
-        Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption);
+        Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption, MemoryStream image);
         Task DeletePostAsync(long postId);
     }
 
@@ -38,7 +40,7 @@ namespace Core.Boundaries
     {
         Task<CoreIssue> GetIssueAsync(long userId, long issueId);
 
-        Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long CircleId);
+        Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long circleId);
         Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId);
 
         Task<CorePost> GetPostAsync(long userId, long postId);

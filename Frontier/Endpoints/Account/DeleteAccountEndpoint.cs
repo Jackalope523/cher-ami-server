@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;

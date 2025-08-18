@@ -4,12 +4,13 @@ using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
-    public class IssueRepository(LLContext ctx) : IIssueRepository
+    public class IssueRepository(LLContext ctx, IMediaRepository mediaRepository) : IIssueRepository
     {   
         public async Task<CoreIssue> GetIssueAsync(long issueId)
         {
@@ -43,13 +44,13 @@ namespace Repository.Repositories
                    ToListAsync();
         }
 
-        public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption)
+        public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
             try
             {
-                Post toAdd = new()
+                Post postToAdd = new()
                 {
                     IssueId = issueId,
                     AuthorId = userId,
@@ -57,18 +58,18 @@ namespace Repository.Repositories
                     PostedAt = timestamp,
                 };
 
-                ctx.Posts.Add(toAdd);
+                ctx.Posts.Add(postToAdd);
                 await ctx.SaveChangesAsync();
 
                 Snapshot snapshotToAdd = new()
                 {
-                    PostId = toAdd.Id,
+                    PostId = postToAdd.Id,
                     SequenceNumber = 0,
                 };
 
                 Caption captionToAdd = new()
                 {
-                    PostId = toAdd.Id,
+                    PostId = postToAdd.Id,
                     SequenceNumber = 1,
                     Text = caption
                 };
@@ -76,14 +77,18 @@ namespace Repository.Repositories
                 ctx.AddRange(snapshotToAdd, captionToAdd);
                 await ctx.SaveChangesAsync();
 
+                long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
+                
+                await mediaRepository.UploadSnapshotAsync(circleId, issueId, postToAdd.Id, snapshotToAdd.Id, image);
+
                 await transaction.CommitAsync();
 
                 return new CorePost
                 (
-                    toAdd.Id,
-                    toAdd.IssueId,
-                    toAdd.AuthorId,
-                    toAdd.PostedAt,
+                    postToAdd.Id,
+                    postToAdd.IssueId,
+                    postToAdd.AuthorId,
+                    postToAdd.PostedAt,
                     captionToAdd.Text
                 );
             }
@@ -147,6 +152,34 @@ namespace Repository.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<bool> IsOwner(long userId, long postId)
+        {
+            return await ctx.Posts.AnyAsync(x => x.Id == postId && x.AuthorId == userId);
+        }
+
+        public async Task<bool> IsDraft(long postId, DateTimeOffset now)
+        {
+            long issueId = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.IssueId).SingleAsync();
+
+            return await ctx.Issues.AnyAsync(x => x.Id == issueId && x.DraftingEnd > now);
+        }
+
+        public async Task<bool> IsContributor(long userId, long issueId)
+        {
+            long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
+
+            return await ctx.CircleMemberships.AnyAsync(x => x.CircleId == circleId && x.UserId == userId);
+        }
+
+        public async Task<bool> IsContributorToIssueOf(long userId, long postId)
+        {
+            long issueId = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.IssueId).SingleAsync();
+
+            long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
+
+            return await ctx.CircleMemberships.AnyAsync(x => x.CircleId == circleId && x.UserId == userId);
         }
     }
 }

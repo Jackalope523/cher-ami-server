@@ -7,7 +7,7 @@ namespace Repository.Entities
         public string Path { get; set; } = DefaultPath;
 
         // Navigation Properties
-        public Post? Post { get; set; }
+        public Post Post { get; set; }
 
         // Default Values
         public static string DefaultPath { get; set; } = "";

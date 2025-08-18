@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using Frontier.Contracts.Responses;
 using LazyLizardBackend.Contracts.Requests;
 using LazyLizardBackend.Shared.SharedMappers;

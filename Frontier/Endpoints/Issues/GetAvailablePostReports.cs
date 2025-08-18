@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using LazyLizardBackend.Contracts.Requests;
+using Core.Boundaries;
 
 namespace LazyLizardBackend.Endpoints.Profile
 {

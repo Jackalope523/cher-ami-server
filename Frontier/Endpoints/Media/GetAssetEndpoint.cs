@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Threading;

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Core.Boundaries;
+using Frontier.Exceptions;
 
 namespace LazyLizardBackend.Services
 {

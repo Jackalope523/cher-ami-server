@@ -54,7 +54,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 

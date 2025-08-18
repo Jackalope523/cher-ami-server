@@ -17,7 +17,7 @@ namespace LazyLizardBackend.Services
         public async Task<CoreCircle> GetCircleInformationAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
             return await circleRepository.GetCircleAsync(circleId);
         }
@@ -33,7 +33,7 @@ namespace LazyLizardBackend.Services
         public async Task EditCircleAsync(long userId, long circleId, string title = "", CirclePlan? plan = null, IssueSchedule? schedule = null, MemoryStream header = null)
         {
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
 
             List<(string, object)> edits = 
                 [
@@ -49,7 +49,7 @@ namespace LazyLizardBackend.Services
         public async Task<string> RerollCircleCodeAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
 
             return await circleRepository.RerollCircleCode(circleId);
         }
@@ -57,7 +57,7 @@ namespace LazyLizardBackend.Services
         public async Task DeleteCircleAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
 
             await circleRepository.DeleteCircleAsync(circleId);
         }
@@ -65,7 +65,7 @@ namespace LazyLizardBackend.Services
         public async Task<List<CoreCircleMembership>> GetCircleMembers(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
             return await circleRepository.GetCircleMembersAsync(circleId);
         }
@@ -78,7 +78,7 @@ namespace LazyLizardBackend.Services
         public async Task RemoveMemberAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
             await circleRepository.RemoveCircleMembershipAsync(userId, circleId);
         }
@@ -86,7 +86,7 @@ namespace LazyLizardBackend.Services
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
             
             return await circleRepository.GetRecipientsForCircleAsync(circleId);
         }
@@ -94,7 +94,7 @@ namespace LazyLizardBackend.Services
         public async Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits)
         {
             if (!await circleRepository.IsManagerAsync(userId, recipientId))
-                throw new NoAccessException($"User {userId} does not have access to recipient {recipientId}.");
+                throw new NoAccessException($"User {userId} does not manage recipient {recipientId}.");
 
             await circleRepository.UpdateRecipientAsync(recipientId, edits);
         }
@@ -102,7 +102,7 @@ namespace LazyLizardBackend.Services
         public async Task AddRecipientAsync(long userId, long circleId, long recipientId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
             await circleRepository.AddRecipientAsync(circleId, recipientId);
         }
@@ -110,7 +110,7 @@ namespace LazyLizardBackend.Services
         public async Task RemoveRecipientAsync(long userId, long circleId, long recipientId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} does not have access to circle {circleId}.");
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
             await circleRepository.RemoveRecipientAsync(circleId, recipientId);
         }
@@ -123,7 +123,7 @@ namespace LazyLizardBackend.Services
         public async Task DeleteRecipientAsync(long userId,long recipientId)
         {
             if (!await circleRepository.IsManagerAsync(userId, recipientId))
-                throw new NoAccessException($"User {userId} does not have access to recipient {recipientId}.");
+                throw new NoAccessException($"User {userId} does not manage recipient {recipientId}.");
 
             await circleRepository.DeleteRecipientAsync(recipientId);
         }

@@ -1,21 +1,30 @@
 ﻿using Core.Boundaries;
+using LazyLizardBackend.Exceptions;
+using Repository.Entities;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace LazyLizardBackend.Services
 {
-    public class IssueService() : IIssueService
+    public class IssueService(IIssueRepository issueRepository, ICircleRepository circleRepository) : IIssueService
     {
-        public Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
+        public async Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
-            throw new NotImplementedException();
+            return await issueRepository.AddPostAsync(issueId, userId, timestamp, caption, image);
         }
 
-        public Task DeletePostAsync(long userId, long postId)
+        public async Task DeletePostAsync(long userId, long postId)
         {
-            throw new NotImplementedException();
+            if (!await issueRepository.IsOwner(postId, postId))
+                throw new NoAccessException($"User {userId} does not own post {postId}");
+
+            if (!await issueRepository.IsDraft(postId, DateTimeOffset.UtcNow))
+                throw new DeleteException($"Post {postId} is no longer in drafting.");
+
+            await issueRepository.DeletePostAsync(postId);
         }
 
         public Task EditPostAsync(long userId, long postId, DateTimeOffset? timestamp = null, string caption = null, MemoryStream image = null)
@@ -23,24 +32,36 @@ namespace LazyLizardBackend.Services
             throw new NotImplementedException();
         }
 
-        public Task<CoreIssue> GetIssueAsync(long userId, long issueId)
+        public async Task<CoreIssue> GetIssueAsync(long userId, long issueId)
         {
-            throw new NotImplementedException();
+            if (!await issueRepository.IsContributor(userId, issueId))
+                throw new NoAccessException($"User {userId} is not a contributor to issue {issueId}.");
+
+            return await issueRepository.GetIssueAsync(issueId);
         }
 
-        public Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long CircleId)
+        public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long circleId)
         {
-            throw new NotImplementedException();
+            if (!await circleRepository.IsMemberAsync(userId, circleId))
+                throw new NoAccessException($"User {userId} can not access issues of circle {circleId}.");
+
+            return await issueRepository.GetIssuesForCircleAsync(circleId);
         }
 
-        public Task<CorePost> GetPostAsync(long userId, long postId)
+        public async Task<CorePost> GetPostAsync(long userId, long postId)
         {
-            throw new NotImplementedException();
+            if (!await issueRepository.IsContributorToIssueOf(userId, postId))
+                throw new NoAccessException($"User {userId} is not a contributor to issue of post {postId}.");
+
+            return await issueRepository.GetPostAsync(postId);
         }
 
-        public Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId)
+        public async Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId)
         {
-            throw new NotImplementedException();
+            if (!await issueRepository.IsContributor(userId, issueId))
+                throw new NoAccessException($"User {userId} is not a contributor to issue {issueId}.");
+
+            return await issueRepository.GetPostsForIssueAsync(issueId);
         }
     }
 }

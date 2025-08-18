@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using Frontier.Contracts.Responses;
 using LazyLizardBackend.Shared.SharedMappers;
 using Microsoft.AspNetCore.Identity;

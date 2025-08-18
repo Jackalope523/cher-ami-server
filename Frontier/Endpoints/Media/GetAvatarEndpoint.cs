@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Core.Boundaries;
+using FastEndpoints;
 using LazyLizardBackend.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;

@@ -42,7 +42,7 @@ namespace LazyLizardBackend.Endpoints
                 "                         @@@@@@@                       \r\n" +
                 "                                                       \r\n" +
                 "                                                       \r\n" +
-                "                     Lazy Lizard Backend               \r\n" +
+                "                        Crazy Lizard                   \r\n" +
                 "                         PRODUCTION                    \r\n" +
                 "                           ONLINE                      \r\n" +
                 "                                                       \r\n" +

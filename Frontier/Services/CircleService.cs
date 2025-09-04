@@ -51,30 +51,48 @@ namespace CrazyLizard.Services
 
         public async Task<string> RerollCircleCodeAsync(long userId, long circleId)
         {
+            if (!await circleRepository.Exists(circleId))
+                throw new NotFoundException($"Circle {circleId} does not exist.");
+
+            if (!await circleRepository.IsMemberAsync(userId, circleId))
+                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
+
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
+                throw new NoPermissionException($"User {userId} is not an admin of circle {circleId}.");
 
             return await circleRepository.RerollCircleCode(circleId);
         }
 
         public async Task DeleteCircleAsync(long userId, long circleId)
         {
+            if (!await circleRepository.Exists(circleId))
+                throw new NotFoundException($"Circle {circleId} does not exist.");
+
+            if (!await circleRepository.IsMemberAsync(userId, circleId))
+                throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
+
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
+                throw new NoPermissionException($"User {userId} is not an admin of circle {circleId}.");
 
             await circleRepository.DeleteCircleAsync(circleId);
         }
 
         public async Task<List<CoreCircleMembership>> GetCircleMembers(long userId, long circleId)
         {
+            if (!await circleRepository.Exists(circleId))
+                throw new NotFoundException($"Circle {circleId} does not exist.");
+
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
+                throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
 
             return await circleRepository.GetCircleMembersAsync(circleId);
         }
 
         public async Task AddMemberAsync(long userId, string circleCode)
         {
+            if (!await circleRepository.Exists(circleCode))
+                throw new NotFoundException($"Circle with code \"{circleCode}\" does not exist.");
+
             if (await circleRepository.HasCircle(userId))
                 throw new ValidationException($"User {userId} is already part of a circle.");
 
@@ -84,7 +102,7 @@ namespace CrazyLizard.Services
         public async Task RemoveMemberAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
+                throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
 
             await circleRepository.RemoveCircleMembershipAsync(userId, circleId);
         }

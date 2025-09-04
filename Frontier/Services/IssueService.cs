@@ -1,8 +1,10 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Exceptions;
+using Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CrazyLizard.Services
@@ -31,6 +33,16 @@ namespace CrazyLizard.Services
         public Task EditPostAsync(long userId, long postId, DateTimeOffset? timestamp = null, string caption = null, MemoryStream image = null)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<CoreIssue> GetCurrentIssueAsync(long userId)
+        {
+            CoreCircle userCircle = (await circleRepository.GetCirclesForUserAsync(userId)).SingleOrDefault();
+
+            if (userCircle == null)
+                throw new NotFoundException($"User {userId} does not have a circle.");
+
+            return await issueRepository.GetCurrentIssueAsync(userCircle.Id);
         }
 
         public async Task<CoreIssue> GetIssueAsync(long userId, long issueId)

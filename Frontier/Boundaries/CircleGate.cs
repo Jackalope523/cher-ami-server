@@ -35,6 +35,8 @@ namespace Core.Boundaries
 
     public interface ICircleRepository
     {
+        Task<bool> Exists(long circleId);
+        Task<bool> Exists(string circleCode);
         Task<CoreCircle> GetCircleAsync(long circleId);
         Task<CoreCircle> GetCircleByCodeAsync(string circleCode);
         Task<List<CoreCircle>> GetCirclesForUserAsync(long userId);

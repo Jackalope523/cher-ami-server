@@ -471,6 +471,16 @@ namespace CrazyLizard.Repositories
         {
             return await ctx.CircleMemberships.AnyAsync(x => x.UserId == userId);
         }
+
+        public Task<bool> Exists(long circleId)
+        {
+            return ctx.Circles.AnyAsync(x => x.Id == circleId);
+        }
+
+        public Task<bool> Exists(string circleCode)
+        {
+            return ctx.Circles.AnyAsync(x => x.CircleCode == circleCode);
+        }
     }
 }
 

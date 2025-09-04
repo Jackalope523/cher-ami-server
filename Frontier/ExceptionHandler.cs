@@ -19,8 +19,9 @@ namespace CrazyLizard
             {
                 AuthenticationException => StatusCodes.Status401Unauthorized,
                 ValidationException => StatusCodes.Status400BadRequest,
-                NoAccessException => StatusCodes.Status403Forbidden,
+                NoPermissionException => StatusCodes.Status403Forbidden,
                 DeleteException => StatusCodes.Status403Forbidden,
+                NoAccessException => StatusCodes.Status404NotFound,
                 NotFoundException => StatusCodes.Status404NotFound,
                 LockedOutException => StatusCodes.Status423Locked,
                 NotImplementedException => StatusCodes.Status500InternalServerError,

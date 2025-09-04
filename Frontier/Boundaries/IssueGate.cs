@@ -10,7 +10,7 @@ namespace Core.Boundaries
     public enum IssueType
     { Magazine }
 
-	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate)
+	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset DraftingStart, DateTimeOffset DraftingEnd)
         : CoreOnlyData();
 
     public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption) 
@@ -26,6 +26,7 @@ namespace Core.Boundaries
         Task<bool> Exists(long issueId);
         Task<bool> IsContributor(long userId, long issueId);
         Task<CoreIssue> GetIssueAsync(long issueId);
+        Task<CoreIssue> GetCurrentIssueAsync(long circleId);
 
         Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId);
         Task<List<CorePost>> GetPostsForIssueAsync(long issueId);
@@ -41,6 +42,7 @@ namespace Core.Boundaries
     public interface IIssueService
     {
         Task<CoreIssue> GetIssueAsync(long userId, long issueId);
+        Task<CoreIssue> GetCurrentIssueAsync(long userId);
 
         Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long circleId);
         Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId);

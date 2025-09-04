@@ -215,5 +215,22 @@ namespace CrazyLizard.Repositories
         {
             return await ctx.Issues.AnyAsync(x => x.Id == issueId);
         }
+
+        public async Task<CoreIssue> GetCurrentIssueAsync(long circleId)
+        {
+            // FIX BEFORE PUBLISH: This runs in memory rn cause SQLite doesn't support the ordering of dates on db. Uncomment and use that.
+            //return await ctx.Issues.
+            //       Where(x => x.CircleId == circleId).
+            //       OrderByDescending(x => x.DraftingStart).
+            //       Select((x) => new CoreIssue(x.Id, x.CircleId, x.Type, x.Title, x.DraftingStart, x.DraftingEnd)).
+            //       FirstAsync();
+
+            List<CoreIssue> issues =  await ctx.Issues.
+                   Where(x => x.CircleId == circleId).
+                   Select((x) => new CoreIssue(x.Id, x.CircleId, x.Type, x.Title, x.DraftingStart, x.DraftingEnd)).
+                   ToListAsync();
+
+            return issues.OrderByDescending(x => x.DraftingStart).First();
+        }
     }
 }

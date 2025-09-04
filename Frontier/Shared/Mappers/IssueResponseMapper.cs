@@ -12,8 +12,8 @@ namespace CrazyLizard.Shared.Mappers
             CircleId = issue.CircleId,
             Type = issue.Type,
             Title = issue.Title,
-            StartDate = issue.StartDate,
-            EndDate = issue.EndDate,
+            DraftingStart = issue.DraftingStart,
+            DraftingEnd = issue.DraftingEnd,
         };
     }
 }

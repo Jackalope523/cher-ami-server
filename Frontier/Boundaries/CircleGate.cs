@@ -13,7 +13,7 @@ namespace Core.Boundaries
     { Monthly }
 
     public record CoreCircle(long Id, string InviteCode, string Title,
-        DateTimeOffset DateCreated, CirclePlan Plan, IssueSchedule Schedule,
+        DateTimeOffset DateCreated, IssueSchedule Schedule,
         bool IsPendingDeletion)
         : CoreOnlyData();
 
@@ -39,7 +39,7 @@ namespace Core.Boundaries
         Task<CoreCircle> GetCircleByCodeAsync(string circleCode);
         Task<List<CoreCircle>> GetCirclesForUserAsync(long userId);
 
-        Task<CoreCircle> CreateCircleAsync(long ownerId, string title, CirclePlan plan, IssueSchedule schedule);
+        Task<CoreCircle> CreateCircleAsync(long ownerId, string title, IssueSchedule schedule);
         Task UpdateCircleAsync(long circleId, List<(string Property, object Value)> edits);
         Task<string> RerollCircleCode(long circleId);
         Task DeleteCircleAsync(long circleId);
@@ -48,6 +48,7 @@ namespace Core.Boundaries
         Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId);
 
         Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId);
+        Task<bool> HasCircle(long userId);
         Task<bool> IsMemberAsync(long userId, long circleId);
         Task<bool> IsMemberOfTypeAsync(long userId, long circleId, CircleMembershipType type);
         Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits);
@@ -69,17 +70,17 @@ namespace Core.Boundaries
 
         Task<CoreCircle> CreateCircleAsync(long userId,
             string title,
-            CirclePlan plan, IssueSchedule schedule,
+            IssueSchedule schedule,
             MemoryStream header);
         Task EditCircleAsync(long userId, long circleId,
             string title = "",
-            CirclePlan? plan = null, IssueSchedule? schedule = null,
+           IssueSchedule? schedule = null,
             MemoryStream header = null);
         Task<string> RerollCircleCodeAsync(long userId, long circleId);
         Task DeleteCircleAsync(long userId, long circleId);
         
         Task<List<CoreCircleMembership>> GetCircleMembers(long userId, long circleId);
-        Task JoinCircleAsync(long userId, string circleCode);
+        Task AddMemberAsync(long userId, string circleCode);
         Task RemoveMemberAsync(long userId, long circleId);
 
         Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId, long circleId);

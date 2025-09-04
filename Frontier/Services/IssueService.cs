@@ -11,6 +11,9 @@ namespace CrazyLizard.Services
     {
         public async Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
+            if (!await issueRepository.Exists(issueId))
+                throw new ValidationException($"Issue {issueId} does not exist.");
+
             return await issueRepository.AddPostAsync(issueId, userId, timestamp, caption, image);
         }
 

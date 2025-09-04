@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Circle
 {
-    public class RemoveSelfFromCircleEndpoint(ICircleService circles) : Endpoint<IdRequest>
+    public class LeaveCircleEndpoint(ICircleService circles) : Endpoint<IdRequest>
     {
         public override void Configure()
         {
-            Put("/circle/{circleId}/members");
+            Delete("/circles/{circleId}/members");
         }
 
         public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)

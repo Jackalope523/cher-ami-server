@@ -1,15 +1,15 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class ProfileRepository(LLContext ctx) : IProfileRepository
+    public class ProfileRepository(CrazyLizardContext ctx) : IProfileRepository
     {
 
         public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)

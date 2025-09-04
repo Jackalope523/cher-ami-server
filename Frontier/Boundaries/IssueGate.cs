@@ -8,7 +8,7 @@ namespace Core.Boundaries
 	#region Schemas
 
     public enum IssueType
-    { Digital, Newspaper, Magazine }
+    { Magazine }
 
 	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset StartDate, DateTimeOffset EndDate)
         : CoreOnlyData();
@@ -22,6 +22,8 @@ namespace Core.Boundaries
 
     public interface IIssueRepository
     {
+        Task CreateIssue(long circleId);
+        Task<bool> Exists(long issueId);
         Task<bool> IsContributor(long userId, long issueId);
         Task<CoreIssue> GetIssueAsync(long issueId);
 

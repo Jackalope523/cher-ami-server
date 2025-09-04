@@ -1,11 +1,11 @@
 ﻿using Core.Boundaries;
-using Repository.Contexts;
+using CrazyLizard.Contexts;
 using System;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class MiscellaneousRepository(LLContext ctx) : IMiscellaneousRepository
+    public class MiscellaneousRepository(CrazyLizardContext ctx) : IMiscellaneousRepository
     {
         public async Task SaveFeedbackAsync(string comments, DateTimeOffset time)
         {

@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities.Reports;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;
 
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class ReportRepository(LLContext ctx) : IReportRepository
+    public class ReportRepository(CrazyLizardContext ctx) : IReportRepository
     {
 
         public async Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport, UserReportType reportType, string reportDetails)
@@ -20,7 +20,7 @@ namespace Repository.Repositories
             UserReport toCreate = new()
             {
                 FilingUserId = userId,
-                UserId = targetUserId,
+                ReportedUserId = targetUserId,
                 Type = reportType,
                 FilingDate = timeOfReport,
                 Notes = reportDetails
@@ -32,12 +32,12 @@ namespace Repository.Repositories
         public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
         {
             List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
-                                                           Where(r => r.UserId == userId).
+                                                           Where(r => r.ReportedUserId == userId).
                                                            Select(r => new Core.Boundaries.UserReport
                                                            (
                                                                r.Id, 
                                                                r.FilingUserId ?? 0, 
-                                                               r.UserId, 
+                                                               r.ReportedUserId, 
                                                                r.FilingDate, 
                                                                r.Type, 
                                                                r.Notes
@@ -74,7 +74,7 @@ namespace Repository.Repositories
 
             return 
                 (
-                userReports.Select(r => new Core.Boundaries.UserReport(r.Id, r.FilingUserId ?? 0, r.UserId, r.FilingDate, r.Type, r.Notes)).ToList(), 
+                userReports.Select(r => new Core.Boundaries.UserReport(r.Id, r.FilingUserId ?? 0, r.ReportedUserId, r.FilingDate, r.Type, r.Notes)).ToList(), 
                 postReports.Select(r => new Core.Boundaries.PostReport(r.Id, r.FilingUserId ?? 0, r.PostId, r.FilingDate, r.Type, r.Notes)).ToList()
                 );
         }
@@ -98,7 +98,7 @@ namespace Repository.Repositories
 
         public async Task ReportPostAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)
         {
-            Entities.Reports.PostReport toCreate = new()
+            PostReport toCreate = new()
             {
                 FilingUserId = userId,
                 PostId = snapshotId,

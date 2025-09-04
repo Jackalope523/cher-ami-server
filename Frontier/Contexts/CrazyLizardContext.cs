@@ -5,9 +5,9 @@ using static Repository.Entities.Reports.Report;
 using PostReport = Repository.Entities.Reports.PostReport;
 using UserReport = Repository.Entities.Reports.UserReport;
 
-namespace Repository.Contexts
+namespace CrazyLizard.Contexts
 {
-    public class LLContext(DbContextOptions<LLContext> options) : DbContext(options)
+    public class CrazyLizardContext(DbContextOptions<CrazyLizardContext> options) : DbContext(options)
     {
         internal DbSet<User> Users { get; set; }
         internal DbSet<Issue> Issues { get; set; }
@@ -27,6 +27,14 @@ namespace Repository.Contexts
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlite("Data Source=dev.db");
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Entity
@@ -40,7 +48,7 @@ namespace Repository.Contexts
               .HasData(new User()
               {
                   Id = 2,
-                  PhoneNumber = "15734922666",
+                  PhoneNumber = "+15734922666",
                   FirstName = "CANARY",
                   IsPhoneConfirmed = true,
 
@@ -50,7 +58,7 @@ namespace Repository.Contexts
                 .HasData(new User()
                 {
                     Id = 7,
-                    PhoneNumber = "11002003007",
+                    PhoneNumber = "+11002003007",
                     FirstName = "Apple Test Account",
                     IsPhoneConfirmed = true,
                 });
@@ -59,7 +67,7 @@ namespace Repository.Contexts
                .HasData(new User()
                {
                    Id = 8,
-                   PhoneNumber = "11002003008",
+                   PhoneNumber = "+11002003008",
                    FirstName = "Google Test Account",
                    IsPhoneConfirmed = true,
                });
@@ -116,7 +124,7 @@ namespace Repository.Contexts
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.ReportedList)
-                .WithOne(r => r.User)
+                .WithOne(r => r.ReportedUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()

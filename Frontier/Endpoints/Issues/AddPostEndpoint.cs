@@ -60,8 +60,8 @@ namespace Frontier.Endpoints.Account
 
             await Send.CreatedAtAsync<GetPostEndpoint>
                 (
-                    new IdRequest() { Id = corePost.Id }, 
-                    Map.FromEntity(corePost), 
+                    new IdRequest() { Id = corePost.Id },
+                    Map.FromEntity(corePost),
                     cancellation: cancellationToken
                 );
         }

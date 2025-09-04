@@ -1,15 +1,16 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Exceptions;
 using FastEndpoints;
+using FastEndpoints.Security;
 using FluentValidation;
-using Frontier.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using System;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using ValidationException = CrazyLizard.Exceptions.ValidationException;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Account
 {
     public class VerifyLoginRequest
     {
@@ -31,7 +32,7 @@ namespace Frontier.Endpoints.Account
         }
     }
 
-    public class VerifyCodeEndpoint(SignInManager<CoreUser> signInManager, UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService, IHostEnvironment environment, IKeyService keyService) : Endpoint<VerifyLoginRequest>
+    public class VerifyCodeEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService, IKeyService keyService) : Endpoint<VerifyLoginRequest>
     {
         public override void Configure()
         {
@@ -41,15 +42,15 @@ namespace Frontier.Endpoints.Account
 
         public async Task<bool> CheckStaticCode(long userId, string code)
         {
-            if (!(userId == -2 || userId == -7 || userId == -8))
+            if (!(userId == 2 || userId == 7 || userId == 8))
             { return false; }
 
             string staticCode = userId switch
             {
-                -2 => await keyService.GetClassifiedAccountCodeAsync(-7),
-                -7 => await keyService.GetClassifiedAccountCodeAsync(-7),
-                -8 => await keyService.GetClassifiedAccountCodeAsync(-8),
-                _ => throw new UserErrorException(AccountErrorCode.NOT_FOUND)
+                2 => "600613",
+                7 => "449913",
+                8 => "600613",
+                _ => throw new ValidationException($"Invalid code {code} for user {userId}.")
             };
 
             return !string.IsNullOrEmpty(staticCode) && code.Equals(staticCode);
@@ -57,32 +58,38 @@ namespace Frontier.Endpoints.Account
 
         public override async Task HandleAsync(VerifyLoginRequest request, CancellationToken cancellationToken)
         {
-            var user = await accountService.GetCoreUserAsync(request.PhoneNumber);
+            CoreUser user = await accountService.GetCoreUserAsync(request.PhoneNumber);
 
             if (await userManager.IsLockedOutAsync(user))
             {
-                throw new UserErrorException(AccountErrorCode.LOCKED_OUT);
+                throw new LockedOutException($"User {user.Id}'s account is locked.");
             }
 
             #region UNSAFE — MODIFICATION AUTHORISATION FROM CHRONOS REQUIRED
             // Check if development environment or special account
-            if (!environment.IsProduction())
-            {
-                var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
-                await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, code);
-                await signInManager.SignInAsync(user, false);
-                return;
-            }
-            else if (user.Id < 1)
+            if (user.Id == 2 || user.Id == 7 || user.Id == 8)
             {
                 // Verify static code
-                if (!environment.IsProduction() || await CheckStaticCode(user.Id, request.Code))
+                if (await CheckStaticCode(user.Id, request.Code))
                 {
-                    await signInManager.SignInAsync(user, false);
+                    //await signInManager.SignInAsync(user, false);
+
+                    string jwtToken = JwtBearer.CreateToken(
+                    o =>
+                    {
+                        o.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c";
+                        o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                        o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                        o.User.Claims.Add(new Claim("PhoneNumber", user.PhoneNumber));
+                    });
+
+                    await Send.OkAsync(new { Token = jwtToken, user.PhoneNumber }, cancellationToken);
                     return;
                 }
                 else
-                { throw new UserErrorException(AccountErrorCode.INCORRECT_CODE); }
+                {
+                    throw new AuthenticationException($"OTP code {request.Code} is invalid.");
+                }
             }
             #endregion
 
@@ -95,12 +102,26 @@ namespace Frontier.Endpoints.Account
                 {
                     // Token matched, reset access tries and sign user in
                     await userManager.ResetAccessFailedCountAsync(user);
-                    await signInManager.SignInAsync(user, false);
+
+
+
+                    //await signInManager.SignInAsync(user, false);
+
+                    var jwtToken = JwtBearer.CreateToken(
+                    o =>
+                    {
+                        o.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c";
+                        o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                        o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                        o.User.Claims.Add(new Claim("PhoneNumber", user.PhoneNumber));
+                    });
+
+                    await Send.OkAsync(new { Token = jwtToken, user.PhoneNumber }, cancellationToken);
                 }
                 else
                 {
                     await userManager.AccessFailedAsync(user);
-                    throw new UserErrorException(AccountErrorCode.INCORRECT_CODE);
+                    throw new AuthenticationException($"OTP code {request.Code} is invalid.");
                 }
             }
             else
@@ -111,7 +132,19 @@ namespace Frontier.Endpoints.Account
                 {
                     // Token matched, reset access tries and sign user in
                     await userManager.ResetAccessFailedCountAsync(user);
-                    await signInManager.SignInAsync(user, false);
+                    //await signInManager.SignInAsync(user, false);
+
+                    var jwtToken = JwtBearer.CreateToken(
+                    o =>
+                    {
+                        o.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c";
+                        o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                        o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                        o.User.Claims.Add(new Claim("PhoneNumber", user.PhoneNumber));
+                    });
+
+                    await Send.OkAsync(new { Token = jwtToken, user.PhoneNumber }, cancellationToken);
+
 
                     if (!string.IsNullOrEmpty(user.Email))
                     {
@@ -124,11 +157,9 @@ namespace Frontier.Endpoints.Account
                 else
                 {
                     await userManager.AccessFailedAsync(user);
-                    throw new UserErrorException(AccountErrorCode.INCORRECT_CODE);
+                    throw new AuthenticationException($"OTP code {request.Code} is invalid.");
                 }
             }
-
-            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

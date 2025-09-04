@@ -1,31 +1,35 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Shared.SharedMappers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Circle
 {
-    public class GetCircleEndpoint(ICircleService circles) : Endpoint<IdRequest, CircleDTO, CircleResponseMapper>
+    public class GetCircleEndpoint(ICircleService circles) : EndpointWithoutRequest<CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
-            Get("/circle/{circleId}");
+            Get("/circle");
         }
 
-        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            CoreCircle coreCircle = await circles.GetCircleInformationAsync(userId, request.Id);
+            CoreCircle coreCircle = (await circles.GetUserCirclesAsync(userId)).SingleOrDefault();
 
-            if (coreCircle == null) 
-                await Send.NotFoundAsync(cancellationToken);
-            
-            await Send.OkAsync(Map.FromEntity(coreCircle), cancellationToken);
+            if (coreCircle == null)
+            {
+                await Send.OkAsync(null, cancellationToken);
+            }
+            else
+            {
+                await Send.OkAsync(Map.FromEntity(coreCircle), cancellationToken);
+            }
         }
     }
 }

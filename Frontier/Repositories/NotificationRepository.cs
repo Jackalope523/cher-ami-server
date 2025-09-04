@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,9 +8,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Repository.Entities.Notification;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class NotificationRepository(LLContext ctx) : INotificationRepository
+    public class NotificationRepository(CrazyLizardContext ctx) : INotificationRepository
     {
         public async Task<CoreNotificationProfile> GetNotificationProfileAsync(long userId)
         {

@@ -1,14 +1,14 @@
 ﻿using Core.Boundaries;
-using Repository.Contexts;
+using CrazyLizard.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    class OrderRepository(LLContext ctx) : IOrderRepository
+    class OrderRepository(CrazyLizardContext ctx) : IOrderRepository
     {
         public Task<CorePaymentMethod> AddPaymentMethodAsync(long userId)
         {

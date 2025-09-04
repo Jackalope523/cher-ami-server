@@ -1,26 +1,26 @@
-﻿using Frontier;
+﻿using Core.Boundaries;
+using CrazyLizard;
+using CrazyLizard.Contexts;
+using CrazyLizard.Exceptions;
+using CrazyLizard.Repositories;
+using CrazyLizard.Services;
+using FastEndpoints;
+using FastEndpoints.Security;
 using Frontier.Services;
 using Frontier.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System;
 using System.IO;
-using FastEndpoints;
-using Repository.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
-using CrazyLizard.Services;
-using Frontier.Exceptions;
-using Core.Boundaries;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddFastEndpoints();
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.AzureApp()
@@ -37,7 +37,7 @@ string env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 
 if (env != "Production" && env != "Staging" && env != "Development")
 {
-    throw new InvalidEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.");
+    throw new UnknownEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.");
 }
 
 builder.Services.AddCors(options =>
@@ -52,9 +52,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
 });
-
-builder.Services.AddProblemDetails();
-builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
 
@@ -91,16 +88,19 @@ builder.Services.AddTransient<ISMSService, TwilioService>();
 
 string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
 
-builder.Services.AddDbContext<LLContext>(options =>
-   options.
-   UseSqlServer
-   (
-       prodString,
-       x => x.
-       MigrationsHistoryTable("__ProductionMigrationsHistory").
-       EnableRetryOnFailure()
-   )
-);
+//builder.Services.AddDbContext<LLContext>(options =>
+//   options.
+//   UseSqlServer
+//   (
+//       prodString,
+//       x => x.
+//       MigrationsHistoryTable("__ProductionMigrationsHistory").
+//       EnableRetryOnFailure()
+//   )
+//);
+
+builder.Services.AddDbContext<CrazyLizardContext>(options =>
+    options.UseSqlite("Data Source=dev.db"));
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
@@ -112,7 +112,7 @@ string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
 
 builder.Services.AddScoped<IMediaRepository>(provider =>
 {
-    var dbContext = provider.GetRequiredService<LLContext>();
+    var dbContext = provider.GetRequiredService<CrazyLizardContext>();
     return new MediaRepository(prodUri, dbContext);
 });
 
@@ -132,17 +132,6 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
 
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-})
-.AddIdentityCookies();
-
-builder.Services.AddAuthorization();
-
 builder.Services.AddIdentityCore<CoreUser>()
     .AddUserStore<UserAccountStore>()
     .AddSignInManager()
@@ -151,6 +140,14 @@ builder.Services.AddIdentityCore<CoreUser>()
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/home/data-protection-keys"))
     .SetApplicationName($"cardinal-{env}-keys");
+
+builder.Services
+    .AddAuthenticationJwtBearer(s => s.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c")
+    .AddAuthorization()
+    .AddFastEndpoints();
+
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -161,16 +158,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Web v1"));
 }
 
-app.UseExceptionHandler();
-
 app.UseRouting();
 
 app.UseCors("_HollowSpecificOrigins");
 
-app.UseAuthentication();
-app.UseCookiePolicy();
-app.UseAuthorization();
+app.UseExceptionHandler();
 
-app.UseFastEndpoints();
+app.UseAuthentication()
+   .UseAuthorization()
+   .UseFastEndpoints();
 
 app.Run();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Account
 {
-    public class GetNotificationPreferencesEndpoint(IAccountService accountService) : Endpoint<IdRequest, UserDTO, UserResponseMapper>
+    public class GetUserEndpoint(IAccountService accountService) : Endpoint<IdRequest, UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {

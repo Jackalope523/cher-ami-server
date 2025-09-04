@@ -2,8 +2,9 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
+using OneSignalApi.Model;
 using Repository.Entities;
 using System;
 using System.IO;
@@ -11,33 +12,62 @@ using System.Linq;
 using System.Threading.Tasks;
 using User = Repository.Entities.User;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class MediaRepository(string storageAccountUri, LLContext ctx) : IMediaRepository
+    public class MediaRepository(string storageAccountUri, CrazyLizardContext ctx) : IMediaRepository
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
 
+        private readonly string _baseFolder = Path.Combine(AppContext.BaseDirectory, "localstorage");
+
         private async Task UploadBlobAsync(string path, MemoryStream blob)
         {
-            string[] parts = path.Split(new[] { '/' }, 2);
-            var (containerName, blobName) = (parts[0], parts[1]);
+            //string[] parts = path.Split(new[] { '/' }, 2);
+            //var (containerName, blobName) = (parts[0], parts[1]);
 
-            BlobContainerClient containerClient = new(new Uri($"{storageAccountUri}/{containerName}"), _credentials());
+            //BlobContainerClient containerClient = new(new Uri($"{storageAccountUri}/{containerName}"), _credentials());
 
-            await containerClient.CreateIfNotExistsAsync();
+            //await containerClient.CreateIfNotExistsAsync();
+            //blob.Position = 0;
+
+            //await containerClient.GetBlobClient(blobName).UploadAsync(blob, overwrite: true);
+
+            string fullPath = Path.Combine(_baseFolder, path);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+
             blob.Position = 0;
-
-            await containerClient.GetBlobClient(blobName).UploadAsync(blob, overwrite: true);
+            using (FileStream fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+            {
+                await blob.CopyToAsync(fileStream);
+            }
         }
 
         private async Task<MemoryStream> DownloadBlobAsync(string path)
         {
-            MemoryStream stream = new MemoryStream();
-            BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
+            //MemoryStream stream = new MemoryStream();
+            //BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
+
+            //try
+            //{
+            //    await blobClient.DownloadToAsync(stream);
+            //    stream.Position = 0;
+            //    return stream;
+            //}
+            //catch (Exception)
+            //{
+            //    return await DownloadBlobAsync("utility/failed.jpg");
+            //}
+
+            string fullPath = Path.Combine(_baseFolder, path);
 
             try
             {
-                await blobClient.DownloadToAsync(stream);
+                MemoryStream stream = new MemoryStream();
+                using (FileStream fileStream = new(fullPath, FileMode.Open, FileAccess.Read))
+                {
+                    await fileStream.CopyToAsync(stream);
+                }
                 stream.Position = 0;
                 return stream;
             }
@@ -49,9 +79,16 @@ namespace Repository.Repositories
 
         private async Task DeleteBlobAsync(string path)
         {
-            BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
+            //BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 
-            await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+            //await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+
+            string fullPath = Path.Combine(_baseFolder, path);
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
         }
 
         public Task<MemoryStream> DownloadAssetAsync(string asset)
@@ -69,10 +106,10 @@ namespace Repository.Repositories
         {
             string path = $"{userId}/avatar/avatar.jpg";
 
-            User toUpdate = new() { Id = userId, AvatarPath = path };
-            ctx.Users.Attach(toUpdate);
-            ctx.Entry(toUpdate).Property(nameof(User.AvatarPath)).IsModified = true;
-            await ctx.SaveChangesAsync();
+            await ctx.Users.
+            Where(u => u.Id == userId).
+            ExecuteUpdateAsync(setters => setters.
+            SetProperty(u => u.AvatarPath, path));
 
             await UploadBlobAsync(path, image);
         }
@@ -99,10 +136,10 @@ namespace Repository.Repositories
         {
             string path = $"{circleId}/header/header.jpg";
 
-            Circle toUpdate = new() { Id = circleId, HeaderPath = path };
-            ctx.Circles.Attach(toUpdate);
-            ctx.Entry(toUpdate).Property(nameof(Circle.HeaderPath)).IsModified = true;
-            await ctx.SaveChangesAsync();
+            await ctx.Circles.
+            Where(x => x.Id == circleId).
+            ExecuteUpdateAsync(setters => setters.
+            SetProperty(c => c.HeaderPath, path));
 
             await UploadBlobAsync(path, image);
         }
@@ -133,10 +170,10 @@ namespace Repository.Repositories
 
             string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
-            Snapshot toUpdate = new() { Id = snapshotId, Path = path };
-            ctx.Snapshots.Attach(toUpdate);
-            ctx.Entry(toUpdate).Property(nameof(Snapshot.Path)).IsModified = true;
-            await ctx.SaveChangesAsync();
+            await ctx.Snapshots.
+            Where(x => x.Id == snapshotId).
+            ExecuteUpdateAsync(setters => setters.
+            SetProperty(x => x.Path, path));
 
             await UploadBlobAsync(path, image);
         }

@@ -1,11 +1,10 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Core.Boundaries;
-using Repository.Contexts;
 using System;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
     public class KeyStorageRepository() : IKeyRepository
     {

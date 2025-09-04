@@ -1,6 +1,7 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Exceptions;
+using Repository.Entities;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -22,15 +23,18 @@ namespace CrazyLizard.Services
             return await circleRepository.GetCircleAsync(circleId);
         }
 
-        public async Task<CoreCircle> CreateCircleAsync(long userId, string title, CirclePlan plan, IssueSchedule schedule, MemoryStream header)
+        public async Task<CoreCircle> CreateCircleAsync(long userId, string title, IssueSchedule schedule, MemoryStream header)
         {
-            CoreCircle toReturn = await circleRepository.CreateCircleAsync(userId, title, plan, schedule);
+            if (await circleRepository.HasCircle(userId))
+                throw new ValidationException($"User {userId} is already part of a circle.");
+
+            CoreCircle toReturn = await circleRepository.CreateCircleAsync(userId, title, schedule);
             await mediaRepository.UploadCircleHeaderAsync(toReturn.Id, header);
 
             return toReturn;  
         }
 
-        public async Task EditCircleAsync(long userId, long circleId, string title = "", CirclePlan? plan = null, IssueSchedule? schedule = null, MemoryStream header = null)
+        public async Task EditCircleAsync(long userId, long circleId, string title = "", IssueSchedule? schedule = null, MemoryStream header = null)
         {
             if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
                 throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
@@ -38,7 +42,6 @@ namespace CrazyLizard.Services
             List<(string, object)> edits = 
                 [
                 (nameof(CoreCircle.Title), title), 
-                (nameof(CoreCircle.Plan), plan),
                 (nameof(CoreCircle.Schedule), schedule),
                 ("Header", header),
                 ];
@@ -70,8 +73,11 @@ namespace CrazyLizard.Services
             return await circleRepository.GetCircleMembersAsync(circleId);
         }
 
-        public async Task JoinCircleAsync(long userId, string circleCode)
+        public async Task AddMemberAsync(long userId, string circleCode)
         {
+            if (await circleRepository.HasCircle(userId))
+                throw new ValidationException($"User {userId} is already part of a circle.");
+
             await circleRepository.AddCircleMemberAsync(userId, circleCode);
         }
 

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Core.Boundaries;
-using Frontier.Exceptions;
+using CrazyLizard.Exceptions;
 
 namespace CrazyLizard.Services
 {
@@ -10,9 +10,9 @@ namespace CrazyLizard.Services
         {
             return userId switch
             {
-                -7 => await keyRepository.GetAppleAccountCodeAsync(),
-                -8 => await keyRepository.GetGoogleAccountCodeAsync(),
-                _ => throw new UndefinedBehaviourException($"Tried to access non-existent classified account code for {userId}")
+                7 => await keyRepository.GetAppleAccountCodeAsync(),
+                8 => await keyRepository.GetGoogleAccountCodeAsync(),
+                _ => throw new NotFoundException($"Tried to access non-existent classified account code for {userId}")
             };
         }
     }

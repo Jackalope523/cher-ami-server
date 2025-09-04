@@ -1,5 +1,4 @@
 ﻿using Core.Boundaries;
-using CrazyLizard.Contracts.Responses;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +9,6 @@ namespace Repository.Entities
         public string Title { get; set; } = DefaultTitle;
         public DateTimeOffset TimeOfCreation { get; set; }
         public string CircleCode { get; set; } = DefaultCircleCode;
-        public CirclePlan Plan { get; set; }
         public IssueSchedule IssueSchedule { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
 
@@ -22,7 +20,6 @@ namespace Repository.Entities
         public List<Notification> Notifications { get; set; }
 
         // Default Values
-
         public static string DefaultTitle { get; set; } = "";
         public static string DefaultCircleCode { get; set; } = "";
         public static string DefaultHeaderPath { get; set; } = "";

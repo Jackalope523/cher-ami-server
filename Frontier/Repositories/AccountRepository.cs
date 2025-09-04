@@ -1,16 +1,15 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class AccountRepository(LLContext ctx) : IAccountRepository
+    public class AccountRepository(CrazyLizardContext ctx) : IAccountRepository
     {
 
         public async Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
@@ -147,7 +146,7 @@ namespace Repository.Repositories
                      u.JoinDate,
                      u.TimeOfUserAgreement,
                      u.NotificationId
-                 )).SingleAsync();
+                 )).SingleOrDefaultAsync();
         }
 
         public async Task<CoreUser> GetUserByEmailAsync(string email) 
@@ -179,9 +178,7 @@ namespace Repository.Repositories
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)
         {
-            User u = new() { Id = id };
-
-            ctx.Users.Attach(u);
+            User u = ctx.Users.Find(id);
 
             foreach ((string Property, object Value) in edits)
             {
@@ -229,8 +226,8 @@ namespace Repository.Repositories
                     default:
                         throw new ArgumentException("Property named \"" + Property + "\" can not be updated using this method.");
                 }
-                ctx.Entry(u).Property(Property).IsModified = true;
             }
+
             await ctx.SaveChangesAsync();
         }
 

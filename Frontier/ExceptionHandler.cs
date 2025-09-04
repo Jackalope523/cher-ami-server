@@ -1,5 +1,4 @@
-﻿using Frontier.Exceptions;
-using CrazyLizard.Exceptions;
+﻿using CrazyLizard.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ILogger = Serilog.ILogger;
 
-namespace Frontier
+namespace CrazyLizard
 {
     public class ExceptionHandler(ILogger logger, IProblemDetailsService problemDetailsService) : IExceptionHandler
     {
@@ -18,9 +17,12 @@ namespace Frontier
 
             httpContext.Response.StatusCode = exception switch
             {
-                UserErrorException => StatusCodes.Status400BadRequest,
+                AuthenticationException => StatusCodes.Status401Unauthorized,
+                ValidationException => StatusCodes.Status400BadRequest,
                 NoAccessException => StatusCodes.Status403Forbidden,
                 DeleteException => StatusCodes.Status403Forbidden,
+                NotFoundException => StatusCodes.Status404NotFound,
+                LockedOutException => StatusCodes.Status423Locked,
                 NotImplementedException => StatusCodes.Status500InternalServerError,
                 _ => StatusCodes.Status500InternalServerError
             };

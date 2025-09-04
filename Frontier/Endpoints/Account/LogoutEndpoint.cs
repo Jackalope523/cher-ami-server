@@ -15,10 +15,7 @@ namespace Frontier.Endpoints.Account
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            if (userManager.IsSignedIn(HttpContext.User))
-            {
-                await userManager.SignOutAsync();
-            }
+            // Maybe invalidate refresh token when we have those.
 
             await Send.NoContentAsync(cancellationToken);
         }

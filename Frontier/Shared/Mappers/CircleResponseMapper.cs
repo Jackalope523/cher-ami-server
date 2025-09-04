@@ -12,7 +12,6 @@ namespace CrazyLizard.Shared.SharedMappers
             InviteCode = circle.InviteCode,
             Title = circle.Title,
             DateCreated = circle.DateCreated,
-            Plan = circle.Plan,
             Schedule = circle.Schedule,
         };
     }

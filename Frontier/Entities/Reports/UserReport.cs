@@ -7,11 +7,11 @@ namespace Repository.Entities.Reports
     {
         public UserReportType Type { get; set; }
 
-        public long UserId { get; init; }
+        public long ReportedUserId { get; init; }
         public long? GatheringId { get; init; }
 
         // Navigation Properties
-        public User User { get; init; }
+        public User ReportedUser { get; init; }
         public Circle Gathering { get; init; }
     }
 }

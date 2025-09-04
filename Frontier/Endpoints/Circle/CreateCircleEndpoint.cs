@@ -5,25 +5,18 @@ using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Shared.SharedMappers;
 using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CrazyLizard.Endpoints.Circle;
 
 namespace Frontier.Endpoints.Account
 {
     public class CreateCircleRequest
     {
-        [Required]
         public string Title { get; set; }
-
-        [Required]
-        public CirclePlan Plan { get; set; }
-
-        [Required]
         public IssueSchedule Schedule { get; set; }
-
         public IFormFile Image { get; set; }
     }
 
@@ -35,11 +28,8 @@ namespace Frontier.Endpoints.Account
                 .NotEmpty().WithMessage("Title is required.")
                 .MaximumLength(100).WithMessage("Title cannot exceed 100 characters.");
 
-            RuleFor(x => x.Plan)
-                .NotEmpty().WithMessage("Plan is required.");
-
             RuleFor(x => x.Schedule)
-                .NotEmpty().WithMessage("Plan is required.");
+                .IsInEnum().WithMessage("Schedule is required.");
 
             RuleFor(x => x.Image)
                     .Must(file => file.Length > 0).WithMessage("Image cannot be empty.")
@@ -65,7 +55,6 @@ namespace Frontier.Endpoints.Account
             CoreCircle coreCircle = await circles.CreateCircleAsync(
                                         userId,
                                         request.Title,
-                                        request.Plan,
                                         request.Schedule,
                                         stream
                                     );

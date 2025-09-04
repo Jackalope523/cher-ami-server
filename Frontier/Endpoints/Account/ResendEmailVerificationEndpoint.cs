@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Exceptions;
 using FastEndpoints;
 using FluentValidation;
-using Frontier.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading;
@@ -33,9 +33,10 @@ namespace Frontier.Endpoints.Account
 
         public override async Task HandleAsync(EmailRequest request, CancellationToken cancellationToken)
         {
-            var user = await userManager.FindByEmailAsync(request.Email);
+            CoreUser user = await userManager.FindByEmailAsync(request.Email);
+
             if (user is null)
-                throw new UserErrorException(AccountErrorCode.NOT_FOUND);
+                throw new NotFoundException($"Could not find User with email {request.Email}.");
 
             if (!user.IsEmailConfirmed)
             {

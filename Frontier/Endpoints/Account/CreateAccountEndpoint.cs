@@ -17,7 +17,6 @@ namespace CrazyLizard.Endpoints.Account
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public string CircleCode { get; set; }
     }
 
     public class CreateAccountRequestValidator : Validator<CreateAccountRequest>
@@ -48,10 +47,6 @@ namespace CrazyLizard.Endpoints.Account
                 .EmailAddress().WithMessage("Email must be valid.")
                 .MaximumLength(255).WithMessage("Email cannot exceed 255 characters")
                 .When(x => !string.IsNullOrWhiteSpace(x.Email));
-
-            RuleFor(x => x.CircleCode)
-                .MaximumLength(100).WithMessage("Circle code cannot exceed 100 characters.")
-                .When(x => !string.IsNullOrWhiteSpace(x.CircleCode));
         }
     }
 

@@ -2,7 +2,6 @@
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,8 +10,6 @@ namespace Frontier.Endpoints.Account
     public class LoginRequest
     {
         public string PhoneNumber { get; set; }
-
-        public bool? UseWhatsApp { get; set; }
     }
 
     public class LoginRequestValidator : Validator<LoginRequest>
@@ -37,33 +34,29 @@ namespace Frontier.Endpoints.Account
         {
             var user = await accountService.GetCoreUserAsync(request.PhoneNumber);
 
+            if (user == null)
+            {
+                await Send.UnauthorizedAsync(cancellationToken);
+                return;
+            }
+
             string code;
 
-            // Verify that the account is activated
             if (await userManager.IsPhoneNumberConfirmedAsync(user))
             {
-                // Account is activated, generate regular 2FA token
                 code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
             }
             else
             {
-                // Account is not activated, generate change number token
                 code = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
             }
 
-            bool useWhatsApp = request.UseWhatsApp ?? false;
 
-            // Send user code
-            if (useWhatsApp)
-            {
-                await smsService.SendWhatsAppAuthMessageAsync(user.PhoneNumber, code);
-            }
-            else
-            {
-                await smsService.SendTextMessageAsync(user.PhoneNumber, $"Your Lazy Lizard code is {code}");
-            }
+            //await smsService.SendTextMessageAsync(user.PhoneNumber, $"Your Lazy Lizard code is {code}");
 
-            await Send.NoContentAsync(cancellationToken);
+            //await Send.NoContentAsync(cancellationToken);
+
+            await Send.OkAsync(new { code}, cancellationToken);
         }
     }
 }

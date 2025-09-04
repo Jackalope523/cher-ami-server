@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using CrazyLizard.Contracts.Responses;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Circle = Repository.Entities.Circle;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class CircleRepository(LLContext ctx) : ICircleRepository
+    public class CircleRepository(CrazyLizardContext ctx, IIssueRepository issueRepository) : ICircleRepository
     {
 
-        private async Task<string> GenerateUniqueCircleCodeAsync(LLContext ctx)
+        private async Task<string> GenerateUniqueCircleCodeAsync(CrazyLizardContext ctx)
         {
             List<string> adjectives = await ctx.Words.
                                       Where(w => w.Type == Word.WordType.Adjective).
@@ -49,7 +49,7 @@ namespace Repository.Repositories
         {
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
-                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
+                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)).
                    SingleOrDefaultAsync();
         }
 
@@ -57,7 +57,7 @@ namespace Repository.Repositories
         {
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
-                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)).
+                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)).
                    SingleOrDefaultAsync();
         }
 
@@ -69,11 +69,11 @@ namespace Repository.Repositories
                         ctx.Circles, 
                         m => m.CircleId,
                         c => c.Id,
-                        (m,c) => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.Plan, c.IssueSchedule, c.SoftDeleted)
+                        (m,c) => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)
                    ).ToListAsync();
         }
 
-        public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, CirclePlan plan, IssueSchedule schedule)
+        public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, IssueSchedule schedule)
         {
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
@@ -86,7 +86,6 @@ namespace Repository.Repositories
                     Title = title,
                     TimeOfCreation = DateTimeOffset.UtcNow,
                     CircleCode = code,
-                    Plan = plan,
                     IssueSchedule = schedule
                 };
 
@@ -104,6 +103,8 @@ namespace Repository.Repositories
                 ctx.CircleMemberships.Add(ownerMembership);
                 await ctx.SaveChangesAsync();
 
+                await issueRepository.CreateIssue(toCreate.Id);
+
                 await transaction.CommitAsync();
 
                 return new CoreCircle
@@ -112,7 +113,6 @@ namespace Repository.Repositories
                     toCreate.CircleCode, 
                     toCreate.Title, 
                     toCreate.TimeOfCreation, 
-                    toCreate.Plan, 
                     toCreate.IssueSchedule, 
                     toCreate.SoftDeleted
                 );
@@ -141,9 +141,6 @@ namespace Repository.Repositories
                         break;
                     case nameof(CoreCircle.DateCreated):
                         c.TimeOfCreation = (DateTimeOffset)Value;
-                        break;
-                    case nameof(CoreCircle.Plan):
-                        c.Plan = (CirclePlan)Value;
                         break;
                     case nameof(CoreCircle.Schedule):
                         c.IssueSchedule = (IssueSchedule)Value;
@@ -261,9 +258,6 @@ namespace Repository.Repositories
                         break;
                     case nameof(CoreCircle.DateCreated):
                         c.TimeOfCreation = (DateTimeOffset)Value;
-                        break;
-                    case nameof(CoreCircle.Plan):
-                        c.Plan = (CirclePlan)Value;
                         break;
                     case nameof(CoreCircle.Schedule):
                         c.IssueSchedule = (IssueSchedule)Value;
@@ -471,6 +465,11 @@ namespace Repository.Repositories
         public async Task<bool> IsManagerAsync(long userId, long recipientId)
         {
             return await ctx.Recipients.AnyAsync(x => x.Id == recipientId && x.ManagerId == userId);
+        }
+
+        public async Task<bool> HasCircle(long userId)
+        {
+            return await ctx.CircleMemberships.AnyAsync(x => x.UserId == userId);
         }
     }
 }

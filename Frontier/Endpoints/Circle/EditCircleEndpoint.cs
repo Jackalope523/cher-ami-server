@@ -15,8 +15,6 @@ namespace CrazyLizard.Endpoints.Circle
     {
         public string Title { get; set; }
 
-        public CirclePlan Plan { get; set; }
-
         public IssueSchedule Schedule { get; set; }
 
         public IFormFile Image { get; set; }
@@ -58,7 +56,6 @@ namespace CrazyLizard.Endpoints.Circle
                 userId,
                 circleId,
                 title: request.Title,
-                plan: request.Plan,
                 schedule: request.Schedule,
                 header: stream
             );

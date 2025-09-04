@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Contexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,10 +8,41 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace CrazyLizard.Repositories
 {
-    public class IssueRepository(LLContext ctx, IMediaRepository mediaRepository) : IIssueRepository
-    {   
+    public class IssueRepository(CrazyLizardContext ctx, IMediaRepository mediaRepository) : IIssueRepository
+    {
+        public async Task CreateIssue(long circleId)
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+            string monthName = now.ToString("MMMM");
+
+            int lastIssueNumber = await ctx.Issues.
+                                Where(x => x.CircleId == circleId).
+                                OrderByDescending(x => x.IssueNumber).
+                                Select(x => x.IssueNumber).
+                                FirstOrDefaultAsync();
+
+            DateTimeOffset firstDay = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, now.Offset);
+            int daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+            DateTimeOffset lastDay = new DateTimeOffset(now.Year, now.Month, daysInMonth, 23, 59, 59, now.Offset);
+
+
+            Issue toAdd = new() 
+            { 
+                CircleId = circleId, 
+                Title = $"{monthName} Issue", 
+                IssueNumber = lastIssueNumber + 1, 
+                DraftingStart = firstDay, 
+                DraftingEnd = lastDay, 
+                Status = Issue.IssueStatus.Drafting, 
+                Type = IssueType.Magazine,
+            };
+
+            ctx.Issues.Add(toAdd);
+            await ctx.SaveChangesAsync();
+        }
+
         public async Task<CoreIssue> GetIssueAsync(long issueId)
         {
             return await ctx.Issues.
@@ -76,10 +107,8 @@ namespace Repository.Repositories
 
                 ctx.AddRange(snapshotToAdd, captionToAdd);
                 await ctx.SaveChangesAsync();
-
-                long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
                 
-                await mediaRepository.UploadSnapshotAsync(circleId, issueId, postToAdd.Id, snapshotToAdd.Id, image);
+                await mediaRepository.UploadSnapshotAsync(snapshotToAdd.Id, image);
 
                 await transaction.CommitAsync();
 
@@ -180,6 +209,11 @@ namespace Repository.Repositories
             long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
 
             return await ctx.CircleMemberships.AnyAsync(x => x.CircleId == circleId && x.UserId == userId);
+        }
+
+        public async Task<bool> Exists(long issueId)
+        {
+            return await ctx.Issues.AnyAsync(x => x.Id == issueId);
         }
     }
 }

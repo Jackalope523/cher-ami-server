@@ -32,39 +32,6 @@ namespace CrazyLizard.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 25, nullable: true),
-                    FirstName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    DateOfBirth = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    JoinDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Reputation = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsPhoneConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsEmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SecurityStamp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    LockoutDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    AccessTries = table.Column<int>(type: "INTEGER", nullable: false),
-                    AccountStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    TimeOfUserAgreement = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    AvatarPath = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
-                    NotificationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    IssuePosts = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true),
-                    IssueReminders = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true),
-                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Words",
                 columns: table => new
                 {
@@ -107,6 +74,49 @@ namespace CrazyLizard.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PhoneNumber = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    Title = table.Column<string>(type: "TEXT", maxLength: 25, nullable: true),
+                    FirstName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    DateOfBirth = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    JoinDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    IsPhoneConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsEmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SecurityStamp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    LockoutDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    AccessTries = table.Column<int>(type: "INTEGER", nullable: false),
+                    AccountStatus = table.Column<int>(type: "INTEGER", nullable: false),
+                    TimeOfUserAgreement = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    AvatarPath = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: true),
+                    StripeCustomerId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    StripeSubscriptionId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    ProvidedPaymentDetails = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CircleId = table.Column<long>(type: "INTEGER", nullable: true),
+                    CircleJoinDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    NotificationId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    IssuePosts = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true),
+                    IssueReminders = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true),
+                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Circles_CircleId",
+                        column: x => x.CircleId,
+                        principalTable: "Circles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Blocks",
                 columns: table => new
                 {
@@ -129,35 +139,6 @@ namespace CrazyLizard.Migrations
                     table.ForeignKey(
                         name: "FK_Blocks_Users_BlockerId",
                         column: x => x.BlockerId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CircleMemberships",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    CircleId = table.Column<long>(type: "INTEGER", nullable: false),
-                    JoinDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CircleMemberships", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CircleMemberships_Circles_CircleId",
-                        column: x => x.CircleId,
-                        principalTable: "Circles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CircleMemberships_Users_UserId",
-                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -216,6 +197,35 @@ namespace CrazyLizard.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    AuthorId = table.Column<long>(type: "INTEGER", nullable: false),
+                    IssueId = table.Column<long>(type: "INTEGER", nullable: false),
+                    Layout = table.Column<int>(type: "INTEGER", nullable: false),
+                    PostedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Posts_Issues_IssueId",
+                        column: x => x.IssueId,
+                        principalTable: "Issues",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Posts_Users_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Recipients",
                 columns: table => new
                 {
@@ -230,8 +240,8 @@ namespace CrazyLizard.Migrations
                     ProvinceOrState = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     PostalCode = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
                     Country = table.Column<string>(type: "TEXT", maxLength: 56, nullable: true),
-                    DateOfBirth = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     ManagerId = table.Column<long>(type: "INTEGER", nullable: false),
+                    State = table.Column<int>(type: "INTEGER", nullable: false),
                     SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -262,63 +272,6 @@ namespace CrazyLizard.Migrations
                         name: "FK_Subscriptions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Posts",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    AuthorId = table.Column<long>(type: "INTEGER", nullable: false),
-                    IssueId = table.Column<long>(type: "INTEGER", nullable: false),
-                    Layout = table.Column<int>(type: "INTEGER", nullable: false),
-                    PostedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Posts_Issues_IssueId",
-                        column: x => x.IssueId,
-                        principalTable: "Issues",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Posts_Users_AuthorId",
-                        column: x => x.AuthorId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RecipientLinks",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RecipientId = table.Column<long>(type: "INTEGER", nullable: false),
-                    CircleId = table.Column<long>(type: "INTEGER", nullable: false),
-                    JoinDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    SoftDeleted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RecipientLinks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RecipientLinks_Circles_CircleId",
-                        column: x => x.CircleId,
-                        principalTable: "Circles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_RecipientLinks_Recipients_RecipientId",
-                        column: x => x.RecipientId,
-                        principalTable: "Recipients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -413,12 +366,12 @@ namespace CrazyLizard.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "AccessTries", "AccountStatus", "AvatarPath", "DateOfBirth", "Email", "FirstName", "IsEmailConfirmed", "IsPhoneConfirmed", "IssuePosts", "IssueReminders", "JoinDate", "LastName", "LockoutDate", "NormalizedEmail", "NotificationId", "PhoneNumber", "Reputation", "SecurityStamp", "SoftDeleted", "TimeOfUserAgreement", "Title" },
+                columns: new[] { "Id", "AccessTries", "AccountStatus", "AvatarPath", "CircleId", "CircleJoinDate", "DateOfBirth", "Email", "FirstName", "IsEmailConfirmed", "IsPhoneConfirmed", "IssuePosts", "IssueReminders", "JoinDate", "LastName", "LockoutDate", "NormalizedEmail", "NotificationId", "PhoneNumber", "ProvidedPaymentDetails", "SecurityStamp", "SoftDeleted", "StripeCustomerId", "StripeSubscriptionId", "TimeOfUserAgreement", "Title" },
                 values: new object[,]
                 {
-                    { 2L, 3, 0, "", new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", "CANARY", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", null, "", new Guid("00000000-0000-0000-0000-000000000000"), "+15734922666", 50, "", false, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "" },
-                    { 7L, 3, 0, "", new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", "Apple Test Account", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", null, "", new Guid("00000000-0000-0000-0000-000000000000"), "+11002003007", 50, "", false, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "" },
-                    { 8L, 3, 0, "", new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", "Google Test Account", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "", null, "", new Guid("00000000-0000-0000-0000-000000000000"), "+11002003008", 50, "", false, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "" }
+                    { 2L, 3, 0, null, null, null, new DateOnly(1, 1, 1), null, "CANARY", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, null, null, new Guid("00000000-0000-0000-0000-000000000000"), "+15734922666", false, null, false, null, null, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null },
+                    { 7L, 3, 0, null, null, null, new DateOnly(1, 1, 1), null, "Apple Test Account", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, null, null, new Guid("00000000-0000-0000-0000-000000000000"), "+11002003007", false, null, false, null, null, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null },
+                    { 8L, 3, 0, null, null, null, new DateOnly(1, 1, 1), null, "Google Test Account", false, true, true, true, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null, null, null, new Guid("00000000-0000-0000-0000-000000000000"), "+11002003008", false, null, false, null, null, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -435,16 +388,6 @@ namespace CrazyLizard.Migrations
                 name: "IX_Captions_PostId",
                 table: "Captions",
                 column: "PostId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CircleMemberships_CircleId",
-                table: "CircleMemberships",
-                column: "CircleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CircleMemberships_UserId",
-                table: "CircleMemberships",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Circles_CircleCode",
@@ -483,16 +426,6 @@ namespace CrazyLizard.Migrations
                 column: "IssueId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RecipientLinks_CircleId",
-                table: "RecipientLinks",
-                column: "CircleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RecipientLinks_RecipientId",
-                table: "RecipientLinks",
-                column: "RecipientId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Recipients_ManagerId",
                 table: "Recipients",
                 column: "ManagerId");
@@ -526,6 +459,11 @@ namespace CrazyLizard.Migrations
                 name: "IX_Subscriptions_UserId",
                 table: "Subscriptions",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_CircleId",
+                table: "Users",
+                column: "CircleId");
         }
 
         /// <inheritdoc />
@@ -538,16 +476,13 @@ namespace CrazyLizard.Migrations
                 name: "Captions");
 
             migrationBuilder.DropTable(
-                name: "CircleMemberships");
-
-            migrationBuilder.DropTable(
                 name: "Feedback");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "RecipientLinks");
+                name: "Recipients");
 
             migrationBuilder.DropTable(
                 name: "Reports");
@@ -560,9 +495,6 @@ namespace CrazyLizard.Migrations
 
             migrationBuilder.DropTable(
                 name: "Words");
-
-            migrationBuilder.DropTable(
-                name: "Recipients");
 
             migrationBuilder.DropTable(
                 name: "Posts");

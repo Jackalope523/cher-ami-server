@@ -10,7 +10,6 @@ namespace CrazyLizard.Shared.SharedMappers
         {
             UserId = membership.UserId,
             DateJoined = membership.DateJoined,
-            Type = membership.Type,
         };
     }
 }

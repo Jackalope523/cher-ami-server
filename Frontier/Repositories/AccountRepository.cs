@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class AccountRepository(CrazyLizardContext ctx) : IAccountRepository
+    public class AccountRepository(DatabaseContext ctx) : IAccountRepository
     {
 
-        public async Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
+        public async Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
         {
             User toCreate = new()
             {
@@ -49,7 +49,10 @@ namespace CrazyLizard.Repositories
                   toCreate.AccountStatus,
                   toCreate.JoinDate,
                   toCreate.TimeOfUserAgreement,
-                  toCreate.NotificationId
+                  toCreate.NotificationId,
+                  toCreate.StripeCustomerId,
+                  toCreate.StripeSubscriptionId,
+                  toCreate.ProvidedPaymentDetails
               );
         }
 
@@ -81,7 +84,6 @@ namespace CrazyLizard.Repositories
             {
                 await ctx.Notifications.Where(n => n.RecipientId == id).ExecuteDeleteAsync();
                 await ctx.Subscriptions.Where(s => s.UserId == id).ExecuteDeleteAsync();
-                await ctx.CircleMemberships.Where(l => l.UserId == id).ExecuteDeleteAsync();
                 await ctx.Feedback.Where(r => r.UserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.UserId, (long?)null));
                 await ctx.Reports.Where(r => r.FilingUserId == id).ExecuteUpdateAsync(setter => setter.SetProperty(r => r.FilingUserId, (long?)null));
                 await ctx.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
@@ -118,7 +120,10 @@ namespace CrazyLizard.Repositories
                   u.AccountStatus,
                   u.JoinDate,
                   u.TimeOfUserAgreement,
-                  u.NotificationId
+                  u.NotificationId,
+                  u.StripeCustomerId,
+                  u.StripeSubscriptionId,
+                  u.ProvidedPaymentDetails
               )).SingleAsync();
         }
 
@@ -145,7 +150,10 @@ namespace CrazyLizard.Repositories
                      u.AccountStatus,
                      u.JoinDate,
                      u.TimeOfUserAgreement,
-                     u.NotificationId
+                     u.NotificationId,
+                     u.StripeCustomerId,
+                     u.StripeSubscriptionId,
+                     u.ProvidedPaymentDetails
                  )).SingleOrDefaultAsync();
         }
 
@@ -172,13 +180,16 @@ namespace CrazyLizard.Repositories
                   u.AccountStatus,
                   u.JoinDate,
                   u.TimeOfUserAgreement,
-                  u.NotificationId
+                  u.NotificationId,
+                  u.StripeCustomerId,
+                  u.StripeSubscriptionId,
+                  u.ProvidedPaymentDetails
               )).SingleAsync();
         }
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)
         {
-            User u = ctx.Users.Find(id);
+            User u = await ctx.Users.FindAsync(id);
 
             foreach ((string Property, object Value) in edits)
             {
@@ -220,9 +231,6 @@ namespace CrazyLizard.Repositories
                     case "AccountStatus":
                         u.AccountStatus = (UserAccountStatus)Value;
                         break;
-                    case "Reputation":
-                        u.Reputation = (int)Value;
-                        break;
                     default:
                         throw new ArgumentException("Property named \"" + Property + "\" can not be updated using this method.");
                 }
@@ -243,10 +251,105 @@ namespace CrazyLizard.Repositories
 
         public async Task<bool> ShareCircle(long userId1, long userId2)
         {
-            List<long> userOneCircles = await ctx.CircleMemberships.Where(x => x.UserId == userId1).Select(x => x.CircleId).ToListAsync();
-            List<long> userTwoCircles = await ctx.CircleMemberships.Where(x => x.UserId == userId2).Select(x => x.CircleId).ToListAsync();
+            long? userOneCircle = await ctx.Users.Where(x => x.Id == userId1).Select(x => x.CircleId).SingleOrDefaultAsync();
+            long? userTwoCircle = await ctx.Users.Where(x => x.Id == userId2).Select(x => x.CircleId).SingleOrDefaultAsync();
 
-            return userOneCircles.Intersect(userTwoCircles).Any();
+            if (userOneCircle == null || userTwoCircle == null) return false;
+            
+            return userOneCircle == userTwoCircle;
+        }
+
+        public async Task UpdateStripeCustomerIdAsync(long userId, string newId)
+        {
+            User user = await ctx.Users.FindAsync(userId);
+            user.StripeCustomerId = newId;
+            await ctx.SaveChangesAsync();
+
+        }
+
+        public async Task UpdateStripeSubscriptionId(long userId, string newId)
+        {
+            User user = await ctx.Users.FindAsync(userId);
+            user.StripeSubscriptionId = newId;
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
+        {
+            Recipient r = new() { Id = recipientId };
+            ctx.Recipients.Attach(r);
+
+            foreach ((string Property, object Value) in edits)
+            {
+                switch (Property)
+                {
+                    case nameof(CoreRecipient.Title):
+                        r.Title = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.FirstName):
+                        r.FirstName = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.LastName):
+                        r.LastName = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.UnitNumber):
+                        r.UnitNumber = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.Street):
+                        r.StreetAddress = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.City):
+                        r.City = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.ProvinceOrState):
+                        r.ProvinceOrState = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.PostalCode):
+                        r.PostalCode = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.Address.Country):
+                        r.Country = (string)Value;
+                        break;
+                    case nameof(CoreRecipient.ManagerId):
+                        r.ManagerId = (long)Value;
+                        break;
+                    default:
+                        throw new ArgumentException($"Property named \"{Property}\" can not be updated using this method.");
+                }
+                ctx.Entry(r).Property(Property).IsModified = true;
+            }
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task RemoveRecipientAsync(long recipientId)
+        {
+            await ctx.Recipients.Where(x => x.Id == recipientId).ExecuteDeleteAsync();
+        }
+
+        public async Task AddRecipientAsync(CoreRecipient recipient)
+        {
+            Recipient toAdd = new()
+            {
+                Title = recipient.Title,
+                FirstName = recipient.FirstName,
+                LastName = recipient.LastName,
+                StreetAddress = recipient.Address.Street,
+                UnitNumber = recipient.Address.UnitNumber,
+                City = recipient.Address.City,
+                ProvinceOrState = recipient.Address.ProvinceOrState,
+                PostalCode = recipient.Address.PostalCode,
+                Country = recipient.Address.Country,
+                ManagerId = recipient.ManagerId,
+                State = RecipientState.Inactive,
+            };
+
+            ctx.Recipients.Add(toAdd);
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsManagerAsync(long userId, long recipientId)
+        {
+            return await ctx.Recipients.AnyAsync(x => x.Id == recipientId && x.ManagerId == userId);
         }
     }
 }

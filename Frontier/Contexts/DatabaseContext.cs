@@ -7,14 +7,12 @@ using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace CrazyLizard.Contexts
 {
-    public class CrazyLizardContext(DbContextOptions<CrazyLizardContext> options) : DbContext(options)
+    public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
     {
         internal DbSet<User> Users { get; set; }
         internal DbSet<Issue> Issues { get; set; }
         internal DbSet<Circle> Circles { get; set; }
-        internal DbSet<CircleMembership> CircleMemberships { get; set; }
         internal DbSet<Recipient> Recipients { get; set; }
-        internal DbSet<RecipientLink> RecipientLinks { get; set; }
         internal DbSet<Report> Reports { get; set; }
         internal DbSet<UserReport> UserReports { get; set; }
         internal DbSet<PostReport> PostReports { get; set; }
@@ -105,17 +103,24 @@ namespace CrazyLizard.Contexts
                 .HasMaxLength(1024);
 
             modelBuilder.Entity<User>()
+               .Property(u => u.LastName)
+               .HasMaxLength(100);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.StripeCustomerId)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.StripeSubscriptionId)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
                 .Property(u => u.IssuePosts)
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.IssueReminders)
                 .HasDefaultValue(true);
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.CircleMemberships)
-                .WithOne(l => l.User)
-                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.ReporterList)
@@ -158,24 +163,24 @@ namespace CrazyLizard.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-               .HasMany(u => u.Notifications)
-               .WithOne(n => n.Recipient)
+                .HasMany(u => u.Notifications)
+                .WithOne(n => n.Recipient)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Subscriptions)
+                .WithOne(s => s.User)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+               .HasMany(u => u.Feedback)
+               .WithOne(f => f.User)
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-               .HasMany(u => u.Subscriptions)
-               .WithOne(s => s.User)
+               .HasMany(u => u.Recipients)
+               .WithOne(r => r.Manager)
                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.Feedback)
-             .WithOne(f => f.User)
-             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-             .HasMany(u => u.Recipients)
-             .WithOne(r => r.Manager)
-             .OnDelete(DeleteBehavior.Restrict);
 
             // Circle
             modelBuilder.Entity<Circle>()
@@ -208,23 +213,14 @@ namespace CrazyLizard.Contexts
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Circle>()
-               .HasMany(c => c.CircleMemberships)
+               .HasMany(c => c.Members)
                .WithOne(m => m.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Circle>()
-               .HasMany(c => c.CircleRecipients)
-               .WithOne(cr => cr.Circle)
-               .OnDelete(DeleteBehavior.Restrict);
 
             // Recipient
             modelBuilder.Entity<Recipient>()
                .HasQueryFilter(g => !g.SoftDeleted);
-
-            modelBuilder.Entity<Recipient>()
-               .HasMany(c => c.CircleRecipients)
-               .WithOne(cr => cr.Recipient)
-               .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Recipient>()
                .Property(r => r.Title)
@@ -261,10 +257,6 @@ namespace CrazyLizard.Contexts
             modelBuilder.Entity<Recipient>()
                .Property(r => r.Country)
                .HasMaxLength(56);
-
-            // Recipient Link
-            modelBuilder.Entity<RecipientLink>()
-                .HasQueryFilter(g => !g.SoftDeleted);
 
             // Issue
             modelBuilder.Entity<Issue>()
@@ -361,10 +353,6 @@ namespace CrazyLizard.Contexts
 
             modelBuilder.Entity<Feedback>().Property(f => f.Comments)
                 .HasMaxLength(300);
-
-            // Circle Membership
-            modelBuilder.Entity<CircleMembership>()
-                .HasQueryFilter(l => !l.SoftDeleted);
 
             // Notifications
             modelBuilder.Entity<Notification>()

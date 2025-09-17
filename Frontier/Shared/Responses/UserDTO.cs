@@ -4,6 +4,7 @@
     {
         public long Id { get; init; }
         public string FirstName { get; init; }
-        public string FamilyName { get; init; }
+        public string LastName { get; init; }
+        public string AvatarPath { get; init; }
     }
 }

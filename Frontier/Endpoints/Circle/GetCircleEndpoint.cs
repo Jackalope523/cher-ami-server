@@ -20,7 +20,7 @@ namespace CrazyLizard.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            CoreCircle coreCircle = (await circles.GetUserCirclesAsync(userId)).SingleOrDefault();
+            CoreCircle coreCircle = await circles.GetCircleForUserAsync(userId);
 
             if (coreCircle == null)
             {

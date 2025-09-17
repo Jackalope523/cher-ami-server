@@ -32,8 +32,7 @@ namespace Frontier.Endpoints.Account
                 .IsInEnum().WithMessage("Schedule is required.");
 
             RuleFor(x => x.Image)
-                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.")
-                    .When(x => x.Image != null);
+                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.");
         }
     }
 

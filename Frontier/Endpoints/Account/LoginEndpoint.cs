@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Account
 {
     public class LoginRequest
     {
@@ -54,9 +54,7 @@ namespace Frontier.Endpoints.Account
 
             //await smsService.SendTextMessageAsync(user.PhoneNumber, $"Your Lazy Lizard code is {code}");
 
-            //await Send.NoContentAsync(cancellationToken);
-
-            await Send.OkAsync(new { code}, cancellationToken);
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

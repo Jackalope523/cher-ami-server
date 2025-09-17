@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    class OrderRepository(CrazyLizardContext ctx) : IOrderRepository
+    class OrderRepository(DatabaseContext ctx) : IOrderRepository
     {
         public Task<CorePaymentMethod> AddPaymentMethodAsync(long userId)
         {

@@ -1,6 +1,7 @@
 ﻿using Core.Boundaries;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 
 namespace Repository.Entities
 {
@@ -14,8 +15,7 @@ namespace Repository.Entities
 
 
         // Navigation Properties
-        public List<CircleMembership> CircleMemberships { get; set; }
-        public List<RecipientLink> CircleRecipients { get; set; }
+        public List<User> Members { get; set; }
         public List<Issue> Issues { get; set; }
         public List<Notification> Notifications { get; set; }
 

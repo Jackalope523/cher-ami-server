@@ -37,7 +37,7 @@ namespace CrazyLizard.Services
 
         public async Task<CoreIssue> GetCurrentIssueAsync(long userId)
         {
-            CoreCircle userCircle = (await circleRepository.GetCirclesForUserAsync(userId)).SingleOrDefault();
+            CoreCircle userCircle = await circleRepository.GetCircleForUserAsync(userId);
 
             if (userCircle == null)
                 throw new NotFoundException($"User {userId} does not have a circle.");

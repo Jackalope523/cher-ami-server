@@ -11,10 +11,10 @@ using Circle = Repository.Entities.Circle;
 
 namespace CrazyLizard.Repositories
 {
-    public class CircleRepository(CrazyLizardContext ctx, IIssueRepository issueRepository) : ICircleRepository
+    public class CircleRepository(DatabaseContext ctx, IIssueRepository issueRepository) : ICircleRepository
     {
 
-        private async Task<string> GenerateUniqueCircleCodeAsync(CrazyLizardContext ctx)
+        private async Task<string> GenerateUniqueCircleCodeAsync(DatabaseContext ctx)
         {
             List<string> adjectives = await ctx.Words.
                                       Where(w => w.Type == Word.WordType.Adjective).
@@ -61,19 +61,19 @@ namespace CrazyLizard.Repositories
                    SingleOrDefaultAsync();
         }
 
-        public async Task<List<CoreCircle>> GetCirclesForUserAsync(long userId)
+        public async Task<CoreCircle> GetCircleForUserAsync(long userId)
         {
-            return await ctx.CircleMemberships.
-                   Where(c => c.UserId == userId).
+            return await ctx.Users.
+                   Where(x => x.Id == userId).
                    Join(
                         ctx.Circles, 
-                        m => m.CircleId,
-                        c => c.Id,
-                        (m,c) => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)
-                   ).ToListAsync();
+                        x => x.CircleId,
+                        y => y.Id,
+                        (x,y) => new CoreCircle(y.Id, y.CircleCode, y.Title, y.TimeOfCreation, y.IssueSchedule, y.SoftDeleted)
+                   ).SingleOrDefaultAsync();
         }
 
-        public async Task<CoreCircle> CreateCircleAsync(long ownerId, string title, IssueSchedule schedule)
+        public async Task<CoreCircle> CreateCircleAsync(long founderId, string title, IssueSchedule schedule)
         {
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
@@ -92,15 +92,9 @@ namespace CrazyLizard.Repositories
                 ctx.Circles.Add(toCreate);
                 await ctx.SaveChangesAsync();
 
-                CircleMembership ownerMembership = new()
-                {
-                    UserId = ownerId,
-                    CircleId = toCreate.Id,
-                    JoinDate = DateTimeOffset.UtcNow,
-                    Type = CircleMembershipType.Owner
-                };
-
-                ctx.CircleMemberships.Add(ownerMembership);
+                User founder = await ctx.Users.FindAsync(founderId);
+                founder.CircleId = toCreate.Id;
+                founder.CircleJoinDate = DateTimeOffset.UtcNow;
                 await ctx.SaveChangesAsync();
 
                 await issueRepository.CreateIssue(toCreate.Id);
@@ -170,8 +164,7 @@ namespace CrazyLizard.Repositories
 
             try
             {
-                await ctx.RecipientLinks.Where(cr => cr.CircleId == circleId).ExecuteDeleteAsync();
-                await ctx.CircleMemberships.Where(m => m.CircleId == circleId).ExecuteDeleteAsync();
+                await ctx.Users.Where(x => x.CircleId == circleId).ExecuteUpdateAsync(setters => setters.SetProperty(u => u.CircleId, (long?)null));
 
                 List<long> issuesToDelete = await ctx.Issues.Where(i => i.CircleId == circleId).Select(i => i.Id).ToListAsync();
                 List<long> postsToDelete = await ctx.Posts.Where(p => issuesToDelete.Contains(p.IssueId)).Select(i => i.Id).ToListAsync();
@@ -195,31 +188,56 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        public async Task<List<CoreCircleMembership>> GetCircleMembersAsync(long circleId)
+        public async Task<List<CoreUser>> GetCircleContributorsAsync(long circleId)
         {
-            return await ctx.CircleMemberships.
+            return await ctx.Users.
                    Where(m => m.CircleId == circleId).
-                   Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
-                   ToListAsync();
+                   Select(y => new CoreUser
+                        (
+                            y.Id,
+                            y.PhoneNumber,
+                            y.Email,
+                            y.NormalizedEmail,
+                            y.Title,
+                            y.FirstName,
+                            y.LastName,
+                            y.DateOfBirth,
+                            y.IsPhoneConfirmed,
+                            y.IsEmailConfirmed,
+                            y.SoftDeleted,
+                            y.SecurityStamp,
+                            y.LockoutDate,
+                            y.AccessTries,
+                            y.AccountStatus,
+                            y.JoinDate,
+                            y.TimeOfUserAgreement,
+                            y.NotificationId,
+                            y.StripeCustomerId,
+                            y.StripeSubscriptionId,
+                            y.ProvidedPaymentDetails
+                        )
+                   )
+                   .ToListAsync();
         }
 
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)
         {
-            return await ctx.RecipientLinks.
-                   Where(cr => cr.CircleId == circleId).
-                   Join
+            List<long> circleContributorIds = await ctx.Users.
+                                              Where(m => m.CircleId == circleId).
+                                              Select(y => y.Id).
+                                              ToListAsync();
+
+            return await ctx.Recipients.
+                   Where(x => circleContributorIds.Contains(x.ManagerId)).
+                   Select
                    (
-                      ctx.Recipients,
-                      cr => cr.RecipientId,
-                      r => r.Id,
-                      (_, r) => new CoreRecipient
+                      r => new CoreRecipient
                       (
                           r.Id,
                           r.ManagerId,
                           r.Title,
                           r.FirstName,
                           r.LastName,
-                          r.DateOfBirth,
                           new Address
                           (
                               r.StreetAddress,
@@ -231,14 +249,6 @@ namespace CrazyLizard.Repositories
                           )
                       )
                    ).ToListAsync();
-        }
-
-        public async Task<CoreCircleMembership> GetCircleMembershipAsync(long userId, long circleId)
-        {
-            return await ctx.CircleMemberships.
-                   Where(m => m.UserId == userId && m.CircleId == circleId).
-                   Select(m => new CoreCircleMembership(m.UserId, m.JoinDate, m.Type)).
-                   SingleAsync();
         }
 
         public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)
@@ -277,199 +287,26 @@ namespace CrazyLizard.Repositories
                       Select(c => c.Id).
                       SingleAsync();
 
-            CircleMembership toAdd = new() 
-            {
-                UserId = userId,
-                CircleId = circleId,
-                JoinDate = DateTimeOffset.UtcNow,
-                Type = CircleMembershipType.Regular,
-            };
-
-            ctx.CircleMemberships.Add(toAdd);
+            User user = ctx.Users.Find(userId);
+            user.CircleId = circleId;
             await ctx.SaveChangesAsync();
         }
 
-        public async Task RemoveCircleMembershipAsync(long userId, long circleId)
+        public async Task RemoveCircleMembershipAsync(long userId)
         {
-            long id = await ctx.CircleMemberships.
-                      Where(m => m.UserId == userId && m.CircleId == circleId).
-                      Select(m => m.Id).
-                      SingleAsync();
-
-            ctx.CircleMemberships.Remove(new() { Id = id });
-            await ctx.SaveChangesAsync();
-        }
-
-        public async Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits)
-        {
-            Recipient r = new() { Id = recipientId };
-            ctx.Recipients.Attach(r);
-
-            foreach ((string Property, object Value) in edits)
-            {
-                switch (Property)
-                {
-                    case nameof(CoreRecipient.Title):
-                        r.Title = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.FirstName):
-                        r.FirstName = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.LastName):
-                        r.LastName = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.ApartmentOrSuite):
-                        r.UnitNumber = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.Street):
-                        r.StreetAddress = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.City):
-                        r.City = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.ProvinceOrState):
-                        r.ProvinceOrState = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.PostalCode):
-                        r.PostalCode = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.Address.Country):
-                        r.Country = (string)Value;
-                        break;
-                    case nameof(CoreRecipient.DateOfBirth):
-                        r.DateOfBirth = (DateTimeOffset)Value;
-                        break;
-                    case nameof(CoreRecipient.ManagerId):
-                        r.ManagerId = (long)Value;
-                        break;
-                    default:
-                        throw new ArgumentException($"Property named \"{Property}\" can not be updated using this method.");
-                }
-                ctx.Entry(r).Property(Property).IsModified = true;
-            }
-            await ctx.SaveChangesAsync();
-        }
-
-        public async Task DeleteRecipientAsync(long recipientId)
-        {
-            await using var transaction = await ctx.Database.BeginTransactionAsync();
-
-            try
-            {
-                await ctx.RecipientLinks.Where(cr => cr.RecipientId == recipientId).ExecuteDeleteAsync();
-                
-                ctx.Recipients.Remove(new() { Id = recipientId });
-                await ctx.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task AddRecipientAsync(long circleId, CoreRecipient recipient)
-        {
-            await using var transaction = await ctx.Database.BeginTransactionAsync();
-
-            try
-            {
-                Recipient toAdd = new()
-                {
-                    Title = recipient.Title,
-                    FirstName = recipient.FirstName,
-                    LastName = recipient.LastName,
-                    StreetAddress = recipient.Address.Street,
-                    City = recipient.Address.City,
-                    ProvinceOrState = recipient.Address.ProvinceOrState,
-                    PostalCode = recipient.Address.PostalCode,
-                    Country = recipient.Address.Country,
-                };
-
-                ctx.Recipients.Add(toAdd);
-                await ctx.SaveChangesAsync();
-
-                RecipientLink link = new()
-                {
-                    CircleId = circleId,
-                    RecipientId = toAdd.Id,
-                    JoinDate = DateTimeOffset.UtcNow,
-                };
-
-                ctx.RecipientLinks.Add(link);
-                await ctx.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task AddRecipientAsync(long circleId, long recipientId)
-        {
-            RecipientLink link = new()
-            {
-                CircleId = circleId,
-                RecipientId = recipientId,
-                JoinDate = DateTimeOffset.UtcNow,
-            };
-
-            ctx.RecipientLinks.Add(link);
-            await ctx.SaveChangesAsync();
-        }
-
-        public async Task RemoveRecipientAsync(long circleId, long recipientId)
-        {
-            long id = await ctx.RecipientLinks.
-                      Where(l => l.RecipientId == recipientId && l.CircleId == circleId).
-                      Select(l => l.Id).
-                      SingleAsync();
-
-            ctx.RecipientLinks.Remove(new() { Id = id });
-            await ctx.SaveChangesAsync();
-        }
-
-        public async Task CreateRecipient(CoreRecipient recipient)
-        {
-            Recipient toAdd = new()
-            {
-                Title = recipient.Title,
-                FirstName = recipient.FirstName,
-                LastName = recipient.LastName,
-                StreetAddress = recipient.Address.Street,
-                City = recipient.Address.City,
-                ProvinceOrState = recipient.Address.ProvinceOrState,
-                PostalCode = recipient.Address.PostalCode,
-                Country = recipient.Address.Country,
-            };
-
-            ctx.Recipients.Add(toAdd);
+            User user = ctx.Users.Find(userId);
+            user.CircleId = null;
             await ctx.SaveChangesAsync();
         }
 
         public async Task<bool> IsMemberAsync(long userId, long circleId)
         {
-            return await ctx.CircleMemberships.AnyAsync(c => c.UserId == userId && c.CircleId == circleId);
-        }
-
-        public async Task<bool> IsMemberOfTypeAsync(long userId, long circleId, CircleMembershipType type)
-        {
-            return await ctx.CircleMemberships.AnyAsync(c => c.UserId == userId && c.CircleId == circleId && c.Type == type);
-        }
-
-        public async Task<bool> IsManagerAsync(long userId, long recipientId)
-        {
-            return await ctx.Recipients.AnyAsync(x => x.Id == recipientId && x.ManagerId == userId);
+            return await ctx.Users.AnyAsync(x => x.Id == userId && x.CircleId == circleId);
         }
 
         public async Task<bool> HasCircle(long userId)
         {
-            return await ctx.CircleMemberships.AnyAsync(x => x.UserId == userId);
+            return await ctx.Users.AnyAsync(x => x.Id == userId && x.CircleId != null);
         }
 
         public Task<bool> Exists(long circleId)

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class IssueRepository(CrazyLizardContext ctx, IMediaRepository mediaRepository) : IIssueRepository
+    public class IssueRepository(DatabaseContext ctx, IMediaRepository mediaRepository) : IIssueRepository
     {
         public async Task CreateIssue(long circleId)
         {
@@ -199,7 +199,7 @@ namespace CrazyLizard.Repositories
         {
             long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
 
-            return await ctx.CircleMemberships.AnyAsync(x => x.CircleId == circleId && x.UserId == userId);
+            return await ctx.Users.AnyAsync(x => x.Id == userId && x.CircleId == circleId);
         }
 
         public async Task<bool> IsContributorToIssueOf(long userId, long postId)
@@ -208,7 +208,7 @@ namespace CrazyLizard.Repositories
 
             long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
 
-            return await ctx.CircleMemberships.AnyAsync(x => x.CircleId == circleId && x.UserId == userId);
+            return await ctx.Users.AnyAsync(x => x.Id == userId && x.CircleId == circleId);
         }
 
         public async Task<bool> Exists(long issueId)
@@ -218,7 +218,7 @@ namespace CrazyLizard.Repositories
 
         public async Task<CoreIssue> GetCurrentIssueAsync(long circleId)
         {
-            // FIX BEFORE PUBLISH: This runs in memory rn cause SQLite doesn't support the ordering of dates on db. Uncomment and use that.
+            // JACKALOPE: This runs in memory rn cause SQLite doesn't support the ordering of dates on db. Uncomment and use that.
             //return await ctx.Issues.
             //       Where(x => x.CircleId == circleId).
             //       OrderByDescending(x => x.DraftingStart).

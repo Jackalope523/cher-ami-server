@@ -12,7 +12,7 @@ using UserReport = Repository.Entities.Reports.UserReport;
 
 namespace CrazyLizard.Repositories
 {
-    public class ReportRepository(CrazyLizardContext ctx) : IReportRepository
+    public class ReportRepository(DatabaseContext ctx) : IReportRepository
     {
 
         public async Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport, UserReportType reportType, string reportDetails)

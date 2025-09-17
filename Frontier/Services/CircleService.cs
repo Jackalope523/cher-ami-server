@@ -1,18 +1,26 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Endpoints.Circle;
 using CrazyLizard.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Repository.Entities;
+using Stripe;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Subscription = Stripe.Subscription;
 
 namespace CrazyLizard.Services
 {
-    public class CircleService(ICircleRepository circleRepository, IMediaRepository mediaRepository) : ICircleService
+    public class CircleService(ICircleRepository circleRepository, IAccountRepository accountRepository, IMediaRepository mediaRepository, StripeClient stripeClient) : ICircleService
 	{
-        public async Task<List<CoreCircle>> GetUserCirclesAsync(long userId)
+        public async Task<CoreCircle> GetCircleForUserAsync(long userId)
         {
-            return await circleRepository.GetCirclesForUserAsync(userId);
+            return await circleRepository.GetCircleForUserAsync(userId);
         }
 
         public async Task<CoreCircle> GetCircleInformationAsync(long userId, long circleId)
@@ -36,7 +44,7 @@ namespace CrazyLizard.Services
 
         public async Task EditCircleAsync(long userId, long circleId, string title = "", IssueSchedule? schedule = null, MemoryStream header = null)
         {
-            if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
+            if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NoAccessException($"User {userId} is not an admin of circle {circleId}.");
 
             List<(string, object)> edits = 
@@ -57,9 +65,6 @@ namespace CrazyLizard.Services
             if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
 
-            if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoPermissionException($"User {userId} is not an admin of circle {circleId}.");
-
             return await circleRepository.RerollCircleCode(circleId);
         }
 
@@ -71,21 +76,17 @@ namespace CrazyLizard.Services
             if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
 
-            if (!await circleRepository.IsMemberOfTypeAsync(userId, circleId, CircleMembershipType.Owner))
-                throw new NoPermissionException($"User {userId} is not an admin of circle {circleId}.");
-
             await circleRepository.DeleteCircleAsync(circleId);
         }
 
-        public async Task<List<CoreCircleMembership>> GetCircleMembers(long userId, long circleId)
+        public async Task<List<CoreUser>> GetCircleMembers(long userId)
         {
-            if (!await circleRepository.Exists(circleId))
-                throw new NotFoundException($"Circle {circleId} does not exist.");
+            CoreCircle circle = await circleRepository.GetCircleForUserAsync(userId);
 
-            if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
-
-            return await circleRepository.GetCircleMembersAsync(circleId);
+            if (circle == null)
+                throw new NotFoundException($"Circle {circle.Id} does not exist.");
+            
+            return await circleRepository.GetCircleContributorsAsync(circle.Id);
         }
 
         public async Task AddMemberAsync(long userId, string circleCode)
@@ -104,52 +105,17 @@ namespace CrazyLizard.Services
             if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NotFoundException($"User {userId} is not a member of circle {circleId}.");
 
-            await circleRepository.RemoveCircleMembershipAsync(userId, circleId);
+            await circleRepository.RemoveCircleMembershipAsync(userId);
         }
 
-        public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId, long circleId)
+        public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId)
         {
-            if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
+            CoreCircle circle = await circleRepository.GetCircleForUserAsync(userId);
+
+            if (circle == null)
+                throw new NotFoundException($"Could not find circle for user {userId}");
             
-            return await circleRepository.GetRecipientsForCircleAsync(circleId);
-        }
-
-        public async Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits)
-        {
-            if (!await circleRepository.IsManagerAsync(userId, recipientId))
-                throw new NoAccessException($"User {userId} does not manage recipient {recipientId}.");
-
-            await circleRepository.UpdateRecipientAsync(recipientId, edits);
-        }
-
-        public async Task AddRecipientAsync(long userId, long circleId, long recipientId)
-        {
-            if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
-
-            await circleRepository.AddRecipientAsync(circleId, recipientId);
-        }
-
-        public async Task RemoveRecipientAsync(long userId, long circleId, long recipientId)
-        {
-            if (!await circleRepository.IsMemberAsync(userId, circleId))
-                throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
-
-            await circleRepository.RemoveRecipientAsync(circleId, recipientId);
-        }
-
-        public async Task CreateRecipient(CoreRecipient recipient)
-        {
-            await circleRepository.CreateRecipient(recipient);
-        }
-
-        public async Task DeleteRecipientAsync(long userId,long recipientId)
-        {
-            if (!await circleRepository.IsManagerAsync(userId, recipientId))
-                throw new NoAccessException($"User {userId} does not manage recipient {recipientId}.");
-
-            await circleRepository.DeleteRecipientAsync(recipientId);
+            return await circleRepository.GetRecipientsForCircleAsync(circle.Id);
         }
     }
 }

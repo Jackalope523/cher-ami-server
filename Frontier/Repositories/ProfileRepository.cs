@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class ProfileRepository(CrazyLizardContext ctx) : IProfileRepository
+    public class ProfileRepository(DatabaseContext ctx) : IProfileRepository
     {
 
         public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)
@@ -72,7 +72,10 @@ namespace CrazyLizard.Repositories
                   u.AccountStatus,
                   u.JoinDate,
                   u.TimeOfUserAgreement,
-                  u.NotificationId
+                  u.NotificationId,
+                  u.StripeCustomerId,
+                  u.StripeSubscriptionId,
+                  u.ProvidedPaymentDetails
                   )
             ).
             ToListAsync();

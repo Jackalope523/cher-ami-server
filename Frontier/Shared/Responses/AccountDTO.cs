@@ -11,7 +11,7 @@ namespace Frontier.Contracts.Responses
         public string Title { get; init; }
         public string GivenName { get; init; }
         public string FamilyName { get; init; }
-        public DateTimeOffset DateOfBirth { get; init; }
+        public DateOnly DateOfBirth { get; init; }
         public bool IsPhoneConfirmed { get; init; }
         public bool IsEmailConfirmed { get; init; }
         public UserAccountStatus AccountStatus { get; init; }

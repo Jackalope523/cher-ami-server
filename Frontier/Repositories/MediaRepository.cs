@@ -14,7 +14,7 @@ using User = Repository.Entities.User;
 
 namespace CrazyLizard.Repositories
 {
-    public class MediaRepository(string storageAccountUri, CrazyLizardContext ctx) : IMediaRepository
+    public class MediaRepository(string storageAccountUri, DatabaseContext ctx) : IMediaRepository
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
 
@@ -104,7 +104,7 @@ namespace CrazyLizard.Repositories
 
         public async Task UploadAvatarAsync(long userId, MemoryStream image)
         {
-            string path = $"{userId}/avatar/avatar.jpg";
+            string path = $"users/{userId}/avatar.jpg";
 
             await ctx.Users.
             Where(u => u.Id == userId).
@@ -134,7 +134,7 @@ namespace CrazyLizard.Repositories
 
         public async Task UploadCircleHeaderAsync(long circleId, MemoryStream image)
         {
-            string path = $"{circleId}/header/header.jpg";
+            string path = $"circles/{circleId}/header/header.jpg";
 
             await ctx.Circles.
             Where(x => x.Id == circleId).
@@ -168,7 +168,7 @@ namespace CrazyLizard.Repositories
             long issueId = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.IssueId).SingleAsync();
             long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
 
-            string path = $"{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
+            string path = $"circles/{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
 
             await ctx.Snapshots.
             Where(x => x.Id == snapshotId).

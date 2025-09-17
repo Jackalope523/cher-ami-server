@@ -6,11 +6,12 @@ namespace CrazyLizard.Shared.SharedMappers
 {
     public class UserResponseMapper : ResponseMapper<UserDTO, CoreUser>
     {
-        public override UserDTO FromEntity(CoreUser user) => new UserDTO()
+        public override UserDTO FromEntity(CoreUser user) => new()
         {
             Id = user.Id,
             FirstName = user.FirstName,
-            FamilyName = user.LastName
+            LastName = user.LastName,
+            AvatarPath = $"/media/avatars/{user.Id}",
         };
     }
 }

@@ -11,7 +11,6 @@ namespace CrazyLizard.Shared.SharedMappers
             Id = coreRecipient.Id,
             ManagerId = coreRecipient.ManagerId,
             FullName = $"{coreRecipient.Title} {coreRecipient.FirstName} {coreRecipient.LastName}",
-            DateOfBirth = coreRecipient.DateOfBirth,
             Address = coreRecipient.Address,
         };
     }

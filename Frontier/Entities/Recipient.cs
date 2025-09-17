@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Core.Boundaries;
 
 namespace Repository.Entities
 {
@@ -14,11 +13,10 @@ namespace Repository.Entities
         public string ProvinceOrState { get; set; } = DefaultProvinceOrState;
         public string PostalCode { get; set; } = DefaultPostalCode;
         public string Country { get; set; } = DefaultCountry;
-        public DateTimeOffset DateOfBirth { get; set; }
         public long ManagerId { get; set; }
+        public RecipientState State { get; set; }
 
         // Navigation Properties
-        public List<RecipientLink> CircleRecipients { get; set; }
         public User Manager { get; set; }
 
         // Default Values

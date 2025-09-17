@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class MiscellaneousRepository(CrazyLizardContext ctx) : IMiscellaneousRepository
+    public class MiscellaneousRepository(DatabaseContext ctx) : IMiscellaneousRepository
     {
         public async Task SaveFeedbackAsync(string comments, DateTimeOffset time)
         {

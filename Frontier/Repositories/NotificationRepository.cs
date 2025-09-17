@@ -10,7 +10,7 @@ using static Repository.Entities.Notification;
 
 namespace CrazyLizard.Repositories
 {
-    public class NotificationRepository(CrazyLizardContext ctx) : INotificationRepository
+    public class NotificationRepository(DatabaseContext ctx) : INotificationRepository
     {
         public async Task<CoreNotificationProfile> GetNotificationProfileAsync(long userId)
         {

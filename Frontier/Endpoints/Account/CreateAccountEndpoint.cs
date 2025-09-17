@@ -16,7 +16,7 @@ namespace CrazyLizard.Endpoints.Account
         public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
     }
 
     public class CreateAccountRequestValidator : Validator<CreateAccountRequest>
@@ -40,8 +40,7 @@ namespace CrazyLizard.Endpoints.Account
                 .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters");
 
             RuleFor(x => x.DateOfBirth)
-                .NotEmpty().WithMessage("Date of birth is required.")
-                .LessThan(DateTime.Today).WithMessage("Date of birth must be in the past.");
+                .NotEmpty().WithMessage("Date of birth is required.");
 
             RuleFor(x => x.Email)
                 .EmailAddress().WithMessage("Email must be valid.")
@@ -60,14 +59,14 @@ namespace CrazyLizard.Endpoints.Account
 
         public override async Task HandleAsync(CreateAccountRequest request, CancellationToken cancellationToken)
         {
-            var userExists = await accountService.GetUserExistsAsync(request.PhoneNumber);
+            var userExists = await accountService.UserExistsAsync(request.PhoneNumber);
 
             if (!userExists)
             {
                 // Persist a new user
                 await accountService.CreateUserAsync(request.PhoneNumber, request.Email,
                     request.Title, request.FirstName, request.LastName,
-                    request.DateOfBirth.ToUniversalTime());
+                    request.DateOfBirth);
 
                 // Send an SMS to new user with a generated change number token
                 var user = await accountService.GetCoreUserAsync(request.PhoneNumber);

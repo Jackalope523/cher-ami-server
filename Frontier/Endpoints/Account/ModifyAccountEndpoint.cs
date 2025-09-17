@@ -14,7 +14,7 @@ namespace Frontier.Endpoints.Account
         public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
     }
 
     public class AccountEditRequestValidator : Validator<AccountEditRequest>
@@ -34,7 +34,7 @@ namespace Frontier.Endpoints.Account
                 .When(x => !string.IsNullOrWhiteSpace(x.LastName));
 
             RuleFor(x => x.DateOfBirth)
-                .LessThan(DateTime.Today).WithMessage("Date of birth must be in the past.")
+                .LessThan(DateOnly.FromDateTime(DateTime.Now)).WithMessage("Date of birth must be in the past.")
                 .When(x => x.DateOfBirth.HasValue);
 
             RuleFor(x => x.Email)

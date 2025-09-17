@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Core.Boundaries
@@ -10,11 +11,12 @@ namespace Core.Boundaries
 	public enum UserAccountStatus
 	{ Active, Limited, Suspended, Blacklisted }
 
-	public record CoreUser(long Id, string PhoneNumber, string Email, string NormalisedEmail,
-		string Title, string FirstName, string LastName, DateTimeOffset DateOfBirth,
+
+    public record CoreUser(long Id, string PhoneNumber, string Email, string NormalizedEmail,
+		string Title, string FirstName, string LastName, DateOnly DateOfBirth,
 		bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
 		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
-		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId)
+		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId, string StripeCustomerId, string StripeSubscriptionId, bool ProvidedPaymentDetails)
 		: CoreOnlyData();
 	
     #endregion
@@ -33,30 +35,46 @@ namespace Core.Boundaries
 
 		Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail,
 			string title, string givenName, string familyName,
-			DateTimeOffset dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
+			DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
 		Task UpdateUserAsync(long userId, List<(string Property, object Value)> edits);
 		Task DeleteUserAsync(long userId);
+
+		Task UpdateStripeCustomerIdAsync(long userId, string newId);
+        Task UpdateStripeSubscriptionId(long userId, string newId);
+
+        Task<bool> IsManagerAsync(long userId, long recipientId);
+        Task AddRecipientAsync(CoreRecipient recipient);
+        Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
+        Task RemoveRecipientAsync(long recipientId);
     }
 
 	public interface IAccountService
 	{
-		Task<bool> GetUserExistsAsync(string phoneNumber);
+		Task<bool> UserExistsAsync(string phoneNumber);
 
 		Task<CoreUser> GetCoreUserAsync(long userId);
 		Task<CoreUser> GetCoreUserAsync(string phoneNumber);
 
 		Task CreateUserAsync(string phoneNumber, string email,
 			string title, string givenName, string familyName,
-			DateTimeOffset dateOfBirth);
+			DateOnly dateOfBirth);
 		Task EditUserAsync(long userId,
 			string phoneNumber = null, string email = null,
 			string title = null, string givenName = null, string familyName = null,
-			DateTimeOffset? dateOfBirth = null, bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
+			DateOnly? dateOfBirth = null, bool? isPhoneNumberConfirmed = null, bool? isEmailConfirmed = null,
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null);
 		Task EditAvatarAsync(long userId, MemoryStream image);
 		Task UpdateUserAgreementAsync(long userId);
 		Task DeleteUserAsync(long userId);
-	}
+
+        Task AddRecipientAsync(long userId, CoreRecipient recipient, CancellationToken cancellationToken = default);
+        Task RemoveRecipientAsync(long userId, long recipientId, CancellationToken cancellationToken = default);
+        Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits);
+
+        Task<string> CreateSetupIntent(long userId, CancellationToken cancellationToken = default);
+		Task UpdateStripeCustomerIdAsync(long userId, string newId);
+        Task UpdateStripeSubscriptionId(long userId, string newId);
+    }
 
 	public interface IEmailService
 	{

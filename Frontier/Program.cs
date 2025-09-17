@@ -17,8 +17,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Stripe;
 using System;
 using System.IO;
+using AccountService = CrazyLizard.Services.AccountService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,7 +101,7 @@ string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial
 //   )
 //);
 
-builder.Services.AddDbContext<CrazyLizardContext>(options =>
+builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite("Data Source=dev.db"));
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -112,7 +114,7 @@ string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
 
 builder.Services.AddScoped<IMediaRepository>(provider =>
 {
-    var dbContext = provider.GetRequiredService<CrazyLizardContext>();
+    var dbContext = provider.GetRequiredService<DatabaseContext>();
     return new MediaRepository(prodUri, dbContext);
 });
 
@@ -131,6 +133,8 @@ builder.Services.AddScoped<INotificationStorageService, NotificationStorageServi
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
+
+builder.Services.AddScoped<StripeClient>(_ => new("sk_test_51RxlM1ARYKi6NXMeFaJIdN2b1vx6HARAG3uqvYlYcPoqvexFzll5R1fXXtPq7HVBuA4DYJEjjFkG1pSJ76UgNEoM00rz3BvxnY"));
 
 builder.Services.AddIdentityCore<CoreUser>()
     .AddUserStore<UserAccountStore>()

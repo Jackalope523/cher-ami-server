@@ -116,7 +116,7 @@ namespace CrazyLizard.Endpoints.Account
                         o.User.Claims.Add(new Claim("PhoneNumber", user.PhoneNumber));
                     });
 
-                    await Send.OkAsync(new { Token = jwtToken, user.PhoneNumber }, cancellationToken);
+                    await Send.OkAsync(new { Token = jwtToken }, cancellationToken);
                 }
                 else
                 {
@@ -143,7 +143,7 @@ namespace CrazyLizard.Endpoints.Account
                         o.User.Claims.Add(new Claim("PhoneNumber", user.PhoneNumber));
                     });
 
-                    await Send.OkAsync(new { Token = jwtToken, user.PhoneNumber }, cancellationToken);
+                    await Send.OkAsync(new { Token = jwtToken }, cancellationToken);
 
 
                     if (!string.IsNullOrEmpty(user.Email))

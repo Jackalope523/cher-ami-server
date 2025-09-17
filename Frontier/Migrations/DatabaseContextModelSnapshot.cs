@@ -3,19 +3,16 @@ using System;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace CrazyLizard.Migrations
 {
-    [DbContext(typeof(CrazyLizardContext))]
-    [Migration("20250902220001_Init")]
-    partial class Init
+    [DbContext(typeof(DatabaseContext))]
+    partial class DatabaseContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
@@ -106,36 +103,6 @@ namespace CrazyLizard.Migrations
                         .IsUnique();
 
                     b.ToTable("Circles");
-                });
-
-            modelBuilder.Entity("Repository.Entities.CircleMembership", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("CircleId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("JoinDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("SoftDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CircleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CircleMemberships");
                 });
 
             modelBuilder.Entity("Repository.Entities.Feedback", b =>
@@ -284,9 +251,6 @@ namespace CrazyLizard.Migrations
                         .HasMaxLength(56)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("DateOfBirth")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
@@ -309,6 +273,9 @@ namespace CrazyLizard.Migrations
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("State")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("StreetAddress")
                         .HasMaxLength(150)
                         .HasColumnType("TEXT");
@@ -326,33 +293,6 @@ namespace CrazyLizard.Migrations
                     b.HasIndex("ManagerId");
 
                     b.ToTable("Recipients");
-                });
-
-            modelBuilder.Entity("Repository.Entities.RecipientLink", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("CircleId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTimeOffset>("JoinDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("RecipientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("SoftDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CircleId");
-
-                    b.HasIndex("RecipientId");
-
-                    b.ToTable("RecipientLinks");
                 });
 
             modelBuilder.Entity("Repository.Entities.Reports.Report", b =>
@@ -451,7 +391,13 @@ namespace CrazyLizard.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("DateOfBirth")
+                    b.Property<long?>("CircleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("CircleJoinDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -499,7 +445,7 @@ namespace CrazyLizard.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Reputation")
+                    b.Property<bool>("ProvidedPaymentDetails")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("SecurityStamp")
@@ -508,6 +454,14 @@ namespace CrazyLizard.Migrations
 
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("StripeCustomerId")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("TimeOfUserAgreement")
                         .HasColumnType("TEXT");
@@ -518,6 +472,8 @@ namespace CrazyLizard.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CircleId");
+
                     b.ToTable("Users");
 
                     b.HasData(
@@ -526,72 +482,54 @@ namespace CrazyLizard.Migrations
                             Id = 2L,
                             AccessTries = 3,
                             AccountStatus = 0,
-                            AvatarPath = "",
-                            DateOfBirth = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "",
+                            DateOfBirth = new DateOnly(1, 1, 1),
                             FirstName = "CANARY",
                             IsEmailConfirmed = false,
                             IsPhoneConfirmed = true,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            LastName = "",
-                            NormalizedEmail = "",
                             NotificationId = new Guid("00000000-0000-0000-0000-000000000000"),
                             PhoneNumber = "+15734922666",
-                            Reputation = 50,
-                            SecurityStamp = "",
+                            ProvidedPaymentDetails = false,
                             SoftDeleted = false,
-                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Title = ""
+                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 7L,
                             AccessTries = 3,
                             AccountStatus = 0,
-                            AvatarPath = "",
-                            DateOfBirth = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "",
+                            DateOfBirth = new DateOnly(1, 1, 1),
                             FirstName = "Apple Test Account",
                             IsEmailConfirmed = false,
                             IsPhoneConfirmed = true,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            LastName = "",
-                            NormalizedEmail = "",
                             NotificationId = new Guid("00000000-0000-0000-0000-000000000000"),
                             PhoneNumber = "+11002003007",
-                            Reputation = 50,
-                            SecurityStamp = "",
+                            ProvidedPaymentDetails = false,
                             SoftDeleted = false,
-                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Title = ""
+                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 8L,
                             AccessTries = 3,
                             AccountStatus = 0,
-                            AvatarPath = "",
-                            DateOfBirth = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "",
+                            DateOfBirth = new DateOnly(1, 1, 1),
                             FirstName = "Google Test Account",
                             IsEmailConfirmed = false,
                             IsPhoneConfirmed = true,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            LastName = "",
-                            NormalizedEmail = "",
                             NotificationId = new Guid("00000000-0000-0000-0000-000000000000"),
                             PhoneNumber = "+11002003008",
-                            Reputation = 50,
-                            SecurityStamp = "",
+                            ProvidedPaymentDetails = false,
                             SoftDeleted = false,
-                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Title = ""
+                            TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -689,25 +627,6 @@ namespace CrazyLizard.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("Repository.Entities.CircleMembership", b =>
-                {
-                    b.HasOne("Repository.Entities.Circle", "Circle")
-                        .WithMany("CircleMemberships")
-                        .HasForeignKey("CircleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Repository.Entities.User", "User")
-                        .WithMany("CircleMemberships")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Circle");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Repository.Entities.Feedback", b =>
                 {
                     b.HasOne("Repository.Entities.User", "User")
@@ -777,25 +696,6 @@ namespace CrazyLizard.Migrations
                     b.Navigation("Manager");
                 });
 
-            modelBuilder.Entity("Repository.Entities.RecipientLink", b =>
-                {
-                    b.HasOne("Repository.Entities.Circle", "Circle")
-                        .WithMany("CircleRecipients")
-                        .HasForeignKey("CircleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Repository.Entities.Recipient", "Recipient")
-                        .WithMany("CircleRecipients")
-                        .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Circle");
-
-                    b.Navigation("Recipient");
-                });
-
             modelBuilder.Entity("Repository.Entities.Snapshot", b =>
                 {
                     b.HasOne("Repository.Entities.Post", "Post")
@@ -816,6 +716,16 @@ namespace CrazyLizard.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Repository.Entities.User", b =>
+                {
+                    b.HasOne("Repository.Entities.Circle", "Circle")
+                        .WithMany("Members")
+                        .HasForeignKey("CircleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Circle");
                 });
 
             modelBuilder.Entity("Repository.Entities.Reports.PostReport", b =>
@@ -862,11 +772,9 @@ namespace CrazyLizard.Migrations
 
             modelBuilder.Entity("Repository.Entities.Circle", b =>
                 {
-                    b.Navigation("CircleMemberships");
-
-                    b.Navigation("CircleRecipients");
-
                     b.Navigation("Issues");
+
+                    b.Navigation("Members");
 
                     b.Navigation("Notifications");
                 });
@@ -885,18 +793,11 @@ namespace CrazyLizard.Migrations
                     b.Navigation("Snapshots");
                 });
 
-            modelBuilder.Entity("Repository.Entities.Recipient", b =>
-                {
-                    b.Navigation("CircleRecipients");
-                });
-
             modelBuilder.Entity("Repository.Entities.User", b =>
                 {
                     b.Navigation("BlockedList");
 
                     b.Navigation("BlockerList");
-
-                    b.Navigation("CircleMemberships");
 
                     b.Navigation("Feedback");
 

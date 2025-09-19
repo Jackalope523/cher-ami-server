@@ -9,7 +9,7 @@ using CrazyLizard.Boundaries.Repository;
 
 namespace CrazyLizard.Services
 {
-    public class CircleService(ICircleRepository circleRepository, IAccountRepository accountRepository, IMediaRepository mediaRepository, StripeClient stripeClient) : ICircleService
+    public class CircleService(ICircleRepository circleRepository, IMediaRepository mediaRepository) : ICircleService
 	{
         public async Task<Circle> GetCircleForUserAsync(long userId)
         {
@@ -101,7 +101,7 @@ namespace CrazyLizard.Services
             await circleRepository.RemoveCircleMembershipAsync(userId);
         }
 
-        public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId)
+        public async Task<List<Recipient>> GetRecipientsForCircleAsync(long userId)
         {
             Circle circle = await circleRepository.GetCircleForUserAsync(userId);
 

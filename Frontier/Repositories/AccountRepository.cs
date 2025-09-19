@@ -186,34 +186,34 @@ namespace CrazyLizard.Repositories
             {
                 switch (Property)
                 {
-                    case nameof(CoreRecipient.Title):
+                    case nameof(Recipient.Title):
                         r.Title = (string)Value;
                         break;
-                    case nameof(CoreRecipient.FirstName):
+                    case nameof(Recipient.FirstName):
                         r.FirstName = (string)Value;
                         break;
-                    case nameof(CoreRecipient.LastName):
+                    case nameof(Recipient.LastName):
                         r.LastName = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.UnitNumber):
+                    case nameof(Recipient.UnitNumber):
                         r.UnitNumber = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.Street):
-                        r.StreetAddress = (string)Value;
+                    case nameof(Recipient.Street):
+                        r.Street = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.City):
+                    case nameof(Recipient.City):
                         r.City = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.ProvinceOrState):
+                    case nameof(Recipient.ProvinceOrState):
                         r.ProvinceOrState = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.PostalCode):
+                    case nameof(Recipient.PostalCode):
                         r.PostalCode = (string)Value;
                         break;
-                    case nameof(CoreRecipient.Address.Country):
+                    case nameof(Recipient.Country):
                         r.Country = (string)Value;
                         break;
-                    case nameof(CoreRecipient.ManagerId):
+                    case nameof(Recipient.ManagerId):
                         r.ManagerId = (long)Value;
                         break;
                     default:
@@ -229,24 +229,9 @@ namespace CrazyLizard.Repositories
             await ctx.Recipients.Where(x => x.Id == recipientId).ExecuteDeleteAsync();
         }
 
-        public async Task AddRecipientAsync(CoreRecipient recipient)
+        public async Task AddRecipientAsync(Recipient recipient)
         {
-            Recipient toAdd = new()
-            {
-                Title = recipient.Title,
-                FirstName = recipient.FirstName,
-                LastName = recipient.LastName,
-                StreetAddress = recipient.Address.Street,
-                UnitNumber = recipient.Address.UnitNumber,
-                City = recipient.Address.City,
-                ProvinceOrState = recipient.Address.ProvinceOrState,
-                PostalCode = recipient.Address.PostalCode,
-                Country = recipient.Address.Country,
-                ManagerId = recipient.ManagerId,
-                State = RecipientState.Inactive,
-            };
-
-            ctx.Recipients.Add(toAdd);
+            ctx.Recipients.Add(recipient);
             await ctx.SaveChangesAsync();
         }
 

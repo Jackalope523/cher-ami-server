@@ -229,7 +229,7 @@ namespace CrazyLizard.Services
             await accountRepository.RemoveRecipientAsync(recipientId);
         }
 
-        public async Task AddRecipientAsync(long userId, CoreRecipient recipient, CancellationToken cancellationToken = default)
+        public async Task AddRecipientAsync(long userId, Recipient recipient, CancellationToken cancellationToken = default)
         {
             if (!await circleRepository.HasCircle(userId))
                 throw new NotFoundException($"User {userId} does not have a circle.");

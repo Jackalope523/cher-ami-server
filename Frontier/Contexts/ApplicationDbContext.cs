@@ -239,7 +239,7 @@ namespace CrazyLizard.Contexts
               .HasMaxLength(15);
 
             modelBuilder.Entity<Recipient>()
-              .Property(r => r.StreetAddress)
+              .Property(r => r.Street)
               .HasMaxLength(150);
 
             modelBuilder.Entity<Recipient>()

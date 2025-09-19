@@ -1,17 +1,24 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
 using FastEndpoints;
 
 namespace CrazyLizard.Shared.SharedMappers
 {
-    public class RecipientResponseMapper : ResponseMapper<RecipientDTO, CoreRecipient>
+    public class RecipientResponseMapper : ResponseMapper<RecipientDTO, Recipient>
     {
-        public override RecipientDTO FromEntity(CoreRecipient coreRecipient) => new RecipientDTO()
+        public override RecipientDTO FromEntity(Recipient recipient) => new RecipientDTO()
         {
-            Id = coreRecipient.Id,
-            ManagerId = coreRecipient.ManagerId,
-            FullName = $"{coreRecipient.Title} {coreRecipient.FirstName} {coreRecipient.LastName}",
-            Address = coreRecipient.Address,
+            Id = recipient.Id,
+            ManagerId = recipient.ManagerId,
+            Title = recipient.Title,
+            FirstName = recipient.FirstName,
+            LastName = recipient.LastName,
+            Street = recipient.Street,
+            ProvinceOrState = recipient.ProvinceOrState,
+            City = recipient.City, 
+            Country = recipient.Country, 
+            PostalCode = recipient.PostalCode,
+            UnitNumber = recipient.UnitNumber
         };
     }
 }

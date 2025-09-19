@@ -27,7 +27,7 @@ namespace CrazyLizard.Boundaries.Service
 		Task UpdateUserAgreementAsync(long userId);
 		Task DeleteUserAsync(long userId);
 
-        Task AddRecipientAsync(long userId, CoreRecipient recipient, CancellationToken cancellationToken = default);
+        Task AddRecipientAsync(long userId, Recipient recipient, CancellationToken cancellationToken = default);
         Task RemoveRecipientAsync(long userId, long recipientId, CancellationToken cancellationToken = default);
         Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits);
 

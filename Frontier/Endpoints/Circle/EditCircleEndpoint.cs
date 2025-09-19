@@ -1,8 +1,6 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
 using FluentValidation;
-using Frontier.Endpoints.Account;
-using CrazyLizard.Contracts.Responses;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Security.Claims;

@@ -9,13 +9,6 @@ namespace Core.Boundaries
     public record CoreCircleMembership(long UserId, DateTimeOffset DateJoined);
 
 
-    public record CoreRecipient(long Id, long ManagerId, string Title, string FirstName, string LastName, Address Address = null);
-
-
-    public record Address(string Street, string UnitNumber,
-        string City, string ProvinceOrState,
-        string PostalCode, string Country);
-
     public interface ICircleRepository
     {
         Task<bool> Exists(long circleId);
@@ -30,7 +23,7 @@ namespace Core.Boundaries
         Task DeleteCircleAsync(long circleId);
 
         Task<List<User>> GetCircleContributorsAsync(long circleId);
-        Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId);
+        Task<List<Recipient>> GetRecipientsForCircleAsync(long circleId);
 
         Task<bool> HasCircle(long userId);
         Task<bool> IsMemberAsync(long userId, long circleId);
@@ -59,6 +52,6 @@ namespace Core.Boundaries
         Task AddMemberAsync(long userId, string circleCode);
         Task RemoveMemberAsync(long userId, long circleId);
 
-        Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId);
+        Task<List<Recipient>> GetRecipientsForCircleAsync(long userId);
     }
 }

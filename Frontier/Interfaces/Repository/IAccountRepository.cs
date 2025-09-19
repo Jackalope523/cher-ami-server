@@ -27,7 +27,7 @@ namespace CrazyLizard.Boundaries.Repository
         Task ConfirmPaymentDetailsProvidedAsync(string stripeCustomerId);
 
         Task<bool> IsManagerAsync(long userId, long recipientId);
-        Task AddRecipientAsync(CoreRecipient recipient);
+        Task AddRecipientAsync(Recipient recipient);
         Task UpdateRecipientAsync(long recipientId, List<(string Property, object Value)> edits);
         Task RemoveRecipientAsync(long recipientId);
     }

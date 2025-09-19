@@ -182,35 +182,14 @@ namespace CrazyLizard.Repositories
             return await ctx.Users.Where(m => m.CircleId == circleId).ToListAsync();
         }
 
-        public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)
+        public async Task<List<Recipient>> GetRecipientsForCircleAsync(long circleId)
         {
             List<long> circleContributorIds = await ctx.Users.
                                               Where(m => m.CircleId == circleId).
                                               Select(y => y.Id).
                                               ToListAsync();
 
-            return await ctx.Recipients.
-                   Where(x => circleContributorIds.Contains(x.ManagerId)).
-                   Select
-                   (
-                      r => new CoreRecipient
-                      (
-                          r.Id,
-                          r.ManagerId,
-                          r.Title,
-                          r.FirstName,
-                          r.LastName,
-                          new Address
-                          (
-                              r.StreetAddress,
-                              r.UnitNumber,
-                              r.City,
-                              r.ProvinceOrState,
-                              r.PostalCode,
-                              r.Country
-                          )
-                      )
-                   ).ToListAsync();
+            return await ctx.Recipients.Where(x => circleContributorIds.Contains(x.ManagerId)).ToListAsync();
         }
 
         public async Task UpdateCircleMemberAsync(long userId, long circleId, List<(string Property, object Value)> edits)

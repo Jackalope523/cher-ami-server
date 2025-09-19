@@ -15,7 +15,7 @@ namespace CrazyLizard.Entities
         public string FirstName { get; set; } = DefaultFirstName;
         public string LastName { get; set; } = DefaultLastName;
         public string UnitNumber { get; set; } = DefaultUnitNumber;
-        public string StreetAddress { get; set; } = DefaultStreetAddress;
+        public string Street { get; set; } = DefaultStreetAddress;
         public string City { get; set; } = DefaultCity;
         public string ProvinceOrState { get; set; } = DefaultProvinceOrState;
         public string PostalCode { get; set; } = DefaultPostalCode;

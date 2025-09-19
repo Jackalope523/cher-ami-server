@@ -1,6 +1,7 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ namespace CrazyLizard.Services
 {
     public class IssueService(IIssueRepository issueRepository, ICircleRepository circleRepository) : IIssueService
     {
-        public async Task<CorePost> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
+        public async Task<Post> AddPostAsync(long userId, long issueId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
             if (!await issueRepository.Exists(issueId))
                 throw new ValidationException($"Issue {issueId} does not exist.");
@@ -34,9 +35,9 @@ namespace CrazyLizard.Services
             throw new NotImplementedException();
         }
 
-        public async Task<CoreIssue> GetCurrentIssueAsync(long userId)
+        public async Task<Issue> GetCurrentIssueAsync(long userId)
         {
-            CoreCircle userCircle = await circleRepository.GetCircleForUserAsync(userId);
+            Circle userCircle = await circleRepository.GetCircleForUserAsync(userId);
 
             if (userCircle == null)
                 throw new NotFoundException($"User {userId} does not have a circle.");
@@ -44,7 +45,7 @@ namespace CrazyLizard.Services
             return await issueRepository.GetCurrentIssueAsync(userCircle.Id);
         }
 
-        public async Task<CoreIssue> GetIssueAsync(long userId, long issueId)
+        public async Task<Issue> GetIssueAsync(long userId, long issueId)
         {
             if (!await issueRepository.IsContributor(userId, issueId))
                 throw new NoAccessException($"User {userId} is not a contributor to issue {issueId}.");
@@ -52,7 +53,7 @@ namespace CrazyLizard.Services
             return await issueRepository.GetIssueAsync(issueId);
         }
 
-        public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long userId, long circleId)
+        public async Task<List<Issue>> GetIssuesForCircleAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NoAccessException($"User {userId} can not access issues of circle {circleId}.");
@@ -60,7 +61,7 @@ namespace CrazyLizard.Services
             return await issueRepository.GetIssuesForCircleAsync(circleId);
         }
 
-        public async Task<CorePost> GetPostAsync(long userId, long postId)
+        public async Task<Post> GetPostAsync(long userId, long postId)
         {
             if (!await issueRepository.IsContributorToIssueOf(userId, postId))
                 throw new NoAccessException($"User {userId} is not a contributor to issue of post {postId}.");
@@ -68,7 +69,7 @@ namespace CrazyLizard.Services
             return await issueRepository.GetPostAsync(postId);
         }
 
-        public async Task<List<CorePost>> GetPostsForIssueAsync(long userId, long issueId)
+        public async Task<List<Post>> GetPostsForIssueAsync(long userId, long issueId)
         {
             if (!await issueRepository.IsContributor(userId, issueId))
                 throw new NoAccessException($"User {userId} is not a contributor to issue {issueId}.");

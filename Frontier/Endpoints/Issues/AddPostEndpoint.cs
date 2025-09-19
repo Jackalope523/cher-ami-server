@@ -9,8 +9,8 @@ using FluentValidation;
 using System.IO;
 using CrazyLizard.Endpoints.Issue;
 using CrazyLizard.Contracts.Requests;
-using Core.Boundaries;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Interfaces.Service;
 
 namespace Frontier.Endpoints.Account
 {

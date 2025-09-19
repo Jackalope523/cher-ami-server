@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contexts;
+﻿using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
 using CrazyLizard.Entities;
 using System;

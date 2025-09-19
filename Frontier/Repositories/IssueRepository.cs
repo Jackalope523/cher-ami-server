@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CrazyLizard.Interfaces.Repository;
 
 namespace CrazyLizard.Repositories
 {
@@ -35,47 +36,25 @@ namespace CrazyLizard.Repositories
                 IssueNumber = lastIssueNumber + 1, 
                 DraftingStart = firstDay, 
                 DraftingEnd = lastDay, 
-                Status = Issue.IssueStatus.Drafting, 
-                Type = IssueType.Magazine,
+                Status = IssueStatus.Drafting, 
+
             };
 
             ctx.Issues.Add(toAdd);
             await ctx.SaveChangesAsync();
         }
 
-        public async Task<CoreIssue> GetIssueAsync(long issueId)
+        public async Task<Issue> GetIssueAsync(long issueId)
         {
-            return await ctx.Issues.
-                   Where(i => i.Id == issueId).
-                   Select(i => new CoreIssue
-                   (
-                       i.Id, 
-                       i.CircleId, 
-                       i.Type, 
-                       i.Title, 
-                       i.DraftingStart,
-                       i.DraftingEnd
-                   )).
-                   SingleAsync();
+            return await ctx.Issues.Where(i => i.Id == issueId).SingleAsync();
         }
 
-        public async Task<List<CoreIssue>> GetIssuesForCircleAsync(long circleId)
+        public async Task<List<Issue>> GetIssuesForCircleAsync(long circleId)
         {
-            return await ctx.Issues.
-                   Where(i => i.CircleId == circleId).
-                   Select(i => new CoreIssue
-                   (
-                       i.Id,
-                       i.CircleId,
-                       i.Type,
-                       i.Title,
-                       i.DraftingStart,
-                       i.DraftingEnd
-                   )).
-                   ToListAsync();
+            return await ctx.Issues.Where(i => i.CircleId == circleId).ToListAsync();
         }
 
-        public async Task<CorePost> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption, MemoryStream image)
+        public async Task<Post> AddPostAsync(long issueId, long userId, DateTimeOffset timestamp, string caption, MemoryStream image)
         {
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
@@ -87,39 +66,17 @@ namespace CrazyLizard.Repositories
                     AuthorId = userId,
                     Layout = Post.LayoutType.Single,
                     PostedAt = timestamp,
+                    Caption = caption,
                 };
 
                 ctx.Posts.Add(postToAdd);
-                await ctx.SaveChangesAsync();
-
-                Snapshot snapshotToAdd = new()
-                {
-                    PostId = postToAdd.Id,
-                    SequenceNumber = 0,
-                };
-
-                Caption captionToAdd = new()
-                {
-                    PostId = postToAdd.Id,
-                    SequenceNumber = 1,
-                    Text = caption
-                };
-
-                ctx.AddRange(snapshotToAdd, captionToAdd);
                 await ctx.SaveChangesAsync();
                 
                 await mediaRepository.UploadSnapshotAsync(snapshotToAdd.Id, image);
 
                 await transaction.CommitAsync();
 
-                return new CorePost
-                (
-                    postToAdd.Id,
-                    postToAdd.IssueId,
-                    postToAdd.AuthorId,
-                    postToAdd.PostedAt,
-                    captionToAdd.Text
-                );
+                return postToAdd;
             }
             catch (Exception)
             {
@@ -128,7 +85,7 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        public async Task<List<CorePost>> GetPostsForIssueAsync(long issueId)
+        public async Task<List<Post>> GetPostsForIssueAsync(long issueId)
         {
             return await ctx.Issues.
             Where(i => i.Id == issueId).
@@ -137,30 +94,14 @@ namespace CrazyLizard.Repositories
                 ctx.Posts.Where(p => p.IssueId == issueId),
                 i => i.Id,
                 p => p.IssueId,
-                (_, p) => new { p.Id, p.IssueId, p.AuthorId, p.PostedAt }
-            ).
-            Join
-            (
-                ctx.Captions,
-                p => p.Id,
-                c => c.PostId,
-                (p, c) => new CorePost(p.Id, p.IssueId, p.AuthorId, p.PostedAt, c.Text)
+                (_, p) => p
             ).
             ToListAsync();
         }
 
-        public async Task<CorePost> GetPostAsync(long postId)
+        public async Task<Post> GetPostAsync(long postId)
         {
-            return await ctx.Posts.
-            Where(p => p.Id == postId).
-            Join
-            (
-                ctx.Captions.Where(c => c.PostId == postId),
-                p => p.Id,
-                c => c.PostId,
-                (p,c) => new CorePost(p.Id, p.IssueId, p.AuthorId, p.PostedAt, c.Text)
-            ).
-            SingleAsync();
+            return await ctx.Posts.Where(p => p.Id == postId).SingleAsync();
         }
 
         public async Task DeletePostAsync(long postId)
@@ -216,7 +157,7 @@ namespace CrazyLizard.Repositories
             return await ctx.Issues.AnyAsync(x => x.Id == issueId);
         }
 
-        public async Task<CoreIssue> GetCurrentIssueAsync(long circleId)
+        public async Task<Issue> GetCurrentIssueAsync(long circleId)
         {
             // JACKALOPE: This runs in memory rn cause SQLite doesn't support the ordering of dates on db. Uncomment and use that.
             //return await ctx.Issues.
@@ -225,10 +166,7 @@ namespace CrazyLizard.Repositories
             //       Select((x) => new CoreIssue(x.Id, x.CircleId, x.Type, x.Title, x.DraftingStart, x.DraftingEnd)).
             //       FirstAsync();
 
-            List<CoreIssue> issues =  await ctx.Issues.
-                   Where(x => x.CircleId == circleId).
-                   Select((x) => new CoreIssue(x.Id, x.CircleId, x.Type, x.Title, x.DraftingStart, x.DraftingEnd)).
-                   ToListAsync();
+            List<Issue> issues =  await ctx.Issues.Where(x => x.CircleId == circleId).ToListAsync();
 
             return issues.OrderByDescending(x => x.DraftingStart).First();
         }

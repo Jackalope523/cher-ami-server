@@ -1,17 +1,17 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
+﻿using FastEndpoints;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Entities;
 
 namespace CrazyLizard.Shared.Mappers
 {
-    public class PostResponseMapper : ResponseMapper<PostDTO, CorePost>
+    public class PostResponseMapper : ResponseMapper<PostDTO, Post>
     {
-        public override PostDTO FromEntity(CorePost post) => new()
+        public override PostDTO FromEntity(Post post) => new()
         {
             Id = post.Id,
             IssueId = post.IssueId,
-            UserId = post.UserId,
-            Timestamp = post.Timestamp,
+            AuthorId = post.AuthorId,
+            PostedAt = post.PostedAt,
             Caption = post.Caption,
         };
     }

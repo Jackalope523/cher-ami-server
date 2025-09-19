@@ -7,8 +7,6 @@ namespace Core.Boundaries
 {
     public record CoreBlockedUser(long UserId, string FullName, DateTimeOffset DateBlocked);
 
-    #region Gates
-
     public interface IProfileRepository
     {
         Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long userId);
@@ -27,7 +25,5 @@ namespace Core.Boundaries
         Task BlockUserAsync(long userId, long targetId);
         Task UnblockUserAsync(long userId, long targetId);
     }
-
-	#endregion
 }
 

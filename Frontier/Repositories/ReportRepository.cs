@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contexts;
+﻿using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
 using CrazyLizard.Entities.Reports;
 using System;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PostReport = CrazyLizard.Entities.Reports.PostReport;
 using UserReport = CrazyLizard.Entities.Reports.UserReport;
+using CrazyLizard.Interfaces.Repository;
 
 
 namespace CrazyLizard.Repositories

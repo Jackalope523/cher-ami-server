@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Contracts.Requests;
-using Core.Boundaries;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Profile
 {

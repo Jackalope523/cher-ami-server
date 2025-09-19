@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Boundaries;
 using CrazyLizard.Boundaries.Repository;
+using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Services
 {

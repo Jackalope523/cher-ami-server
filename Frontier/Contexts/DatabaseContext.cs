@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Repository.Entities;
-using Repository.Entities.Reports;
-using static Repository.Entities.Reports.Report;
-using PostReport = Repository.Entities.Reports.PostReport;
-using UserReport = Repository.Entities.Reports.UserReport;
+﻿using CrazyLizard.Entities;
+using CrazyLizard.Entities.Reports;
+using Microsoft.EntityFrameworkCore;
+using static CrazyLizard.Entities.Reports.Report;
 
 namespace CrazyLizard.Contexts
 {

@@ -1,20 +1,18 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
+using CrazyLizard.Entities;
 using Microsoft.EntityFrameworkCore;
-using OneSignalApi.Model;
-using Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using User = Repository.Entities.User;
 
 namespace CrazyLizard.Repositories
 {
     public class AccountRepository(DatabaseContext ctx) : IAccountRepository
     {
 
-        public async Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
+        public async Task<User> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId)
         {
             User toCreate = new()
             {
@@ -32,30 +30,7 @@ namespace CrazyLizard.Repositories
             ctx.Users.Add(toCreate);
             await ctx.SaveChangesAsync();
 
-            return new CoreUser
-              (
-                  toCreate.Id,
-                  toCreate.PhoneNumber,
-                  toCreate.Email,
-                  toCreate.NormalizedEmail,
-                  toCreate.Title,
-                  toCreate.FirstName,
-                  toCreate.LastName,
-                  toCreate.DateOfBirth,
-                  toCreate.IsPhoneConfirmed,
-                  toCreate.IsEmailConfirmed,
-                  toCreate.SoftDeleted,
-                  toCreate.SecurityStamp,
-                  toCreate.LockoutDate,
-                  toCreate.AccessTries,
-                  toCreate.AccountStatus,
-                  toCreate.JoinDate,
-                  toCreate.TimeOfUserAgreement,
-                  toCreate.NotificationId,
-                  toCreate.StripeCustomerId,
-                  toCreate.StripeSubscriptionId,
-                  toCreate.ProvidedPaymentDetails
-              );
+            return toCreate;
         }
 
         public async Task DeleteUserAsync(long id)
@@ -99,94 +74,19 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        public async Task<CoreUser> GetUserByIdAsync(long id) 
+        public async Task<User> GetUserByIdAsync(long id) 
         {
-            return await ctx.Users.
-              Where(u => u.Id == id).
-              Select(u => new CoreUser
-              (
-                  u.Id,
-                  u.PhoneNumber,
-                  u.Email,
-                  u.NormalizedEmail,
-                  u.Title,
-                  u.FirstName,
-                  u.LastName,
-                  u.DateOfBirth,
-                  u.IsPhoneConfirmed,
-                  u.IsEmailConfirmed,
-                  u.SoftDeleted,
-                  u.SecurityStamp,
-                  u.LockoutDate,
-                  u.AccessTries,
-                  u.AccountStatus,
-                  u.JoinDate,
-                  u.TimeOfUserAgreement,
-                  u.NotificationId,
-                  u.StripeCustomerId,
-                  u.StripeSubscriptionId,
-                  u.ProvidedPaymentDetails
-              )).SingleAsync();
+            return await ctx.Users.Where(u => u.Id == id).SingleAsync();
         }
 
-        public async Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber) 
+        public async Task<User> GetUserByPhoneNumberAsync(string phoneNumber) 
         {
-            return await ctx.Users.
-                 Where(u => u.PhoneNumber == phoneNumber).
-                 Select(u => new CoreUser
-                 (
-                     u.Id,
-                     u.PhoneNumber,
-                     u.Email,
-                     u.NormalizedEmail,
-                     u.Title,
-                     u.FirstName,
-                     u.LastName,
-                     u.DateOfBirth,
-                     u.IsPhoneConfirmed,
-                     u.IsEmailConfirmed,
-                     u.SoftDeleted,
-                     u.SecurityStamp,
-                     u.LockoutDate,
-                     u.AccessTries,
-                     u.AccountStatus,
-                     u.JoinDate,
-                     u.TimeOfUserAgreement,
-                     u.NotificationId,
-                     u.StripeCustomerId,
-                     u.StripeSubscriptionId,
-                     u.ProvidedPaymentDetails
-                 )).SingleOrDefaultAsync();
+            return await ctx.Users.Where(u => u.PhoneNumber == phoneNumber).SingleOrDefaultAsync();
         }
 
-        public async Task<CoreUser> GetUserByEmailAsync(string email) 
+        public async Task<User> GetUserByEmailAsync(string email) 
         {
-            return await ctx.Users.
-              Where(u => u.Email == email).
-              Select(u => new CoreUser
-              (
-                  u.Id,
-                  u.PhoneNumber,
-                  u.Email,
-                  u.NormalizedEmail,
-                  u.Title,
-                  u.FirstName,
-                  u.LastName,
-                  u.DateOfBirth,
-                  u.IsPhoneConfirmed,
-                  u.IsEmailConfirmed,
-                  u.SoftDeleted,
-                  u.SecurityStamp,
-                  u.LockoutDate,
-                  u.AccessTries,
-                  u.AccountStatus,
-                  u.JoinDate,
-                  u.TimeOfUserAgreement,
-                  u.NotificationId,
-                  u.StripeCustomerId,
-                  u.StripeSubscriptionId,
-                  u.ProvidedPaymentDetails
-              )).SingleAsync();
+            return await ctx.Users.Where(u => u.Email == email).SingleAsync();
         }
 
         public async Task UpdateUserAsync(long id, List<(string Property, object Value)> edits)

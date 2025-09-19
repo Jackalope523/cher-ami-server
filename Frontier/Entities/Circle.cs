@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Circle : Entity
     {

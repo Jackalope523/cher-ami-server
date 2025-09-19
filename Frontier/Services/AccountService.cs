@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using Stripe;
 using System;
@@ -18,12 +19,12 @@ namespace CrazyLizard.Services
             return await accountRepository.PhoneNumberExistsAsync(phoneNumber);
         }
 
-		public async Task<CoreUser> GetCoreUserAsync(long userId)
+		public async Task<User> GetCoreUserAsync(long userId)
         {
             return await accountRepository.GetUserByIdAsync(userId);
         }
 
-        public async Task<CoreUser> GetCoreUserAsync(string phoneNumber)
+        public async Task<User> GetCoreUserAsync(string phoneNumber)
 		{
             return await accountRepository.GetUserByPhoneNumberAsync(phoneNumber);
         }
@@ -42,7 +43,7 @@ namespace CrazyLizard.Services
 			string securityStamp = null, DateTimeOffset? lockoutDate = null, int? accessTries = null)
         {
             // Throws if user not found or locked
-            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
+            User user = await accountRepository.GetUserByIdAsync(userId);
             
             // Check unique details changed to avoid errors
             bool phoneNumberChanged = !string.IsNullOrEmpty(phoneNumber) && user.PhoneNumber != phoneNumber;
@@ -64,51 +65,51 @@ namespace CrazyLizard.Services
             // Gather individual edits
 			if (phoneNumberChanged)
             {
-                edits.Add((nameof(CoreUser.PhoneNumber), user.PhoneNumber));
+                edits.Add((nameof(User.PhoneNumber), user.PhoneNumber));
             }
 			if (emailChanged)
 			{
 
-                edits.Add((nameof(CoreUser.Email), email));
+                edits.Add((nameof(User.Email), email));
                 edits.Add(("NormalisedEmail", user.Email));
-                edits.Add((nameof(CoreUser.IsEmailConfirmed), false));
+                edits.Add((nameof(User.IsEmailConfirmed), false));
             }
 			if (titleChanged)
 			{
-                edits.Add((nameof(CoreUser.Title), user.Title));
+                edits.Add((nameof(User.Title), user.Title));
 			}
 			if (givenNameChanged)
 			{
-                edits.Add((nameof(CoreUser.FirstName), user.FirstName));
+                edits.Add((nameof(User.FirstName), user.FirstName));
 			}
 			if (familyNameChanged)
 			{
-                edits.Add((nameof(CoreUser.LastName), user.LastName));
+                edits.Add((nameof(User.LastName), user.LastName));
 			}
 			if (dateOfBirthChanged)
 			{
-                edits.Add((nameof(CoreUser.DateOfBirth), user.DateOfBirth));
+                edits.Add((nameof(User.DateOfBirth), user.DateOfBirth));
 			}
             // Internal attributes for account store
 			if (isPhoneNumberConfirmed != null)
 			{
-                edits.Add((nameof(CoreUser.IsPhoneConfirmed), isPhoneNumberConfirmed.Value));
+                edits.Add((nameof(User.IsPhoneConfirmed), isPhoneNumberConfirmed.Value));
 			}
 			if (isEmailConfirmed != null)
 			{
-                edits.Add((nameof(CoreUser.IsEmailConfirmed), isEmailConfirmed.Value));
+                edits.Add((nameof(User.IsEmailConfirmed), isEmailConfirmed.Value));
 			}
 			if (!string.IsNullOrEmpty(securityStamp))
 			{
-                edits.Add((nameof(CoreUser.SecurityStamp), securityStamp));
+                edits.Add((nameof(User.SecurityStamp), securityStamp));
 			}
 			if (lockoutDate != null)
 			{
-                edits.Add((nameof(CoreUser.LockoutDate), lockoutDate.Value));
+                edits.Add((nameof(User.LockoutDate), lockoutDate.Value));
 			}
 			if (accessTries != null)
 			{
-                edits.Add((nameof(CoreUser.AccessTries), accessTries.Value));
+                edits.Add((nameof(User.AccessTries), accessTries.Value));
 			}
 
             // Push update
@@ -120,7 +121,7 @@ namespace CrazyLizard.Services
             var user = await accountRepository.GetUserByIdAsync(userId);
 
             await accountRepository.UpdateUserAsync(user.Id,
-                new() { (nameof(CoreUser.TimeOfUserAgreement), DateTimeOffset.UtcNow) });
+                new() { (nameof(User.TimeOfUserAgreement), DateTimeOffset.UtcNow) });
         }
 
         public async Task EditAvatarAsync(long userId, MemoryStream image)
@@ -135,7 +136,7 @@ namespace CrazyLizard.Services
 
         public async Task<string> CreateSetupIntentAsync(long userId, CancellationToken cancellationToken = default)
         {
-            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
+            User user = await accountRepository.GetUserByIdAsync(userId);
 
             Customer customer;
             if (!string.IsNullOrEmpty(user.StripeCustomerId))
@@ -190,7 +191,7 @@ namespace CrazyLizard.Services
             if (!await accountRepository.IsManagerAsync(userId, recipientId))
                 throw new NoAccessException($"User {userId} does not manage recipient {recipientId}.");
 
-            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
+            User user = await accountRepository.GetUserByIdAsync(userId);
 
             if (!user.ProvidedPaymentDetails)
                 throw new NotFoundException($"User {userId} has not provided payment details.");
@@ -231,7 +232,7 @@ namespace CrazyLizard.Services
             if (!await circleRepository.HasCircle(userId))
                 throw new NotFoundException($"User {userId} does not have a circle.");
 
-            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
+            User user = await accountRepository.GetUserByIdAsync(userId);
 
             if (!user.ProvidedPaymentDetails)
                 throw new NotFoundException($"User {userId} has not provided payment details.");

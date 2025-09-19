@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Feedback : Entity
     {

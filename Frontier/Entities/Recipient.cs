@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Recipient : Entity
     {

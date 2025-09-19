@@ -4,16 +4,6 @@ using System.Threading.Tasks;
 
 namespace Core.Boundaries
 {
-    #region Schemas
-
-    public record CoreOnlyData();
-
-    public record ErrorShard(HttpStatusCode Code, string Details);
-
-    #endregion
-
-    #region Gates
-
     public interface IMiscellaneousRepository
     {
 		Task SaveFeedbackAsync(string comments, DateTimeOffset time);
@@ -25,7 +15,5 @@ namespace Core.Boundaries
 		Task ReceiveFeedback(long userId, string comments);
 		Task ReceiveFeedback(string comments);
 	}
-
-    #endregion
 }
 

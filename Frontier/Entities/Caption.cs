@@ -1,4 +1,6 @@
-﻿namespace Repository.Entities
+﻿using Entities;
+
+namespace CrazyLizard.Entities
 {
     public class Caption : Entity
     {

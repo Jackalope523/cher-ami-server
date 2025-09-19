@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
 using Repository.Entities;
 
-namespace Repository.Entities.Reports
+namespace CrazyLizard.Entities.Reports
 {
     public class PostReport : Report
     {

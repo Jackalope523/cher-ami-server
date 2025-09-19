@@ -1,3 +1,5 @@
+using CrazyLizard.Entities;
+using Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,14 +12,6 @@ namespace Core.Boundaries
 
 	public enum UserAccountStatus
 	{ Active, Limited, Suspended, Blacklisted }
-
-
-    public record CoreUser(long Id, string PhoneNumber, string Email, string NormalizedEmail,
-		string Title, string FirstName, string LastName, DateOnly DateOfBirth,
-		bool IsPhoneConfirmed, bool IsEmailConfirmed, bool IsPendingDeletion,
-		string SecurityStamp, DateTimeOffset? LockoutDate, int AccessTries, UserAccountStatus AccountStatus,
-		DateTimeOffset JoinDate, DateTimeOffset TimeOfUserAgreement, Guid NotificationId, string StripeCustomerId, string StripeSubscriptionId, bool ProvidedPaymentDetails)
-		: CoreOnlyData();
 	
     #endregion
 
@@ -29,11 +23,11 @@ namespace Core.Boundaries
 		Task<bool> PhoneNumberExistsAsync(string phoneNumber);
 		Task<bool> EmailExistsAsync(string normalisedEmail);
 
-		Task<CoreUser> GetUserByIdAsync(long userId);
-        Task<CoreUser> GetUserByPhoneNumberAsync(string phoneNumber);
-		Task<CoreUser> GetUserByEmailAsync(string normalisedEmail);
+		Task<User> GetUserByIdAsync(long userId);
+        Task<User> GetUserByPhoneNumberAsync(string phoneNumber);
+		Task<User> GetUserByEmailAsync(string normalisedEmail);
 
-		Task<CoreUser> CreateUserAsync(string phoneNumber, string email, string normalisedEmail,
+		Task<User> CreateUserAsync(string phoneNumber, string email, string normalisedEmail,
 			string title, string givenName, string familyName,
 			DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId);
 		Task UpdateUserAsync(long userId, List<(string Property, object Value)> edits);
@@ -53,8 +47,8 @@ namespace Core.Boundaries
 	{
 		Task<bool> UserExistsAsync(string phoneNumber);
 
-		Task<CoreUser> GetCoreUserAsync(long userId);
-		Task<CoreUser> GetCoreUserAsync(string phoneNumber);
+		Task<User> GetCoreUserAsync(long userId);
+		Task<User> GetCoreUserAsync(string phoneNumber);
 
 		Task CreateUserAsync(string phoneNumber, string email,
 			string title, string givenName, string familyName,

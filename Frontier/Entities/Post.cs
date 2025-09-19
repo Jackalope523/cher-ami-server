@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using PostReport = Repository.Entities.Reports.PostReport;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Post : Entity
     {

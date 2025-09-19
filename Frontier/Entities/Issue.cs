@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Issue : Entity
     {

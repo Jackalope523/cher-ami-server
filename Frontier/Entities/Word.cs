@@ -1,4 +1,4 @@
-﻿namespace Repository.Entities
+﻿namespace CrazyLizard.Entities
 {
     internal class Word : Entity
     { 

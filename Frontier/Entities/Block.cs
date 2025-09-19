@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Entities;
+using System;
 
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Block : Entity
     {

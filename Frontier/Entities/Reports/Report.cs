@@ -1,7 +1,6 @@
-﻿using Repository.Entities;
-using System;
+﻿using System;
 
-namespace Repository.Entities.Reports
+namespace CrazyLizard.Entities.Reports
 {
     public abstract class Report : Entity
     {

@@ -1,4 +1,4 @@
-namespace Repository.Entities
+namespace CrazyLizard.Entities
 {
     public class Snapshot : Entity
     {

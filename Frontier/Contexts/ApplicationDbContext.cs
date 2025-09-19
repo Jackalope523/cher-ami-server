@@ -3,6 +3,7 @@ using CrazyLizard.Entities.Reports;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 using static CrazyLizard.Entities.Reports.Report;
 
 namespace CrazyLizard.Contexts
@@ -17,8 +18,6 @@ namespace CrazyLizard.Contexts
         internal DbSet<PostReport> PostReports { get; set; }
         internal DbSet<Block> Blocks { get; set; }
         internal DbSet<Post> Posts { get; set; }
-        internal DbSet<Snapshot> Snapshots { get; set; }
-        internal DbSet<Caption> Captions { get; set; }
         internal DbSet<Subscription> Subscriptions { get; set; }
         internal DbSet<Feedback> Feedback { get; set; }
         internal DbSet<Notification> Notifications { get; set; }
@@ -317,34 +316,16 @@ namespace CrazyLizard.Contexts
                 .HasQueryFilter(s => !s.SoftDeleted);
 
             modelBuilder.Entity<Post>()
-                .HasMany(p => p.Snapshots)
-                .WithOne(s => s.Post)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Post>()
-                .HasMany(p => p.Captions)
-                .WithOne(c => c.Post)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Post>()
                .HasMany(p => p.Reports)
                .WithOne(r => r.Post)
                .OnDelete(DeleteBehavior.Restrict);
 
-            // Snapshot
-            modelBuilder.Entity<Snapshot>()
-                .HasQueryFilter(s => !s.SoftDeleted);
+            modelBuilder.Entity<Post>()
+               .Property(x => x.ImagePath)
+               .HasMaxLength(1024);
 
-            modelBuilder.Entity<Snapshot>()
-                .Property(s => s.Path)
-                .HasMaxLength(1024);
-
-            // Caption
-            modelBuilder.Entity<Caption>()
-                .HasQueryFilter(s => !s.SoftDeleted);
-
-            modelBuilder.Entity<Caption>()
-                .Property(c => c.Text)
+            modelBuilder.Entity<Post>()
+                .Property(x => x.Caption)
                 .HasMaxLength(200);
 
             // Feedback

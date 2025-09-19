@@ -25,7 +25,6 @@ namespace CrazyLizard.Entities
         public DateTimeOffset DraftingStart { get; set; }
         public DateTimeOffset DraftingEnd { get; set; }
         public IssueStatus Status { get; set; }
-        public IssueType Type { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
         public bool SoftDeleted { get; set; }
 

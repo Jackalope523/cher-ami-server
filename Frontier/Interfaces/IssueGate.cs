@@ -5,18 +5,9 @@ using System.IO;
 
 namespace Core.Boundaries
 {
-	#region Schemas
-
-    public enum IssueType
-    { Magazine }
-
 	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset DraftingStart, DateTimeOffset DraftingEnd);
 
     public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
-
-    #endregion
-
-    #region Gates
 
     public interface IIssueRepository
     {
@@ -54,7 +45,5 @@ namespace Core.Boundaries
             MemoryStream image = null);
         Task DeletePostAsync(long userId, long postId);
     }
-
-	#endregion
 }
 

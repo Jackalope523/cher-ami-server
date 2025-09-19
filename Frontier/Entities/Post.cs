@@ -18,8 +18,8 @@ namespace CrazyLizard.Entities
         // Navigation Properties
         public User Author { get; set; }
         public Issue Issue { get; set; }
-        public List<Snapshot> Snapshots { get; set; }
-        public List<Caption> Captions { get; set; }
+        public string ImagePath { get; set; }
+        public string Caption { get; set; }
         public List<PostReport> Reports { get; set; }
 
         // Default Values

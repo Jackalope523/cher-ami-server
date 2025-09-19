@@ -1,11 +1,13 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
+using OneSignalApi.Model;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using User = Repository.Entities.User;
 
 namespace CrazyLizard.Repositories
 {
@@ -267,7 +269,7 @@ namespace CrazyLizard.Repositories
 
         }
 
-        public async Task UpdateStripeSubscriptionId(long userId, string newId)
+        public async Task UpdateStripeSubscriptionIdAsync(long userId, string newId)
         {
             User user = await ctx.Users.FindAsync(userId);
             user.StripeSubscriptionId = newId;
@@ -350,6 +352,15 @@ namespace CrazyLizard.Repositories
         public async Task<bool> IsManagerAsync(long userId, long recipientId)
         {
             return await ctx.Recipients.AnyAsync(x => x.Id == recipientId && x.ManagerId == userId);
+        }
+
+        public async Task ConfirmPaymentDetailsProvidedAsync(string stripeCustomerId)
+        {
+            await ctx.Users
+                .Where(x => x.StripeCustomerId == stripeCustomerId)
+                .ExecuteUpdateAsync(setter => setter
+                    .SetProperty(x => x.ProvidedPaymentDetails, true)
+                );
         }
     }
 }

@@ -40,7 +40,8 @@ namespace Core.Boundaries
 		Task DeleteUserAsync(long userId);
 
 		Task UpdateStripeCustomerIdAsync(long userId, string newId);
-        Task UpdateStripeSubscriptionId(long userId, string newId);
+        Task UpdateStripeSubscriptionIdAsync(long userId, string newId);
+        Task ConfirmPaymentDetailsProvidedAsync(string stripeCustomerId);
 
         Task<bool> IsManagerAsync(long userId, long recipientId);
         Task AddRecipientAsync(CoreRecipient recipient);
@@ -71,9 +72,10 @@ namespace Core.Boundaries
         Task RemoveRecipientAsync(long userId, long recipientId, CancellationToken cancellationToken = default);
         Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits);
 
-        Task<string> CreateSetupIntent(long userId, CancellationToken cancellationToken = default);
+        Task<string> CreateSetupIntentAsync(long userId, CancellationToken cancellationToken = default);
 		Task UpdateStripeCustomerIdAsync(long userId, string newId);
-        Task UpdateStripeSubscriptionId(long userId, string newId);
+        Task UpdateStripeSubscriptionIdAsync(long userId, string newId);
+        Task ConfirmPaymentDetailsProvidedAsync(string stripeClientId);
     }
 
 	public interface IEmailService

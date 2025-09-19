@@ -1,10 +1,5 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Exceptions;
-using CrazyLizard.Repositories;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using OneSignalApi.Model;
-using Repository.Entities;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -12,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static FastEndpoints.Ep;
 using Subscription = Stripe.Subscription;
 
 namespace CrazyLizard.Services
@@ -139,7 +133,7 @@ namespace CrazyLizard.Services
             await accountRepository.DeleteUserAsync(userId);
         }
 
-        public async Task<string> CreateSetupIntent(long userId, CancellationToken cancellationToken = default)
+        public async Task<string> CreateSetupIntentAsync(long userId, CancellationToken cancellationToken = default)
         {
             CoreUser user = await accountRepository.GetUserByIdAsync(userId);
 
@@ -175,9 +169,9 @@ namespace CrazyLizard.Services
             await accountRepository.UpdateStripeCustomerIdAsync(userId, newId);
 
         }
-        public async Task UpdateStripeSubscriptionId(long userId, string newId)
+        public async Task UpdateStripeSubscriptionIdAsync(long userId, string newId)
         {
-            await accountRepository.UpdateStripeSubscriptionId(userId, newId);
+            await accountRepository.UpdateStripeSubscriptionIdAsync(userId, newId);
         }
 
         public async Task EditRecipientAsync(long userId, long recipientId, List<(string Property, object Value)> edits)
@@ -278,6 +272,11 @@ namespace CrazyLizard.Services
             }
 
             await accountRepository.AddRecipientAsync(recipient);
+        }
+
+        public async Task ConfirmPaymentDetailsProvidedAsync(string stripeCustomerId)
+        {
+            await accountRepository.ConfirmPaymentDetailsProvidedAsync(stripeCustomerId);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace CrazyLizard.Endpoints.Stripe
         public override async Task HandleAsync(CreateSetupIntentEndpoint request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            string clientSecret = await accountService.CreateSetupIntent(userId, cancellationToken);
+            string clientSecret = await accountService.CreateSetupIntentAsync(userId, cancellationToken);
 
             ClientSecretDTO response = new()
             {

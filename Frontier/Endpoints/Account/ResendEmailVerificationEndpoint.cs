@@ -1,4 +1,4 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using FastEndpoints;

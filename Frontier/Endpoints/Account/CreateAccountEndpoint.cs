@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using Core.Boundaries;
 using CrazyLizard.Entities;
+using CrazyLizard.Boundaries.Service;
 
 namespace CrazyLizard.Endpoints.Account
 {

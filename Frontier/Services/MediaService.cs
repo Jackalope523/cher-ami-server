@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Core.Boundaries;
+using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Exceptions;
 using CrazyLizard.Shared.Responses;
 

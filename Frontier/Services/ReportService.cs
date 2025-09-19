@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Boundaries;
+using CrazyLizard.Boundaries.Repository;
 
 namespace CrazyLizard.Services
 {

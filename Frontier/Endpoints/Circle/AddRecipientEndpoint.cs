@@ -1,4 +1,4 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Boundaries.Service;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;

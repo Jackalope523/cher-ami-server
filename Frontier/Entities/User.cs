@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using PostReport = CrazyLizard.Entities.Reports.PostReport;
@@ -7,6 +6,14 @@ using UserReport = CrazyLizard.Entities.Reports.UserReport;
 
 namespace CrazyLizard.Entities
 {
+    public enum UserAccountStatus
+    { 
+        Active, 
+        Limited, 
+        Suspended,
+        Blacklisted 
+    }
+
     public class User : IdentityUser<long>
     {
         public string Title { get; set; }

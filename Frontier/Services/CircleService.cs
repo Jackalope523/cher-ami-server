@@ -5,6 +5,7 @@ using Stripe;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using CrazyLizard.Boundaries.Repository;
 
 namespace CrazyLizard.Services
 {

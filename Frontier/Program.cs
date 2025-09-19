@@ -1,5 +1,7 @@
 ﻿using Core.Boundaries;
 using CrazyLizard;
+using CrazyLizard.Boundaries.Repository;
+using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;

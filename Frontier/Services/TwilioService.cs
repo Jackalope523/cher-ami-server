@@ -4,8 +4,8 @@ using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using Core.Boundaries;
 using Microsoft.Extensions.Logging;
+using CrazyLizard.Boundaries.Service;
 
 namespace CrazyLizard.Services
 {

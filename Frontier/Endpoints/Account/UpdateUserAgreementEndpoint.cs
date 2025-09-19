@@ -1,4 +1,4 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Boundaries.Service;
 using FastEndpoints;
 using System.Security.Claims;
 using System.Threading;

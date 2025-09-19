@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Frontier.Contracts.Responses;
+using CrazyLizard.Entities;
 
 namespace Frontier.Endpoints.Account
 {
@@ -21,7 +22,7 @@ namespace Frontier.Endpoints.Account
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreUser> coreCircleMemberships = await circles.GetCircleMembers(userId);
+            List<User> coreCircleMemberships = await circles.GetCircleMembers(userId);
 
             await Send.OkAsync(coreCircleMemberships.Select(Map.FromEntity).ToList(), cancellationToken);
         }

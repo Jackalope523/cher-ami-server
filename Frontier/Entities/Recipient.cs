@@ -2,8 +2,9 @@
 
 namespace CrazyLizard.Entities
 {
-    public class Recipient : Entity
+    public class Recipient
     {
+        public long Id { get; set; }
         public string Title { get; set; } = DefaultTitle;
         public string FirstName { get; set; } = DefaultFirstName;
         public string LastName { get; set; } = DefaultLastName;
@@ -15,6 +16,7 @@ namespace CrazyLizard.Entities
         public string Country { get; set; } = DefaultCountry;
         public long ManagerId { get; set; }
         public RecipientState State { get; set; }
+        public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public User Manager { get; set; }

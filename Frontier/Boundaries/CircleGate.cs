@@ -1,10 +1,7 @@
-﻿using CrazyLizard.Contracts.Responses;
-using Frontier.Contracts.Responses;
+﻿using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Core.Boundaries
@@ -17,15 +14,12 @@ namespace Core.Boundaries
 
     public record CoreCircle(long Id, string InviteCode, string Title,
         DateTimeOffset DateCreated, IssueSchedule Schedule,
-        bool IsPendingDeletion)
-        : CoreOnlyData();
+        bool IsPendingDeletion);
 
-    public record CoreCircleMembership(long UserId, DateTimeOffset DateJoined)
-        : CoreOnlyData();
+    public record CoreCircleMembership(long UserId, DateTimeOffset DateJoined);
 
 
-    public record CoreRecipient(long Id, long ManagerId, string Title, string FirstName, string LastName, Address Address = null)
-        : CoreOnlyData();
+    public record CoreRecipient(long Id, long ManagerId, string Title, string FirstName, string LastName, Address Address = null);
 
 
     public record Address(string Street, string UnitNumber,
@@ -45,7 +39,7 @@ namespace Core.Boundaries
         Task<string> RerollCircleCode(long circleId);
         Task DeleteCircleAsync(long circleId);
 
-        Task<List<CoreUser>> GetCircleContributorsAsync(long circleId);
+        Task<List<User>> GetCircleContributorsAsync(long circleId);
         Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId);
 
         Task<bool> HasCircle(long userId);
@@ -71,7 +65,7 @@ namespace Core.Boundaries
         Task<string> RerollCircleCodeAsync(long userId, long circleId);
         Task DeleteCircleAsync(long userId, long circleId);
         
-        Task<List<CoreUser>> GetCircleMembers(long userId);
+        Task<List<User>> GetCircleMembers(long userId);
         Task AddMemberAsync(long userId, string circleCode);
         Task RemoveMemberAsync(long userId, long circleId);
 

@@ -6,8 +6,10 @@ namespace CrazyLizard.Entities.Reports
     {
         public UserReportType Type { get; set; }
 
+        public long Id { get; set; }
         public long ReportedUserId { get; init; }
         public long? GatheringId { get; init; }
+        public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public User ReportedUser { get; init; }

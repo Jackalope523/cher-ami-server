@@ -1,10 +1,8 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Exceptions;
-using Repository.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CrazyLizard.Services

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Core.Boundaries;
 using Microsoft.Extensions.Logging;
 
-namespace Frontier.Services
+namespace CrazyLizard.Services
 {
 	public class TwilioService : ISMSService
 	{

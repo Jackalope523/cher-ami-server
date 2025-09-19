@@ -1,18 +1,18 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Entities.Reports;
+using CrazyLizard.Entities.Reports;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PostReport = Repository.Entities.Reports.PostReport;
-using UserReport = Repository.Entities.Reports.UserReport;
+using PostReport = CrazyLizard.Entities.Reports.PostReport;
+using UserReport = CrazyLizard.Entities.Reports.UserReport;
 
 
 namespace CrazyLizard.Repositories
 {
-    public class ReportRepository(DatabaseContext ctx) : IReportRepository
+    public class ReportRepository(ApplicationDbContext ctx) : IReportRepository
     {
 
         public async Task ReportUserAsync(long userId, long targetUserId, DateTimeOffset timeOfReport, UserReportType reportType, string reportDetails)

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using Core.Boundaries;
+using CrazyLizard.Entities;
 
 namespace CrazyLizard.Endpoints.Account
 {
@@ -49,7 +50,7 @@ namespace CrazyLizard.Endpoints.Account
         }
     }
 
-    public class CreateAccountEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<CreateAccountRequest>
+    public class CreateAccountEndpoint(UserManager<User> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<CreateAccountRequest>
     {
         public override void Configure()
         {

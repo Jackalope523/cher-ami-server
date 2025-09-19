@@ -8,7 +8,7 @@ using OneSignalApi.Api;
 using OneSignalApi.Client;
 using OneSignalApi.Model;
 
-namespace Frontier.Services
+namespace CrazyLizard.Services
 {
     public class OneSignalService : INotificationService, IEmailService
     {

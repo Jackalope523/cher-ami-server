@@ -1,13 +1,14 @@
-﻿using Entities;
-using System;
+﻿using System;
 
 namespace CrazyLizard.Entities
 {
-    public class Block : Entity
+    public class Block
     {
+        public long Id { get; set; }
         public long BlockerId { get; set; }
         public long BlockedId { get; set; }
         public DateTimeOffset BlockDate { get; set; }
+        public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public User Blocker { get; set; }

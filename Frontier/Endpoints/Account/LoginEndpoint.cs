@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +23,7 @@ namespace CrazyLizard.Endpoints.Account
     }
 
 
-    public class LoginEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<LoginRequest>
+    public class LoginEndpoint(UserManager<User> userManager, IAccountService accountService, ISMSService smsService) : Endpoint<LoginRequest>
     {
         public override void Configure()
         {

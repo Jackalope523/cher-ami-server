@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class LogoutEndpoint(SignInManager<CoreUser> userManager) : EndpointWithoutRequest
+    public class LogoutEndpoint(SignInManager<User> userManager) : EndpointWithoutRequest
     {
         public override void Configure()
         {

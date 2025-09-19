@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace CrazyLizard.Factories
 {
-    public class DesignContextFactory : IDesignTimeDbContextFactory<DatabaseContext>
+    public class DesignContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        public DatabaseContext CreateDbContext(string[] args)
+        public ApplicationDbContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
             optionsBuilder.UseSqlite("Data Source=dev.db");
 
-            return new DatabaseContext(optionsBuilder.Options);
+            return new ApplicationDbContext(optionsBuilder.Options);
         }
     }
 }

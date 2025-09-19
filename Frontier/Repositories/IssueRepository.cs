@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Entities;
+using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class IssueRepository(DatabaseContext ctx, IMediaRepository mediaRepository) : IIssueRepository
+    public class IssueRepository(ApplicationDbContext ctx, IMediaRepository mediaRepository) : IIssueRepository
     {
         public async Task CreateIssue(long circleId)
         {

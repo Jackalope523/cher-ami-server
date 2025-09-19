@@ -1,20 +1,19 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
-using CrazyLizard.Contracts.Responses;
 using Microsoft.EntityFrameworkCore;
-using Repository.Entities;
+using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Circle = Repository.Entities.Circle;
+using Circle = CrazyLizard.Entities.Circle;
 
 namespace CrazyLizard.Repositories
 {
-    public class CircleRepository(DatabaseContext ctx, IIssueRepository issueRepository) : ICircleRepository
+    public class CircleRepository(ApplicationDbContext ctx, IIssueRepository issueRepository) : ICircleRepository
     {
 
-        private async Task<string> GenerateUniqueCircleCodeAsync(DatabaseContext ctx)
+        private async Task<string> GenerateUniqueCircleCodeAsync(ApplicationDbContext ctx)
         {
             List<string> adjectives = await ctx.Words.
                                       Where(w => w.Type == Word.WordType.Adjective).
@@ -188,36 +187,9 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        public async Task<List<CoreUser>> GetCircleContributorsAsync(long circleId)
+        public async Task<List<User>> GetCircleContributorsAsync(long circleId)
         {
-            return await ctx.Users.
-                   Where(m => m.CircleId == circleId).
-                   Select(y => new CoreUser
-                        (
-                            y.Id,
-                            y.PhoneNumber,
-                            y.Email,
-                            y.NormalizedEmail,
-                            y.Title,
-                            y.FirstName,
-                            y.LastName,
-                            y.DateOfBirth,
-                            y.IsPhoneConfirmed,
-                            y.IsEmailConfirmed,
-                            y.SoftDeleted,
-                            y.SecurityStamp,
-                            y.LockoutDate,
-                            y.AccessTries,
-                            y.AccountStatus,
-                            y.JoinDate,
-                            y.TimeOfUserAgreement,
-                            y.NotificationId,
-                            y.StripeCustomerId,
-                            y.StripeSubscriptionId,
-                            y.ProvidedPaymentDetails
-                        )
-                   )
-                   .ToListAsync();
+            return await ctx.Users.Where(m => m.CircleId == circleId).ToListAsync();
         }
 
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long circleId)

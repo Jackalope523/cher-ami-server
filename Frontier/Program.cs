@@ -1,13 +1,12 @@
 ﻿using Core.Boundaries;
 using CrazyLizard;
 using CrazyLizard.Contexts;
+using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using CrazyLizard.Repositories;
 using CrazyLizard.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
-using Frontier.Services;
-using Frontier.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Stripe;
-using System;
 using System.IO;
 using AccountService = CrazyLizard.Services.AccountService;
 
@@ -101,7 +99,7 @@ string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial
 //   )
 //);
 
-builder.Services.AddDbContext<DatabaseContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=dev.db"));
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -114,7 +112,7 @@ string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
 
 builder.Services.AddScoped<IMediaRepository>(provider =>
 {
-    var dbContext = provider.GetRequiredService<DatabaseContext>();
+    var dbContext = provider.GetRequiredService<ApplicationDbContext>();
     return new MediaRepository(prodUri, dbContext);
 });
 
@@ -136,9 +134,9 @@ builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
 
 builder.Services.AddScoped<StripeClient>(_ => new("sk_test_51RxlM1ARYKi6NXMeFaJIdN2b1vx6HARAG3uqvYlYcPoqvexFzll5R1fXXtPq7HVBuA4DYJEjjFkG1pSJ76UgNEoM00rz3BvxnY"));
 
-builder.Services.AddIdentityCore<CoreUser>()
-    .AddUserStore<UserAccountStore>()
-    .AddSignInManager()
+builder.Services
+    .AddIdentityCore<User>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddDataProtection()

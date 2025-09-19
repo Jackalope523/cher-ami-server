@@ -5,6 +5,7 @@ using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
+using CrazyLizard.Entities;
 
 namespace CrazyLizard.Endpoints.Account
 {
@@ -17,12 +18,12 @@ namespace CrazyLizard.Endpoints.Account
 
         public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
-            CoreUser userShard = await accountService.GetCoreUserAsync(request.Id);
+            User user = await accountService.GetCoreUserAsync(request.Id);
 
-            if (userShard == null)
+            if (user == null)
                 await Send.NotFoundAsync(cancellationToken);
 
-            await SendMappedAsync(userShard, 200, cancellationToken);
+            await SendMappedAsync(user, 200, cancellationToken);
         }
     }
 }

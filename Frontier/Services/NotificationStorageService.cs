@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace CrazyLizard.Services
 
         public async Task UpdateNotificationPreferencesAsync(long userId, bool? issuePosts = null, bool? issueReminders = null)
         {
-            CoreUser user = await accountRepository.GetUserByIdAsync(userId);
+            User user = await accountRepository.GetUserByIdAsync(userId);
 
             List<(string Property, object Value)> edits = new();
 

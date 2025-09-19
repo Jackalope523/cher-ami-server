@@ -16,8 +16,7 @@ namespace Core.Boundaries
 
     public record CorePaymentMethod(long Id, PaymentProvider Provider,
         string ProviderCustomerId, string ProviderPaymentMethodId,
-        string Last4Digits, string CardBrand, DateTime Expiry, Address BillingAddress)
-        : CoreOnlyData();
+        string Last4Digits, string CardBrand, DateTime Expiry, Address BillingAddress);
 
     public record PaymentMethodShard(string Last4Digits, string CardBrand, DateTime Expiry, Address BillingAddress);
 
@@ -31,8 +30,7 @@ namespace Core.Boundaries
         Cancelled = 4,
     }
 
-    public record CoreOrder(long Id, long IssueId, IssueType Type, long RecipientId, OrderStatus Status)
-        : CoreOnlyData();
+    public record CoreOrder(long Id, long IssueId, IssueType Type, long RecipientId, OrderStatus Status);
 
     public record OrderShard();
 

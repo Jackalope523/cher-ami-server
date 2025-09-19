@@ -1,20 +1,15 @@
 ﻿using Azure.Identity;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Core.Boundaries;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using OneSignalApi.Model;
-using Repository.Entities;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using User = Repository.Entities.User;
 
 namespace CrazyLizard.Repositories
 {
-    public class MediaRepository(string storageAccountUri, DatabaseContext ctx) : IMediaRepository
+    public class MediaRepository(string storageAccountUri, ApplicationDbContext ctx) : IMediaRepository
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
 

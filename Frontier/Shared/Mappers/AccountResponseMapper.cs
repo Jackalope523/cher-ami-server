@@ -1,12 +1,12 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Entities;
 using FastEndpoints;
 using Frontier.Contracts.Responses;
 
 namespace CrazyLizard.Shared.SharedMappers
 {
-    public class AccountResponseMapper : ResponseMapper<AccountDTO, CoreUser>
+    public class AccountResponseMapper : ResponseMapper<AccountDTO, User>
     {
-        public override AccountDTO FromEntity(CoreUser user) => new()
+        public override AccountDTO FromEntity(User user) => new()
         { 
             Id = user.Id,
             PhoneNumber = user.PhoneNumber,

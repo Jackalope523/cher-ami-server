@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class AccountRepository(DatabaseContext ctx) : IAccountRepository
+    public class AccountRepository(ApplicationDbContext ctx) : IAccountRepository
     {
 
         public async Task<User> CreateUserAsync(string phoneNumber, string email, string normalisedEmail, string title, string givenName, string familyName, DateOnly dateOfBirth, DateTimeOffset joinDate, Guid notificationId)

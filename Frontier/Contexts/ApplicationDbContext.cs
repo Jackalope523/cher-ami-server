@@ -1,13 +1,14 @@
 ﻿using CrazyLizard.Entities;
 using CrazyLizard.Entities.Reports;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using static CrazyLizard.Entities.Reports.Report;
 
 namespace CrazyLizard.Contexts
 {
-    public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User, IdentityRole<long>, long>(options)
     {
-        internal DbSet<User> Users { get; set; }
         internal DbSet<Issue> Issues { get; set; }
         internal DbSet<Circle> Circles { get; set; }
         internal DbSet<Recipient> Recipients { get; set; }
@@ -25,6 +26,8 @@ namespace CrazyLizard.Contexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            base.OnConfiguring(optionsBuilder);
+
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlite("Data Source=dev.db");
@@ -33,8 +36,7 @@ namespace CrazyLizard.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Entity
-            modelBuilder.Ignore<Entity>();
+            base.OnModelCreating(modelBuilder);
 
             // User
             modelBuilder.Entity<User>()

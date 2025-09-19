@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +27,7 @@ namespace Frontier.Endpoints.Account
         }
     }
 
-    public class VerifyEmailEndpoint(UserManager<CoreUser> userManager) : Endpoint<VerifyEmailRequest>
+    public class VerifyEmailEndpoint(UserManager<User> userManager) : Endpoint<VerifyEmailRequest>
     {
         public override void Configure()
         {
@@ -37,7 +38,7 @@ namespace Frontier.Endpoints.Account
         public override async Task HandleAsync(VerifyEmailRequest request, CancellationToken cancellationToken)
         {
 
-            CoreUser user = await userManager.FindByEmailAsync(request.Email);
+            User user = await userManager.FindByEmailAsync(request.Email);
 
             if (user != null)
             {

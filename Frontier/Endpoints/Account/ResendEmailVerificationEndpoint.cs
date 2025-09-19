@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using FastEndpoints;
 using FluentValidation;
@@ -23,7 +24,7 @@ namespace Frontier.Endpoints.Account
         }
     }
 
-    public class ResendEmailVerificstion(UserManager<CoreUser> userManager, IEmailService emailService) : Endpoint<EmailRequest>
+    public class ResendEmailVerificstion(UserManager<User> userManager, IEmailService emailService) : Endpoint<EmailRequest>
     {
         public override void Configure()
         {
@@ -33,7 +34,7 @@ namespace Frontier.Endpoints.Account
 
         public override async Task HandleAsync(EmailRequest request, CancellationToken cancellationToken)
         {
-            CoreUser user = await userManager.FindByEmailAsync(request.Email);
+            User user = await userManager.FindByEmailAsync(request.Email);
 
             if (user is null)
                 throw new NotFoundException($"Could not find User with email {request.Email}.");

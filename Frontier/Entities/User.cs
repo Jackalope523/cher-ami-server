@@ -1,16 +1,14 @@
 ﻿using Core.Boundaries;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using PostReport = Repository.Entities.Reports.PostReport;
-using UserReport = Repository.Entities.Reports.UserReport;
+using PostReport = CrazyLizard.Entities.Reports.PostReport;
+using UserReport = CrazyLizard.Entities.Reports.UserReport;
 
 namespace CrazyLizard.Entities
 {
-    public class User : Entity
+    public class User : IdentityUser<long>
     {
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
-        public string NormalizedEmail { get; set; }
         public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -18,7 +16,6 @@ namespace CrazyLizard.Entities
         public DateTimeOffset JoinDate { get; init; }
         public bool IsPhoneConfirmed { get; set; }
         public bool IsEmailConfirmed { get; set; }
-        public string SecurityStamp { get; set; }
         public DateTimeOffset? LockoutDate { get; set; }
         public int AccessTries { get; set; } = DefaultAccessTries;
         public UserAccountStatus AccountStatus { get; set; }
@@ -29,6 +26,7 @@ namespace CrazyLizard.Entities
         public bool ProvidedPaymentDetails { get; set; }
         public long? CircleId { get; set; }
         public DateTimeOffset? CircleJoinDate { get; set; }
+        public bool SoftDeleted { get; set; }
 
         // Notification Profile
         public Guid NotificationId { get; set; }

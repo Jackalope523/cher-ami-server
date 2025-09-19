@@ -5,13 +5,15 @@ using System.Configuration;
 
 namespace CrazyLizard.Entities
 {
-    public class Circle : Entity
+    public class Circle
     {
+        public long Id { get; set; }
         public string Title { get; set; } = DefaultTitle;
         public DateTimeOffset TimeOfCreation { get; set; }
         public string CircleCode { get; set; } = DefaultCircleCode;
         public IssueSchedule IssueSchedule { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
+        public bool SoftDeleted { get; set; }
 
 
         // Navigation Properties

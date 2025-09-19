@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace CrazyLizard.Entities
 {
-    public class Issue : Entity
+    public class Issue
     {
+        public long Id { get; set; }
         public enum IssueStatus
         {
             Drafting,
@@ -22,6 +23,7 @@ namespace CrazyLizard.Entities
         public IssueStatus Status { get; set; }
         public IssueType Type { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
+        public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public Circle Circle { get; set; }

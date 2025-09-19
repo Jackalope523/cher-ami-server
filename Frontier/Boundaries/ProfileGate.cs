@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrazyLizard.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Core.Boundaries
     public interface IProfileRepository
     {
         Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long userId);
-        Task<List<CoreUser>> GetUsersBlockingAsync(long userId);
+        Task<List<User>> GetUsersBlockingAsync(long userId);
 
         Task BlockUserAsync(long userId, long targetId, DateTimeOffset time);
         Task UnblockUserAsync(long userId, long targetId);

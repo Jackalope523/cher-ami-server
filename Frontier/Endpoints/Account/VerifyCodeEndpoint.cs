@@ -1,4 +1,5 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using FastEndpoints;
 using FastEndpoints.Security;
@@ -32,7 +33,7 @@ namespace CrazyLizard.Endpoints.Account
         }
     }
 
-    public class VerifyCodeEndpoint(UserManager<CoreUser> userManager, IAccountService accountService, IEmailService emailService, IKeyService keyService) : Endpoint<VerifyLoginRequest>
+    public class VerifyCodeEndpoint(UserManager<User> userManager, IAccountService accountService, IEmailService emailService, IKeyService keyService) : Endpoint<VerifyLoginRequest>
     {
         public override void Configure()
         {
@@ -58,7 +59,7 @@ namespace CrazyLizard.Endpoints.Account
 
         public override async Task HandleAsync(VerifyLoginRequest request, CancellationToken cancellationToken)
         {
-            CoreUser user = await accountService.GetCoreUserAsync(request.PhoneNumber);
+            var user = await accountService.GetCoreUserAsync(request.PhoneNumber);
 
             if (await userManager.IsLockedOutAsync(user))
             {

@@ -1,7 +1,7 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Repository.Entities;
+using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Repositories
 {
-    public class ProfileRepository(DatabaseContext ctx) : IProfileRepository
+    public class ProfileRepository(ApplicationDbContext ctx) : IProfileRepository
     {
 
         public async Task BlockUserAsync(long blockerId, long blockedId, DateTimeOffset time)
@@ -47,37 +47,14 @@ namespace CrazyLizard.Repositories
             ToListAsync();
         }
 
-        public async Task<List<CoreUser>> GetUsersBlockingAsync(long userId)
+        public async Task<List<User>> GetUsersBlockingAsync(long userId)
         {
             return await
             ctx.Blocks.Where(l => l.BlockedId == userId).
             Join(ctx.Users,
             l => l.BlockerId,
             u => u.Id,
-            (l, u) => new CoreUser(
-                  u.Id,
-                  u.PhoneNumber,
-                  u.Email,
-                  u.NormalizedEmail,
-                  u.Title,
-                  u.FirstName,
-                  u.LastName,
-                  u.DateOfBirth,
-                  u.IsPhoneConfirmed,
-                  u.IsEmailConfirmed,
-                  u.SoftDeleted,
-                  u.SecurityStamp,
-                  u.LockoutDate,
-                  u.AccessTries,
-                  u.AccountStatus,
-                  u.JoinDate,
-                  u.TimeOfUserAgreement,
-                  u.NotificationId,
-                  u.StripeCustomerId,
-                  u.StripeSubscriptionId,
-                  u.ProvidedPaymentDetails
-                  )
-            ).
+            (l, u) => u).
             ToListAsync();
         }
 

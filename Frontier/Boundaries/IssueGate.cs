@@ -10,11 +10,9 @@ namespace Core.Boundaries
     public enum IssueType
     { Magazine }
 
-	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset DraftingStart, DateTimeOffset DraftingEnd)
-        : CoreOnlyData();
+	public record CoreIssue(long Id, long CircleId, IssueType Type, string Title, DateTimeOffset DraftingStart, DateTimeOffset DraftingEnd);
 
-    public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption) 
-        : CoreOnlyData();
+    public record CorePost(long Id, long IssueId, long UserId, DateTimeOffset Timestamp, string Caption);
 
     #endregion
 

@@ -10,8 +10,7 @@ namespace Core.Boundaries
     #region Schemas
 
 	public record CoreNotificationProfile(long UserId, Guid NotificationId,
-		bool IssuePosts, bool IssueReminders)
-		: CoreOnlyData();
+		bool IssuePosts, bool IssueReminders);
 
     #endregion
 

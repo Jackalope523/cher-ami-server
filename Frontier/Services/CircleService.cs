@@ -1,18 +1,10 @@
 ﻿using Core.Boundaries;
-using CrazyLizard.Contracts.Responses;
-using CrazyLizard.Endpoints.Circle;
 using CrazyLizard.Exceptions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Repository.Entities;
+using CrazyLizard.Entities;
 using Stripe;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Subscription = Stripe.Subscription;
 
 namespace CrazyLizard.Services
 {
@@ -79,7 +71,7 @@ namespace CrazyLizard.Services
             await circleRepository.DeleteCircleAsync(circleId);
         }
 
-        public async Task<List<CoreUser>> GetCircleMembers(long userId)
+        public async Task<List<User>> GetCircleMembers(long userId)
         {
             CoreCircle circle = await circleRepository.GetCircleForUserAsync(userId);
 

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Core.Boundaries;
-using Frontier.Contracts.Responses;
-using CrazyLizard.Contracts.Responses;
+using CrazyLizard.Shared.Responses;
 
 namespace Core.Notifications
 {

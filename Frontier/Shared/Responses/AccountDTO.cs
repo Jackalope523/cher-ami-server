@@ -1,7 +1,8 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Entities;
 using System;
 
-namespace Frontier.Contracts.Responses
+namespace CrazyLizard.Shared.Responses
 {
     public record AccountDTO
     {

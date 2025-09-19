@@ -6,16 +6,6 @@ using System.Threading.Tasks;
 
 namespace Core.Boundaries
 {
-    public enum IssueSchedule
-    { Monthly }
-
-    public enum RecipientState
-    { Inactive, Active }
-
-    public record CoreCircle(long Id, string InviteCode, string Title,
-        DateTimeOffset DateCreated, IssueSchedule Schedule,
-        bool IsPendingDeletion);
-
     public record CoreCircleMembership(long UserId, DateTimeOffset DateJoined);
 
 
@@ -30,11 +20,11 @@ namespace Core.Boundaries
     {
         Task<bool> Exists(long circleId);
         Task<bool> Exists(string circleCode);
-        Task<CoreCircle> GetCircleAsync(long circleId);
-        Task<CoreCircle> GetCircleByCodeAsync(string circleCode);
-        Task<CoreCircle> GetCircleForUserAsync(long userId);
+        Task<Circle> GetCircleAsync(long circleId);
+        Task<Circle> GetCircleByCodeAsync(string circleCode);
+        Task<Circle> GetCircleForUserAsync(long userId);
 
-        Task<CoreCircle> CreateCircleAsync(long ownerId, string title, IssueSchedule schedule);
+        Task<Circle> CreateCircleAsync(long ownerId, string title, IssueSchedule schedule);
         Task UpdateCircleAsync(long circleId, List<(string Property, object Value)> edits);
         Task<string> RerollCircleCode(long circleId);
         Task DeleteCircleAsync(long circleId);
@@ -51,10 +41,10 @@ namespace Core.Boundaries
 
     public interface ICircleService
     {
-        Task<CoreCircle> GetCircleForUserAsync(long userId);
-        Task<CoreCircle> GetCircleInformationAsync(long userId, long circleId);
+        Task<Circle> GetCircleForUserAsync(long userId);
+        Task<Circle> GetCircleInformationAsync(long userId, long circleId);
 
-        Task<CoreCircle> CreateCircleAsync(long userId,
+        Task<Circle> CreateCircleAsync(long userId,
             string title,
             IssueSchedule schedule,
             MemoryStream header);

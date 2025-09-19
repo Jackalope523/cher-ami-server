@@ -2,7 +2,6 @@
 using FastEndpoints;
 using FluentValidation;
 using CrazyLizard.Contracts.Requests;
-using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Shared.SharedMappers;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -10,6 +9,8 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Endpoints.Circle;
+using CrazyLizard.Entities;
+using CrazyLizard.Shared.Responses;
 
 namespace Frontier.Endpoints.Account
 {
@@ -51,7 +52,7 @@ namespace Frontier.Endpoints.Account
             using MemoryStream stream = new();
             await request.Image.CopyToAsync(stream, cancellationToken);
 
-            CoreCircle coreCircle = await circles.CreateCircleAsync(
+            Circle coreCircle = await circles.CreateCircleAsync(
                                         userId,
                                         request.Title,
                                         request.Schedule,

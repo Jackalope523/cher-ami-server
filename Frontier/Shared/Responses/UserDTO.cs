@@ -1,4 +1,4 @@
-﻿namespace Frontier.Contracts.Responses
+﻿namespace CrazyLizard.Shared.Responses
 {
     public record UserDTO
     {

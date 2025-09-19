@@ -1,6 +1,6 @@
 ﻿using Core.Boundaries;
+using CrazyLizard.Shared.Responses;
 using FastEndpoints;
-using Frontier.Contracts.Responses;
 
 namespace CrazyLizard.Shared.SharedMappers
 {

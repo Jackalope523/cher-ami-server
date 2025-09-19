@@ -1,12 +1,12 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
 using CrazyLizard.Contracts.Requests;
-using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Shared.Mappers;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CrazyLizard.Shared.Responses;
 
 namespace CrazyLizard.Endpoints.Issue
 {

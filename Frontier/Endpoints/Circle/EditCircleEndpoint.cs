@@ -8,6 +8,7 @@ using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CrazyLizard.Entities;
 
 namespace CrazyLizard.Endpoints.Circle
 {

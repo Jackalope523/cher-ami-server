@@ -6,8 +6,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Frontier.Contracts.Responses;
 using CrazyLizard.Entities;
+using CrazyLizard.Shared.Responses;
 
 namespace Frontier.Endpoints.Account
 {

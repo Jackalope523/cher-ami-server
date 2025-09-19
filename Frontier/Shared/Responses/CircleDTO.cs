@@ -1,7 +1,7 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Entities;
 using System;
 
-namespace CrazyLizard.Contracts.Responses
+namespace CrazyLizard.Shared.Responses
 {
     public record CircleDTO
     {

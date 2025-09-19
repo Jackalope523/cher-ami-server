@@ -1,11 +1,11 @@
 ﻿using Core.Boundaries;
 using FastEndpoints;
-using Frontier.Contracts.Responses;
 using CrazyLizard.Shared.SharedMappers;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Entities;
+using CrazyLizard.Shared.Responses;
 
 namespace Frontier.Endpoints.Account
 {

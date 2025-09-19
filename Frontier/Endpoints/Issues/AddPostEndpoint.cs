@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using System.IO;
-using CrazyLizard.Contracts.Responses;
 using CrazyLizard.Endpoints.Issue;
 using CrazyLizard.Contracts.Requests;
 using Core.Boundaries;
+using CrazyLizard.Shared.Responses;
 
 namespace Frontier.Endpoints.Account
 {

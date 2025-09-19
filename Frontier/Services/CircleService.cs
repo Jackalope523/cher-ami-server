@@ -11,12 +11,12 @@ namespace CrazyLizard.Services
 {
     public class CircleService(ICircleRepository circleRepository, IAccountRepository accountRepository, IMediaRepository mediaRepository, StripeClient stripeClient) : ICircleService
 	{
-        public async Task<CoreCircle> GetCircleForUserAsync(long userId)
+        public async Task<Circle> GetCircleForUserAsync(long userId)
         {
             return await circleRepository.GetCircleForUserAsync(userId);
         }
 
-        public async Task<CoreCircle> GetCircleInformationAsync(long userId, long circleId)
+        public async Task<Circle> GetCircleInformationAsync(long userId, long circleId)
         {
             if (!await circleRepository.IsMemberAsync(userId, circleId))
                 throw new NoAccessException($"User {userId} is not a member of circle {circleId}.");
@@ -24,12 +24,12 @@ namespace CrazyLizard.Services
             return await circleRepository.GetCircleAsync(circleId);
         }
 
-        public async Task<CoreCircle> CreateCircleAsync(long userId, string title, IssueSchedule schedule, MemoryStream header)
+        public async Task<Circle> CreateCircleAsync(long userId, string title, IssueSchedule schedule, MemoryStream header)
         {
             if (await circleRepository.HasCircle(userId))
                 throw new ValidationException($"User {userId} is already part of a circle.");
 
-            CoreCircle toReturn = await circleRepository.CreateCircleAsync(userId, title, schedule);
+            Circle toReturn = await circleRepository.CreateCircleAsync(userId, title, schedule);
             await mediaRepository.UploadCircleHeaderAsync(toReturn.Id, header);
 
             return toReturn;  
@@ -42,8 +42,8 @@ namespace CrazyLizard.Services
 
             List<(string, object)> edits = 
                 [
-                (nameof(CoreCircle.Title), title), 
-                (nameof(CoreCircle.Schedule), schedule),
+                (nameof(Circle.Title), title), 
+                (nameof(Circle.IssueSchedule), schedule),
                 ("Header", header),
                 ];
 
@@ -74,7 +74,7 @@ namespace CrazyLizard.Services
 
         public async Task<List<User>> GetCircleMembers(long userId)
         {
-            CoreCircle circle = await circleRepository.GetCircleForUserAsync(userId);
+            Circle circle = await circleRepository.GetCircleForUserAsync(userId);
 
             if (circle == null)
                 throw new NotFoundException($"Circle {circle.Id} does not exist.");
@@ -103,7 +103,7 @@ namespace CrazyLizard.Services
 
         public async Task<List<CoreRecipient>> GetRecipientsForCircleAsync(long userId)
         {
-            CoreCircle circle = await circleRepository.GetCircleForUserAsync(userId);
+            Circle circle = await circleRepository.GetCircleForUserAsync(userId);
 
             if (circle == null)
                 throw new NotFoundException($"Could not find circle for user {userId}");

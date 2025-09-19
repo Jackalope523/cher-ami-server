@@ -1,11 +1,11 @@
 ﻿using FastEndpoints;
-using Frontier.Contracts.Responses;
 using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Entities;
 using CrazyLizard.Boundaries.Service;
+using CrazyLizard.Shared.Responses;
 
 namespace CrazyLizard.Endpoints.Account
 {

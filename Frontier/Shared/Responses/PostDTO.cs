@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrazyLizard.Contracts.Responses
+namespace CrazyLizard.Shared.Responses
 {
     public record PostDTO
     {

@@ -44,23 +44,21 @@ namespace CrazyLizard.Repositories
             return potentialCode;
         }
 
-        public async Task<CoreCircle> GetCircleAsync(long circleId)
+        public async Task<Circle> GetCircleAsync(long circleId)
         {
             return await ctx.Circles.
                    Where(c => c.Id == circleId).
-                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)).
                    SingleOrDefaultAsync();
         }
 
-        public async Task<CoreCircle> GetCircleByCodeAsync(string circleCode)
+        public async Task<Circle> GetCircleByCodeAsync(string circleCode)
         {
             return await ctx.Circles.
                    Where(c => c.CircleCode == circleCode).
-                   Select(c => new CoreCircle(c.Id, c.CircleCode, c.Title, c.TimeOfCreation, c.IssueSchedule, c.SoftDeleted)).
                    SingleOrDefaultAsync();
         }
 
-        public async Task<CoreCircle> GetCircleForUserAsync(long userId)
+        public async Task<Circle> GetCircleForUserAsync(long userId)
         {
             return await ctx.Users.
                    Where(x => x.Id == userId).
@@ -68,11 +66,11 @@ namespace CrazyLizard.Repositories
                         ctx.Circles, 
                         x => x.CircleId,
                         y => y.Id,
-                        (x,y) => new CoreCircle(y.Id, y.CircleCode, y.Title, y.TimeOfCreation, y.IssueSchedule, y.SoftDeleted)
+                        (x,y) => y
                    ).SingleOrDefaultAsync();
         }
 
-        public async Task<CoreCircle> CreateCircleAsync(long founderId, string title, IssueSchedule schedule)
+        public async Task<Circle> CreateCircleAsync(long founderId, string title, IssueSchedule schedule)
         {
             await using var transaction = await ctx.Database.BeginTransactionAsync();
 
@@ -100,15 +98,7 @@ namespace CrazyLizard.Repositories
 
                 await transaction.CommitAsync();
 
-                return new CoreCircle
-                (
-                    toCreate.Id, 
-                    toCreate.CircleCode, 
-                    toCreate.Title, 
-                    toCreate.TimeOfCreation, 
-                    toCreate.IssueSchedule, 
-                    toCreate.SoftDeleted
-                );
+                return toCreate;
             }
             catch (Exception)
             {
@@ -126,16 +116,16 @@ namespace CrazyLizard.Repositories
             {
                 switch (Property)
                 {
-                    case nameof(CoreCircle.InviteCode):
+                    case nameof(Circle.CircleCode):
                         c.CircleCode = (string)Value;
                         break;
-                    case nameof(CoreCircle.Title):
+                    case nameof(Circle.Title):
                         c.Title = (string)Value;
                         break;
-                    case nameof(CoreCircle.DateCreated):
+                    case nameof(Circle.TimeOfCreation):
                         c.TimeOfCreation = (DateTimeOffset)Value;
                         break;
-                    case nameof(CoreCircle.Schedule):
+                    case nameof(Circle.IssueSchedule):
                         c.IssueSchedule = (IssueSchedule)Value;
                         break;
                     default:
@@ -232,16 +222,16 @@ namespace CrazyLizard.Repositories
             {
                 switch (Property)
                 {
-                    case nameof(CoreCircle.InviteCode):
+                    case nameof(Circle.CircleCode):
                         c.CircleCode = (string)Value;
                         break;
-                    case nameof(CoreCircle.Title):
+                    case nameof(Circle.Title):
                         c.Title = (string)Value;
                         break;
-                    case nameof(CoreCircle.DateCreated):
+                    case nameof(Circle.TimeOfCreation):
                         c.TimeOfCreation = (DateTimeOffset)Value;
                         break;
-                    case nameof(CoreCircle.Schedule):
+                    case nameof(Circle.IssueSchedule):
                         c.IssueSchedule = (IssueSchedule)Value;
                         break;
                     default:

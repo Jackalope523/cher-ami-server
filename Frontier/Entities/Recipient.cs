@@ -2,6 +2,12 @@
 
 namespace CrazyLizard.Entities
 {
+    public enum RecipientState
+    { 
+        Inactive, 
+        Active 
+    }
+
     public class Recipient
     {
         public long Id { get; set; }

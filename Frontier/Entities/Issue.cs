@@ -4,17 +4,21 @@ using System.Collections.Generic;
 
 namespace CrazyLizard.Entities
 {
+    public enum IssueSchedule
+    {
+        Monthly
+    }
+    public enum IssueStatus
+    {
+        Drafting,
+        Published,
+        Shipped,
+        Archived,
+    }
+
     public class Issue
     {
         public long Id { get; set; }
-        public enum IssueStatus
-        {
-            Drafting,
-            Published, 
-            Shipped, 
-            Archived,
-        }
-
         public long CircleId { get; set; }
         public string Title { get; set; } = DefaultTitle;
         public int IssueNumber { get; set; }

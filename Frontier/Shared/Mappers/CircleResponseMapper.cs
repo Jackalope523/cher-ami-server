@@ -1,18 +1,18 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
-using CrazyLizard.Contracts.Responses;
+﻿using FastEndpoints;
+using CrazyLizard.Entities;
+using CrazyLizard.Shared.Responses;
 
 namespace CrazyLizard.Shared.SharedMappers
 {
-    public class CircleResponseMapper : ResponseMapper<CircleDTO, CoreCircle>
+    public class CircleResponseMapper : ResponseMapper<CircleDTO, Circle>
     {
-        public override CircleDTO FromEntity(CoreCircle circle) => new()
+        public override CircleDTO FromEntity(Circle circle) => new()
         {
             Id = circle.Id,
-            InviteCode = circle.InviteCode,
+            InviteCode = circle.CircleCode,
             Title = circle.Title,
-            DateCreated = circle.DateCreated,
-            Schedule = circle.Schedule,
+            DateCreated = circle.TimeOfCreation,
+            Schedule = circle.IssueSchedule,
         };
     }
 }

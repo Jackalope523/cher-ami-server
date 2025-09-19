@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CrazyLizard.Boundaries.Repository;
+using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Services
 {

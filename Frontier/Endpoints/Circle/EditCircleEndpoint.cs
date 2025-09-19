@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
+﻿using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Entities;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Circle
 {

@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
+﻿using FastEndpoints;
 using FluentValidation;
 using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.SharedMappers;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using CrazyLizard.Endpoints.Circle;
 using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Interfaces.Service;
 
 namespace Frontier.Endpoints.Account
 {

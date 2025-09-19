@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
+﻿using FastEndpoints;
 using CrazyLizard.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Interfaces.Service;
 
 namespace Frontier.Endpoints.Account
 {

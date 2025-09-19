@@ -1,8 +1,8 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Boundaries.Repository;
+﻿using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Repository;
 using Stripe;
 using System;
 using System.Collections.Generic;

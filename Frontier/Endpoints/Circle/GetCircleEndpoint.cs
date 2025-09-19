@@ -1,11 +1,11 @@
-﻿using Core.Boundaries;
-using FastEndpoints;
+﻿using FastEndpoints;
 using CrazyLizard.Shared.SharedMappers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Circle
 {

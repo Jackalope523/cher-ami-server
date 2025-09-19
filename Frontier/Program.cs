@@ -5,6 +5,8 @@ using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Repositories;
 using CrazyLizard.Services;
 using FastEndpoints;

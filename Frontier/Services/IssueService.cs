@@ -1,5 +1,6 @@
 ﻿using Core.Boundaries;
 using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;

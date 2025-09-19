@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Circle = CrazyLizard.Entities.Circle;
+using CrazyLizard.Interfaces.Repository;
 
 namespace CrazyLizard.Repositories
 {

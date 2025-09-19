@@ -1,5 +1,5 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contracts.Requests;
+﻿using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;

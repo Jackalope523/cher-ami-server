@@ -1,13 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.IO;
-using System;
-using CrazyLizard.Shared.Responses;
 
-namespace Core.Boundaries
+namespace CrazyLizard.Interfaces.Repository
 {
-
-    #region Gates
-
     public interface IMediaRepository
     {
         Task<MemoryStream> DownloadAssetAsync(string asset);
@@ -24,20 +19,4 @@ namespace Core.Boundaries
         Task UploadSnapshotAsync(long snapshotId, MemoryStream image);
         Task DeleteSnapshotAsync(long snapshotId);
     }
-
-    public interface IMediaService
-    {
-        Task<MemoryStream> GetAssetAsync(string asset);
-
-        Task<MemoryStream> GetAvatarAsync(long requesterId, long userId);
-        Task<ImageMetadataDTO> GetAvatarMetadataAsync(long requesterId, long userId);
-
-        Task<MemoryStream> GetHeaderAsync(long requesterId, long circleId);
-        Task<ImageMetadataDTO> GetHeaderMetadataAsync(long requesterId, long circleId);
-
-        Task<MemoryStream> GetSnapshotAsync(long requesterId, long postId);
-        Task<ImageMetadataDTO> GetSnapshotMetadataAsync(long requesterId, long postId);
-    }
-
-    #endregion
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Core.Boundaries;
 using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Exceptions;
 using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Shared.Responses;
 
 namespace CrazyLizard.Services

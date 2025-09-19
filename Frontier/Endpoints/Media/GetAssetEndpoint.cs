@@ -1,4 +1,4 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;

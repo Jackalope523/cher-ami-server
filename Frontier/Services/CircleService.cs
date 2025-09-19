@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Exceptions;
+﻿using CrazyLizard.Exceptions;
 using CrazyLizard.Entities;
 using Stripe;
 using System.Collections.Generic;

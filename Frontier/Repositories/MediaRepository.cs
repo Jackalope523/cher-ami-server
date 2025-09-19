@@ -1,6 +1,6 @@
 ﻿using Azure.Identity;
-using Core.Boundaries;
 using CrazyLizard.Contexts;
+using CrazyLizard.Interfaces.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;

@@ -1,5 +1,5 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contexts;
+﻿using CrazyLizard.Contexts;
+using CrazyLizard.Interfaces.Repository;
 using System;
 using System.Threading.Tasks;
 

@@ -3,7 +3,6 @@ using CrazyLizard.Entities.Reports;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
 using static CrazyLizard.Entities.Reports.Report;
 
 namespace CrazyLizard.Contexts

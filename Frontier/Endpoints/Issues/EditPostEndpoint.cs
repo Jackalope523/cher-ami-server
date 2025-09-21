@@ -8,7 +8,7 @@ using FluentValidation;
 using System.IO;
 using CrazyLizard.Interfaces.Service;
 
-namespace CrazyLizard.Endpoints.Issue
+namespace CrazyLizard.Endpoints.Issues
 {
     public class EditPostRequest
     {

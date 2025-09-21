@@ -1,11 +1,11 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Entities;
+﻿using CrazyLizard.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
-namespace Frontier.Endpoints.Account
+
+namespace CrazyLizard.Endpoints.Account
 {
     public class VerifyEmailRequest
     {

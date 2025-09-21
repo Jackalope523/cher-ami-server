@@ -8,8 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Issues
 {
     public class GetIssuePostsEndpoint(IIssueService issues) : Endpoint<IdRequest, List<PostDTO>, PostResponseMapper>
     {
@@ -22,7 +23,7 @@ namespace Frontier.Endpoints.Account
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CorePost> corePosts = await issues.GetPostsForIssueAsync(userId, request.Id);
+            List<Post> corePosts = await issues.GetPostsForIssueAsync(userId, request.Id);
             await Send.OkAsync(corePosts.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }

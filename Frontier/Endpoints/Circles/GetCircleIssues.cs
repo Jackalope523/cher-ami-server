@@ -8,8 +8,9 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class getCircleIssues(IIssueService issues) : Endpoint<IdRequest, List<IssueDTO>, IssueResponseMapper>
     {
@@ -22,7 +23,7 @@ namespace CrazyLizard.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreIssue> coreIssues = await issues.GetIssuesForCircleAsync(userId, request.Id);
+            List<Issue> coreIssues = await issues.GetIssuesForCircleAsync(userId, request.Id);
             await Send.OkAsync(coreIssues.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }

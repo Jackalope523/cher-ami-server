@@ -1,13 +1,7 @@
 ﻿using System.Threading.Tasks;
 
-namespace Core.Boundaries
+namespace CrazyLizard.Interfaces.Repository
 {
-    #region Schemas
-
-    #endregion
-
-    #region Gates
-
     public interface IKeyRepository
     {
 		Task<string> GetHollowOneSignalApiKeyAsync();
@@ -20,12 +14,5 @@ namespace Core.Boundaries
 		Task<string> GetAppleAccountCodeAsync();
 		Task<string> GetGoogleAccountCodeAsync();
     }
-
-    public interface IKeyService
-	{
-		Task<string> GetClassifiedAccountCodeAsync(long userId);
-	}
-
-    #endregion
 }
 

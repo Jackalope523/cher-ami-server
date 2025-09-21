@@ -5,26 +5,25 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Circles
 {
-    public class GetContributorsEndpoint(ICircleService circles) : EndpointWithoutRequest<List<UserDTO>, UserResponseMapper>
+    public class GetRecipientsEndpoint(ICircleService circles) : EndpointWithoutRequest<List<RecipientDTO>, RecipientResponseMapper>
     {
         public override void Configure()
         {
-            Get("/circle/contributors");
+            Get("/circle/recipients");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<User> coreCircleMemberships = await circles.GetCircleMembers(userId);
-
-            await Send.OkAsync(coreCircleMemberships.Select(Map.FromEntity).ToList(), cancellationToken);
+            List<Recipient> coreRecipients = await circles.GetRecipientsForCircleAsync(userId);
+            await Send.OkAsync(coreRecipients.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }
 }

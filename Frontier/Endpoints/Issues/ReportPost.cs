@@ -1,11 +1,12 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Entities.Reports;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Posts
+namespace CrazyLizard.Endpoints.Issues
 {
     public class ReportPostRequest
     {

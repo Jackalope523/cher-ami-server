@@ -1,7 +1,7 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Boundaries.Service;
+﻿using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;

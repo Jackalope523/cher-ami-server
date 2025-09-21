@@ -5,8 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities.Reports;
 
-namespace CrazyLizard.Endpoints.Profile
+namespace CrazyLizard.Endpoints.Issues
 {
     public class GetAvailablePostReports(IReportService reportService) : Endpoint<IdRequest, List<PostReportType>>
     {

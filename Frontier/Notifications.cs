@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Reflection;
-using Core.Boundaries;
+using CrazyLizard.Interfaces;
 using CrazyLizard.Shared.Responses;
 
 namespace Core.Notifications

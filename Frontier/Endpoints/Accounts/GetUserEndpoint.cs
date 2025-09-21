@@ -4,8 +4,8 @@ using CrazyLizard.Shared.SharedMappers;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Entities;
-using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Shared.Responses;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Account
 {

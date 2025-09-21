@@ -1,12 +1,11 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Entities;
+﻿using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Boundaries.Service
+namespace CrazyLizard.Interfaces.Service
 {
     public interface IAccountService
 	{

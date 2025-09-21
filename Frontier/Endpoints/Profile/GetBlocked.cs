@@ -1,4 +1,5 @@
-﻿using Core.Boundaries;
+﻿using CrazyLizard.Entities;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,14 @@ namespace CrazyLizard.Endpoints.Profile
     {
         public long UserId { get; init; }
         public string FullName { get; init; }
-        public DateTimeOffset DateBlocked { get; init; }
     }
 
-    public class BlockedResponseMapper : ResponseMapper<BlockedUserResponse, CoreBlockedUser>
+    public class BlockedResponseMapper : ResponseMapper<BlockedUserResponse, User>
     {
-        public override BlockedUserResponse FromEntity(CoreBlockedUser user) => new()
+        public override BlockedUserResponse FromEntity(User user) => new()
         {
-            UserId = user.UserId,
-            FullName = user.FullName,
-            DateBlocked = user.DateBlocked,
+            UserId = user.Id,
+            FullName = $"{user.Title} {user.FirstName} {user.LastName}",
         };
     }
 
@@ -38,7 +37,7 @@ namespace CrazyLizard.Endpoints.Profile
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreBlockedUser> coreBlockedUsers = await profileService.GetBlockedUsersAsync(userId);
+            List<User> coreBlockedUsers = await profileService.GetBlockedUsersAsync(userId);
 
             await Send.OkAsync(coreBlockedUsers.Select(Map.FromEntity).ToList(), cancellationToken);
         }

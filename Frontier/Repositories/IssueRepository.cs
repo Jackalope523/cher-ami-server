@@ -63,7 +63,6 @@ namespace CrazyLizard.Repositories
                 {
                     IssueId = issueId,
                     AuthorId = userId,
-                    Layout = Post.LayoutType.Single,
                     PostedAt = timestamp,
                     Caption = caption,
                 };
@@ -71,7 +70,7 @@ namespace CrazyLizard.Repositories
                 ctx.Posts.Add(postToAdd);
                 await ctx.SaveChangesAsync();
                 
-                await mediaRepository.UploadSnapshotAsync(snapshotToAdd.Id, image);
+                await mediaRepository.UploadPostImageAsync(postToAdd.Id, image);
 
                 await transaction.CommitAsync();
 
@@ -109,8 +108,6 @@ namespace CrazyLizard.Repositories
 
             try
             {
-                await ctx.Captions.Where(c => c.PostId == postId).ExecuteDeleteAsync();
-                await ctx.Snapshots.Where(s => s.PostId == postId).ExecuteDeleteAsync();
                 await ctx.Posts.Where(p => p.Id == postId).ExecuteDeleteAsync();
 
                 await transaction.CommitAsync();

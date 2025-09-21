@@ -6,8 +6,9 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Issues
 {
     public class GetIssueEndpoint(IIssueService issues) : Endpoint<IdRequest, IssueDTO, IssueResponseMapper>
     {
@@ -19,7 +20,7 @@ namespace Frontier.Endpoints.Account
         public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            CoreIssue response = await issues.GetIssueAsync(userId, request.Id);
+            Issue response = await issues.GetIssueAsync(userId, request.Id);
             await SendMapped(response, 200, cancellationToken);
         }
     }

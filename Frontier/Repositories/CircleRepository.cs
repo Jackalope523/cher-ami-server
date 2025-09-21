@@ -157,11 +157,7 @@ namespace CrazyLizard.Repositories
 
                 List<long> issuesToDelete = await ctx.Issues.Where(i => i.CircleId == circleId).Select(i => i.Id).ToListAsync();
                 List<long> postsToDelete = await ctx.Posts.Where(p => issuesToDelete.Contains(p.IssueId)).Select(i => i.Id).ToListAsync();
-                List<long> snapshotsToDelete = await ctx.Snapshots.Where(s => postsToDelete.Contains(s.PostId)).Select(i => i.Id).ToListAsync();
-                List<long> captionsToDelete = await ctx.Captions.Where(c => postsToDelete.Contains(c.PostId)).Select(i => i.Id).ToListAsync();
 
-                await ctx.Captions.Where(c => captionsToDelete.Contains(c.Id)).ExecuteDeleteAsync();
-                await ctx.Snapshots.Where(s => snapshotsToDelete.Contains(s.Id)).ExecuteDeleteAsync();
                 await ctx.Posts.Where(p => postsToDelete.Contains(p.Id)).ExecuteDeleteAsync();
                 await ctx.Issues.Where(i => issuesToDelete.Contains(i.Id)).ExecuteDeleteAsync();
 

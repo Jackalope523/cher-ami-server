@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CrazyLizard.Boundaries.Repository;
+using CrazyLizard.Entities.Reports;
 using CrazyLizard.Interfaces.Repository;
 using CrazyLizard.Interfaces.Service;
 

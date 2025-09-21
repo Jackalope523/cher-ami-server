@@ -1,13 +1,11 @@
-﻿using CrazyLizard.Boundaries.Service;
+﻿using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity;
-using Stripe;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public record AddRecipientRequest
     {
@@ -76,23 +74,19 @@ namespace CrazyLizard.Endpoints.Circle
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             await accountService.AddRecipientAsync(
                 userId,
-                new
-                (
-                    0, 
-                    userId, 
-                    request.Title, 
-                    request.FirstName, 
-                    request.LastName,  
-                    new
-                    (
-                        request.Street,
-                        request.UnitNumber,
-                        request.City, 
-                        request.ProvinceOrState, 
-                        request.PostalCode,
-                        request.Country
-                    )
-                )
+                new() 
+                { 
+                    ManagerId = userId, 
+                    Title = request.Title, 
+                    FirstName = request.FirstName, 
+                    LastName = request.LastName, 
+                    Street = request.Street, 
+                    UnitNumber = request.Street,
+                    City = request.City, 
+                    ProvinceOrState = request.ProvinceOrState,
+                    PostalCode = request.PostalCode, 
+                    Country = request.Country,
+                }
             );
             
             await Send.NoContentAsync(cancellationToken);

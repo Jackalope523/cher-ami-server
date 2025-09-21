@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities.Reports;
 
 namespace CrazyLizard.Endpoints.Profile
 {

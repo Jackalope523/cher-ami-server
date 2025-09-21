@@ -1,10 +1,10 @@
-﻿using Core.Boundaries;
-using CrazyLizard;
+﻿using CrazyLizard;
 using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces;
 using CrazyLizard.Interfaces.Repository;
 using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Repositories;

@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Boundaries.Service;
+﻿using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using System.Security.Claims;
 using System.Threading;
@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Frontier.Endpoints.Account
 {
-    public class UpdateUserAgreementEndpoint(IAccountService accountService) : EndpointWithoutRequest
+    public class DeleteAccountEndpoint(IAccountService accounts) : EndpointWithoutRequest
     {
         public override void Configure()
         {
-            Post("/account/agreement");
+            Delete("/account");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            await accountService.UpdateUserAgreementAsync(userId);
-            await Send.NoContentAsync();
+            await accounts.DeleteUserAsync(userId);
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

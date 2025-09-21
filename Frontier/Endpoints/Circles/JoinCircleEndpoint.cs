@@ -1,13 +1,11 @@
-﻿using CrazyLizard.Contracts.Requests;
-using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class JoinCircleRequest
     {

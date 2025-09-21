@@ -7,12 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using System.IO;
-using CrazyLizard.Endpoints.Issue;
 using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Issues
 {
     public class CreatePostRequest
     {
@@ -56,7 +56,7 @@ namespace Frontier.Endpoints.Account
             using var stream = new MemoryStream();
             await request.Image.CopyToAsync(stream, cancellationToken);
 
-            CorePost corePost = await issues.AddPostAsync(userId, request.IssueId, request.Time, request.Caption, stream);
+            Post corePost = await issues.AddPostAsync(userId, request.IssueId, request.Time, request.Caption, stream);
 
             await Send.CreatedAtAsync<GetPostEndpoint>
                 (

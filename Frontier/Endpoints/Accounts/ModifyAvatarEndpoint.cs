@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Boundaries.Service;
+﻿using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;

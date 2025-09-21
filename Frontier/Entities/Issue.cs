@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace CrazyLizard.Entities

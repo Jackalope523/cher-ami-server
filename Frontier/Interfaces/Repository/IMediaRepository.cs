@@ -15,8 +15,8 @@ namespace CrazyLizard.Interfaces.Repository
         Task UploadCircleHeaderAsync(long circleId, MemoryStream image);
         Task DeleteCircleHeaderAsync(long circleId);
 
-        Task<MemoryStream> DownloadSnapshotAsync(long snapshotId);
-        Task UploadSnapshotAsync(long snapshotId, MemoryStream image);
-        Task DeleteSnapshotAsync(long snapshotId);
+        Task<MemoryStream> DownloadPostImageAsync(long postId);
+        Task UploadPostImageAsync(long postId, MemoryStream image);
+        Task DeleteSnapshotAsync(long postId);
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using CrazyLizard.Entities;
 using CrazyLizard.Interfaces.Service;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class CircleEditRequest
     {

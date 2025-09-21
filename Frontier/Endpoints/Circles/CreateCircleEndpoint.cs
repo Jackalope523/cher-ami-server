@@ -7,12 +7,11 @@ using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CrazyLizard.Endpoints.Circle;
 using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Circles
 {
     public class CreateCircleRequest
     {

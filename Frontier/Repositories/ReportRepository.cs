@@ -29,71 +29,36 @@ namespace CrazyLizard.Repositories
             ctx.UserReports.Add(toCreate);
             await ctx.SaveChangesAsync();
         }
-        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsForUserAsync(long userId)
+        public async Task<(List<UserReport>, List<PostReport>)> GetReportsForUserAsync(long userId)
         {
-            List<Core.Boundaries.UserReport> userReports = await ctx.UserReports.
-                                                           Where(r => r.ReportedUserId == userId).
-                                                           Select(r => new Core.Boundaries.UserReport
-                                                           (
-                                                               r.Id, 
-                                                               r.FilingUserId ?? 0, 
-                                                               r.ReportedUserId, 
-                                                               r.FilingDate, 
-                                                               r.Type, 
-                                                               r.Notes
-                                                           )).
-                                                           ToListAsync();
+            List<UserReport> userReports = await ctx.UserReports.Where(r => r.ReportedUserId == userId). ToListAsync();
 
-            List<Core.Boundaries.PostReport> postReports = await ctx.Posts.
+            List<PostReport> postReports = await ctx.Posts.
                                                            Where(p => p.AuthorId == userId).
                                                            Join
                                                            (
                                                                 ctx.PostReports,
                                                                 p => p.Id,
                                                                 pr => pr.PostId,
-                                                                (p, pr) => new Core.Boundaries.PostReport
-                                                           (
-                                                               pr.Id,
-                                                               pr.FilingUserId ?? 0,
-                                                               pr.PostId,
-                                                               pr.FilingDate,
-                                                               pr.Type,
-                                                               pr.Notes
-                                                           )).
+                                                                (p, pr) => pr).
                                                            ToListAsync();
 
             return (userReports, postReports);
         }
 
-        public async Task<(List<Core.Boundaries.UserReport>, List<Core.Boundaries.PostReport>)> GetReportsByUserAsync(long userId)
+        public async Task<(List<UserReport>, List<PostReport>)> GetReportsByUserAsync(long userId)
         {
             List<Report> reports = await ctx.Reports.Where(r => r.FilingUserId == userId).ToListAsync();
 
             List<UserReport> userReports = reports.OfType<UserReport>().ToList();
             List<PostReport> postReports = reports.OfType<PostReport>().ToList();
 
-            return 
-                (
-                userReports.Select(r => new Core.Boundaries.UserReport(r.Id, r.FilingUserId ?? 0, r.ReportedUserId, r.FilingDate, r.Type, r.Notes)).ToList(), 
-                postReports.Select(r => new Core.Boundaries.PostReport(r.Id, r.FilingUserId ?? 0, r.PostId, r.FilingDate, r.Type, r.Notes)).ToList()
-                );
+            return (userReports, postReports);
         }
 
-        public async Task<List<Core.Boundaries.PostReport>> GetReportsForPostAsync(long postId)
+        public async Task<List<PostReport>> GetReportsForPostAsync(long postId)
         {
-            return await 
-            ctx.PostReports.
-            Where(r => r.PostId == postId).
-            Select(r => new Core.Boundaries.PostReport
-            (
-                r.Id,
-                r.FilingUserId ?? 0,
-                r.PostId,
-                r.FilingDate,
-                r.Type,
-                r.Notes
-            )).
-            ToListAsync();
+            return await ctx.PostReports.Where(r => r.PostId == postId).ToListAsync();
         }
 
         public async Task ReportPostAsync(long userId, long snapshotId, DateTimeOffset timeOfReport, PostReportType reportType, string reportDetails)

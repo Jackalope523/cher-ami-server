@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace CrazyLizard.Endpoints.Issue
+namespace CrazyLizard.Endpoints.Issues
 {
     public class GetPostEndpoint(IIssueService issues) : Endpoint<IdRequest, List<PostDTO>, PostResponseMapper>
     {
@@ -21,7 +22,7 @@ namespace CrazyLizard.Endpoints.Issue
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            CorePost corePost = await issues.GetPostAsync(userId, request.Id);
+            Post corePost = await issues.GetPostAsync(userId, request.Id);
             await SendMapped(corePost, 200, cancellationToken);
         }
     }

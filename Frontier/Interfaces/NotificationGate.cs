@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Core.Notifications;
 
-namespace Core.Boundaries
+namespace CrazyLizard.Interfaces
 {
-    #region Schemas
-
 	public record CoreNotificationProfile(long UserId, Guid NotificationId,
 		bool IssuePosts, bool IssueReminders);
-
-    #endregion
-
-    #region Gates
 
     public interface INotificationRepository
     {
@@ -35,6 +27,4 @@ namespace Core.Boundaries
 		Task<string> ScheduleNotification(CardinalNotification notification, DateTimeOffset dispatchAt, params CoreNotificationProfile[] notificationProfiles);
 		Task CancelNotification(string notificationId);
 	}
-
-	#endregion
 }

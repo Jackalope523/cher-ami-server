@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using Frontier.Endpoints.Account;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using CrazyLizard.Entities;
 using CrazyLizard.Boundaries.Service;
+using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Account
 {

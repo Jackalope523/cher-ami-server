@@ -1,11 +1,11 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contexts;
+﻿using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
 using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CrazyLizard.Interfaces;
 
 namespace CrazyLizard.Repositories
 {

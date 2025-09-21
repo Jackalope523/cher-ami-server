@@ -1,5 +1,6 @@
 ﻿using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Entities;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;

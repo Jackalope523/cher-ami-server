@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Boundaries;
 using Core.Notifications;
 using CrazyLizard.Boundaries.Service;
+using CrazyLizard.Interfaces;
 using Microsoft.Extensions.Logging;
 using OneSignalApi.Api;
 using OneSignalApi.Client;

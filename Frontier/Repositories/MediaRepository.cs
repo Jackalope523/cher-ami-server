@@ -151,36 +151,35 @@ namespace CrazyLizard.Repositories
             await DeleteBlobAsync(path);
         }
 
-        public async Task<MemoryStream> DownloadSnapshotAsync(long snapshotId)
+        public async Task<MemoryStream> DownloadPostImageAsync(long postId)
         {
-            string path = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.Path).SingleAsync();
+            string path = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.ImagePath).SingleAsync();
             return await DownloadBlobAsync(path);
         }
 
-        public async Task UploadSnapshotAsync(long snapshotId, MemoryStream image)
+        public async Task UploadPostImageAsync(long postId, MemoryStream image)
         {
-            long postId = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.PostId).SingleAsync();
             long issueId = await ctx.Posts.Where(x => x.Id == postId).Select(x => x.IssueId).SingleAsync();
             long circleId = await ctx.Issues.Where(x => x.Id == issueId).Select(x => x.CircleId).SingleAsync();
 
-            string path = $"circles/{circleId}/issues/{issueId}/posts/{postId}/{snapshotId}.jpg";
+            string path = $"circles/{circleId}/issues/{issueId}/posts/{postId}.jpg";
 
-            await ctx.Snapshots.
-            Where(x => x.Id == snapshotId).
+            await ctx.Posts.
+            Where(x => x.Id == postId).
             ExecuteUpdateAsync(setters => setters.
-            SetProperty(x => x.Path, path));
+            SetProperty(x => x.ImagePath, path));
 
             await UploadBlobAsync(path, image);
         }
 
         public async Task DeleteSnapshotAsync(long snapshotId)
         {
-            string path = await ctx.Snapshots.Where(x => x.Id == snapshotId).Select(x => x.Path).SingleAsync();
+            string path = await ctx.Posts.Where(x => x.Id == snapshotId).Select(x => x.ImagePath).SingleAsync();
 
-            await ctx.Snapshots.
-            Where(s => s.Path == path).
+            await ctx.Posts.
+            Where(s => s.ImagePath == path).
             ExecuteUpdateAsync(setters => setters.
-            SetProperty(s => s.Path, ""));
+            SetProperty(s => s.ImagePath, ""));
 
             await DeleteBlobAsync(path);
         }

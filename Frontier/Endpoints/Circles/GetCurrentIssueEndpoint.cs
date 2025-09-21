@@ -1,13 +1,13 @@
 ﻿using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.Mappers;
 using CrazyLizard.Shared.Responses;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class GetCurrentIssueEndpoint(IIssueService issues) : EndpointWithoutRequest<IssueDTO, IssueResponseMapper>
     {
@@ -19,7 +19,7 @@ namespace CrazyLizard.Endpoints.Circle
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            CoreIssue response = await issues.GetCurrentIssueAsync(userId);
+            Issue response = await issues.GetCurrentIssueAsync(userId);
             await SendMapped(response, 200, cancellationToken);
         }
     }

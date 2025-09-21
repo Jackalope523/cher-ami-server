@@ -1,6 +1,4 @@
-﻿using Core.Boundaries;
-
-namespace CrazyLizard.Entities
+﻿namespace CrazyLizard.Entities
 {
     public enum RecipientState
     { 

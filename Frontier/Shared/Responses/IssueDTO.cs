@@ -1,5 +1,4 @@
-﻿using Core.Boundaries;
-using System;
+﻿using System;
 
 namespace CrazyLizard.Shared.Responses
 {

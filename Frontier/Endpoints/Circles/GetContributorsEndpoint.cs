@@ -1,29 +1,30 @@
 ﻿using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.SharedMappers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
-    public class GetRecipientsEndpoint(ICircleService circles) : EndpointWithoutRequest<List<RecipientDTO>, RecipientResponseMapper>
+    public class GetContributorsEndpoint(ICircleService circles) : EndpointWithoutRequest<List<UserDTO>, UserResponseMapper>
     {
         public override void Configure()
         {
-            Get("/circle/recipients");
+            Get("/circle/contributors");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<CoreRecipient> coreRecipients = await circles.GetRecipientsForCircleAsync(userId);
-            await Send.OkAsync(coreRecipients.Select(Map.FromEntity).ToList());
+            List<User> coreCircleMemberships = await circles.GetCircleMembers(userId);
+
+            await Send.OkAsync(coreCircleMemberships.Select(Map.FromEntity).ToList(), cancellationToken);
         }
     }
 }

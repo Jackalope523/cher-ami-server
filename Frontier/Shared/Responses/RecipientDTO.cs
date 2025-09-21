@@ -1,7 +1,4 @@
-﻿using Core.Boundaries;
-using System;
-
-namespace CrazyLizard.Shared.Responses
+﻿namespace CrazyLizard.Shared.Responses
 {
     public record RecipientDTO
     {

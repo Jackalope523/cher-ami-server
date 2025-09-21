@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class RerollCodeEndpoint(ICircleService circles) : Endpoint<IdRequest>
     {

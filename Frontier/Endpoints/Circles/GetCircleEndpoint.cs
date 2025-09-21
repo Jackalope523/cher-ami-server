@@ -3,11 +3,11 @@ using CrazyLizard.Shared.SharedMappers;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 using CrazyLizard.Shared.Responses;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Entities;
 
-namespace CrazyLizard.Endpoints.Circle
+namespace CrazyLizard.Endpoints.Circles
 {
     public class GetCircleEndpoint(ICircleService circles) : EndpointWithoutRequest<CircleDTO, CircleResponseMapper>
     {
@@ -20,15 +20,15 @@ namespace CrazyLizard.Endpoints.Circle
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            CoreCircle coreCircle = await circles.GetCircleForUserAsync(userId);
+            Circle circle = await circles.GetCircleForUserAsync(userId);
 
-            if (coreCircle == null)
+            if (circle == null)
             {
                 await Send.OkAsync(null, cancellationToken);
             }
             else
             {
-                await Send.OkAsync(Map.FromEntity(coreCircle), cancellationToken);
+                await Send.OkAsync(Map.FromEntity(circle), cancellationToken);
             }
         }
     }

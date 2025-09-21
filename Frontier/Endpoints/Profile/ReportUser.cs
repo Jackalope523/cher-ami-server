@@ -1,4 +1,5 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Entities.Reports;
+using CrazyLizard.Interfaces.Service;
 using FastEndpoints;
 using FluentValidation;
 using System.Security.Claims;

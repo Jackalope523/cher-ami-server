@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
 
-namespace Frontier.Endpoints.Account
+namespace CrazyLizard.Endpoints.Issues
 {
     public class DeletePostEndpoint(IIssueService issues) : Endpoint<IdRequest>
     {

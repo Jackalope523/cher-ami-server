@@ -1,11 +1,11 @@
-﻿using Core.Boundaries;
-using CrazyLizard.Contexts;
+﻿using CrazyLizard.Contexts;
 using Microsoft.EntityFrameworkCore;
 using CrazyLizard.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CrazyLizard.Interfaces.Repository;
 
 namespace CrazyLizard.Repositories
 {
@@ -33,7 +33,7 @@ namespace CrazyLizard.Repositories
             ExecuteDeleteAsync();
         }
 
-        public async Task<List<CoreBlockedUser>> GetBlockedUsersAsync(long id)
+        public async Task<List<User>> GetBlockedUsersAsync(long id)
         {
             return await
             ctx.Blocks.
@@ -42,7 +42,7 @@ namespace CrazyLizard.Repositories
                 ctx.Users,
                 l => l.BlockedId,
                 u => u.Id,
-                (l, u) => new CoreBlockedUser(u.Id, $"{u.FirstName} {u.LastName}", l.BlockDate)
+                (l, u) => u
             ).
             ToListAsync();
         }

@@ -1,6 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using Core.Boundaries;
+using CrazyLizard.Interfaces.Repository;
 using System;
 using System.Threading.Tasks;
 

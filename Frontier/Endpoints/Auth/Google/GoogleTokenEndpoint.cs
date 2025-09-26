@@ -2,10 +2,8 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
-using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
@@ -15,7 +13,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Twilio.TwiML.Messaging;
 
 namespace CrazyLizard.Endpoints.Auth.Google
 {

@@ -109,9 +109,10 @@ namespace CrazyLizard.Endpoints.Account
 
                     //await signInManager.SignInAsync(user, false);
 
-                    var jwtToken = JwtBearer.CreateToken(
+                    string jwtToken = JwtBearer.CreateToken(
                     o =>
                     {
+                        // JACKALOPE: This needs to be in secure store.
                         o.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c";
                         o.ExpireAt = DateTime.UtcNow.AddDays(1);
                         o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));

@@ -1,12 +1,10 @@
-﻿using CrazyLizard.Entities;
-using FastEndpoints;
-using Microsoft.AspNetCore.Identity;
+﻿using FastEndpoints;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Account
 {
-    public class LogoutEndpoint(SignInManager<User> userManager) : EndpointWithoutRequest
+    public class LogoutEndpoint() : EndpointWithoutRequest
     {
         public override void Configure()
         {

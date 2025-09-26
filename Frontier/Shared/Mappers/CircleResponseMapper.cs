@@ -6,13 +6,18 @@ namespace CrazyLizard.Shared.SharedMappers
 {
     public class CircleResponseMapper : ResponseMapper<CircleDTO, Circle>
     {
-        public override CircleDTO FromEntity(Circle circle) => new()
+        public override CircleDTO FromEntity(Circle circle) 
         {
-            Id = circle.Id,
-            InviteCode = circle.CircleCode,
-            Title = circle.Title,
-            DateCreated = circle.TimeOfCreation,
-            Schedule = circle.IssueSchedule,
-        };
+            if (circle == null) return null;
+
+            return new()
+            {
+                Id = circle.Id,
+                InviteCode = circle.CircleCode,
+                Title = circle.Title,
+                DateCreated = circle.TimeOfCreation,
+                Schedule = circle.IssueSchedule,
+            };
+        } 
     }
 }

@@ -4,12 +4,14 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Shared.Responses;
-using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Entities;
+using CrazyLizard.Contexts;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrazyLizard.Endpoints.Circles
 {
-    public class GetCircleEndpoint(ICircleService circles) : EndpointWithoutRequest<CircleDTO, CircleResponseMapper>
+    public class GetCircleEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
@@ -20,16 +22,12 @@ namespace CrazyLizard.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            Circle circle = await circles.GetCircleForUserAsync(userId);
+            Circle circle = await ctx.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.Circle)
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (circle == null)
-            {
-                await Send.OkAsync(null, cancellationToken);
-            }
-            else
-            {
-                await Send.OkAsync(Map.FromEntity(circle), cancellationToken);
-            }
+            await Send.OkAsync(Map.FromEntity(circle), cancellationToken);
         }
     }
 }

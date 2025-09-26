@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Account
+namespace CrazyLizard.Endpoints.Accounts
 {
     public class LoginRequest
     {

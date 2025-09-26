@@ -1,8 +1,10 @@
 ﻿using CrazyLizard.Exceptions;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ILogger = Serilog.ILogger;
@@ -18,6 +20,7 @@ namespace CrazyLizard
             httpContext.Response.StatusCode = exception switch
             {
                 AuthenticationException => StatusCodes.Status401Unauthorized,
+                InvalidJwtException => StatusCodes.Status401Unauthorized,
                 ValidationException => StatusCodes.Status400BadRequest,
                 NoPermissionException => StatusCodes.Status403Forbidden,
                 DeleteException => StatusCodes.Status403Forbidden,
@@ -25,6 +28,7 @@ namespace CrazyLizard
                 NotFoundException => StatusCodes.Status404NotFound,
                 LockedOutException => StatusCodes.Status423Locked,
                 NotImplementedException => StatusCodes.Status500InternalServerError,
+                HttpRequestException => StatusCodes.Status502BadGateway,
                 _ => StatusCodes.Status500InternalServerError
             };
 

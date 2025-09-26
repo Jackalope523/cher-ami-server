@@ -57,11 +57,6 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
 });
 
-var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
-
-var frontierLogger = loggerFactory.CreateLogger("Frontier");
-var coreLogger = loggerFactory.CreateLogger("Core");
-
 
 //var keyProvider = new KeyStorageRepository(new LLContext());
 
@@ -77,19 +72,12 @@ var coreLogger = loggerFactory.CreateLogger("Core");
 
 
 OneSignalService oneSignalInstance = new();
-OneSignalService.Initialise(frontierLogger,
-    "",
-    "");
-
-TwilioService.Initialise(env, frontierLogger,
-    "",
-    "",
-    "");
 
 builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
 builder.Services.AddScoped<IEmailService, OneSignalService>();
 builder.Services.AddTransient<ISMSService, TwilioService>();
 
+// JACKALOPE: Switch this to production db. Don't forget the migrations. 
 string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
 
 //builder.Services.AddDbContext<LLContext>(options =>
@@ -103,6 +91,7 @@ string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial
 //   )
 //);
 
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=dev.db"));
 
@@ -112,6 +101,7 @@ builder.Services.AddScoped<IIssueRepository, IssueRepository>();
 builder.Services.AddScoped<IKeyRepository, KeyStorageRepository>();
 
 
+//JACKALOPE: Your storage is short circuiting to local storage. Check there.
 string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
 
 builder.Services.AddScoped<IMediaRepository>(provider =>

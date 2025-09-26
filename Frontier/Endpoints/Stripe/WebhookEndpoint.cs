@@ -1,13 +1,13 @@
-﻿using FastEndpoints;
+﻿using CrazyLizard.Interfaces.Service;
+using FastEndpoints;
 using Stripe;
-using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Stripe
 {
-    public class WebhookEndpoint(Services.AccountService accountService) : EndpointWithoutRequest
+    public class WebhookEndpoint(IAccountService accountService) : EndpointWithoutRequest
     {
         public override void Configure()
         {

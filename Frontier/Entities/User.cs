@@ -33,6 +33,7 @@ namespace CrazyLizard.Entities
         public bool ProvidedPaymentDetails { get; set; }
         public long? CircleId { get; set; }
         public DateTimeOffset? CircleJoinDate { get; set; }
+        public string GoogleId { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Notification Profile

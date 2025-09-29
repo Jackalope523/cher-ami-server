@@ -2,6 +2,7 @@
 using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Contexts;
+using CrazyLizard.Endpoints.BackgroundJobs;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
 using CrazyLizard.Interfaces;
@@ -11,6 +12,7 @@ using CrazyLizard.Repositories;
 using CrazyLizard.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -19,10 +21,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using OneSignalApi.Model;
+using Quartz;
+using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
 using System.IO;
 using AccountService = CrazyLizard.Services.AccountService;
+using User = CrazyLizard.Entities.User;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +103,9 @@ string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=dev.db"));
 
+builder.Services.AddDbContextFactory<ApplicationDbContext>(
+       options => options.UseSqlite("Data Source=dev.db"));
+
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
 builder.Services.AddScoped<IIssueRepository, IssueRepository>();
@@ -144,6 +155,18 @@ builder.Services
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddQuartz(options =>
+{
+    JobKey jobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(jobKey);
+    options.AddTrigger(trigger => trigger.ForJob(jobKey).WithCronSchedule("0 0 0 1 * ?"));
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 var app = builder.Build();
 

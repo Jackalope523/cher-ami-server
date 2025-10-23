@@ -4,7 +4,7 @@ namespace CrazyLizard.Interfaces.Service
 {
     public interface IKeyService
 	{
-		Task<string> GetClassifiedAccountCodeAsync(long userId);
-	}
+        Task<string> GetSecretAsync(string name);
+    }
 }
 

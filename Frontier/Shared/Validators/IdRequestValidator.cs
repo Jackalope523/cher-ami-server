@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using CrazyLizard.Contracts.Requests;
+using CrazyLizard.Shared.Requests;
 
 namespace CrazyLizard.SharedContracts.SharedValidators
 {

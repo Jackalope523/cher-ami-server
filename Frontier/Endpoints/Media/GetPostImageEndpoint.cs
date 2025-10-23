@@ -1,42 +1,42 @@
-﻿using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
+﻿using CrazyLizard.Contexts;
+using CrazyLizard.Entities;
+using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Repository;
+using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Repositories;
+using CrazyLizard.Shared.Requests;
+using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CrazyLizard.Interfaces.Service;
 
 namespace CrazyLizard.Endpoints.Media
 {
-    public class GetPostImageEndpoint(IMediaService mediaService) : Endpoint<IdRequest, FileStreamResult>
+    public class GetPostImageEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<IdRequest, FileStreamResult>
     {
         public override void Configure()
         {
-            Get("/media/posts/{id}");
+            Get("/posts/{id}/image");
         }
 
         public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            MemoryStream imageStream = await mediaService.GetSnapshotAsync(userId, request.Id);
+            long? userCircle = await ctx.Users.Where(x => x.Id == userId).Select(x => x.CircleId).SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            long postCircle = await ctx.Posts.Where(x => x.Id == request.Id).Select(x => x.Issue.CircleId).SingleAsync(cancellationToken: cancellationToken);
 
-            if (imageStream != null)
-            {
-                imageStream.Seek(0, SeekOrigin.Begin);
+            if (userCircle != postCircle)
+                throw new NoAccessException($"User {userId} does not have access to post {request.Id}.");
 
-                FileStreamResult response = new(imageStream, "image/jpeg")
-                {
-                    FileDownloadName = "post.jpg"
-                };
-
-                await Send.OkAsync(response, cancellationToken);
-            }
-            else
-            {
-                await Send.NotFoundAsync(cancellationToken);
-            }
+            string path = await ctx.Posts.Where(x => x.Id == request.Id).Select(x => x.ImagePath).SingleAsync(cancellationToken: cancellationToken);
+            MemoryStream image = await imageService.DownloadImageAsync(path);
+            await Send.StreamAsync(image, cancellation: cancellationToken);
         }
     }
 }

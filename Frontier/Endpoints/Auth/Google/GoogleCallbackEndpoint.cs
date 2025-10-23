@@ -1,6 +1,9 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +24,6 @@ namespace CrazyLizard.Endpoints.Auth.Google
                 .NotEmpty().WithMessage("Code is required.");
 
             // JACKALOPE: Maybe use http sessions to verify the code properly. 
-            RuleFor(x => x.State)
-                .NotEmpty()
-                .MaximumLength(30)
-                .Matches(@"^\d+$").WithMessage("Invalid state."); ;
         }
     }
 
@@ -43,10 +42,12 @@ namespace CrazyLizard.Endpoints.Auth.Google
                 ["code"] = request.Code,
                 ["state"] = request.State,
             };
+            // JACKALOPE: Verify the state properly. 
 
             string redirectUrl = QueryHelpers.AddQueryString("cherami://", queryParams);
 
-            await Send.RedirectAsync(redirectUrl);
+            Log.Error($"Got code {request.Code} and state {request.State}.");
+            await Send.RedirectAsync(redirectUrl, true, true);
         }
     }
 }

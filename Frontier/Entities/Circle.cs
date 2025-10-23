@@ -11,13 +11,14 @@ namespace CrazyLizard.Entities
         public string CircleCode { get; set; } = DefaultCircleCode;
         public IssueSchedule IssueSchedule { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
+        public DateTimeOffset HeaderTimestamp { get; set; }
         public bool SoftDeleted { get; set; }
 
 
         // Navigation Properties
-        public List<User> Members { get; set; }
-        public List<Issue> Issues { get; set; }
-        public List<Notification> Notifications { get; set; }
+        public List<User> Contributors { get; set; } = [];
+        public List<Issue> Issues { get; set; } = [];
+        public List<Notification> Notifications { get; set; } = [];
 
         // Default Values
         public static string DefaultTitle { get; set; } = "";

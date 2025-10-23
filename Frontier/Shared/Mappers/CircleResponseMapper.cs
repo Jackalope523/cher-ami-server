@@ -1,22 +1,25 @@
-﻿using FastEndpoints;
-using CrazyLizard.Entities;
+﻿using CrazyLizard.Entities;
 using CrazyLizard.Shared.Responses;
+using FastEndpoints;
+using System.Linq;
 
 namespace CrazyLizard.Shared.SharedMappers
 {
-    public class CircleResponseMapper : ResponseMapper<CircleDTO, Circle>
+    public class CircleResponseMapper(UserItemMapper userItemMapper, RecipientItemMapper recipientItemMapper) : ResponseMapper<CircleDTO, Circle>
     {
         public override CircleDTO FromEntity(Circle circle) 
         {
-            if (circle == null) return null;
-
             return new()
             {
                 Id = circle.Id,
-                InviteCode = circle.CircleCode,
+                HeaderPath = $"/circle/{circle.Id}/header",
+                HeaderTimestamp = circle.HeaderTimestamp,
                 Title = circle.Title,
+                InviteCode = circle.CircleCode,
                 DateCreated = circle.TimeOfCreation,
                 Schedule = circle.IssueSchedule,
+                Contributors = circle.Contributors.Select(userItemMapper.FromEntity).ToList(),
+                Recipients = circle.Contributors.SelectMany(x => x.Recipients).Select(recipientItemMapper.FromEntity).ToList(),
             };
         } 
     }

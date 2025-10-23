@@ -15,7 +15,7 @@ namespace CrazyLizard.Repositories
 
         private readonly string _baseFolder = Path.Combine(AppContext.BaseDirectory, "localstorage");
 
-        private async Task UploadBlobAsync(string path, MemoryStream blob)
+        public async Task UploadBlobAsync(string path, MemoryStream blob)
         {
             //string[] parts = path.Split(new[] { '/' }, 2);
             //var (containerName, blobName) = (parts[0], parts[1]);
@@ -38,7 +38,7 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        private async Task<MemoryStream> DownloadBlobAsync(string path)
+        public async Task<MemoryStream> DownloadBlobAsync(string path)
         {
             //MemoryStream stream = new MemoryStream();
             //BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
@@ -72,7 +72,7 @@ namespace CrazyLizard.Repositories
             }
         }
 
-        private async Task DeleteBlobAsync(string path)
+        public async Task DeleteBlobAsync(string path)
         {
             //BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 

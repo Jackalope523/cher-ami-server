@@ -231,9 +231,7 @@ namespace CrazyLizard.Repositories
 
         public async Task RemoveCircleMembershipAsync(long userId)
         {
-            User user = ctx.Users.Find(userId);
-            user.CircleId = null;
-            await ctx.SaveChangesAsync();
+            throw new NotImplementedException();
         }
 
         public async Task<bool> IsMemberAsync(long userId, long circleId)

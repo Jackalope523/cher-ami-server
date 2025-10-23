@@ -1,56 +1,34 @@
-﻿using CrazyLizard;
+﻿using CherAmiAPI.Interfaces.Service;
+using CherAmiAPI.Services;
+using CrazyLizard;
 using CrazyLizard.Boundaries.Repository;
-using CrazyLizard.Boundaries.Service;
 using CrazyLizard.Contexts;
 using CrazyLizard.Endpoints.BackgroundJobs;
-using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
+using CrazyLizard.Endpoints.Circles;
 using CrazyLizard.Interfaces;
 using CrazyLizard.Interfaces.Repository;
 using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Repositories;
 using CrazyLizard.Services;
+using CrazyLizard.Shared.SharedMappers;
 using FastEndpoints;
 using FastEndpoints.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using OneSignalApi.Model;
 using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
-using System.IO;
 using AccountService = CrazyLizard.Services.AccountService;
 using User = CrazyLizard.Entities.User;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.AzureApp()
-    .MinimumLevel.Debug()
-    .CreateLogger();
-
-builder.Host.UseSerilog();
-
-builder.Services.AddSingleton(Log.Logger);
-
-var configuration = builder.Configuration;
-
-string env = configuration["ASPNETCORE_ENVIRONMENT"] ?? "Development";
-
-if (env != "Production" && env != "Staging" && env != "Development")
-{
-    throw new UnknownEnvironmentException("Unknown ASPNETCORE_ENVIRONMENT set.");
-}
 
 builder.Services.AddCors(options =>
 {
@@ -65,60 +43,33 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Web", Version = "v1" });
 });
 
+Log.Logger = new LoggerConfiguration()
+          .MinimumLevel.Error()
+          .WriteTo.Console()
+          .WriteTo.AzureApp()
+          .CreateLogger();
 
-//var keyProvider = new KeyStorageRepository(new LLContext());
-
-//OneSignalService oneSignalInstance = new();
-//OneSignalService.Initialise(frontierLogger,
-//    keyProvider.GetHollowOneSignalApiKeyAsync().Result,
-//    keyProvider.GetHollowOneSignalAppIdAsync().Result);
-
-//TwilioService.Initialise(env, frontierLogger,
-//    keyProvider.GetHollowTwilioAccountKeyAsync().Result,
-//    keyProvider.GetHollowTwilioAuthTokenAsync().Result,
-//    keyProvider.GetHollowTwilioMessagingServiceAsync().Result);
-
-
-OneSignalService oneSignalInstance = new();
-
-builder.Services.AddTransient<INotificationService, OneSignalService>(_ => oneSignalInstance);
-builder.Services.AddScoped<IEmailService, OneSignalService>();
-builder.Services.AddTransient<ISMSService, TwilioService>();
-
-// JACKALOPE: Switch this to production db. Don't forget the migrations. 
-string prodString = "Server=tcp:sparrow-stores.database.windows.net,1433;Initial Catalog=CanaryProduction;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";";
-
-//builder.Services.AddDbContext<LLContext>(options =>
-//   options.
-//   UseSqlServer
-//   (
-//       prodString,
-//       x => x.
-//       MigrationsHistoryTable("__ProductionMigrationsHistory").
-//       EnableRetryOnFailure()
-//   )
-//);
+// JACKALOPE: Set up conflict. 
+builder.Services.AddDbContext<ApplicationDbContext>(optionsBuilder =>
+   optionsBuilder.UseSqlServer
+   (
+       "Server=tcp:sql-cherami-prod.database.windows.net,1433;Initial Catalog=sqldb-data-prod;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";"
+   )
+);
 
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=dev.db"));
-
-builder.Services.AddDbContextFactory<ApplicationDbContext>(
-       options => options.UseSqlite("Data Source=dev.db"));
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlite(builder.Configuration["DevDBConnectionString"]));
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
 builder.Services.AddScoped<IIssueRepository, IssueRepository>();
 builder.Services.AddScoped<IKeyRepository, KeyStorageRepository>();
 
-
-//JACKALOPE: Your storage is short circuiting to local storage. Check there.
-string prodUri = "https://{0}.blob.core.windows.net/canaryproduction";
-
 builder.Services.AddScoped<IMediaRepository>(provider =>
 {
     var dbContext = provider.GetRequiredService<ApplicationDbContext>();
-    return new MediaRepository(prodUri, dbContext);
+    return new MediaRepository("", dbContext);
 });
 
 
@@ -137,16 +88,20 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
 
+builder.Services.AddScoped<IImageService, AzureImageService>();
+builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
+
+builder.Services.AddScoped<UserItemMapper>();
+builder.Services.AddScoped<RecipientItemMapper>();
+builder.Services.AddScoped<FeedPostMapper>();
+
+// JACKALOPE: Key vault man,
 builder.Services.AddScoped<StripeClient>(_ => new("sk_test_51RxlM1ARYKi6NXMeFaJIdN2b1vx6HARAG3uqvYlYcPoqvexFzll5R1fXXtPq7HVBuA4DYJEjjFkG1pSJ76UgNEoM00rz3BvxnY"));
 
 builder.Services
     .AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/home/data-protection-keys"))
-    .SetApplicationName($"cardinal-{env}-keys");
 
 builder.Services
     .AddAuthenticationJwtBearer(s => s.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c")
@@ -158,9 +113,13 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    JobKey jobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    options.AddJob<PublishMagazinesJob>(jobKey);
-    options.AddTrigger(trigger => trigger.ForJob(jobKey).WithCronSchedule("0 0 0 1 * ?"));
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
+
+    //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
+    //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 * * ? * *"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

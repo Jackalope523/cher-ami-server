@@ -1,10 +1,10 @@
 ﻿using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
 using CrazyLizard.Shared.Responses;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Shared.Requests;
 
 namespace CrazyLizard.Endpoints.Media
 {

@@ -4,6 +4,7 @@ using Azure.Storage.Blobs;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 namespace CrazyLizard.Endpoints.BackgroundJobs
 {
     [DisallowConcurrentExecution]
-    public class PublishMagazinesJob(IDbContextFactory<ApplicationDbContext> contextFactory) : IJob
+    public class PublishMagazinesJob(IServiceProvider _serviceProvider) : IJob
     {
         private readonly TokenCredential _credentials = new DefaultAzureCredential();
         private readonly string _storageAccountUri = "";
@@ -47,14 +48,14 @@ namespace CrazyLizard.Endpoints.BackgroundJobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            using ApplicationDbContext ctx = contextFactory.CreateDbContext();
+            using var scope = _serviceProvider.CreateScope();
+            ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             List<Issue> issues = await ctx.Issues.Where(x => x.Status == IssueStatus.Drafting).Include(x => x.Posts).ToListAsync();
 
             foreach (Issue issue in issues)
             {
                 using MemoryStream memoryStream = new();
-                memoryStream.Position = 0;
 
                 Document.Create(container =>
                 {

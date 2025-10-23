@@ -61,7 +61,7 @@ namespace CrazyLizard.Services
             string newTitle = titleChanged ? title : user.Title;
             string newGivenName = givenNameChanged ? givenName : user.FirstName;
             string newFamilyName = familyNameChanged ? familyName : user.LastName;
-            DateOnly newDateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
+            //DateOnly newDateOfBirth = dateOfBirthChanged ? dateOfBirth.Value : user.DateOfBirth;
 
             List<(string Property, object Value)> edits = new();
             // Gather individual edits
@@ -74,7 +74,7 @@ namespace CrazyLizard.Services
 
                 edits.Add((nameof(User.Email), email));
                 edits.Add(("NormalisedEmail", user.Email));
-                edits.Add((nameof(User.IsEmailConfirmed), false));
+                edits.Add((nameof(User.EmailConfirmed), false));
             }
 			if (titleChanged)
 			{
@@ -95,23 +95,15 @@ namespace CrazyLizard.Services
             // Internal attributes for account store
 			if (isPhoneNumberConfirmed != null)
 			{
-                edits.Add((nameof(User.IsPhoneConfirmed), isPhoneNumberConfirmed.Value));
+                edits.Add((nameof(User.PhoneNumberConfirmed), isPhoneNumberConfirmed.Value));
 			}
 			if (isEmailConfirmed != null)
 			{
-                edits.Add((nameof(User.IsEmailConfirmed), isEmailConfirmed.Value));
+                edits.Add((nameof(User.EmailConfirmed), isEmailConfirmed.Value));
 			}
 			if (!string.IsNullOrEmpty(securityStamp))
 			{
                 edits.Add((nameof(User.SecurityStamp), securityStamp));
-			}
-			if (lockoutDate != null)
-			{
-                edits.Add((nameof(User.LockoutDate), lockoutDate.Value));
-			}
-			if (accessTries != null)
-			{
-                edits.Add((nameof(User.AccessTries), accessTries.Value));
 			}
 
             // Push update

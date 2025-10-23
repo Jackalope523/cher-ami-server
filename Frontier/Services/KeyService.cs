@@ -1,20 +1,22 @@
-﻿using System.Threading.Tasks;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Interfaces.Repository;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using CrazyLizard.Interfaces.Service;
+using System;
+using System.Threading.Tasks;
 
 namespace CrazyLizard.Services
 {
-    public class KeyService(IKeyRepository keyRepository) : IKeyService
+    public class KeyService() : IKeyService
 	{
-        public async Task<string> GetClassifiedAccountCodeAsync(long userId)
+        // JACKALOPE: Use config.
+        public Uri Uri = new Uri("https://kv-cherami-prod.vault.azure.net/");
+        public readonly Func<Azure.Core.TokenCredential> credentials = () => new DefaultAzureCredential();
+
+        public async Task<string> GetSecretAsync(string secretName)
         {
-            return userId switch
-            {
-                7 => await keyRepository.GetAppleAccountCodeAsync(),
-                8 => await keyRepository.GetGoogleAccountCodeAsync(),
-                _ => throw new NotFoundException($"Tried to access non-existent classified account code for {userId}")
-            };
+            SecretClient client = new(Uri, credentials());
+            KeyVaultSecret secret = await client.GetSecretAsync(secretName);
+            return secret.Value;
         }
     }
 }

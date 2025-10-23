@@ -1,11 +1,11 @@
 ﻿using FastEndpoints;
-using CrazyLizard.Contracts.Requests;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Entities.Reports;
+using CrazyLizard.Shared.Requests;
 
 namespace CrazyLizard.Endpoints.Profile
 {

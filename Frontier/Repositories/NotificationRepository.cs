@@ -13,15 +13,7 @@ namespace CrazyLizard.Repositories
     {
         public async Task<CoreNotificationProfile> GetNotificationProfileAsync(long userId)
         {
-            return await
-                ctx.Users.
-                Where(u => u.Id == userId).
-                Select(u => new CoreNotificationProfile(
-                    u.Id, 
-                    u.NotificationId, 
-                    u.IssuePosts,
-                    u.IssuePosts
-                )).SingleAsync();
+            throw new NotImplementedException();
         }
 
         public async Task UpdateNotificationProfileAsync(long userId, List<(string Property, object Value)> edits)

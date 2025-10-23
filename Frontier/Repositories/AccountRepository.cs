@@ -116,19 +116,13 @@ namespace CrazyLizard.Repositories
                         u.LastName = (string)Value;
                         break;
                     case "IsPhoneConfirmed":
-                        u.IsPhoneConfirmed = (bool)Value;
+                        u.PhoneNumberConfirmed = (bool)Value;
                         break;
                     case "IsEmailConfirmed":
-                        u.IsEmailConfirmed = (bool)Value;
+                        u.EmailConfirmed = (bool)Value;
                         break;
                     case "SecurityStamp":
                         u.SecurityStamp = (string)Value;
-                        break;
-                    case "LockoutDate":
-                        u.LockoutDate = (DateTimeOffset?)Value;
-                        break;
-                    case "AccessTries":
-                        u.AccessTries = (int)Value;
                         break;
                     case "AccountStatus":
                         u.AccountStatus = (UserAccountStatus)Value;

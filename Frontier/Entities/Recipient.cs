@@ -1,4 +1,6 @@
-﻿namespace CrazyLizard.Entities
+﻿using System;
+
+namespace CrazyLizard.Entities
 {
     public enum RecipientState
     { 
@@ -9,6 +11,8 @@
     public class Recipient
     {
         public long Id { get; set; }
+        public string AvatarPath { get; set; }
+        public DateTimeOffset AvatarTimestamp { get; set; }
         public string Title { get; set; } = DefaultTitle;
         public string FirstName { get; set; } = DefaultFirstName;
         public string LastName { get; set; } = DefaultLastName;

@@ -3,6 +3,7 @@ using CrazyLizard.Entities.Reports;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 using static CrazyLizard.Entities.Reports.Report;
 
 namespace CrazyLizard.Contexts
@@ -40,14 +41,24 @@ namespace CrazyLizard.Contexts
             modelBuilder.Entity<User>()
                 .HasQueryFilter(u => !u.SoftDeleted);
 
+            modelBuilder.Entity<Circle>()
+            .HasData(new Circle()
+            {
+                Id = 1,
+                Title = "The Dev Circle",
+                CircleCode = "SneakyNick",
+
+            });
+
             modelBuilder.Entity<User>()
               .HasData(new User()
               {
                   Id = 2,
                   PhoneNumber = "+15734922666",
                   FirstName = "CANARY",
-                  IsPhoneConfirmed = true,
-
+                  ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
+                  SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
+                  CircleId = 1,
               });
 
             modelBuilder.Entity<User>()
@@ -56,7 +67,9 @@ namespace CrazyLizard.Contexts
                     Id = 7,
                     PhoneNumber = "+11002003007",
                     FirstName = "Apple Test Account",
-                    IsPhoneConfirmed = true,
+                    ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
+                    SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
+                    CircleId = 1,
                 });
 
             modelBuilder.Entity<User>()
@@ -65,7 +78,9 @@ namespace CrazyLizard.Contexts
                    Id = 8,
                    PhoneNumber = "+11002003008",
                    FirstName = "Google Test Account",
-                   IsPhoneConfirmed = true,
+                   ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
+                   SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
+                   CircleId = 1,
                });
 
             modelBuilder.Entity<User>()
@@ -211,7 +226,7 @@ namespace CrazyLizard.Contexts
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Circle>()
-               .HasMany(c => c.Members)
+               .HasMany(c => c.Contributors)
                .WithOne(m => m.Circle)
                .OnDelete(DeleteBehavior.Restrict);
 

@@ -19,20 +19,16 @@ namespace CrazyLizard.Entities
     {
         public long Id { get; set; }
         public long CircleId { get; set; }
-        public string Title { get; set; } = DefaultTitle;
+        public string Title { get; set; }
         public int IssueNumber { get; set; }
         public DateTimeOffset DraftingStart { get; set; }
         public DateTimeOffset DraftingEnd { get; set; }
         public IssueStatus Status { get; set; }
-        public string HeaderPath { get; set; } = DefaultHeaderPath;
+        public string HeaderPath { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public Circle Circle { get; set; }
         public List<Post> Posts { get; set; }
-
-        // Default Values
-        public static string DefaultTitle { get; set; } = "";
-        public static string DefaultHeaderPath { get; set; } = "";
     }
 }

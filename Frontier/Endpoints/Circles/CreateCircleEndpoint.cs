@@ -1,22 +1,26 @@
-﻿using FastEndpoints;
-using FluentValidation;
-using CrazyLizard.Contracts.Requests;
+﻿using CherAmiAPI.Interfaces.Service;
+using CrazyLizard.Contexts;
+using CrazyLizard.Entities;
+using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Shared.Requests;
+using CrazyLizard.Shared.Responses;
 using CrazyLizard.Shared.SharedMappers;
+using FastEndpoints;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Serilog;
+using System;
 using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
-using CrazyLizard.Interfaces.Service;
+
 
 namespace CrazyLizard.Endpoints.Circles
 {
     public class CreateCircleRequest
     {
         public string Title { get; set; }
-        public IssueSchedule Schedule { get; set; }
         public IFormFile Image { get; set; }
     }
 
@@ -28,15 +32,12 @@ namespace CrazyLizard.Endpoints.Circles
                 .NotEmpty().WithMessage("Title is required.")
                 .MaximumLength(100).WithMessage("Title cannot exceed 100 characters.");
 
-            RuleFor(x => x.Schedule)
-                .IsInEnum().WithMessage("Schedule is required.");
-
             RuleFor(x => x.Image)
                     .Must(file => file.Length > 0).WithMessage("Image cannot be empty.");
         }
     }
 
-    public class CreateCircleEndpoint(ICircleService circles) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
+    public class CreateCircleEndpoint(ApplicationDbContext ctx, IImageService imageService, IInviteCodeService inviteCodeService) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
@@ -48,17 +49,57 @@ namespace CrazyLizard.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            using MemoryStream stream = new();
-            await request.Image.CopyToAsync(stream, cancellationToken);
+            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
-            Circle coreCircle = await circles.CreateCircleAsync(
-                                        userId,
-                                        request.Title,
-                                        request.Schedule,
-                                        stream
-                                    );
+            try
+            {
+                string code = await inviteCodeService.GenerateCodeAsync();
 
-            await Send.CreatedAtAsync<GetCircleEndpoint>(new IdRequest() { Id = coreCircle.Id }, Map.FromEntity(coreCircle), cancellation: cancellationToken);
+                Circle toCreate = new()
+                {
+                    Title = request.Title,
+                    TimeOfCreation = DateTimeOffset.UtcNow,
+                    CircleCode = code,
+                    IssueSchedule = IssueSchedule.Monthly,
+                };
+
+                ctx.Circles.Add(toCreate);
+                await ctx.SaveChangesAsync(cancellationToken);
+
+                string path = $"circles/{toCreate.Id}/header/header.jpg";
+
+                using var stream = new MemoryStream();
+                await request.Image.CopyToAsync(stream, cancellationToken);
+
+                toCreate.HeaderPath = path;
+                toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
+                await ctx.SaveChangesAsync(cancellationToken);
+
+                await imageService.UploadImageAsync(path, stream);
+
+                Issue firstIssue = new()
+                {
+                    CircleId = toCreate.Id,
+                    Title = "First Issue",
+                    IssueNumber = 0,
+                    DraftingStart = DateTimeOffset.UtcNow,
+                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(2).AddTicks(-1), TimeSpan.Zero),
+                    Status = IssueStatus.Drafting,
+                    HeaderPath = null,
+                };
+
+                ctx.Issues.Add(firstIssue);
+                await ctx.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                await Send.CreatedAtAsync<GetCircleEndpoint>(new IdRequest() { Id = toCreate.Id }, Map.FromEntity(toCreate), cancellation: cancellationToken);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

@@ -1,95 +1,67 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Contexts;
+using CrazyLizard.Entities;
+using CrazyLizard.Exceptions;
+using CrazyLizard.Interfaces.Service;
+using CrazyLizard.Shared.Mappers;
+using CrazyLizard.Shared.Requests;
+using CrazyLizard.Shared.Responses;
 using FastEndpoints;
-using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Circles
 {
-    public record AddRecipientRequest
-    {
-        public string Title { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string UnitNumber { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string ProvinceOrState { get; set; }
-        public string PostalCode { get; set; }
-        public string Country { get; set; }
-    }
-
-    public class AddRecipientRequestValidator : Validator<AddRecipientRequest>
-    {
-        public AddRecipientRequestValidator()
-        {
-            RuleFor(x => x.Title)
-                .MaximumLength(25).WithMessage("Title cannot exceed 25 characters.")
-                .When(x => !string.IsNullOrWhiteSpace(x.Title));
-
-            RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First name is required.")
-                .MaximumLength(100).WithMessage("First name cannot exceed 100 characters.");
-
-            RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name is required.")
-                .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters");
-
-            RuleFor(x => x.UnitNumber)
-                .NotEmpty().WithMessage("Unit number is required.")
-                .MaximumLength(15).WithMessage("Unit number cannot exceed 15 characters");
-
-            RuleFor(x => x.Street)
-                .NotEmpty().WithMessage("Street name is required.")
-                .MaximumLength(150).WithMessage("Street name cannot exceed 150 characters");
-
-            RuleFor(x => x.City)
-                .NotEmpty().WithMessage("City name is required.")
-                .MaximumLength(50).WithMessage("City name cannot exceed 50 characters");
-
-            RuleFor(x => x.ProvinceOrState)
-                .NotEmpty().WithMessage("Province or state name is required.")
-                .MaximumLength(50).WithMessage("Province or state name cannot exceed 50 characters");
-
-            RuleFor(x => x.PostalCode)
-                .NotEmpty().WithMessage("Postal code is required.")
-                .MaximumLength(20).WithMessage("Postal code cannot exceed 20 characters");
-
-            RuleFor(x => x.Country)
-                .NotEmpty().WithMessage("Country name is required.")
-                .MaximumLength(56).WithMessage("Country name cannot exceed 56 characters");
-        }
-    }
     
-    public class AddRecipientEndpoint(IAccountService accountService) : Endpoint<AddRecipientRequest>
+    public class AddRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
     {
         public override void Configure()
         {
             Post("/circle/recipients");
+            AllowFileUploads();
         }
 
-        public override async Task HandleAsync(AddRecipientRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(RecipientRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await accountService.AddRecipientAsync(
-                userId,
-                new() 
-                { 
-                    ManagerId = userId, 
-                    Title = request.Title, 
-                    FirstName = request.FirstName, 
-                    LastName = request.LastName, 
-                    Street = request.Street, 
-                    UnitNumber = request.Street,
-                    City = request.City, 
-                    ProvinceOrState = request.ProvinceOrState,
-                    PostalCode = request.PostalCode, 
-                    Country = request.Country,
-                }
-            );
-            
-            await Send.NoContentAsync(cancellationToken);
+
+            if (!await ctx.Users.Where(x => x.Id == userId).AnyAsync(x => x.ProvidedPaymentDetails))
+                throw new NoPermissionException($"User {userId} has not provided payment details.");
+
+            await using var transaction = await ctx.Database.BeginTransactionAsync();
+            try
+            {
+                Recipient toAdd = Map.ToEntity(request);
+                ctx.Recipients.Add(toAdd);
+                toAdd.ManagerId = userId;
+                await ctx.SaveChangesAsync(cancellationToken);
+
+                string path = $"users/{userId}/recipients/{toAdd.Id}/avatar.jpg";
+                toAdd.AvatarPath = path;
+                await ctx.SaveChangesAsync(cancellationToken);
+
+                using MemoryStream memoryStream = new();
+                await request.Avatar.CopyToAsync(memoryStream);
+                await imageService.UploadImageAsync(path, memoryStream);
+
+                await transaction.CommitAsync(cancellationToken);
+
+                await Send.CreatedAtAsync<GetRecipientEndpoint>
+                (
+                    new IdRequest() { Id =  toAdd.Id },
+                    Map.FromEntity(toAdd),
+                    cancellation: cancellationToken
+                );
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

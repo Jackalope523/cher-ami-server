@@ -8,7 +8,8 @@ namespace CrazyLizard.Entities
 {
     public enum UserAccountStatus
     { 
-        Active, 
+        Onboarding,
+        Active,
         Limited, 
         Suspended,
         Blacklisted 
@@ -19,15 +20,12 @@ namespace CrazyLizard.Entities
         public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateOnly DateOfBirth { get; init; }
-        public DateTimeOffset JoinDate { get; init; }
-        public bool IsPhoneConfirmed { get; set; }
-        public bool IsEmailConfirmed { get; set; }
-        public DateTimeOffset? LockoutDate { get; set; }
-        public int AccessTries { get; set; } = DefaultAccessTries;
+        public DateOnly DateOfBirth { get; set; }
+        public DateTimeOffset JoinDate { get; set; }
         public UserAccountStatus AccountStatus { get; set; }
         public DateTimeOffset TimeOfUserAgreement { get; set; }
         public string AvatarPath { get; set; }
+        public DateTimeOffset AvatarTimestamp { get; set; }
         public string StripeCustomerId { get; set; }
         public string StripeSubscriptionId { get; set; }
         public bool ProvidedPaymentDetails { get; set; }
@@ -37,25 +35,24 @@ namespace CrazyLizard.Entities
         public bool SoftDeleted { get; set; }
 
         // Notification Profile
-        public Guid NotificationId { get; set; }
+        public Guid? NotificationId { get; set; }
         public bool IssuePosts { get; set; } = DefaultIssuePosts;
         public bool IssueReminders { get; set; } = DefaultIssueReminders;
 
         // Navigation Properties
         public Circle Circle { get; set; }
-        public List<UserReport> ReporterList { get; set; }
-        public List<UserReport> ReportedList { get; set; }
-        public List<Block> BlockerList { get; set; }
-        public List<Block> BlockedList { get; set; }
-        public List<PostReport> SnapshotReports { get; set; }
-        public List<Subscription> Subscriptions { get; set; }
-        public List<Feedback> Feedback { get; set; }
-        public List<Notification> Notifications { get; set; }
-        public List<Post> Posts { get; set; }
-        public List<Recipient> Recipients { get; set; }
+        public List<UserReport> ReporterList { get; set; } = [];
+        public List<UserReport> ReportedList { get; set; } = [];
+        public List<Block> BlockerList { get; set; } = [];
+        public List<Block> BlockedList { get; set; } = [];
+        public List<PostReport> SnapshotReports { get; set; } = [];
+        public List<Subscription> Subscriptions { get; set; } = [];
+        public List<Feedback> Feedback { get; set; } = [];
+        public List<Notification> Notifications { get; set; } = [];
+        public List<Post> Posts { get; set; } = [];
+        public List<Recipient> Recipients { get; set; } = [];
 
         // Default Values
-        public static int DefaultAccessTries { get; set; } = 3;
 
         // Notification Profile
         public static bool DefaultIssuePosts { get; set; } = true;

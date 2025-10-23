@@ -1,11 +1,9 @@
 ﻿using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
-using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Shared.Mappers;
 using CrazyLizard.Shared.Requests;
 using CrazyLizard.Shared.Responses;
-using CrazyLizard.Shared.SharedMappers;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System;

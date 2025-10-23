@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Contexts;
 using FastEndpoints;
 using System.Security.Claims;
 using System.Threading;
@@ -11,7 +11,7 @@ namespace CrazyLizard.Endpoints.Stripe
         public string ClientSecret { get; set; }
     }
     
-    public class CreateSetupIntentEndpoint(IAccountService accountService) : Endpoint<CreateSetupIntentEndpoint>
+    public class CreateSetupIntentEndpoint(ApplicationDbContext ctx) : Endpoint<CreateSetupIntentEndpoint>
     {
         public override void Configure()
         {
@@ -21,11 +21,11 @@ namespace CrazyLizard.Endpoints.Stripe
         public override async Task HandleAsync(CreateSetupIntentEndpoint request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            string clientSecret = await accountService.CreateSetupIntentAsync(userId, cancellationToken);
+            //string clientSecret = await accountService.CreateSetupIntentAsync(userId, cancellationToken);
 
             ClientSecretDTO response = new()
             {
-                ClientSecret = clientSecret,
+                //ClientSecret = clientSecret,
             };
 
              await Send.OkAsync(response, cancellationToken);

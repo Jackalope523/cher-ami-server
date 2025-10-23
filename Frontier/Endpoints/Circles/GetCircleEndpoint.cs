@@ -1,12 +1,10 @@
 ﻿using FastEndpoints;
 using CrazyLizard.Shared.SharedMappers;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CrazyLizard.Shared.Responses;
-using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Entities;
 using Stripe;
 using CrazyLizard.Contexts;

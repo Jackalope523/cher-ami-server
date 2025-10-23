@@ -1,4 +1,4 @@
-﻿using CherAmiAPI.Interfaces.Service;
+﻿using CherAmiAPI.Interfaces;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using Microsoft.EntityFrameworkCore;

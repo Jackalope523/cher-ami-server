@@ -1,14 +1,9 @@
-﻿using CherAmiAPI.Interfaces.Service;
+﻿using CherAmiAPI.Interfaces;
 using CherAmiAPI.Services;
 using CrazyLizard;
-using CrazyLizard.Boundaries.Repository;
 using CrazyLizard.Contexts;
 using CrazyLizard.Endpoints.BackgroundJobs;
 using CrazyLizard.Endpoints.Circles;
-using CrazyLizard.Interfaces;
-using CrazyLizard.Interfaces.Repository;
-using CrazyLizard.Interfaces.Service;
-using CrazyLizard.Repositories;
 using CrazyLizard.Services;
 using CrazyLizard.Shared.SharedMappers;
 using FastEndpoints;
@@ -23,7 +18,7 @@ using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
-using AccountService = CrazyLizard.Services.AccountService;
+using AccountService = CrazyLizard.Services.StripeStuffForPayment;
 using User = CrazyLizard.Entities.User;
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -61,33 +56,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(optionsBuilder =>
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //    options.UseSqlite(builder.Configuration["DevDBConnectionString"]));
 
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<ICircleRepository, CircleRepository>();
-builder.Services.AddScoped<IIssueRepository, IssueRepository>();
-builder.Services.AddScoped<IKeyRepository, KeyStorageRepository>();
-
-builder.Services.AddScoped<IMediaRepository>(provider =>
-{
-    var dbContext = provider.GetRequiredService<ApplicationDbContext>();
-    return new MediaRepository("", dbContext);
-});
-
-
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
-builder.Services.AddScoped<IReportRepository, ReportRepository>();
-builder.Services.AddScoped<IMiscellaneousRepository, MiscellaneousRepository>();
-
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<ICircleService, CircleService>();
-builder.Services.AddScoped<IIssueService, IssueService>();
 builder.Services.AddScoped<IKeyService, KeyService>();
-builder.Services.AddScoped<IMediaService, MediaService>();
-builder.Services.AddScoped<INotificationStorageService, NotificationStorageService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IMiscellaneousService, MiscellaneousService>();
-
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
 

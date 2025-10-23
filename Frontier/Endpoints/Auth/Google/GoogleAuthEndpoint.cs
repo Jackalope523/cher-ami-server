@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CherAmiAPI.Interfaces;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;

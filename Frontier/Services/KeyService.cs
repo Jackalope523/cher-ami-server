@@ -1,6 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using CrazyLizard.Interfaces.Service;
+using CherAmiAPI.Interfaces;
 using System;
 using System.Threading.Tasks;
 

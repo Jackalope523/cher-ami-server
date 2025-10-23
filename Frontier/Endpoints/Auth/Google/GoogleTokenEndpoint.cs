@@ -1,5 +1,5 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Interfaces.Service;
+﻿using CherAmiAPI.Interfaces;
+using CrazyLizard.Entities;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;

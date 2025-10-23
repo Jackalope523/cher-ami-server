@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace CrazyLizard.Interfaces.Service
+namespace CherAmiAPI.Interfaces
 {
     public interface IKeyService
 	{

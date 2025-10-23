@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Interfaces.Service
+namespace CherAmiAPI.Interfaces
 {
     public interface IImageService
     {

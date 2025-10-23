@@ -1,14 +1,9 @@
-﻿using CherAmiAPI.Interfaces.Service;
+﻿using CherAmiAPI.Interfaces;
 using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Interfaces.Service;
-using CrazyLizard.Shared.Requests;
 using CrazyLizard.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;

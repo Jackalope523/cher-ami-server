@@ -1,7 +1,7 @@
-﻿using CrazyLizard.Contexts;
+﻿using CherAmiAPI.Interfaces;
+using CrazyLizard.Contexts;
 using CrazyLizard.Entities;
 using CrazyLizard.Exceptions;
-using CrazyLizard.Interfaces.Service;
 using CrazyLizard.Shared.Mappers;
 using CrazyLizard.Shared.Requests;
 using CrazyLizard.Shared.Responses;

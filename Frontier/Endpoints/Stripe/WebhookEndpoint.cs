@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Interfaces.Service;
+﻿using CrazyLizard.Contexts;
 using FastEndpoints;
 using Stripe;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CrazyLizard.Endpoints.Stripe
 {
-    public class WebhookEndpoint(IAccountService accountService) : EndpointWithoutRequest
+    public class WebhookEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -28,7 +28,7 @@ namespace CrazyLizard.Endpoints.Stripe
             if (stripeEvent.Type == "setup_intent.succeeded")
             {
                 SetupIntent setupIntent = stripeEvent.Data.Object as SetupIntent;
-                await accountService.ConfirmPaymentDetailsProvidedAsync(setupIntent.CustomerId);
+                //await accountService.ConfirmPaymentDetailsProvidedAsync(setupIntent.CustomerId);
             }
 
             if (stripeEvent.Type == "invoice.paid")

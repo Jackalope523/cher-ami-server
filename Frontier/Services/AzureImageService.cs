@@ -1,7 +1,7 @@
 ﻿using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using CrazyLizard.Interfaces.Service;
+using CherAmiAPI.Interfaces;
 using System;
 using System.IO;
 using System.Threading.Tasks;

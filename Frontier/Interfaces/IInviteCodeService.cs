@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace CherAmiAPI.Interfaces.Service
+namespace CherAmiAPI.Interfaces
 {
     public interface IInviteCodeService
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrazyLizard.Entities.Reports
+namespace CherAmiAPI.Entities.Reports
 {
     public abstract class Report
     {
@@ -14,13 +14,10 @@ namespace CrazyLizard.Entities.Reports
         public ReportDiscriminator Discriminator { get; init; }
         public long? FilingUserId { get; init; }
         public DateTimeOffset FilingDate { get; init; }
-        public string Notes { get; init; } = DefaultNotes;
+        public string Notes { get; init; }
         public bool SoftDeleted { get; set; }
 
         // Navigation Properties
         public User FilingUser { get; init; }
-
-        // Default Values
-        public static string DefaultNotes { get; set; } = "";
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrazyLizard.Shared.Responses
+namespace CherAmiAPI.Shared.Responses
 {
     public record RecipientDTO
     {

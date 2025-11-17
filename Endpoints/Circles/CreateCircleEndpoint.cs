@@ -1,21 +1,23 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
-using CrazyLizard.Shared.SharedMappers;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Requests;
+using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace CrazyLizard.Endpoints.Circles
+namespace CherAmiAPI.Endpoints.Circles
 {
     public class CreateCircleRequest
     {
@@ -47,6 +49,7 @@ namespace CrazyLizard.Endpoints.Circles
         public override async Task HandleAsync(CreateCircleRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync();
 
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
@@ -72,14 +75,13 @@ namespace CrazyLizard.Endpoints.Circles
 
                 toCreate.HeaderPath = path;
                 toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
-                await ctx.SaveChangesAsync(cancellationToken);
 
                 await imageService.UploadImageAsync(path, stream);
 
                 Issue firstIssue = new()
                 {
                     CircleId = toCreate.Id,
-                    Title = "First Issue",
+                    Title = "October Issue",
                     IssueNumber = 0,
                     DraftingStart = DateTimeOffset.UtcNow,
                     DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(2).AddTicks(-1), TimeSpan.Zero),
@@ -88,6 +90,7 @@ namespace CrazyLizard.Endpoints.Circles
                 };
 
                 ctx.Issues.Add(firstIssue);
+                user.CircleId = toCreate.Id;
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);

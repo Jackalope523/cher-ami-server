@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrazyLizard.Entities
+namespace CherAmiAPI.Entities
 {
     public class Block
     {

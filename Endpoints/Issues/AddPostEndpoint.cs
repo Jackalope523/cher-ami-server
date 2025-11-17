@@ -1,9 +1,9 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Mappers;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Mappers;
+using CherAmiAPI.Shared.Requests;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Issues
+namespace CherAmiAPI.Endpoints.Issues
 {
     public class CreatePostRequest
     {
@@ -63,7 +63,7 @@ namespace CrazyLizard.Endpoints.Issues
                             .Select(x => x.Id)
                             .First();
 
-            await using var transaction = await ctx.Database.BeginTransactionAsync();
+            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
             try
             {
@@ -81,7 +81,7 @@ namespace CrazyLizard.Endpoints.Issues
                 using var stream = new MemoryStream();
                 await request.Image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{request.Image.Name}.jpg";
+                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{new Guid()}.jpg";
 
                 postToAdd.ImagePath = path;
                 await ctx.SaveChangesAsync(cancellationToken);

@@ -1,7 +1,7 @@
-﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Requests;
+﻿using CherAmiAPI.Exceptions;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Media
+namespace CherAmiAPI.Endpoints.Media
 {
     public class GetPostImageEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<IdRequest, FileStreamResult>
     {

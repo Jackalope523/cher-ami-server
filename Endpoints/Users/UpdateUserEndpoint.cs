@@ -1,16 +1,10 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Mappers;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
-using CrazyLizard.Shared.SharedMappers;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -18,7 +12,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Users
+namespace CherAmiAPI.Endpoints.Users
 {
     public class UpdateUserRequest
     {
@@ -26,19 +20,35 @@ namespace CrazyLizard.Endpoints.Users
         public string LastName { get; set; }
         public DateOnly DateOfBirth { get; set; }
         public IFormFile Avatar { get; set; }
-        public string InviteCode { get; set; }
-
     }
 
     public class UpdateUserRequestValidator : Validator<UpdateUserRequest>
     {
         public UpdateUserRequestValidator()
         {
-  
+            RuleFor(x => x.FirstName)
+                .NotEmpty().WithMessage("First name is required.")
+                .MaximumLength(100).WithMessage("First name cannot exceed 50 characters.");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty().WithMessage("Last name is required.")
+                .MaximumLength(100).WithMessage("Last name cannot exceed 50 characters.");
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+            RuleFor(x => x.DateOfBirth)
+                .NotEmpty().WithMessage("Date of birth is required.")
+                .Must(x => x < today.AddYears(-13) && x > today.AddYears(-110)).WithMessage("Invalid date of birth.");
+
+            RuleFor(x => x.Avatar)
+                .NotNull().WithMessage("Avatar is required.")
+                .Must(x => x.ContentType == "image/jpeg" || x.ContentType == "image/jpg").WithMessage("Image must be a jpeg.")
+                .Must(x => x.Length > 0).WithMessage("Image can not be empty.")
+                .Must(x => x.Length <= 5 * 1024 * 1024).WithMessage("Image cannot exceed 5MB.");
         }
     }
 
-    public class UpdateUserEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateUserRequest, UserDTO, UserResponseMapper>
+    public class UpdateUserEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateUserRequest>
     {
         public override void Configure()
         {
@@ -70,9 +80,6 @@ namespace CrazyLizard.Endpoints.Users
 
                 await imageService.UploadImageAsync(path, stream);
 
-                long circleId = await ctx.Circles.Where(x => x.CircleCode == request.InviteCode).Select(x => x.Id).SingleAsync(cancellationToken: cancellationToken);
-                user.CircleId = circleId;
-
                 await ctx.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -80,8 +87,8 @@ namespace CrazyLizard.Endpoints.Users
             }
             catch (Exception)
             {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
+               await transaction.RollbackAsync(cancellationToken);
+               throw;
             }
         }
     }

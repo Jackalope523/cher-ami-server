@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CrazyLizard.Entities
+namespace CherAmiAPI.Entities
 {
     public class Circle
     {

@@ -1,12 +1,12 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Entities.Reports;
+﻿using CherAmiAPI.Entities;
+using CherAmiAPI.Entities.Reports;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
-using static CrazyLizard.Entities.Reports.Report;
+using static CherAmiAPI.Entities.Reports.Report;
 
-namespace CrazyLizard.Contexts
+namespace CherAmiAPI.Contexts
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User, IdentityRole<long>, long>(options)
     {
@@ -22,6 +22,7 @@ namespace CrazyLizard.Contexts
         internal DbSet<Feedback> Feedback { get; set; }
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
+        internal DbSet<EmailLogin> EmailLogins { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -45,21 +46,10 @@ namespace CrazyLizard.Contexts
             .HasData(new Circle()
             {
                 Id = 1,
-                Title = "The Dev Circle",
-                CircleCode = "SneakyNick",
+                Title = "The Review Circle",
+                CircleCode = "AppleGoogle",
 
             });
-
-            modelBuilder.Entity<User>()
-              .HasData(new User()
-              {
-                  Id = 2,
-                  PhoneNumber = "+15734922666",
-                  FirstName = "CANARY",
-                  ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
-                  SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
-                  CircleId = 1,
-              });
 
             modelBuilder.Entity<User>()
                 .HasData(new User()
@@ -86,10 +76,6 @@ namespace CrazyLizard.Contexts
             modelBuilder.Entity<User>()
                 .Property(u => u.Email)
                 .HasMaxLength(255);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.Title)
-                .HasMaxLength(25);
 
             modelBuilder.Entity<User>()
                .Property(u => u.FirstName)
@@ -156,7 +142,7 @@ namespace CrazyLizard.Contexts
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<User>()
-                .HasMany(u => u.SnapshotReports)
+                .HasMany(u => u.PostReports)
                 .WithOne(r => r.FilingUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -364,6 +350,18 @@ namespace CrazyLizard.Contexts
             modelBuilder.Entity<Word>()
                 .Property(w => w.Text)
                 .HasMaxLength(50);
+
+            // Email Logins
+            modelBuilder.Entity<EmailLogin>()
+                .HasQueryFilter(w => !w.SoftDeleted);
+
+            modelBuilder.Entity<EmailLogin>()
+             .Property(x => x.Email)
+             .HasMaxLength(255);
+
+            modelBuilder.Entity<EmailLogin>()
+                .Property(x => x.Code)
+                .HasMaxLength(6);
         }
     }
 }

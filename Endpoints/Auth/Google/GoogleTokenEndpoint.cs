@@ -1,5 +1,6 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Entities;
+using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Entities;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
@@ -13,10 +14,11 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Auth.Google
+namespace CherAmiAPI.Endpoints.Auth.Google
 {
     public class GoogleTokenRequest
     {
@@ -25,12 +27,23 @@ namespace CrazyLizard.Endpoints.Auth.Google
 
     public class GoogleTokenResponse
     {
-        public string Access_Token { get; set; }
-        public int Expires_In { get; set; }
-        public string Id_Token { get; set; }
+        [JsonPropertyName("access_token")]
+        public string AccessToken { get; set; }
+
+        [JsonPropertyName("expires_in")]
+        public int ExpiresIn { get; set; }
+
+        [JsonPropertyName("id_token")]
+        public string IdToken { get; set; }
+
+        [JsonPropertyName("scope")]
         public string Scope { get; set; }
-        public string Token_Type { get; set; }
-        public string Refresh_Token { get; set; }
+
+        [JsonPropertyName("token_type")]
+        public string TokenType { get; set; }
+
+        [JsonPropertyName("refresh_token")]
+        public string RefreshToken { get; set; }
     }
 
     public class GoogleTokenRequestValidator : Validator<GoogleTokenRequest>
@@ -52,7 +65,8 @@ namespace CrazyLizard.Endpoints.Auth.Google
 
         public override async Task HandleAsync(GoogleTokenRequest request, CancellationToken cancellationToken)
         {
-            using HttpClient client = new();
+            using HttpClient httpClient = new();
+            DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://accounts.google.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             var body = new
             {
@@ -65,12 +79,12 @@ namespace CrazyLizard.Endpoints.Auth.Google
 
             using StringContent jsonBody = new(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
 
-            using HttpResponseMessage response = await client.PostAsync("https://oauth2.googleapis.com/token", jsonBody, cancellationToken);
+            using HttpResponseMessage response = await httpClient.PostAsync(discoveryDocument.TokenEndpoint, jsonBody, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             GoogleTokenResponse content = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>(cancellationToken: cancellationToken);
 
-            JwtSecurityToken idToken = new JwtSecurityTokenHandler().ReadJwtToken(content.Id_Token);
+            JwtSecurityToken idToken = new JwtSecurityTokenHandler().ReadJwtToken(content.IdToken);
 
             string email = idToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
             string sub = idToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
@@ -93,18 +107,19 @@ namespace CrazyLizard.Endpoints.Auth.Google
             }
             else
             {
-                onboarded = user.FirstName != null && user.LastName != null && user.AvatarPath != null && user.CircleId != null;
+                onboarded = user.FirstName != null && user.LastName != null && user.AvatarPath != null;
             }
 
+            string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
             string jwtToken = JwtBearer.CreateToken(
                 o =>
                 {
-                    // JACKALOPE: This needs to be in secure store.
-                    o.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c";
-                        o.ExpireAt = DateTime.UtcNow.AddDays(1);
-                        o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                        o.User.Claims.Add(new Claim("Email", user.Email));
-                });
+                    o.SigningKey = signingKey;
+                    o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                    o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    o.User.Claims.Add(new Claim("Email", user.Email));
+                }
+            );
 
             await Send.OkAsync(new { Token = jwtToken, Onboarded = onboarded }, cancellationToken);
         }

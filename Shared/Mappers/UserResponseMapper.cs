@@ -1,10 +1,10 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
-using CrazyLizard.Shared.SharedMappers;
+﻿using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using System.Linq;
 
-namespace CrazyLizard.Shared.Mappers
+namespace CherAmiAPI.Shared.Mappers
 {
     public class UserResponseMapper(RecipientItemMapper mapper) : ResponseMapper<UserDTO, User>
     {
@@ -13,7 +13,6 @@ namespace CrazyLizard.Shared.Mappers
             Id = user.Id,
             AvatarPath = $"/users/{user.Id}/avatar",
             AvatarTimestamp = user.AvatarTimestamp,
-            Title = user.Title,
             FirstName = user.FirstName,
             LastName = user.LastName,
             DateOfBirth = user.DateOfBirth,

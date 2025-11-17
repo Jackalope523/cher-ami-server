@@ -1,4 +1,4 @@
-﻿namespace CrazyLizard.Entities
+﻿namespace CherAmiAPI.Entities
 {
     public class Notification
     {

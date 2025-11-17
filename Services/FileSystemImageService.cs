@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Services
+namespace CherAmiAPI.Services
 {
     public class FileSystemImageService : IImageService
     {

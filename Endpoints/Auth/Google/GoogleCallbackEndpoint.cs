@@ -1,14 +1,11 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Auth.Google
+namespace CherAmiAPI.Endpoints.Auth.Google
 {
     public class GoogleCallbackRequest
     {
@@ -46,7 +43,6 @@ namespace CrazyLizard.Endpoints.Auth.Google
 
             string redirectUrl = QueryHelpers.AddQueryString("cherami://", queryParams);
 
-            Log.Error($"Got code {request.Code} and state {request.State}.");
             await Send.RedirectAsync(redirectUrl, true, true);
         }
     }

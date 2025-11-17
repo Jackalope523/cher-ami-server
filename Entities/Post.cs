@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using PostReport = CrazyLizard.Entities.Reports.PostReport;
+using PostReport = CherAmiAPI.Entities.Reports.PostReport;
 
-namespace CrazyLizard.Entities
+namespace CherAmiAPI.Entities
 {
     public class Post
     {

@@ -1,10 +1,11 @@
-﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Mappers;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Endpoints.Circles;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Exceptions;
+using CherAmiAPI.Shared.Mappers;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,7 +15,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circles
+namespace CherAmiAPI.Endpoints.Circles
 {
     
     public class AddRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
@@ -29,8 +30,8 @@ namespace CrazyLizard.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            if (!await ctx.Users.Where(x => x.Id == userId).AnyAsync(x => x.ProvidedPaymentDetails))
-                throw new NoPermissionException($"User {userId} has not provided payment details.");
+            //if (!await ctx.Users.Where(x => x.Id == userId).AnyAsync(x => x.ProvidedPaymentDetails))
+            //    throw new NoPermissionException($"User {userId} has not provided payment details.");
 
             await using var transaction = await ctx.Database.BeginTransactionAsync();
             try

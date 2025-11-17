@@ -1,8 +1,8 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 
-namespace CrazyLizard.Shared.SharedMappers
+namespace CherAmiAPI.Shared.SharedMappers
 {
     public class UserItemMapper : ResponseMapper<UserItem, User>
     {

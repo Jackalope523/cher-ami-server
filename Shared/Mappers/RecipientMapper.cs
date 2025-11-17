@@ -1,9 +1,9 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 
-namespace CrazyLizard.Shared.Mappers
+namespace CherAmiAPI.Shared.Mappers
 {
     public class RecipientMapper : Mapper<RecipientRequest, RecipientDTO, Recipient>
     {
@@ -12,6 +12,7 @@ namespace CrazyLizard.Shared.Mappers
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
             AvatarPath = $"/recipients/{recipient.Id}/avatar",
+            AvatarTimestamp = recipient.AvatarTimestamp,
             Title = recipient.Title,
             FirstName = recipient.FirstName,
             LastName = recipient.LastName,

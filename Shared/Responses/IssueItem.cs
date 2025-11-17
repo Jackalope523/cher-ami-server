@@ -1,5 +1,5 @@
 ﻿
-namespace CrazyLizard.Shared.Responses
+namespace CherAmiAPI.Shared.Responses
 {
     public record IssueItem
     {

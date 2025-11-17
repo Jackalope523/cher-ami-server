@@ -1,8 +1,8 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-using CrazyLizard.Shared.Requests;
+using CherAmiAPI.Shared.Requests;
 
-namespace CrazyLizard.SharedContracts.SharedValidators
+namespace CherAmiAPI.SharedContracts.SharedValidators
 {
     public class IdRequestValidator : Validator<IdRequest>
     {

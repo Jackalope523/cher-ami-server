@@ -1,9 +1,9 @@
-﻿using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Mappers;
-using CrazyLizard.Shared.Requests;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Exceptions;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Mappers;
+using CherAmiAPI.Shared.Requests;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Users
+namespace CherAmiAPI.Endpoints.Users
 {
     public class GetUserEndpoint(ApplicationDbContext ctx) : Endpoint<IdRequest, UserDTO, UserResponseMapper>
     {

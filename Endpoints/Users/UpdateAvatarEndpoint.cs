@@ -1,12 +1,11 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Endpoints.Issues;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Requests;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.Issues;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -14,7 +13,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Users
+namespace CherAmiAPI.Endpoints.Users
 {
     public class UpdateUserAvatarEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<ImageRequest>
     {

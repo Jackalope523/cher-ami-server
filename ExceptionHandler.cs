@@ -1,4 +1,4 @@
-﻿using CrazyLizard.Exceptions;
+﻿using CherAmiAPI.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard
+namespace CherAmiAPI
 {
     public class ExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
     {

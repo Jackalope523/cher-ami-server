@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using PostReport = CrazyLizard.Entities.Reports.PostReport;
-using UserReport = CrazyLizard.Entities.Reports.UserReport;
+using PostReport = CherAmiAPI.Entities.Reports.PostReport;
+using UserReport = CherAmiAPI.Entities.Reports.UserReport;
 
-namespace CrazyLizard.Entities
+namespace CherAmiAPI.Entities
 {
     public enum UserAccountStatus
     { 
@@ -17,7 +17,6 @@ namespace CrazyLizard.Entities
 
     public class User : IdentityUser<long>
     {
-        public string Title { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateOnly DateOfBirth { get; set; }
@@ -32,6 +31,7 @@ namespace CrazyLizard.Entities
         public long? CircleId { get; set; }
         public DateTimeOffset? CircleJoinDate { get; set; }
         public string GoogleId { get; set; }
+        public string AppleId { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Notification Profile
@@ -45,7 +45,7 @@ namespace CrazyLizard.Entities
         public List<UserReport> ReportedList { get; set; } = [];
         public List<Block> BlockerList { get; set; } = [];
         public List<Block> BlockedList { get; set; } = [];
-        public List<PostReport> SnapshotReports { get; set; } = [];
+        public List<PostReport> PostReports { get; set; } = [];
         public List<Subscription> Subscriptions { get; set; } = [];
         public List<Feedback> Feedback { get; set; } = [];
         public List<Notification> Notifications { get; set; } = [];

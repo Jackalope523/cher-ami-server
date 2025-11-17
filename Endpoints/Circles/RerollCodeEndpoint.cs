@@ -1,7 +1,7 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circles
+namespace CherAmiAPI.Endpoints.Circles
 {
     public class RerollCodeEndpoint(ApplicationDbContext ctx, IInviteCodeService inviteCodeService) : EndpointWithoutRequest<CodeResponse>
     {

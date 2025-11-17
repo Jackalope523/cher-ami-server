@@ -1,8 +1,8 @@
-﻿using CrazyLizard.Shared.Requests;
+﻿using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using FluentValidation;
 
-namespace CrazyLizard.Shared.Validators
+namespace CherAmiAPI.Shared.Validators
 {
     public class RecipientRequestValidator : Validator<RecipientRequest>
     {

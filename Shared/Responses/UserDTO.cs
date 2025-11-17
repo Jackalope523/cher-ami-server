@@ -1,8 +1,8 @@
-﻿using CrazyLizard.Entities;
+﻿using CherAmiAPI.Entities;
 using System;
 using System.Collections.Generic;
 
-namespace CrazyLizard.Shared.Responses
+namespace CherAmiAPI.Shared.Responses
 {
     public record UserDTO
     {

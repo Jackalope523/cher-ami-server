@@ -1,10 +1,10 @@
-﻿using CrazyLizard.Contexts;
+﻿using CherAmiAPI.Contexts;
 using FastEndpoints;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Stripe
+namespace CherAmiAPI.Endpoints.Stripe
 {
     public record ClientSecretDTO
     {

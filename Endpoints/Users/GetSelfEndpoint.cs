@@ -1,15 +1,16 @@
-﻿using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Mappers;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Mappers;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Users
+namespace CherAmiAPI.Endpoints.Users
 {
     public class GetSelfEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<UserDTO, UserResponseMapper>
     {

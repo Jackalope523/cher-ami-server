@@ -1,11 +1,10 @@
 ﻿using CherAmiAPI.Interfaces;
 using CherAmiAPI.Services;
-using CrazyLizard;
-using CrazyLizard.Contexts;
-using CrazyLizard.Endpoints.BackgroundJobs;
-using CrazyLizard.Endpoints.Circles;
-using CrazyLizard.Services;
-using CrazyLizard.Shared.SharedMappers;
+using CherAmiAPI;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.BackgroundJobs;
+using CherAmiAPI.Endpoints.Circles;
+using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FastEndpoints.Security;
 using Microsoft.AspNetCore.Builder;
@@ -18,8 +17,7 @@ using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
-using AccountService = CrazyLizard.Services.StripeStuffForPayment;
-using User = CrazyLizard.Entities.User;
+using User = CherAmiAPI.Entities.User;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -72,8 +70,10 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+string signingKey = await new KeyService().GetSecretAsync("Cher-Ami-API-Signing-Key");
+
 builder.Services
-    .AddAuthenticationJwtBearer(s => s.SigningKey = "b10fa28c-9390-45a1-88b7-dff66ae71e0c")
+    .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey)
     .AddAuthorization()
     .AddFastEndpoints();
 
@@ -88,7 +88,7 @@ builder.Services.AddQuartz(options =>
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 * * ? * *"));
+    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 */5 * ? * *"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

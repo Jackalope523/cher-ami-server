@@ -1,19 +1,17 @@
-﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Requests;
+﻿using CherAmiAPI.Exceptions;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Media
+namespace CherAmiAPI.Endpoints.Media
 {
     public class GetRecipientAvatarEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<IdRequest, FileStreamResult>
     {

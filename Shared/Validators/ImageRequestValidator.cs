@@ -1,9 +1,9 @@
-﻿using CrazyLizard.Endpoints.Circles;
-using CrazyLizard.Shared.Requests;
+﻿using CherAmiAPI.Endpoints.Circles;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using FluentValidation;
 
-namespace CrazyLizard.SharedContracts.SharedValidators
+namespace CherAmiAPI.SharedContracts.SharedValidators
 {
     public class ImageRequestValidator : Validator<ImageRequest>
     {

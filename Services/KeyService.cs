@@ -4,7 +4,7 @@ using CherAmiAPI.Interfaces;
 using System;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Services
+namespace CherAmiAPI.Services
 {
     public class KeyService() : IKeyService
 	{

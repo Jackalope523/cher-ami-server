@@ -1,8 +1,8 @@
 ﻿using Azure.Security.KeyVault.Certificates;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
-using CrazyLizard.Shared.SharedMappers;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circles
+namespace CherAmiAPI.Endpoints.Circles
 {
     public class FeedPageRequest
     {
@@ -23,9 +23,7 @@ namespace CrazyLizard.Endpoints.Circles
     public class FeedPost
     {
         public long Id { get; set; }
-        public string AuthorAvatarPath { get; set; }
-        public DateTimeOffset AuthorAvatarTimestamp { get; init; }
-        public string AuthorName { get; set; }
+        public long AuthorId { get; set; }
         public DateTimeOffset PhotoDate { get; set; }
         public string PhotoPath { get; set; }
         public string Caption { get; set; }
@@ -48,9 +46,7 @@ namespace CrazyLizard.Endpoints.Circles
             return new()
             {
                 Id = post.Id,
-                AuthorAvatarPath = $"/users/{post.Author.Id}/avatar",
-                AuthorAvatarTimestamp = post.Author.AvatarTimestamp,
-                AuthorName = $"{post.Author.FirstName} {post.Author.LastName}",
+                AuthorId = post.AuthorId,
                 PhotoDate = post.PostedAt,
                 PhotoPath = $"/posts/{post.Id}/image",
                 Caption = post.Caption,

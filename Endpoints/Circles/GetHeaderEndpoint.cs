@@ -1,7 +1,8 @@
-﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Exceptions;
-using CrazyLizard.Shared.Requests;
+﻿using CherAmiAPI.Exceptions;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Exceptions;
+using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

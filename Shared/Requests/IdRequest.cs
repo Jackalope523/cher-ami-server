@@ -1,4 +1,4 @@
-﻿namespace CrazyLizard.Shared.Requests
+﻿namespace CherAmiAPI.Shared.Requests
 {
     public class IdRequest
     {

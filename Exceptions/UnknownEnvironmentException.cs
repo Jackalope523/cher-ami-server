@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CrazyLizard.Exceptions
+namespace CherAmiAPI.Exceptions
 {
     public class UnknownEnvironmentException : Exception
     {

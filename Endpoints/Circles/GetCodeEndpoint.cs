@@ -1,5 +1,5 @@
-﻿using CrazyLizard.Contexts;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Circles
+namespace CherAmiAPI.Endpoints.Circles
 {
     public class GetCodeEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<CodeResponse>
     {

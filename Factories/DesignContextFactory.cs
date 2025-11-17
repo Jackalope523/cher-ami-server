@@ -1,9 +1,9 @@
-﻿using CrazyLizard.Contexts;
+﻿using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Options;
 
-namespace CrazyLizard.Factories
+namespace CherAmiAPI.Factories
 {
     public class DesignContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {

@@ -1,13 +1,13 @@
 ﻿using CherAmiAPI.Interfaces;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Services
+namespace CherAmiAPI.Services
 {
     public class inviteCodeService(ApplicationDbContext ctx) : IInviteCodeService
     {

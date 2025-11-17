@@ -1,11 +1,11 @@
-﻿using CrazyLizard.Contexts;
+﻿using CherAmiAPI.Contexts;
 using FastEndpoints;
 using Stripe;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Stripe
+namespace CherAmiAPI.Endpoints.Stripe
 {
     public class WebhookEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
     {

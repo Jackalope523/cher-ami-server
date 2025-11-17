@@ -1,8 +1,8 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
-using CrazyLizard.Contexts;
-using CrazyLizard.Entities;
+using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -15,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.BackgroundJobs
+namespace CherAmiAPI.Endpoints.BackgroundJobs
 {
     [DisallowConcurrentExecution]
     public class MonthlyIssueJob(IServiceProvider _serviceProvider) : IJob
@@ -32,10 +32,10 @@ namespace CrazyLizard.Endpoints.BackgroundJobs
                 Issue toAdd = new()
                 {
                     CircleId = circle.Id,
-                    Title = "Issue 12",
-                    IssueNumber = 12,
+                    Title = "Issue 1",
+                    IssueNumber = 0,
                     DraftingStart = DateTimeOffset.UtcNow,
-                    DraftingEnd = DateTimeOffset.UtcNow,
+                    DraftingEnd = DateTimeOffset.UtcNow.AddMonths(1),
                     Status = IssueStatus.Drafting,
 
                 };

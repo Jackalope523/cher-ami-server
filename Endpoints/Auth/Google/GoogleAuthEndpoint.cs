@@ -1,12 +1,15 @@
 ﻿using CherAmiAPI.Interfaces;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints.Auth.Google
+namespace CherAmiAPI.Endpoints.Auth.Google
 {
     public class GoogleAuthRequest
     {
@@ -23,6 +26,9 @@ namespace CrazyLizard.Endpoints.Auth.Google
 
         public override async Task HandleAsync(GoogleAuthRequest request, CancellationToken cancellationToken)
         {
+            using HttpClient httpClient = new();
+            DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://accounts.google.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
+
             Dictionary<string, string> queryParams = new()
             {
                 ["client_id"] = await keyService.GetSecretAsync("Google-OAuth-Client-Id"),
@@ -32,7 +38,7 @@ namespace CrazyLizard.Endpoints.Auth.Google
                 ["state"] = request.State,
             };
 
-            string redirectUrl = QueryHelpers.AddQueryString("https://accounts.google.com/o/oauth2/v2/auth", queryParams);
+            string redirectUrl = QueryHelpers.AddQueryString(discoveryDocument.AuthorizationEndpoint, queryParams);
 
             await Send.RedirectAsync(redirectUrl, true, true);
         }

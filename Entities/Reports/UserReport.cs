@@ -1,4 +1,4 @@
-﻿namespace CrazyLizard.Entities.Reports
+﻿namespace CherAmiAPI.Entities.Reports
 {
     public enum UserReportType
     {

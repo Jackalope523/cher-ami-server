@@ -1,9 +1,9 @@
-﻿using CrazyLizard.Entities;
-using CrazyLizard.Shared.Responses;
+﻿using CherAmiAPI.Entities;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using System.Linq;
 
-namespace CrazyLizard.Shared.SharedMappers
+namespace CherAmiAPI.Shared.SharedMappers
 {
     public class CircleResponseMapper(UserItemMapper userItemMapper, RecipientItemMapper recipientItemMapper) : ResponseMapper<CircleDTO, Circle>
     {

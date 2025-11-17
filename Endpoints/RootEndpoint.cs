@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CrazyLizard.Endpoints
+namespace CherAmiAPI.Endpoints
 {
     public class RootEndpoint : EndpointWithoutRequest<string>
     {

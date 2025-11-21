@@ -17,7 +17,7 @@ namespace CherAmiAPI.Shared.Mappers
             LastName = user.LastName,
             DateOfBirth = user.DateOfBirth,
             JoinDate = user.JoinDate,
-            Recipients = user.Recipients.Select(mapper.FromEntity).ToList(),
+            Recipients = [.. user.Recipients.Select(mapper.FromEntity)],
         };
     }
 }

@@ -18,7 +18,7 @@ namespace CherAmiAPI.Endpoints.Users
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public IFormFile Avatar { get; set; }
     }
 
@@ -37,8 +37,8 @@ namespace CherAmiAPI.Endpoints.Users
             DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
 
             RuleFor(x => x.DateOfBirth)
-                .NotEmpty().WithMessage("Date of birth is required.")
-                .Must(x => x < today.AddYears(-13) && x > today.AddYears(-110)).WithMessage("Invalid date of birth.");
+                .Must(x => x < today.AddYears(-13) && x > today.AddYears(-110)).WithMessage("Invalid date of birth.")
+                .When(x => x.DateOfBirth.HasValue);
 
             RuleFor(x => x.Avatar)
                 .NotNull().WithMessage("Avatar is required.")
@@ -67,7 +67,12 @@ namespace CherAmiAPI.Endpoints.Users
 
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
-                user.DateOfBirth = request.DateOfBirth;
+
+                if (request.DateOfBirth.HasValue)
+                {
+                    user.DateOfBirth = request.DateOfBirth;
+                }
+
                 user.JoinDate = DateTimeOffset.UtcNow;
 
                 using var stream = new MemoryStream();

@@ -19,7 +19,7 @@ namespace CherAmiAPI.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public DateTimeOffset JoinDate { get; set; }
         public UserAccountStatus AccountStatus { get; set; }
         public DateTimeOffset TimeOfUserAgreement { get; set; }

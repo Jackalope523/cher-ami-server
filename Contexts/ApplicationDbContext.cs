@@ -60,6 +60,8 @@ namespace CherAmiAPI.Contexts
                     ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                     SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                     CircleId = 1,
+                    DateOfBirth = new DateOnly(1995, 12, 24),
+
                 });
 
             modelBuilder.Entity<User>()
@@ -71,6 +73,7 @@ namespace CherAmiAPI.Contexts
                    ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                    SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                    CircleId = 1,
+                   DateOfBirth = new DateOnly(1995, 12, 24),
                });
 
             modelBuilder.Entity<User>()

@@ -41,20 +41,9 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
         public override async Task HandleAsync(EmailAuthRequest request, CancellationToken cancellationToken)
         {
-            User user = await userManager.FindByEmailAsync(request.Email);
-
-            if (user == null)
-            {
-                user = new()
-                {
-                    UserName = request.Email,
-                    Email = request.Email,
-                };
-
-                await userManager.CreateAsync(user);
-            }
-
-            if (user.Id != 7 && user.Id != 8)
+            Task<string> appleReviewEmail = keyService.GetSecretAsync("Apple-Review-Email");
+            Task<string> googleReviewEmail = keyService.GetSecretAsync("Google-Review-Email");
+            if (request.Email != await appleReviewEmail && request.Email != await googleReviewEmail)
             {
                 Random random = new();
                 string code = "";
@@ -73,7 +62,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 {
                     app_id = await keyService.GetSecretAsync("OneSignal-App-Id"),
                     template_id = "c0384ddb-1b48-4080-8b4f-f0edb769323a",
-                    email_to = new string[] { user.Email },
+                    email_to = new string[] { request.Email },
                     custom_data = new { code },
                     include_unsubscribed = true,
                 };

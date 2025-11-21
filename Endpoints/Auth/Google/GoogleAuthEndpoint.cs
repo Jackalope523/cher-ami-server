@@ -33,7 +33,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
             {
                 ["client_id"] = await keyService.GetSecretAsync("Google-OAuth-Client-Id"),
                 ["response_type"] = "code",
-                ["scope"] = "openid email",
+                ["scope"] = "openid email profile",
                 ["redirect_uri"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/auth/google/callback",
                 ["state"] = request.State,
             };

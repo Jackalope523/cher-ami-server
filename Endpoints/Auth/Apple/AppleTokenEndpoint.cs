@@ -105,6 +105,13 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             }
             else
             {
+                if (user.AppleId == null)
+                {
+                    user.EmailConfirmed = email_verified;
+                    user.AppleId = sub;
+                    await userManager.UpdateAsync(user);
+                }
+
                 onboarded = user.FirstName != null && user.LastName != null;
             }
 

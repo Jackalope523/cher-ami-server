@@ -89,9 +89,10 @@ namespace CherAmiAPI.Endpoints.Auth.Google
             string email = idToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
             string sub = idToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
             bool email_verified = bool.Parse(idToken.Claims.FirstOrDefault(c => c.Type == "email_verified")?.Value);
+            string firstName = idToken.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value;
+            string lastName = idToken.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value;
 
             User user = await userManager.FindByEmailAsync(email);
-            bool onboarded = false;
 
             if (user == null)
             {
@@ -101,13 +102,11 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                     Email = email,
                     EmailConfirmed = email_verified,
                     GoogleId = sub,
+                    FirstName = firstName,
+                    LastName = lastName,
                 };
 
                 await userManager.CreateAsync(user);
-            }
-            else
-            {
-                onboarded = user.FirstName != null && user.LastName != null;
             }
 
             string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
@@ -121,7 +120,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                 }
             );
 
-            await Send.OkAsync(new { Token = jwtToken, Onboarded = onboarded }, cancellationToken);
+            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.FirstName != null && user.LastName != null }, cancellationToken);
         }
     }
 }

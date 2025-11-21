@@ -4,8 +4,6 @@ using CherAmiAPI.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
-using Serilog;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -31,7 +29,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailAuthEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailAuthRequest>
+    public class EmailAuthEndpoint(ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailAuthRequest>
     {
         public override void Configure()
         {
@@ -41,20 +39,10 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
         public override async Task HandleAsync(EmailAuthRequest request, CancellationToken cancellationToken)
         {
-            User user = await userManager.FindByEmailAsync(request.Email);
+            string appleEmail = await keyService.GetSecretAsync("Apple-Review-Email");
+            string googleEmail = await keyService.GetSecretAsync("Google-Review-Email");
 
-            if (user == null)
-            {
-                user = new()
-                {
-                    UserName = request.Email,
-                    Email = request.Email,
-                };
-
-                await userManager.CreateAsync(user);
-            }
-
-            if (user.Id != 7 && user.Id != 8)
+            if (request.Email != appleEmail && request.Email != googleEmail)
             {
                 Random random = new();
                 string code = "";
@@ -73,7 +61,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 {
                     app_id = await keyService.GetSecretAsync("OneSignal-App-Id"),
                     template_id = "c0384ddb-1b48-4080-8b4f-f0edb769323a",
-                    email_to = new string[] { user.Email },
+                    email_to = new string[] { request.Email },
                     custom_data = new { code },
                     include_unsubscribed = true,
                 };

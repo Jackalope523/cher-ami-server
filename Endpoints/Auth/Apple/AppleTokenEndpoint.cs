@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Stripe;
 
 namespace CherAmiAPI.Endpoints.Auth.Apple
 {
@@ -53,7 +54,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
         }
     }
 
-    public class AppleTokenEndpoint(UserManager<User> userManager, IKeyService keyService) : Endpoint<AppleTokenRequest>
+    public class AppleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient) : Endpoint<AppleTokenRequest>
     {
         public override void Configure()
         {
@@ -63,7 +64,6 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
 
         public override async Task HandleAsync(AppleTokenRequest request, CancellationToken cancellationToken)
         {
-            using HttpClient httpClient = new();
             DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://appleid.apple.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             var parameters = new Dictionary<string, string>
@@ -74,8 +74,8 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                 ["grant_type"] = "authorization_code",
                 ["redirect_uri"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/auth/apple/callback"
             };
-
-            using var formContent = new FormUrlEncodedContent(parameters);
+            
+            using FormUrlEncodedContent formContent = new(parameters);
 
             using HttpResponseMessage response = await httpClient.PostAsync(discoveryDocument.TokenEndpoint, formContent, cancellationToken);
             response.EnsureSuccessStatusCode();

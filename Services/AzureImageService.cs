@@ -3,8 +3,11 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using CherAmiAPI.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Specialized;
+using System.Linq;
 
 namespace CherAmiAPI.Services
 {
@@ -41,6 +44,14 @@ namespace CherAmiAPI.Services
             BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 
             await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
+        }
+
+        public async Task DeleteImagesAsync(List<string> paths)
+        {
+            BlobServiceClient blobServiceClient = new(new Uri(storageAccountUri), _credentials());
+            BlobBatchClient blobBatchClient = blobServiceClient.GetBlobBatchClient();
+
+            await blobBatchClient.DeleteBlobsAsync([.. paths.Select(x => new Uri($"{storageAccountUri}/{x}"))], DeleteSnapshotsOption.IncludeSnapshots);
         }
     }
 }

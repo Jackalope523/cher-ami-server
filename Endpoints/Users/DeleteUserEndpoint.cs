@@ -31,7 +31,11 @@ namespace CherAmiAPI.Endpoints.Users
                 List<string> recipientAvatars = await ctx.Recipients.Where(x => x.ManagerId == userId).Select(x => x.AvatarPath).ToListAsync(cancellationToken: cancellationToken);
                 List<string> postImages = await ctx.Posts.Where(x => x.AuthorId == userId).Select(x => x.ImagePath).ToListAsync(cancellationToken: cancellationToken);
 
-                List<string> pathsToDelete = [avatarUrl, ..recipientAvatars, ..postImages];
+                List<string> pathsToDelete = [..recipientAvatars, ..postImages];
+                if (avatarUrl != null)
+                {
+                    pathsToDelete.Add(avatarUrl);
+                } 
                 
                 foreach (string path in pathsToDelete)
                 {

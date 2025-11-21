@@ -41,10 +41,10 @@ namespace CherAmiAPI.Endpoints.Users
                 .When(x => x.DateOfBirth.HasValue);
 
             RuleFor(x => x.Avatar)
-                .NotNull().WithMessage("Avatar is required.")
                 .Must(x => x.ContentType == "image/jpeg" || x.ContentType == "image/jpg").WithMessage("Image must be a jpeg.")
                 .Must(x => x.Length > 0).WithMessage("Image can not be empty.")
-                .Must(x => x.Length <= 5 * 1024 * 1024).WithMessage("Image cannot exceed 5MB.");
+                .Must(x => x.Length <= 5 * 1024 * 1024).WithMessage("Image cannot exceed 5MB.")
+                .When(x => x.Avatar != null);
         }
     }
 
@@ -75,15 +75,18 @@ namespace CherAmiAPI.Endpoints.Users
 
                 user.JoinDate = DateTimeOffset.UtcNow;
 
-                using var stream = new MemoryStream();
-                await request.Avatar.CopyToAsync(stream, cancellationToken);
+                if (request.Avatar != null)
+                {
+                    using var stream = new MemoryStream();
+                    await request.Avatar.CopyToAsync(stream, cancellationToken);
 
-                string path = $"users/{user.Id}/avatar.jpg";
+                    string path = $"users/{user.Id}/avatar.jpg";
 
-                user.AvatarPath = path;
-                user.AvatarTimestamp = DateTimeOffset.UtcNow;
+                    user.AvatarPath = path;
+                    user.AvatarTimestamp = DateTimeOffset.UtcNow;
 
-                await imageService.UploadImageAsync(path, stream);
+                    await imageService.UploadImageAsync(path, stream);
+                }
 
                 await ctx.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

@@ -11,7 +11,7 @@ namespace CherAmiAPI.Shared.SharedMappers
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            AvatarPath = $"/users/{user.Id}/avatar",
+            AvatarPath = user.AvatarPath == null ? null : $"/users/{user.Id}/avatar",
             AvatarTimestamp = user.AvatarTimestamp,
         };
     }

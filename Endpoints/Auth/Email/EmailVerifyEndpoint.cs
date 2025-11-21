@@ -78,7 +78,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                     }
                 );
 
-                bool onboarded = user.FirstName != null && user.LastName != null && user.AvatarPath != null;
+                bool onboarded = user.FirstName != null && user.LastName != null;
 
                 await Send.OkAsync(new { Token = jwtToken, Onboarded = onboarded }, cancellationToken);
             }

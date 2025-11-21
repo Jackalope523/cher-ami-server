@@ -24,7 +24,7 @@ namespace CherAmiAPI.Entities
         public UserAccountStatus AccountStatus { get; set; }
         public DateTimeOffset TimeOfUserAgreement { get; set; }
         public string AvatarPath { get; set; }
-        public DateTimeOffset AvatarTimestamp { get; set; }
+        public DateTimeOffset? AvatarTimestamp { get; set; }
         public string StripeCustomerId { get; set; }
         public string StripeSubscriptionId { get; set; }
         public bool ProvidedPaymentDetails { get; set; }

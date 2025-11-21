@@ -35,7 +35,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                 ["client_id"] = "com.hollowinc.cherami.api",
                 ["response_type"] = "code",
                 ["response_mode"] = "form_post",
-                ["scope"] = "email",
+                ["scope"] = "email name",
                 ["redirect_uri"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/auth/apple/callback",
                 ["state"] = request.State,
             };

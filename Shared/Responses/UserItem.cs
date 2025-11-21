@@ -8,6 +8,6 @@ namespace CherAmiAPI.Shared.Responses
         public string FirstName { get; init; }
         public string LastName { get; init; }
         public string AvatarPath { get; init; }
-        public DateTimeOffset AvatarTimestamp { get; init; }
+        public DateTimeOffset? AvatarTimestamp { get; init; }
     }
 }

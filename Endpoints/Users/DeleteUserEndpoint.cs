@@ -45,7 +45,8 @@ namespace CherAmiAPI.Endpoints.Users
                 string api_key = await keyService.GetSecretAsync("OneSignal-API-Key");
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
-                await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
+                HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
+                response.EnsureSuccessStatusCode();
 
                 await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
 

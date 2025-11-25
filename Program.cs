@@ -72,6 +72,7 @@ StripeConfiguration.ApiKey = await keyService.GetSecretAsync("JACKALOPE");
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
 builder.Services.AddScoped<SubscriptionItemService>();
+builder.Services.AddScoped<SetupIntentService>();
 
 builder.Services
     .AddIdentityCore<User>()

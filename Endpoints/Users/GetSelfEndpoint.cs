@@ -22,6 +22,7 @@ namespace CherAmiAPI.Endpoints.Users
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            Log.Error("Looking for: " + userId);
             User user = await ctx.Users.Where(x => x.Id == userId).Include(x => x.Recipients).SingleAsync();
             await Send.OkAsync(Map.FromEntity(user), cancellationToken);
         }

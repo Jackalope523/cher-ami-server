@@ -7,6 +7,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -33,7 +34,24 @@ namespace CherAmiAPI.Endpoints.Circles
             }
             else
             {
-                Circle circle = await ctx.Circles.Where(x => x.Id == circleId).Include(x => x.Contributors).ThenInclude(x => x.Recipients).SingleAsync(cancellationToken: cancellationToken);
+                List<long> blockedIds = await ctx.Blocks
+                                        .Where(x => x.BlockerId == userId)
+                                        .Select(x => x.BlockedId)
+                                        .ToListAsync(cancellationToken: cancellationToken);
+
+                List<long> blockedByIds = await ctx.Blocks
+                                          .Where(x => x.BlockedId == userId)
+                                          .Select(x => x.BlockerId)
+                                          .ToListAsync(cancellationToken: cancellationToken);
+
+                List<long> blacklist = [.. blockedIds, .. blockedByIds];
+
+                Circle circle = await ctx.Circles
+                                .Where(x => x.Id == circleId)
+                                .Include(x => x.Contributors.Where(x => !blacklist.Contains(x.Id)))
+                                .ThenInclude(x => x.Recipients.Where(x => !blacklist.Contains(x.ManagerId)))
+                                .SingleAsync(cancellationToken: cancellationToken);
+
                 await Send.OkAsync(Map.FromEntity(circle), cancellationToken);
             }
         }

@@ -1,6 +1,7 @@
 ﻿using Azure.Security.KeyVault.Certificates;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Exceptions;
 using CherAmiAPI.Shared.Responses;
 using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
@@ -75,7 +76,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 Id = issue.Id,
                 IssueTitle = issue.Title,
                 IssueDate = issue.DraftingEnd,
-                Posts = issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity).ToList(),
+                Posts = [.. issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity)],
             };
         }
     }
@@ -91,32 +92,32 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            long? circleId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.CircleId).SingleAsync(cancellationToken: cancellationToken);
+            long circleId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.CircleId).SingleAsync(cancellationToken: cancellationToken) ?? throw new NotFoundException("User does not have a circle.");
 
-            // JACKALOPE: SQL Date bullshit. This is prod version.
-            //Issue issue = await ctx.Issues
-            //                .Where(x => x.CircleId == circleId)
-            //                .Include(x => x.Posts)
-            //                .ThenInclude(x => x.Author)
-            //                .OrderByDescending(x => x.DraftingEnd)
-            //                .Skip(request.PageParam)
-            //                .Take(1)
-            //                .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            List<long> blockedIds = await ctx.Blocks
+                                    .Where(x => x.BlockerId == userId)
+                                    .Select(x => x.BlockedId)
+                                    .ToListAsync(cancellationToken: cancellationToken);
 
-            Issue issue = (await ctx.Issues
+            List<long> blockedByIds = await ctx.Blocks
+                                      .Where(x => x.BlockedId == userId)
+                                      .Select(x => x.BlockerId)
+                                      .ToListAsync(cancellationToken: cancellationToken);
+
+            List<long> blacklist = [.. blockedIds, .. blockedByIds];
+
+            Issue issue = await ctx.Issues
                             .Where(x => x.CircleId == circleId)
-                            .Include(x => x.Posts)
-                            .ThenInclude(x => x.Author)
-                            .ToListAsync())
+                            .Include(x => x.Posts.Where(x => !blacklist.Contains(x.AuthorId)))
                             .OrderByDescending(x => x.DraftingEnd)
                             .Skip(request.PageParam)
                             .Take(1)
-                            .SingleOrDefault();
+                            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
             FeedPageResponse response = Map.FromEntity(issue);
 
             if (issue != null) {
-                int count = await ctx.Issues.CountAsync();
+                int count = await ctx.Issues.CountAsync(cancellationToken: cancellationToken);
                 response.NextPage = count > request.PageParam ? request.PageParam + 1 : null;
             }
 

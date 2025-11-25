@@ -12,7 +12,7 @@ namespace CherAmiAPI.Endpoints
     {
         public override void Configure()
         {
-            Get("/ping");
+            Post("/ping");
             AllowAnonymous();
         }
 

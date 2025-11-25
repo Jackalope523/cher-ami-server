@@ -12,25 +12,26 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Issues
 {
-    public class ReportPostEndpoint(ApplicationDbContext ctx) : Endpoint<IdRequest>
+    public class ReportPostEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
     {
         public override void Configure()
         {
             Post("/posts/{id}/report");
         }
 
-        public override async Task HandleAsync(IdRequest request, CancellationToken cancellationToken)
+        public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            long postId = Route<long>("id");
 
-            if (await ctx.Posts.AnyAsync(x => x.Id == request.Id && x.AuthorId == userId, cancellationToken: cancellationToken)) 
+            if (await ctx.Posts.AnyAsync(x => x.Id == postId && x.AuthorId == userId, cancellationToken: cancellationToken)) 
                 throw new NoPermissionException("You can't report your own posts.");
 
             PostReport report = new()
             {
                 FilingUserId = userId,
                 FilingDate = DateTimeOffset.UtcNow,
-                PostId = request.Id,
+                PostId = postId,
                 Type = PostReportType.Other,
             };
 

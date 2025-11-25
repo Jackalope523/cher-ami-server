@@ -68,7 +68,7 @@ builder.Services.AddScoped<FeedPostMapper>();
 builder.Services.AddScoped<HttpClient>();
 
 // JACKALOPE: Key vault man,
-StripeConfiguration.ApiKey = await keyService.GetSecretAsync("JACKALOPE");
+StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
 builder.Services.AddScoped<SubscriptionItemService>();

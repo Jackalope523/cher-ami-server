@@ -19,7 +19,8 @@ namespace CherAmiAPI.Factories
         {
             // JACKALOPE: Use config
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer("Server=tcp:sql-cherami-prod.database.windows.net,1433;Initial Catalog=sqldb-data-prod;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";");
+            //optionsBuilder.UseSqlServer("Server=tcp:sql-cherami-prod.database.windows.net,1433;Initial Catalog=sqldb-data-prod;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=sqldb-cherami-dev;Username=postgres;Password=SneakyPuma5233!!");
 
             return new ApplicationDbContext(optionsBuilder.Options);
         }

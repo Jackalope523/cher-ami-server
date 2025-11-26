@@ -68,7 +68,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <Folder Include="Migrations\AzureSQLProduction\" />
+    <Folder Include="Migrations\AzureSQLStaging\" />
+    <Folder Include="Migrations\PostgreSQL\" />
   </ItemGroup>
 
 </Project>

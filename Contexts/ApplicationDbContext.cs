@@ -8,7 +8,7 @@ using static CherAmiAPI.Entities.Reports.Report;
 
 namespace CherAmiAPI.Contexts
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User, IdentityRole<long>, long>(options)
+    public class ApplicationDbContext() : IdentityDbContext<User, IdentityRole<long>, long>
     {
         internal DbSet<Issue> Issues { get; set; }
         internal DbSet<Circle> Circles { get; set; }
@@ -23,16 +23,6 @@ namespace CherAmiAPI.Contexts
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
         internal DbSet<EmailLogin> EmailLogins { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlite("Data Source=dev.db");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

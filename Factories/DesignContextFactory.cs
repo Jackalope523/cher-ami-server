@@ -1,28 +1,23 @@
-﻿using CherAmiAPI.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Options;
+﻿//using CherAmiAPI.Contexts;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.EntityFrameworkCore.Design;
+//using Microsoft.Extensions.Options;
 
-namespace CherAmiAPI.Factories
-{
-    public class DesignContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
-    {
-        //public ApplicationDbContext CreateDbContext(string[] args)
-        //{
-        //    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        //    optionsBuilder.UseSqlite("Data Source=dev.db");
+//namespace CherAmiAPI.Factories
+//{
+//    public class DesignContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+//    {
+//        //public ApplicationDbContext CreateDbContext(string[] args)
+//        //{
+//        //    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+//        //    optionsBuilder.UseSqlite("Data Source=dev.db");
 
-        //    return new ApplicationDbContext(optionsBuilder.Options);
-        //}
+//        //    return new ApplicationDbContext(optionsBuilder.Options);
+//        //}
 
-        public ApplicationDbContext CreateDbContext(string[] args)
-        {
-            // JACKALOPE: Use config
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            //optionsBuilder.UseSqlServer("Server=tcp:sql-cherami-prod.database.windows.net,1433;Initial Catalog=sqldb-data-prod;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";");
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=sqldb-cherami-dev;Username=postgres;Password=SneakyPuma5233!!");
-
-            return new ApplicationDbContext(optionsBuilder.Options);
-        }
-    }
-}
+//        public ApplicationDbContext CreateDbContext(string[] args)
+//        {
+//            return new PostgreSQLContext();
+//        }
+//    }
+//}

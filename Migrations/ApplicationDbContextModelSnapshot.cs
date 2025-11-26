@@ -48,7 +48,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("BlockerId");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Circle", b =>
@@ -89,7 +89,7 @@ namespace CherAmiAPI.Migrations
                         .IsUnique()
                         .HasFilter("[CircleCode] IS NOT NULL");
 
-                    b.ToTable("Circles");
+                    b.ToTable("Circles", (string)null);
 
                     b.HasData(
                         new
@@ -129,7 +129,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailLogins");
+                    b.ToTable("EmailLogins", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Feedback", b =>
@@ -157,7 +157,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Issue", b =>
@@ -198,7 +198,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("CircleId");
 
-                    b.ToTable("Issues");
+                    b.ToTable("Issues", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Notification", b =>
@@ -234,7 +234,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Post", b =>
@@ -271,7 +271,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("IssueId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Recipient", b =>
@@ -337,7 +337,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Recipients");
+                    b.ToTable("Recipients", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Reports.Report", b =>
@@ -366,7 +366,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
 
                     b.HasDiscriminator();
 
@@ -395,7 +395,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.User", b =>
@@ -483,9 +483,6 @@ namespace CherAmiAPI.Migrations
                     b.Property<Guid?>("NotificationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("OneSignalId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -549,7 +546,7 @@ namespace CherAmiAPI.Migrations
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             EmailConfirmed = false,
-                            FirstName = "Apple Reviewer",
+                            FirstName = "Apple Test Account",
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -572,7 +569,7 @@ namespace CherAmiAPI.Migrations
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1, 1, 1),
                             EmailConfirmed = false,
-                            FirstName = "Google Reviewer",
+                            FirstName = "Google Test Account",
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -607,7 +604,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Words");
+                    b.ToTable("Words", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>

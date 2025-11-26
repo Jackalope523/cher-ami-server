@@ -106,6 +106,10 @@ namespace CherAmiAPI.Contexts
                .HasMaxLength(100);
 
             modelBuilder.Entity<User>()
+               .Property(u => u.OneSignalId)
+               .HasMaxLength(50);
+
+            modelBuilder.Entity<User>()
                .Property(u => u.StripeCustomerId)
                .HasMaxLength(50);
 

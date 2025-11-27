@@ -1,21 +1,13 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Azure.Storage.Blobs;
-using CherAmiAPI.Contexts;
+﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace CherAmiAPI.Endpoints.BackgroundJobs
+namespace CherAmiAPI.BackgroundJobs
 {
     [DisallowConcurrentExecution]
     public class MonthlyIssueJob(IServiceProvider _serviceProvider) : IJob

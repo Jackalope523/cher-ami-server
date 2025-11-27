@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Subscription = Stripe.Subscription;
 
-namespace CherAmiAPI.Services
+namespace CherAmiAPI
 {
     public class StripeStuffForPayment()
     {

@@ -46,7 +46,7 @@ namespace CherAmiAPI.Contexts
                 {
                     Id = 7,
                     PhoneNumber = "+11002003007",
-                    FirstName = "Apple Test Account",
+                    FirstName = "Apple Reviewer",
                     ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                     SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                     CircleId = 1,
@@ -59,7 +59,7 @@ namespace CherAmiAPI.Contexts
                {
                    Id = 8,
                    PhoneNumber = "+11002003008",
-                   FirstName = "Google Test Account",
+                   FirstName = "Google Reviewer",
                    ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                    SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                    CircleId = 1,
@@ -97,6 +97,10 @@ namespace CherAmiAPI.Contexts
             modelBuilder.Entity<User>()
                .Property(u => u.LastName)
                .HasMaxLength(100);
+
+            modelBuilder.Entity<User>()
+               .Property(u => u.OneSignalId)
+               .HasMaxLength(50);
 
             modelBuilder.Entity<User>()
                .Property(u => u.StripeCustomerId)

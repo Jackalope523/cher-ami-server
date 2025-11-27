@@ -1,5 +1,7 @@
 ﻿using CherAmiAPI.Interfaces;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -42,6 +44,14 @@ namespace CherAmiAPI.Services
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
+            }
+        }
+
+        public async Task DeleteImagesAsync(List<string> paths)
+        {
+            foreach(string path in paths)
+            {
+                await DeleteImageAsync(path);
             }
         }
     }

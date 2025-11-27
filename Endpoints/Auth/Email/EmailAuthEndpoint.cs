@@ -4,8 +4,6 @@ using CherAmiAPI.Entities;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
-using Serilog;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -31,7 +29,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailAuthEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailAuthRequest>
+    public class EmailAuthEndpoint(ApplicationDbContext ctx, IKeyService keyService, HttpClient client) : Endpoint<EmailAuthRequest>
     {
         public override void Configure()
         {
@@ -55,7 +53,6 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 ctx.EmailLogins.Add(new EmailLogin { Email = request.Email, Code = code, ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(15) });
                 await ctx.SaveChangesAsync(cancellationToken);
 
-                using HttpClient client = new();
                 client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
 
                 var body = new

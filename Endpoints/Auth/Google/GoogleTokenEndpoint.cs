@@ -55,7 +55,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
         }
     }
 
-    public class GoogleTokenEndpoint(UserManager<User> userManager, IKeyService keyService) : Endpoint<GoogleTokenRequest>
+    public class GoogleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient) : Endpoint<GoogleTokenRequest>
     {
         public override void Configure()
         {
@@ -65,7 +65,6 @@ namespace CherAmiAPI.Endpoints.Auth.Google
 
         public override async Task HandleAsync(GoogleTokenRequest request, CancellationToken cancellationToken)
         {
-            using HttpClient httpClient = new();
             DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://accounts.google.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             var body = new
@@ -77,7 +76,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                 grant_type = "authorization_code"
             };
 
-            using StringContent jsonBody = new(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+            using JsonContent jsonBody = JsonContent.Create(body);
 
             using HttpResponseMessage response = await httpClient.PostAsync(discoveryDocument.TokenEndpoint, jsonBody, cancellationToken);
             response.EnsureSuccessStatusCode();

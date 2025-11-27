@@ -2,14 +2,12 @@
 using CherAmiAPI.Services;
 using CherAmiAPI;
 using CherAmiAPI.Contexts;
-using CherAmiAPI.Endpoints.BackgroundJobs;
 using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FastEndpoints.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -43,10 +41,10 @@ Log.Logger = new LoggerConfiguration()
           .CreateLogger();
 
 // JACKALOPE: Set up conflict. 
-builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
+builder.Services.AddDbContext<ApplicationDbContext, AzureSQLStagingContext>();
 
 builder.Services.AddScoped<IKeyService, KeyService>();
-builder.Services.AddScoped<IImageService, FileSystemImageService>();
+builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
 
 builder.Services.AddScoped<UserItemMapper>();

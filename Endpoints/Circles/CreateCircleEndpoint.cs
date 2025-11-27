@@ -49,7 +49,7 @@ namespace CherAmiAPI.Endpoints.Circles
         public override async Task HandleAsync(CreateCircleRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync();
+            User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync(cancellationToken: cancellationToken);
 
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
@@ -81,7 +81,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 Issue firstIssue = new()
                 {
                     CircleId = toCreate.Id,
-                    Title = "October Issue",
+                    Title = "Issue 1",
                     IssueNumber = 0,
                     DraftingStart = DateTimeOffset.UtcNow,
                     DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(2).AddTicks(-1), TimeSpan.Zero),

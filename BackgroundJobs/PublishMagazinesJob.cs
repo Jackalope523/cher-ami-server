@@ -15,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CherAmiAPI.Endpoints.BackgroundJobs
+namespace CherAmiAPI.BackgroundJobs
 {
     [DisallowConcurrentExecution]
     public class PublishMagazinesJob(IServiceProvider _serviceProvider) : IJob

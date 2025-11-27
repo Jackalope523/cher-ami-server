@@ -25,6 +25,8 @@ namespace CherAmiAPI.Endpoints.Circles
             user.CircleId = null;
             user.CircleJoinDate = null;
             await ctx.SaveChangesAsync(cancellationToken);
+
+            await ctx.Recipients.Where(x => x.ManagerId == user.Id).ExecuteDeleteAsync(cancellationToken);
             
             await Send.NoContentAsync(cancellationToken);
         }

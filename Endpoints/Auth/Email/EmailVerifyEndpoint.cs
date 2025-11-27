@@ -1,4 +1,5 @@
 ﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
 using FastEndpoints;

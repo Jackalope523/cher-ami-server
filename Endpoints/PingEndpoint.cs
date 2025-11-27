@@ -12,33 +12,35 @@ namespace CherAmiAPI.Endpoints
     {
         public override void Configure()
         {
-            Get("/ping");
+            Post("/ping");
             AllowAnonymous();
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            const int maxRetries = 3;
-            const int delaySeconds = 10;
+            //const int maxRetries = 3;
+            //const int delaySeconds = 10;
 
-            for (int i = 0; i < maxRetries; i++)
-            {
-                try
-                {
-                    await ctx.Database.ExecuteSqlRawAsync("SELECT 1");
-                    await Send.NoContentAsync(cancellationToken);
-                    return;
-                }
-                catch (Exception)
-                {
-                    if (i == maxRetries - 1)
-                    {
-                        throw;
-                    }
-                     
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
-                }
-            }
+            //for (int i = 0; i < maxRetries; i++)
+            //{
+            //    try
+            //    {
+            //        await ctx.Database.ExecuteSqlRawAsync("SELECT 1");
+            //        await Send.NoContentAsync(cancellationToken);
+            //        return;
+            //    }
+            //    catch (Exception)
+            //    {
+            //        if (i == maxRetries - 1)
+            //        {
+            //            throw;
+            //        }
+
+            //        await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
+            //    }
+            //}
+
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace CherAmiAPI.Endpoints.Users
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public IFormFile Avatar { get; set; }
     }
 
@@ -54,14 +54,14 @@ namespace CherAmiAPI.Endpoints.Users
             DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
 
             RuleFor(x => x.DateOfBirth)
-                .NotEmpty().WithMessage("Date of birth is required.")
-                .Must(x => x < today.AddYears(-13) && x > today.AddYears(-110)).WithMessage("Invalid date of birth.");
+                .Must(x => x < today.AddYears(-13) && x > today.AddYears(-110)).WithMessage("Invalid date of birth.")
+                .When(x => x.DateOfBirth.HasValue);
 
             RuleFor(x => x.Avatar)
-                .NotNull().WithMessage("Avatar is required.")
                 .Must(x => x.ContentType == "image/jpeg" || x.ContentType == "image/jpg").WithMessage("Image must be a jpeg.")
                 .Must(x => x.Length > 0).WithMessage("Image can not be empty.")
-                .Must(x => x.Length <= 5 * 1024 * 1024).WithMessage("Image cannot exceed 5MB.");
+                .Must(x => x.Length <= 5 * 1024 * 1024).WithMessage("Image cannot exceed 5MB.")
+                .When(x => x.Avatar != null);
         }
     }
 
@@ -84,18 +84,26 @@ namespace CherAmiAPI.Endpoints.Users
 
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
-                user.DateOfBirth = request.DateOfBirth;
+
+                if (request.DateOfBirth.HasValue)
+                {
+                    user.DateOfBirth = request.DateOfBirth;
+                }
+
                 user.JoinDate = DateTimeOffset.UtcNow;
 
-                using var stream = new MemoryStream();
-                await request.Avatar.CopyToAsync(stream, cancellationToken);
+                if (request.Avatar != null)
+                {
+                    using var stream = new MemoryStream();
+                    await request.Avatar.CopyToAsync(stream, cancellationToken);
 
-                string path = $"users/{user.Id}/avatar.jpg";
+                    string path = $"users/{user.Id}/avatar.jpg";
 
-                user.AvatarPath = path;
-                user.AvatarTimestamp = DateTimeOffset.UtcNow;
+                    user.AvatarPath = path;
+                    user.AvatarTimestamp = DateTimeOffset.UtcNow;
 
-                await imageService.UploadImageAsync(path, stream);
+                    await imageService.UploadImageAsync(path, stream);
+                }
 
                 if (user.OneSignalId == null)
                 {

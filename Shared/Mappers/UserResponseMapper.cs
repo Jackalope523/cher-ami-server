@@ -11,13 +11,13 @@ namespace CherAmiAPI.Shared.Mappers
         public override UserDTO FromEntity(User user) => new()
         { 
             Id = user.Id,
-            AvatarPath = $"/users/{user.Id}/avatar",
+            AvatarPath = user.AvatarPath == null ? null : $"/users/{user.Id}/avatar",
             AvatarTimestamp = user.AvatarTimestamp,
             FirstName = user.FirstName,
             LastName = user.LastName,
             DateOfBirth = user.DateOfBirth,
             JoinDate = user.JoinDate,
-            Recipients = user.Recipients.Select(mapper.FromEntity).ToList(),
+            Recipients = [.. user.Recipients.Select(mapper.FromEntity)],
         };
     }
 }

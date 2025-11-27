@@ -105,7 +105,14 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             }
             else
             {
-                onboarded = user.FirstName != null && user.LastName != null && user.AvatarPath != null;
+                if (user.AppleId == null)
+                {
+                    user.EmailConfirmed = email_verified;
+                    user.AppleId = sub;
+                    await userManager.UpdateAsync(user);
+                }
+
+                onboarded = user.FirstName != null && user.LastName != null;
             }
 
             string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");

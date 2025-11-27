@@ -8,7 +8,7 @@ using static CherAmiAPI.Entities.Reports.Report;
 
 namespace CherAmiAPI.Contexts
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User, IdentityRole<long>, long>(options)
+    public class ApplicationDbContext() : IdentityDbContext<User, IdentityRole<long>, long>
     {
         internal DbSet<Issue> Issues { get; set; }
         internal DbSet<Circle> Circles { get; set; }
@@ -23,16 +23,6 @@ namespace CherAmiAPI.Contexts
         internal DbSet<Notification> Notifications { get; set; }
         internal DbSet<Word> Words { get; set; }
         internal DbSet<EmailLogin> EmailLogins { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlite("Data Source=dev.db");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +50,8 @@ namespace CherAmiAPI.Contexts
                     ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                     SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                     CircleId = 1,
+                    DateOfBirth = new DateOnly(1995, 12, 24),
+
                 });
 
             modelBuilder.Entity<User>()
@@ -71,6 +63,7 @@ namespace CherAmiAPI.Contexts
                    ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                    SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                    CircleId = 1,
+                   DateOfBirth = new DateOnly(1995, 12, 24),
                });
 
             modelBuilder.Entity<User>()

@@ -38,6 +38,7 @@
 	  <PackageReference Include="Microsoft.Extensions.Azure" Version="1.9.0" />
 	  <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.8" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="9.0.8" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
 	  <PackageReference Include="Quartz" Version="3.15.0" />
 	  <PackageReference Include="Quartz.Extensions.Hosting" Version="3.15.0" />
 	  <PackageReference Include="QuestPDF" Version="2025.7.2" />
@@ -68,7 +69,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <Folder Include="Migrations\AzureSQLProduction\" />
+    <Folder Include="Migrations\AzureSQLStaging\" />
+    <Folder Include="Migrations\PostgreSQL\" />
   </ItemGroup>
 
 </Project>

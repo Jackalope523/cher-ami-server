@@ -39,10 +39,9 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
         public override async Task HandleAsync(EmailAuthRequest request, CancellationToken cancellationToken)
         {
-            string appleEmail = await keyService.GetSecretAsync("Apple-Review-Email");
-            string googleEmail = await keyService.GetSecretAsync("Google-Review-Email");
-
-            if (request.Email != appleEmail && request.Email != googleEmail)
+            Task<string> appleReviewEmail = keyService.GetSecretAsync("Apple-Review-Email");
+            Task<string> googleReviewEmail = keyService.GetSecretAsync("Google-Review-Email");
+            if (request.Email != await appleReviewEmail && request.Email != await googleReviewEmail)
             {
                 Random random = new();
                 string code = "";

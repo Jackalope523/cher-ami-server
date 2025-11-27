@@ -44,21 +44,12 @@ Log.Logger = new LoggerConfiguration()
           .CreateLogger();
 
 // JACKALOPE: Set up conflict. 
-builder.Services.AddDbContext<ApplicationDbContext>(optionsBuilder =>
-   optionsBuilder.UseSqlServer
-   (
-       "Server=tcp:sql-cherami-prod.database.windows.net,1433;Initial Catalog=sqldb-data-prod;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=\"Active Directory Default\";"
-   )
-);
-
-
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlite(builder.Configuration["DevDBConnectionString"]));
+builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
 
 KeyService keyService = new();
 
 builder.Services.AddScoped<IKeyService, KeyService>();
-builder.Services.AddScoped<IImageService, AzureImageService>();
+builder.Services.AddScoped<IImageService, FileSystemImageService>();
 builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
 
 builder.Services.AddScoped<UserItemMapper>();
@@ -91,9 +82,9 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
+    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
 
     JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);

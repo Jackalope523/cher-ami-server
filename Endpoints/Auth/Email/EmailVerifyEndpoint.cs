@@ -46,17 +46,16 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
         public override async Task HandleAsync(EmailVerifyRequest request, CancellationToken cancellationToken)
         {
-            string appleEmail = await keyService.GetSecretAsync("Apple-Review-Email");
-            string googleEmail = await keyService.GetSecretAsync("Google-Review-Email");
-
-            string appleCode = await keyService.GetSecretAsync("Apple-Review-Code");
-            string googleCode = await keyService.GetSecretAsync("Google-Review-Code");
+            Task<string> appleReviewEmail = keyService.GetSecretAsync("Apple-Review-Email");
+            Task<string> googleReviewEmail = keyService.GetSecretAsync("Google-Review-Email");
+            Task<string> appleReviewCode = keyService.GetSecretAsync("Apple-Review-Code");
+            Task<string> googleReviewCode = keyService.GetSecretAsync("Google-Review-Code");
 
             bool isValid;
-            if (request.Email == appleEmail || request.Email == googleEmail)
+            if (request.Email == await appleReviewEmail || request.Email == await googleReviewEmail)
             {
-                if (request.Email == appleEmail && request.Code == appleCode) isValid = true;
-                else if (request.Email == googleEmail && request.Code == googleCode) isValid = true;
+                if (request.Email == await appleReviewEmail && request.Code == await appleReviewCode) isValid = true;
+                else if (request.Email == await googleReviewEmail && request.Code == await googleReviewCode) isValid = true;
                 else isValid = false;
             }
             else
@@ -66,8 +65,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
             if (isValid)
             {
-                User user = await ctx.Users.Where(x => x.Email == request.Email).SingleAsync(cancellationToken: cancellationToken);
-                bool onboarded = false;
+                User user = await userManager.FindByEmailAsync(request.Email);
 
                 if (user == null)
                 {
@@ -79,10 +77,6 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                     };
 
                     await userManager.CreateAsync(user);
-                }
-                else
-                {
-                    onboarded = user.FirstName != null && user.LastName != null && user.AvatarPath != null;
                 }
 
                 string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
@@ -96,7 +90,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                     }
                 );
 
-                await Send.OkAsync(new { Token = jwtToken, Onboarded = onboarded }, cancellationToken);
+                await Send.OkAsync(new { Token = jwtToken, Onboarded = user.FirstName != null && user.LastName != null }, cancellationToken);
             }
             else
             {

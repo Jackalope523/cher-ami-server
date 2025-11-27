@@ -34,7 +34,6 @@ namespace CherAmiAPI.Endpoints.Users
                     throw new NoAccessException($"User {userId} can not access this user {request.Id}.");
             }
 
-            Console.WriteLine("HIT");
             User user = await ctx.Users.Where(x => x.Id == request.Id).Include(x => x.Recipients).SingleAsync(cancellationToken: cancellationToken);
             await Send.OkAsync(Map.FromEntity(user), cancellationToken);
         }

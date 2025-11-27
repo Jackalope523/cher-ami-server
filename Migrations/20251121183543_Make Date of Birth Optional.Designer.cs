@@ -4,6 +4,7 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CherAmiAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121183543_Make Date of Birth Optional")]
+    partial class MakeDateofBirthOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("BlockerId");
 
-                    b.ToTable("Blocks", (string)null);
+                    b.ToTable("Blocks");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Circle", b =>
@@ -89,7 +92,7 @@ namespace CherAmiAPI.Migrations
                         .IsUnique()
                         .HasFilter("[CircleCode] IS NOT NULL");
 
-                    b.ToTable("Circles", (string)null);
+                    b.ToTable("Circles");
 
                     b.HasData(
                         new
@@ -129,7 +132,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailLogins", (string)null);
+                    b.ToTable("EmailLogins");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Feedback", b =>
@@ -157,7 +160,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback", (string)null);
+                    b.ToTable("Feedback");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Issue", b =>
@@ -198,7 +201,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("CircleId");
 
-                    b.ToTable("Issues", (string)null);
+                    b.ToTable("Issues");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Notification", b =>
@@ -234,7 +237,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Post", b =>
@@ -271,7 +274,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("IssueId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Recipient", b =>
@@ -337,7 +340,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Recipients", (string)null);
+                    b.ToTable("Recipients");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Reports.Report", b =>
@@ -366,7 +369,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reports", (string)null);
+                    b.ToTable("Reports");
 
                     b.HasDiscriminator();
 
@@ -395,7 +398,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions", (string)null);
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.User", b =>
@@ -419,7 +422,7 @@ namespace CherAmiAPI.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
-                    b.Property<DateTimeOffset?>("AvatarTimestamp")
+                    b.Property<DateTimeOffset>("AvatarTimestamp")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<long?>("CircleId")
@@ -541,6 +544,7 @@ namespace CherAmiAPI.Migrations
                             Id = 7L,
                             AccessFailedCount = 0,
                             AccountStatus = 0,
+                            AvatarTimestamp = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             CircleId = 1L,
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
@@ -563,6 +567,7 @@ namespace CherAmiAPI.Migrations
                             Id = 8L,
                             AccessFailedCount = 0,
                             AccountStatus = 0,
+                            AvatarTimestamp = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             CircleId = 1L,
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
@@ -602,7 +607,7 @@ namespace CherAmiAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Words", (string)null);
+                    b.ToTable("Words");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>

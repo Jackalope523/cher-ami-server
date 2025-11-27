@@ -16,6 +16,8 @@ using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
 using User = CherAmiAPI.Entities.User;
+using CherAmiAPI.BackgroundJobs;
+using System.Net.Http;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -43,6 +45,8 @@ Log.Logger = new LoggerConfiguration()
 // JACKALOPE: Set up conflict. 
 builder.Services.AddDbContext<ApplicationDbContext, AzureSQLStagingContext>();
 
+KeyService keyService = new();
+
 builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
@@ -51,15 +55,21 @@ builder.Services.AddScoped<UserItemMapper>();
 builder.Services.AddScoped<RecipientItemMapper>();
 builder.Services.AddScoped<FeedPostMapper>();
 
+builder.Services.AddScoped<HttpClient>();
+
 // JACKALOPE: Key vault man,
-builder.Services.AddScoped<StripeClient>(_ => new("sk_test_51RxlM1ARYKi6NXMeFaJIdN2b1vx6HARAG3uqvYlYcPoqvexFzll5R1fXXtPq7HVBuA4DYJEjjFkG1pSJ76UgNEoM00rz3BvxnY"));
+StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<SubscriptionService>();
+builder.Services.AddScoped<SubscriptionItemService>();
+builder.Services.AddScoped<SetupIntentService>();
 
 builder.Services
     .AddIdentityCore<User>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-string signingKey = await new KeyService().GetSecretAsync("Cher-Ami-API-Signing-Key");
+string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
 
 builder.Services
     .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey)
@@ -74,6 +84,10 @@ builder.Services.AddQuartz(options =>
     //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
+
+    JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
+    options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 0 L * ?"));
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);

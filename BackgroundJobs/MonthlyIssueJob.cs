@@ -1,3 +1,4 @@
+﻿using CherAmiAPI.Contexts;
 ﻿using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
@@ -6,6 +7,8 @@ using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using System;
+using System.Collections.Generic;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;

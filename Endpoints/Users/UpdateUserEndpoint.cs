@@ -1,14 +1,19 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Contexts;
+﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.Auth.Apple;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +25,18 @@ namespace CherAmiAPI.Endpoints.Users
         public string LastName { get; set; }
         public DateOnly? DateOfBirth { get; set; }
         public IFormFile Avatar { get; set; }
+    }
+
+    public class Identity
+    {
+        [JsonPropertyName("onesignal_id")]
+        public string OneSignalId { get; set; }
+    }
+
+    public class OneSignalCreateUserResponse
+    {
+        [JsonPropertyName("identity")]
+        public Identity Identity { get; set; }
     }
 
     public class UpdateUserRequestValidator : Validator<UpdateUserRequest>
@@ -48,7 +65,7 @@ namespace CherAmiAPI.Endpoints.Users
         }
     }
 
-    public class UpdateUserEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateUserRequest>
+    public class UpdateUserEndpoint(ApplicationDbContext ctx, IImageService imageService, IKeyService keyService, CustomerService customerService, HttpClient httpClient) : Endpoint<UpdateUserRequest>
     {
         public override void Configure()
         {
@@ -86,6 +103,37 @@ namespace CherAmiAPI.Endpoints.Users
                     user.AvatarTimestamp = DateTimeOffset.UtcNow;
 
                     await imageService.UploadImageAsync(path, stream);
+                }
+
+                if (user.OneSignalId == null)
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
+
+                    var body = new
+                    {
+                        identity = new { external_id = user.Id.ToString()},
+                        subscriptions = new [] { new { type = "email", token = user.Email } },
+                    };
+
+                    using JsonContent jsonBody = JsonContent.Create(body);
+                    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
+
+                    HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody, cancellationToken);
+                    response.EnsureSuccessStatusCode();
+
+                    OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
+                    user.OneSignalId = content.Identity.OneSignalId;
+                }
+                if (user.StripeCustomerId == null)
+                {
+                    var options = new CustomerCreateOptions
+                    {
+                        Name = $"{request.FirstName} {request.LastName}",
+                        Email = user.Email,
+                    };
+    
+                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                    user.StripeCustomerId = customer.Id;
                 }
 
                 await ctx.SaveChangesAsync(cancellationToken);

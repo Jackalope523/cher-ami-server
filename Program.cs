@@ -43,7 +43,7 @@ Log.Logger = new LoggerConfiguration()
           .CreateLogger();
 
 // JACKALOPE: Set up conflict. 
-builder.Services.AddDbContext<ApplicationDbContext, AzureSQLStagingContext>();
+builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
 
 KeyService keyService = new();
 
@@ -85,9 +85,9 @@ builder.Services.AddQuartz(options =>
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
 
-    JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
-    options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 0 L * ?"));
+    //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
+    //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 0 L * ?"));
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);

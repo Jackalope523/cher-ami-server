@@ -40,6 +40,7 @@ namespace CherAmiAPI.Endpoints
             //    }
             //}
 
+            Log.Error("Hit Ping");
             await Send.NoContentAsync(cancellationToken);
         }
     }

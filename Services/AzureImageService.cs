@@ -1,21 +1,23 @@
 ﻿using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using CherAmiAPI.Interfaces;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-using Azure.Storage.Blobs.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
     public class AzureImageService : IImageService
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
-        //private readonly string storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
-        private readonly string storageAccountUri = "https://stcheramidatastaging.blob.core.windows.net";
+        private readonly string storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
+        //private readonly string storageAccountUri = "https://stcheramidatastaging.blob.core.windows.net";
 
         public async Task UploadImageAsync(string path, MemoryStream blob)
         {
@@ -52,7 +54,10 @@ namespace CherAmiAPI.Services
             BlobServiceClient blobServiceClient = new(new Uri(storageAccountUri), _credentials());
             BlobBatchClient blobBatchClient = blobServiceClient.GetBlobBatchClient();
 
-            await blobBatchClient.DeleteBlobsAsync([.. paths.Select(x => new Uri($"{storageAccountUri}/{x}"))], DeleteSnapshotsOption.IncludeSnapshots);
+            if (paths.Count > 0)
+            {
+                await blobBatchClient.DeleteBlobsAsync([.. paths.Select(x => new Uri($"{storageAccountUri}/{x}"))], DeleteSnapshotsOption.IncludeSnapshots);
+            }
         }
     }
 }

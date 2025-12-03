@@ -7,6 +7,7 @@ using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using CherAmiAPI.Exceptions;
 
 namespace CherAmiAPI.Endpoints.Issues
 {
@@ -23,9 +24,9 @@ namespace CherAmiAPI.Endpoints.Issues
             Recipient recipient = await ctx.Recipients.FindAsync(request.Id);
 
             if (recipient.ManagerId != userId) 
-                throw new CherAmiAPI.Exceptions.NoAccessException($"User {userId} is the not the manager of recipient {recipient.Id}.");
+                throw new NoAccessException($"User {userId} is the not the manager of recipient {recipient.Id}.");
 
-            //await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
+            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
             try
             {
@@ -34,13 +35,13 @@ namespace CherAmiAPI.Endpoints.Issues
                 ctx.Recipients.Remove(recipient);
                 await ctx.SaveChangesAsync(cancellationToken);
 
-                //await transaction.CommitAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 await Send.NoContentAsync(cancellationToken);
             }
             catch (Exception)
             {
-                //await transaction.RollbackAsync(cancellationToken);
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }

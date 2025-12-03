@@ -1,10 +1,15 @@
 ﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using Serilog;
 using Stripe;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Subscription = Stripe.Subscription;
 
@@ -19,57 +24,73 @@ namespace CherAmiAPI.BackgroundJobs
             ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             SubscriptionService subscriptionService = scope.ServiceProvider.GetRequiredService<SubscriptionService>();
             SubscriptionItemService subscriptionItemService = scope.ServiceProvider.GetRequiredService<SubscriptionItemService>();
+            CustomerPaymentMethodService customerPaymentMethodService = scope.ServiceProvider.GetRequiredService<CustomerPaymentMethodService>();
 
-            var users = await ctx.Users
-                        .Select(x => new { x.Id, x.StripeCustomerId, x.StripeSubscriptionId, x.Recipients.Count})
-                        .Where(x => x.StripeCustomerId != null)
+            var data = await ctx.Users
+                        .Select(x => new { User = x, RecipientsCount = x.Recipients.Count })
+                        .Where(x => x.User.StripeCustomerId != null)
                         .ToListAsync();
 
-            foreach (var user in users)
+            foreach (var entry in data)
             {
-                if (!string.IsNullOrWhiteSpace(user.StripeSubscriptionId))
+                bool hasSubscription = !string.IsNullOrWhiteSpace(entry.User.StripeSubscriptionId);
+                bool hasRecipients = entry.RecipientsCount > 0;
+
+                if (hasRecipients && hasSubscription)
                 {
-                    Subscription subscription = await subscriptionService.GetAsync(user.StripeSubscriptionId);
+                    Subscription subscription = await subscriptionService.GetAsync(entry.User.StripeSubscriptionId);
 
                     SubscriptionItem subscriptionItem = subscription.Items.First();
 
-                    SubscriptionItemUpdateOptions subscriptionItemOptions = new()
+                    if (subscriptionItem.Quantity != entry.RecipientsCount)
                     {
-                        Quantity = user.Count,
-                        ProrationBehavior = "none",
-                    };
+                        SubscriptionItemUpdateOptions subscriptionItemOptions = new()
+                        {
+                            Quantity = entry.RecipientsCount,
+                            ProrationBehavior = "none",
+                        };
 
-                    await subscriptionItemService.UpdateAsync(subscriptionItem.Id, subscriptionItemOptions);
+                        await subscriptionItemService.UpdateAsync(subscriptionItem.Id, subscriptionItemOptions);
+                    }
                 }
-                else
+                else if (hasRecipients && !hasSubscription)
                 {
                     SubscriptionCreateOptions subscriptionOptions = new()
                     {
-                        Customer = user.StripeCustomerId,
+                        Customer = entry.User.StripeCustomerId,
                         Items =
                         [
-                            new()
-                        {
-                            Price = "prod_T3oReCcNZqq7wm",
-                            Quantity = user.Count,
-                        },
-                    ],
-                        PaymentSettings = { SaveDefaultPaymentMethod = "on_subscription" },
+                           new()
+                           {
+                               Price = "price_1S7govARYKi6NXMeuiOwG70F",
+                               Quantity = entry.RecipientsCount,
+                           },
+                        ],
+                        PaymentSettings = new() { SaveDefaultPaymentMethod = "on_subscription" },
                         PaymentBehavior = "default_incomplete",
                         BillingMode = new() { Type = "flexible" },
                         ProrationBehavior = "none",
                         BillingCycleAnchorConfig = new SubscriptionBillingCycleAnchorConfigOptions()
                         {
                             DayOfMonth = 1,
-                            Hour = 4, 
-                            Minute = 0, 
+                            Hour = 4,
+                            Minute = 0,
                             Second = 0,
                         }
                     };
 
-                    await subscriptionService.CreateAsync(subscriptionOptions);
+                    Subscription subscription = await subscriptionService.CreateAsync(subscriptionOptions);
+                    entry.User.StripeSubscriptionId = subscription.Id;
                 }
-
+                else if (!hasRecipients && hasSubscription)
+                {
+                    await subscriptionService.CancelAsync(entry.User.StripeSubscriptionId);
+                    entry.User.StripeSubscriptionId = null;
+                }
+                else
+                {
+                    continue;
+                }
             }
 
             await ctx.SaveChangesAsync();

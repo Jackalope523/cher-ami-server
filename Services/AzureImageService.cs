@@ -16,8 +16,8 @@ namespace CherAmiAPI.Services
     public class AzureImageService : IImageService
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
-        private readonly string storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
-        //private readonly string storageAccountUri = "https://stcheramidatastaging.blob.core.windows.net";
+        //private readonly string storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
+        private readonly string storageAccountUri = "https://stcheramidatastaging.blob.core.windows.net";
 
         public async Task UploadImageAsync(string path, MemoryStream blob)
         {

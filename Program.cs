@@ -43,7 +43,7 @@ Log.Logger = new LoggerConfiguration()
           .CreateLogger();
 
 // JACKALOPE: Set up conflict. 
-builder.Services.AddDbContext<ApplicationDbContext, AzureSQLStagingContext>();
+builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
 
 KeyService keyService = new();
 

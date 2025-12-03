@@ -20,7 +20,7 @@ namespace CherAmiAPI.Endpoints
         {
             try
             {
-                await ctx.Database.ExecuteSqlRawAsync("SELECT 1");
+                await ctx.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken: cancellationToken);
                 await Send.NoContentAsync(cancellationToken);
                 Log.Error("Ping successful.");
             }

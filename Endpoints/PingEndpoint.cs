@@ -12,7 +12,7 @@ namespace CherAmiAPI.Endpoints
     {
         public override void Configure()
         {
-            Post("/ping");
+            Get("/ping");
             AllowAnonymous();
         }
 
@@ -20,14 +20,12 @@ namespace CherAmiAPI.Endpoints
         {
             try
             {
-                await ctx.Database.ExecuteSqlRawAsync("SELECT 1", cancellationToken: cancellationToken);
+                await ctx.Users.AnyAsync();
                 await Send.NoContentAsync(cancellationToken);
-                Log.Error("Ping successful.");
             }
             catch (Exception)
             {
                await Send.AcceptedAtAsync<PingEndpoint>(cancellation: cancellationToken);
-                Log.Error("Ping accepted.");
             }
         }
     }

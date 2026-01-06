@@ -120,13 +120,6 @@ namespace CherAmiAPI.Endpoints.Users
                     string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
 
                     HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody, cancellationToken);
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        string error = await response.Content.ReadAsStringAsync(cancellationToken);
-                        Log.Error("OneSignal create user failed: {Error}", error);
-                    }
-
                     response.EnsureSuccessStatusCode();
 
                     OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
@@ -144,15 +137,15 @@ namespace CherAmiAPI.Endpoints.Users
                     user.StripeCustomerId = customer.Id;
                 }
 
-                await ctx.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
+                    await ctx.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
 
-                await Send.NoContentAsync(cancellationToken);
+                    await Send.NoContentAsync(cancellationToken);
             }
             catch (Exception)
             {
-               await transaction.RollbackAsync(cancellationToken);
-               throw;
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
         }
     }

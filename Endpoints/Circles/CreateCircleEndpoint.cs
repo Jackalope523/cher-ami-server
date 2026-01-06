@@ -1,6 +1,6 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Contexts;
+﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
 using CherAmiAPI.Shared.SharedMappers;
@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
@@ -81,10 +82,10 @@ namespace CherAmiAPI.Endpoints.Circles
                 Issue firstIssue = new()
                 {
                     CircleId = toCreate.Id,
-                    Title = "Issue 1",
-                    IssueNumber = 0,
+                    Title = $"Issue 1",
+                    IssueNumber = 1,
                     DraftingStart = DateTimeOffset.UtcNow,
-                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(2).AddTicks(-1), TimeSpan.Zero),
+                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
                     Status = IssueStatus.Drafting,
                     HeaderPath = null,
                 };

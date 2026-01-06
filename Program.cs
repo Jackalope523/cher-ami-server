@@ -94,7 +94,7 @@ builder.Services.AddQuartz(options =>
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 */5 * ? * *"));
+    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 * * * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

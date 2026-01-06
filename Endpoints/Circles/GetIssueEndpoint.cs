@@ -75,7 +75,7 @@ namespace CherAmiAPI.Endpoints.Circles
             {
                 Id = issue.Id,
                 IssueTitle = issue.Title,
-                IssueDate = issue.DraftingEnd,
+                IssueDate = issue.DraftingStart,
                 Posts = [.. issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity)],
             };
         }
@@ -109,7 +109,7 @@ namespace CherAmiAPI.Endpoints.Circles
             Issue issue = await ctx.Issues
                             .Where(x => x.CircleId == circleId)
                             .Include(x => x.Posts.Where(x => !blacklist.Contains(x.AuthorId)))
-                            .OrderByDescending(x => x.DraftingEnd)
+                            .OrderByDescending(x => x.IssueNumber)
                             .Skip(request.PageParam)
                             .Take(1)
                             .SingleOrDefaultAsync(cancellationToken: cancellationToken);

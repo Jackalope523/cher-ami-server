@@ -30,8 +30,8 @@ namespace CherAmiAPI.Endpoints.Users
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
             try
-            { 
-                var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new {x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
+            {
+                var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
                 List<string> recipientAvatars = await ctx.Recipients.Where(x => x.ManagerId == userId).Select(x => x.AvatarPath).ToListAsync(cancellationToken: cancellationToken);
                 List<string> postImages = await ctx.Posts.Where(x => x.AuthorId == userId).Select(x => x.ImagePath).ToListAsync(cancellationToken: cancellationToken);
 
@@ -66,8 +66,8 @@ namespace CherAmiAPI.Endpoints.Users
             }
             catch (Exception)
             {
-               await transaction.RollbackAsync(cancellationToken);
-               throw;
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
         }
     }

@@ -125,17 +125,17 @@ namespace CherAmiAPI.Endpoints.Users
                     OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
                     user.OneSignalId = content.Identity.OneSignalId;
                 }
-                //if (user.StripeCustomerId == null)
-                //{
-                //    var options = new CustomerCreateOptions
-                //    {
-                //        Name = $"{request.FirstName} {request.LastName}",
-                //        Email = user.Email,
-                //    };
+                if (user.StripeCustomerId == null)
+                {
+                    var options = new CustomerCreateOptions
+                    {
+                        Name = $"{request.FirstName} {request.LastName}",
+                        Email = user.Email,
+                    };
 
-                //    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
-                //    user.StripeCustomerId = customer.Id;
-                //}
+                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                    user.StripeCustomerId = customer.Id;
+                }
 
                     await ctx.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);

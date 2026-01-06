@@ -57,7 +57,7 @@ namespace CherAmiAPI.Endpoints.Users
                 HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
                 response.EnsureSuccessStatusCode();
 
-                //await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
+                await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
 
                 await ctx.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

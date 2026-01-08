@@ -58,7 +58,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 var body = new
                 {
                     app_id = await keyService.GetSecretAsync("OneSignal-App-Id"),
-                    template_id = "c0384ddb-1b48-4080-8b4f-f0edb769323a",
+                    template_id = "3c3e59a1-adda-4fa5-ad65-916c0ccb6c4d",
                     email_to = new string[] { request.Email },
                     custom_data = new { code },
                     include_unsubscribed = true,

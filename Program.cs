@@ -92,6 +92,10 @@ builder.Services.AddQuartz(options =>
     //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 */1 * * * ?"));
 
+    JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
+    options.AddJob<KeepAliveJob>(keepAliveJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/30 9-18 * * ?"));
+
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 * * * * ?"));

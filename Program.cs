@@ -66,6 +66,7 @@ builder.Services.AddScoped<SetupIntentService>();
 builder.Services.AddScoped<CustomerPaymentMethodService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<PriceService>();
+builder.Services.AddScoped<PaymentMethodService>();
 
 builder.Services
     .AddIdentityCore<User>()
@@ -88,9 +89,9 @@ builder.Services.AddQuartz(options =>
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
 
-    //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
-    //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 */1 * * * ?"));
+    JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
+    options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 */2 * * * ?"));
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);

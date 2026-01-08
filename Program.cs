@@ -91,7 +91,7 @@ builder.Services.AddQuartz(options =>
 
     JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 */2 * * * ?"));
+    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 0 L * ?"));
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);

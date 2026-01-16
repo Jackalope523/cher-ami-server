@@ -30,7 +30,6 @@ namespace CherAmiAPI.Endpoints.Circles
 
         public override async Task HandleAsync(RecipientRequest request, CancellationToken cancellationToken)
         {
-            Log.Error("HIT");
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             string userStripeCustomerId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.StripeCustomerId).SingleAsync(cancellationToken: cancellationToken);
 

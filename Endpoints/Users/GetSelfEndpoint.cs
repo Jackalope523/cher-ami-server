@@ -6,6 +6,7 @@ using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Stripe;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Users
 {
-    public class GetSelfEndpoint(ApplicationDbContext ctx, HttpClient httpClient, IKeyService keyService) : EndpointWithoutRequest<UserDTO, UserResponseMapper>
+    public class GetSelfEndpoint(ApplicationDbContext ctx, HttpClient httpClient, IKeyService keyService, CustomerService customerService) : EndpointWithoutRequest<UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {
@@ -46,6 +47,20 @@ namespace CherAmiAPI.Endpoints.Users
 
                 OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
                 user.OneSignalId = content.Identity.OneSignalId;
+
+                await ctx.SaveChangesAsync(cancellationToken);
+            }
+
+            if (user.StripeCustomerId == null)
+            {
+                var options = new CustomerCreateOptions
+                {
+                    Name = $"{user.FirstName} {user.LastName}",
+                    Email = user.Email,
+                };
+
+                Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                user.StripeCustomerId = customer.Id;
 
                 await ctx.SaveChangesAsync(cancellationToken);
             }

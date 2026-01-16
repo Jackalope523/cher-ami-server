@@ -1,22 +1,41 @@
 ﻿using CherAmiAPI.Contexts;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using Stripe;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CherAmiAPI.Endpoints.Stripe
+namespace CherAmiAPI.Endpoints.PaymentMethods
 {
-    public class CheckPaymentMethodsEndpoint(ApplicationDbContext ctx, CustomerPaymentMethodService customerPaymentMethodService) : EndpointWithoutRequest
+    public record CardDTO
+    {
+        public string Id { get; set; }
+        public string DisplayBrand { get; set; }
+        public string Last4 { get; set; }
+    }
+
+    public class CardDTOMapper : ResponseMapper<CardDTO, PaymentMethod>
+    {
+        public override CardDTO FromEntity(PaymentMethod paymentMethod)
+        {
+            return new CardDTO
+            {
+                Id = paymentMethod.Id,
+                DisplayBrand = paymentMethod.Card.Brand,
+                Last4 = paymentMethod.Card.Last4,
+            };
+        }
+    }
+
+
+    public class GetPaymentMethodsEndpoint(ApplicationDbContext ctx, CustomerPaymentMethodService customerPaymentMethodService) : EndpointWithoutRequest<List<CardDTO>, CardDTOMapper>
     {
         public override void Configure()
         {
-            Get("/stripe/payment-methods/check");
+            Get("/payment-methods");
         }
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
@@ -30,7 +49,7 @@ namespace CherAmiAPI.Endpoints.Stripe
 
             List<PaymentMethod> paymentMethods = (await customerPaymentMethodService.ListAsync(stripeCustomerId, cancellationToken: cancellationToken)).Data;
 
-            await Send.OkAsync(paymentMethods.Count != 0, cancellationToken);
+            await Send.OkAsync([.. paymentMethods.Select(Map.FromEntity)], cancellationToken);
         }
     }
 }

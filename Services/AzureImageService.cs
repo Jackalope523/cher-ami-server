@@ -54,6 +54,10 @@ namespace CherAmiAPI.Services
             BlobServiceClient blobServiceClient = new(new Uri(storageAccountUri), _credentials());
             BlobBatchClient blobBatchClient = blobServiceClient.GetBlobBatchClient();
 
+            foreach (var path in paths)
+            {
+                Log.Error($"{storageAccountUri}/{path}");
+            }
             if (paths.Count > 0)
             {
                 await blobBatchClient.DeleteBlobsAsync([.. paths.Select(x => new Uri($"{storageAccountUri}/{x}"))], DeleteSnapshotsOption.IncludeSnapshots);

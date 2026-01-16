@@ -57,7 +57,6 @@ builder.Services.AddScoped<FeedPostMapper>();
 
 builder.Services.AddScoped<HttpClient>();
 
-// JACKALOPE: Key vault man,
 StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
@@ -94,7 +93,12 @@ builder.Services.AddQuartz(options =>
 
     JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
     options.AddJob<KeepAliveJob>(keepAliveJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/30 9-18 * * ?"));
+    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 14-23 * * ?"));
+    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 0-2 * * ?"));
+
+    //JobKey fixJobKey = JobKey.Create(nameof(FixJob));
+    //options.AddJob<FixJob>(fixJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(fixJobKey).StartNow());
 
     //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
     //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);

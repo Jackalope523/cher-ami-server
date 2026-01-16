@@ -4,16 +4,19 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CherAmiAPI.Migrations.AzureSQLStaging
+namespace CherAmiAPI.Migrations.AzureSQLProduction
 {
-    [DbContext(typeof(AzureSQLStagingContext))]
-    partial class AzureSQLStagingContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AzureSQLProductionContext))]
+    [Migration("20260115235940_Add External Id")]
+    partial class AddExternalId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,8 +432,8 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
@@ -535,6 +538,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
                             IssuePosts = true,
                             IssueReminders = true,
@@ -556,6 +560,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
                             IssuePosts = true,
                             IssueReminders = true,

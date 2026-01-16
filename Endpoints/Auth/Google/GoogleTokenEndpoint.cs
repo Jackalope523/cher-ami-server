@@ -113,7 +113,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                 o =>
                 {
                     o.SigningKey = signingKey;
-                    o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                    o.ExpireAt = DateTime.UtcNow.AddDays(10);
                     o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
                     o.User.Claims.Add(new Claim("Email", user.Email));
                 }

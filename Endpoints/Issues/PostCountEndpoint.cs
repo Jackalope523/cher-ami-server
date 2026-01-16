@@ -29,7 +29,7 @@ namespace CherAmiAPI.Endpoints.Issues
 
             int count = await ctx.Issues
                         .Where(x => x.CircleId == circleId)
-                        .OrderByDescending(x => x.DraftingEnd)
+                        .OrderByDescending(x => x.IssueNumber)
                         .Select(x => x.Posts.Count)
                         .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 

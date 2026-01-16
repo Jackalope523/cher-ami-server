@@ -30,8 +30,8 @@ namespace CherAmiAPI.Endpoints.Users
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
             try
-            { 
-                var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new {x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
+            {
+                var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
                 List<string> recipientAvatars = await ctx.Recipients.Where(x => x.ManagerId == userId).Select(x => x.AvatarPath).ToListAsync(cancellationToken: cancellationToken);
                 List<string> postImages = await ctx.Posts.Where(x => x.AuthorId == userId).Select(x => x.ImagePath).ToListAsync(cancellationToken: cancellationToken);
 
@@ -50,14 +50,14 @@ namespace CherAmiAPI.Endpoints.Users
                 await ctx.Recipients.Where(x => x.ManagerId == userId).ExecuteDeleteAsync(cancellationToken);
                 await ctx.Users.Where(x => x.Id == userId).ExecuteDeleteAsync(cancellationToken);
 
-                //string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
-                //string api_key = await keyService.GetSecretAsync("OneSignal-API-Key");
+                string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
+                string api_key = await keyService.GetSecretAsync("OneSignal-API-Key");
 
-                //httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
-                //HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
-                //response.EnsureSuccessStatusCode();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
+                HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
+                response.EnsureSuccessStatusCode();
 
-                //await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
+                await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
 
                 await ctx.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -66,8 +66,8 @@ namespace CherAmiAPI.Endpoints.Users
             }
             catch (Exception)
             {
-               await transaction.RollbackAsync(cancellationToken);
-               throw;
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
         }
     }

@@ -2,11 +2,11 @@
 using CherAmiAPI.Entities;
 using FastEndpoints;
 
-namespace CherAmiAPI.Shared.SharedMappers
+namespace CherAmiAPI.Shared.Mappers
 {
     public class RecipientResponseMapper : ResponseMapper<RecipientDTO, Recipient>
     {
-        public override RecipientDTO FromEntity(Recipient recipient) => new RecipientDTO()
+        public override RecipientDTO FromEntity(Recipient recipient) => new()
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,

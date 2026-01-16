@@ -429,6 +429,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -484,9 +487,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("ProvidedPaymentDetails")
-                        .HasColumnType("bit");
-
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -535,6 +535,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
                             IssuePosts = true,
                             IssueReminders = true,
@@ -543,7 +544,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -557,6 +557,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
                             IssuePosts = true,
                             IssueReminders = true,
@@ -565,7 +566,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),

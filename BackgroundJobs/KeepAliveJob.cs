@@ -22,16 +22,17 @@ namespace CherAmiAPI.BackgroundJobs
             Log.Error("Starting keep alive job");
             while (true)
             {
+                Log.Error("Trying to contact...");
                 try
                 {
-                    await ctx.Users.AnyAsync();
+                    //await ctx.Users.AnyAsync();
                     Log.Error("Database awake.");
                     return;
                 }
                 catch (Exception)
                 {
-                    Log.Error("Database asleep waiting 2 minutes...");
-                    await Task.Delay(TimeSpan.FromMinutes(2));
+                    Log.Error("Database asleep waiting 1 minutes...");
+                    await Task.Delay(TimeSpan.FromMinutes(1));
                 }
             }
         }

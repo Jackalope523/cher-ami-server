@@ -100,9 +100,11 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                     UserName = email,
                     Email = email,
                     EmailConfirmed = email_verified,
+                    ExternalId = Guid.NewGuid(),
                     GoogleId = sub,
                     FirstName = firstName,
                     LastName = lastName,
+                    JoinDate = DateTimeOffset.UtcNow
                 };
 
                 await userManager.CreateAsync(user);

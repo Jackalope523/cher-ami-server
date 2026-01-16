@@ -72,9 +72,11 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 {
                     user = new()
                     {
+                        ExternalId = Guid.NewGuid(),
                         UserName = request.Email,
                         Email = request.Email,
                         EmailConfirmed = true,
+                        JoinDate = DateTimeOffset.UtcNow
                     };
 
                     await userManager.CreateAsync(user);

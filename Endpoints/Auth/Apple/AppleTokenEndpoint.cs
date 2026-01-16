@@ -95,10 +95,12 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             {
                 user = new()
                 {
+                    ExternalId = Guid.NewGuid(),
                     UserName = email,
                     Email = email,
                     EmailConfirmed = email_verified,
                     AppleId = sub,
+                    JoinDate = DateTimeOffset.UtcNow
                 };
 
                 await userManager.CreateAsync(user);
@@ -107,8 +109,10 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             {
                 if (user.AppleId == null)
                 {
+                    user.ExternalId = Guid.NewGuid();
                     user.EmailConfirmed = email_verified;
                     user.AppleId = sub;
+                    user.JoinDate = DateTimeOffset.UtcNow;
                     await userManager.UpdateAsync(user);
                 }
 

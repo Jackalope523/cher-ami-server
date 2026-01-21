@@ -27,39 +27,21 @@ namespace CherAmiAPI.Endpoints.Users
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            Guid externalId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.ExternalId).SingleAsync();
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
+
+            var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
 
             try
             {
-                var user = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.AvatarPath, x.StripeCustomerId }).SingleAsync(cancellationToken: cancellationToken);
-                List<string> recipientAvatars = await ctx.Recipients.Where(x => x.ManagerId == userId).Select(x => x.AvatarPath).ToListAsync(cancellationToken: cancellationToken);
-                List<string> postImages = await ctx.Posts.Where(x => x.AuthorId == userId).Select(x => x.ImagePath).ToListAsync(cancellationToken: cancellationToken);
-
-                List<string> toDelete = [.. recipientAvatars, .. postImages];
-
-                if (user.AvatarPath != null)
-                {
-                    toDelete.Add(user.AvatarPath);
-                }
-
-                await imageService.DeleteImagesAsync(toDelete);
-
                 await ctx.Reports.Where(x => x.FilingUserId == userId).ExecuteDeleteAsync(cancellationToken);
                 await ctx.UserReports.Where(x => x.ReportedUserId == userId).ExecuteDeleteAsync(cancellationToken);
                 await ctx.Posts.Where(x => x.AuthorId == userId).ExecuteDeleteAsync(cancellationToken);
                 await ctx.Recipients.Where(x => x.ManagerId == userId).ExecuteDeleteAsync(cancellationToken);
                 await ctx.Users.Where(x => x.Id == userId).ExecuteDeleteAsync(cancellationToken);
 
-                string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
-                string api_key = await keyService.GetSecretAsync("OneSignal-API-Key");
-
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
-                HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{userId}", cancellationToken);
-                response.EnsureSuccessStatusCode();
-
-                await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
-
                 await ctx.SaveChangesAsync(cancellationToken);
+
                 await transaction.CommitAsync(cancellationToken);
 
                 await Send.NoContentAsync(cancellationToken);
@@ -69,6 +51,27 @@ namespace CherAmiAPI.Endpoints.Users
                 await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
+
+            string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
+            string api_key = await keyService.GetSecretAsync("OneSignal-API-Key");
+
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
+            HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{externalId}", cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            await customerService.DeleteAsync(user.StripeCustomerId, cancellationToken: cancellationToken);
+
+            List<string> recipientAvatars = await ctx.Recipients.Where(x => x.ManagerId == userId).Select(x => x.AvatarPath).ToListAsync(cancellationToken: cancellationToken);
+            List<string> postImages = await ctx.Posts.Where(x => x.AuthorId == userId).Select(x => x.ImagePath).ToListAsync(cancellationToken: cancellationToken);
+
+            List<string> toDelete = [.. recipientAvatars, .. postImages];
+
+            if (user.AvatarPath != null)
+            {
+                toDelete.Add(user.AvatarPath);
+            }
+
+            await imageService.DeleteImagesAsync(toDelete);
         }
     }
 }

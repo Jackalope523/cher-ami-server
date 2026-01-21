@@ -8,6 +8,7 @@ using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,6 @@ namespace CherAmiAPI.BackgroundJobs
 
             var data = await ctx.Users
                         .Select(x => new { User = x, RecipientsCount = x.Recipients.Count })
-                        .Where(x => x.User.StripeCustomerId != null)
                         .ToListAsync();
 
             foreach (var entry in data)
@@ -62,7 +62,7 @@ namespace CherAmiAPI.BackgroundJobs
                         [
                            new()
                            {
-                               Price = "price_1S7govARYKi6NXMeuiOwG70F",
+                               Price = "price_1SVdKeAAKZ0DCoddi5yarA7m",
                                Quantity = entry.RecipientsCount,
                            },
                         ],
@@ -82,7 +82,7 @@ namespace CherAmiAPI.BackgroundJobs
                     Subscription subscription = await subscriptionService.CreateAsync(subscriptionOptions);
                     entry.User.StripeSubscriptionId = subscription.Id;
                 }
-                else if (!hasRecipients && hasSubscription)
+                else if (hasSubscription && (!hasRecipients || entry.User.IsBillingExempt))
                 {
                     await subscriptionService.CancelAsync(entry.User.StripeSubscriptionId);
                     entry.User.StripeSubscriptionId = null;

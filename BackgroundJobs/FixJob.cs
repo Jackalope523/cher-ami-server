@@ -37,47 +37,48 @@ namespace CherAmiAPI.BackgroundJobs
                 Log.Error("Fixing " + user.Email);
 
                 //user.ExternalId = Guid.NewGuid();
+                //user.StripeCustomerId = null;
 
-                    //if (user.OneSignalId == null)
-                    //{
-                    //    Log.Error("Has no OneSignal Id");
-                    //    var body = new
-                    //    {
-                    //        identity = new { external_id = user.ExternalId },
-                    //        subscriptions = new[] { new { type = "Email", token = user.Email } },
-                    //    };
+                //if (user.OneSignalId == null)
+                //{
+                //    Log.Error("Has no OneSignal Id");
+                //    var body = new
+                //    {
+                //        identity = new { external_id = user.ExternalId },
+                //        subscriptions = new[] { new { type = "Email", token = user.Email } },
+                //    };
 
-                    //    using JsonContent jsonBody = JsonContent.Create(body);
-                    //    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
+                //    using JsonContent jsonBody = JsonContent.Create(body);
+                //    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
 
-                    //    HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody);
+                //    HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody);
 
-                    //    if (!response.IsSuccessStatusCode)
-                    //    {
-                    //        Log.Error("Failed to create OneSignal user for " + user.Email + ": " + await response.Content.ReadAsStringAsync());
-                    //    }
-                    //    response.EnsureSuccessStatusCode();
+                //    if (!response.IsSuccessStatusCode)
+                //    {
+                //        Log.Error("Failed to create OneSignal user for " + user.Email + ": " + await response.Content.ReadAsStringAsync());
+                //    }
+                //    response.EnsureSuccessStatusCode();
 
-                    //    OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>();
-                    //    user.OneSignalId = content.Identity.OneSignalId;
+                //    OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>();
+                //    user.OneSignalId = content.Identity.OneSignalId;
 
-                    //    await ctx.SaveChangesAsync();
-                    //}
+                //    await ctx.SaveChangesAsync();
+                //}
 
-                    // JACKALOPE: Temporary fix for users with invalid OneSignal IDs.
-                if (user.JoinDate < new DateTimeOffset(2026, 1, 20, 0, 0, 0, TimeSpan.Zero))
-                {
-                    var body = new
-                    {
-                        identity = new { external_id = user.ExternalId.ToString() },
-                    };
+                // JACKALOPE: Temporary fix for users with invalid OneSignal IDs.
+                //if (user.JoinDate < new DateTimeOffset(2026, 1, 20, 0, 0, 0, TimeSpan.Zero))
+                //{
+                //    var body = new
+                //    {
+                //        identity = new { external_id = user.ExternalId.ToString() },
+                //    };
 
-                    using JsonContent jsonBody = JsonContent.Create(body);
-                    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
+                //    using JsonContent jsonBody = JsonContent.Create(body);
+                //    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
 
-                    HttpResponseMessage response = await httpClient.PatchAsync($"https://api.onesignal.com/apps/{app_id}/users/by/onesignal_id/{user.OneSignalId}/identity", jsonBody);
-                    response.EnsureSuccessStatusCode();
-                }
+                //    HttpResponseMessage response = await httpClient.PatchAsync($"https://api.onesignal.com/apps/{app_id}/users/by/onesignal_id/{user.OneSignalId}/identity", jsonBody);
+                //    response.EnsureSuccessStatusCode();
+                //}
 
                 if (user.StripeCustomerId == null)
                 {
@@ -89,11 +90,9 @@ namespace CherAmiAPI.BackgroundJobs
 
                     Customer customer = await customerService.CreateAsync(options);
                     user.StripeCustomerId = customer.Id;
-
-                    await ctx.SaveChangesAsync();
                 }
             }
-            //await ctx.SaveChangesAsync();
+            await ctx.SaveChangesAsync();
             Log.Error("Done repairs.");
         }
     }

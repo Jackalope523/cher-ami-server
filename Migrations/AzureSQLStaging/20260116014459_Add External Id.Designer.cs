@@ -4,16 +4,19 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CherAmiAPI.Migrations.AzureSQLProduction
+namespace CherAmiAPI.Migrations.AzureSQLStaging
 {
-    [DbContext(typeof(AzureSQLProductionContext))]
-    partial class AzureSQLProductionContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AzureSQLStagingContext))]
+    [Migration("20260116014459_Add External Id")]
+    partial class AddExternalId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -439,9 +442,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsBillingExempt")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IssuePosts")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -540,7 +540,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             EmailConfirmed = false,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
-                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -563,7 +562,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             EmailConfirmed = false,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
-                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),

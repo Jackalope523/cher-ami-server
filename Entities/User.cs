@@ -33,6 +33,7 @@ namespace CherAmiAPI.Entities
         public DateTimeOffset? CircleJoinDate { get; set; }
         public string GoogleId { get; set; }
         public string AppleId { get; set; }
+        public bool IsBillingExempt { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Notification Profile

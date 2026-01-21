@@ -84,13 +84,13 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 0 1 * ?"));
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
 
     JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 0 L * ?"));
+    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 8 1 * ?"));
 
     JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
     options.AddJob<KeepAliveJob>(keepAliveJobKey);
@@ -100,10 +100,6 @@ builder.Services.AddQuartz(options =>
     //JobKey fixJobKey = JobKey.Create(nameof(FixJob));
     //options.AddJob<FixJob>(fixJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(fixJobKey).StartNow());
-
-    //JobKey monthlyIssueJobKey = JobKey.Create(nameof(MonthlyIssueJob));
-    //options.AddJob<MonthlyIssueJob>(monthlyIssueJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(monthlyIssueJobKey).WithCronSchedule("0 * * * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

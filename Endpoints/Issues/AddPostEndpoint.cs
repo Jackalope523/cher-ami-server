@@ -81,7 +81,7 @@ namespace CherAmiAPI.Endpoints.Issues
                 using var stream = new MemoryStream();
                 await request.Image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{new Guid()}.jpg";
+                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
 
                 postToAdd.ImagePath = path;
                 await ctx.SaveChangesAsync(cancellationToken);

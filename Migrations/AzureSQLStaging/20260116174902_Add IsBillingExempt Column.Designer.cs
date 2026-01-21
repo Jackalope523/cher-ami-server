@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CherAmiAPI.Migrations.AzureSQLStaging
 {
     [DbContext(typeof(AzureSQLStagingContext))]
-    [Migration("20260115232717_Add External Id")]
-    partial class AddExternalId
+    [Migration("20260116174902_Add IsBillingExempt Column")]
+    partial class AddIsBillingExemptColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -432,8 +432,8 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
@@ -441,6 +441,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBillingExempt")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IssuePosts")
                         .ValueGeneratedOnAdd()
@@ -538,7 +541,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -559,7 +564,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),

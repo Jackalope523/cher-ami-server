@@ -7,6 +7,7 @@ using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System;
@@ -82,7 +83,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 Issue firstIssue = new()
                 {
                     CircleId = toCreate.Id,
-                    Title = $"Issue 1",
+                    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue 1",
                     IssueNumber = 1,
                     DraftingStart = DateTimeOffset.UtcNow,
                     DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
@@ -92,6 +93,7 @@ namespace CherAmiAPI.Endpoints.Circles
 
                 ctx.Issues.Add(firstIssue);
                 user.CircleId = toCreate.Id;
+                user.CircleJoinDate = DateTimeOffset.UtcNow;
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);

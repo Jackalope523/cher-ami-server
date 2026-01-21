@@ -33,7 +33,7 @@ namespace CherAmiAPI.Endpoints.PaymentMethods
             SetupIntentResponse response = new()
             {
                 ClientSecret = setupIntent.ClientSecret,
-                ReturnURL = "cherami://",
+                CustomerId = stripeCustomerId,
                 MerchantDisplayName = "Cher Ami",
                 AllowsDelayedPaymentMethods = false,
             };

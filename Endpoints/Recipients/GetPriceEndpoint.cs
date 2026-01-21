@@ -14,7 +14,7 @@ namespace CherAmiAPI.Endpoints.Recipients
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            Price price = await priceService.GetAsync("price_1S7govARYKi6NXMeuiOwG70F", cancellationToken: cancellationToken);
+            Price price = await priceService.GetAsync("price_1SVdKeAAKZ0DCoddi5yarA7m", cancellationToken: cancellationToken);
             await Send.OkAsync(price.UnitAmount, cancellationToken);
         }
     }

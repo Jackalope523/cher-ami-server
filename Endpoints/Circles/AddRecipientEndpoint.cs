@@ -31,10 +31,10 @@ namespace CherAmiAPI.Endpoints.Circles
         public override async Task HandleAsync(RecipientRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            string userStripeCustomerId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.StripeCustomerId).SingleAsync(cancellationToken: cancellationToken);
+            var result = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.StripeCustomerId, x.IsBillingExempt}).SingleAsync(cancellationToken: cancellationToken);
 
-            //if ((await customerPaymentMethodService.ListAsync(userStripeCustomerId, cancellationToken: cancellationToken)).Data.Count == 0)
-            //    throw new NoPermissionException($"User {userId} has not provided a payment method.");
+            if (!result.IsBillingExempt && (await customerPaymentMethodService.ListAsync(result.StripeCustomerId, cancellationToken: cancellationToken)).Data.Count == 0)
+                throw new NoPermissionException($"User {userId} has not provided a payment method.");
 
             //await using var transaction = await ctx.Database.BeginTransactionAsync();
             try

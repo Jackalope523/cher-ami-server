@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -14,25 +15,26 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                 name: "ProvidedPaymentDetails",
                 table: "AspNetUsers");
 
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.AddColumn<Guid>(
                 name: "ExternalId",
                 table: "AspNetUsers",
-                type: "nvarchar(max)",
-                nullable: true);
+                type: "uniqueidentifier",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: 7L,
                 column: "ExternalId",
-                value: null);
+                value: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.UpdateData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
                 keyValue: 8L,
                 column: "ExternalId",
-                value: null);
+                value: new Guid("00000000-0000-0000-0000-000000000000"));
         }
 
         /// <inheritdoc />

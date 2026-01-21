@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -92,6 +93,18 @@ namespace CherAmiAPI.BackgroundJobs
 
                 await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Id}/magazine.pdf", memoryStream);
                 issue.Status = IssueStatus.Published;
+
+                Issue toAdd = new()
+                {
+                    CircleId = issue.CircleId,
+                    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.IssueNumber + 1}",
+                    IssueNumber = issue.IssueNumber + 1,
+                    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
+                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                    Status = IssueStatus.Drafting,
+                };
+
+                ctx.Issues.Add(toAdd);
             }
 
             await ctx.SaveChangesAsync();

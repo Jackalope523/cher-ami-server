@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using System.IO;
 
 namespace CherAmiAPI.BackgroundJobs
 {
@@ -26,74 +29,59 @@ namespace CherAmiAPI.BackgroundJobs
             HttpClient httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
             IKeyService keyService = scope.ServiceProvider.GetRequiredService<IKeyService>();
             CustomerService customerService = scope.ServiceProvider.GetRequiredService<CustomerService>();
+            IImageService imageService = scope.ServiceProvider.GetRequiredService<IImageService>();
 
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
+            Log.Error("Starting fixes.");
+            Log.Error("Geeting posts from db.");
+            List<Post> posts = await ctx.Posts.ToListAsync();
 
-            Log.Error("Starting repairs.");
-            List<User> users = await ctx.Users.ToListAsync();
-
-            foreach (User user in users)
+            foreach (Post post in posts)
             {
-                Log.Error("Fixing " + user.Email);
-
-                //user.ExternalId = Guid.NewGuid();
-                //user.StripeCustomerId = null;
-
-                //if (user.OneSignalId == null)
+                //if (post.IssueId != 22)
                 //{
-                //    Log.Error("Has no OneSignal Id");
-                //    var body = new
-                //    {
-                //        identity = new { external_id = user.ExternalId },
-                //        subscriptions = new[] { new { type = "Email", token = user.Email } },
-                //    };
-
-                //    using JsonContent jsonBody = JsonContent.Create(body);
-                //    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
-
-                //    HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody);
-
-                //    if (!response.IsSuccessStatusCode)
-                //    {
-                //        Log.Error("Failed to create OneSignal user for " + user.Email + ": " + await response.Content.ReadAsStringAsync());
-                //    }
-                //    response.EnsureSuccessStatusCode();
-
-                //    OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>();
-                //    user.OneSignalId = content.Identity.OneSignalId;
-
-                //    await ctx.SaveChangesAsync();
+                //    continue;
                 //}
+                Log.Error($"Loading post {post.Id}.");
+                using Image image = Image.Load(await imageService.DownloadImageAsync(post.LowResolutionImagePath));
+                
+                double targetAspect = 372.0 / 259.0;
+                double imageAspect = image.Width / (double)image.Height;
 
-                // JACKALOPE: Temporary fix for users with invalid OneSignal IDs.
-                //if (user.JoinDate < new DateTimeOffset(2026, 1, 20, 0, 0, 0, TimeSpan.Zero))
-                //{
-                //    var body = new
-                //    {
-                //        identity = new { external_id = user.ExternalId.ToString() },
-                //    };
-
-                //    using JsonContent jsonBody = JsonContent.Create(body);
-                //    string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
-
-                //    HttpResponseMessage response = await httpClient.PatchAsync($"https://api.onesignal.com/apps/{app_id}/users/by/onesignal_id/{user.OneSignalId}/identity", jsonBody);
-                //    response.EnsureSuccessStatusCode();
-                //}
-
-                if (user.StripeCustomerId == null)
+                if (Math.Abs(imageAspect - targetAspect) > 0.001)
                 {
-                    var options = new CustomerCreateOptions
-                    {
-                        Name = $"{user.FirstName} {user.LastName}",
-                        Email = user.Email,
-                    };
+                    int cropWidth, cropHeight;
 
-                    Customer customer = await customerService.CreateAsync(options);
-                    user.StripeCustomerId = customer.Id;
+                    if (image.Width / (double)image.Height > targetAspect)
+                    {
+                        cropHeight = image.Height;
+                        cropWidth = (int)(cropHeight * targetAspect);
+                    }
+                    else
+                    {
+                        cropWidth = image.Width;
+                        cropHeight = (int)(cropWidth / targetAspect);
+                    }
+
+                    int cropX = 0; // left-aligned
+                    int cropY = (image.Height - cropHeight) / 2; // vertically centered
+
+                    image.Mutate(x =>
+                        x.Crop(new Rectangle(cropX, cropY, cropWidth, cropHeight))
+                    );
+
+                    using MemoryStream memoryStream = new();
+                    await image.SaveAsJpegAsync(memoryStream);
+                    memoryStream.Position = 0;
+
+                    await imageService.UploadImageAsync(post.LowResolutionImagePath, memoryStream);
+                }
+                else
+                {
+                    Log.Error($"Post {post.Id} fine.");
                 }
             }
-            await ctx.SaveChangesAsync();
-            Log.Error("Done repairs.");
+
+            Log.Error("Done running fixes.");
         }
     }
 }

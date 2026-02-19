@@ -4,6 +4,7 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CherAmiAPI.Migrations.AzureSQLProduction
 {
     [DbContext(typeof(AzureSQLProductionContext))]
-    partial class AzureSQLProductionContextModelSnapshot : ModelSnapshot
+    [Migration("20260204205919_Make Recipient Avatars Optional")]
+    partial class MakeRecipientAvatarsOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,15 +242,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("ImageHeight")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImagePath")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
-
-                    b.Property<int>("ImageWidth")
-                        .HasColumnType("int");
 
                     b.Property<long>("IssueId")
                         .HasColumnType("bigint");
@@ -275,14 +272,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("AddressLine1")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("AddressLine2")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
@@ -297,12 +286,16 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
 
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PostalCode")
                         .HasMaxLength(20)
@@ -318,9 +311,17 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<int>("State")
                         .HasColumnType("int");
 
+                    b.Property<string>("Street")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<string>("Title")
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
+
+                    b.Property<string>("UnitNumber")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 

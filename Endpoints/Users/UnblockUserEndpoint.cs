@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Users
 {
-    public class UnblockUserEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<IdRequest>
+    public class UnblockUserEndpoint(ApplicationDbContext ctx) : Endpoint<IdRequest>
     {
         public override void Configure()
         {

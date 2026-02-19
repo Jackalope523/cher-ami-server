@@ -10,9 +10,8 @@ namespace CherAmiAPI.Shared.SharedMappers
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
-            FirstName = recipient.FirstName,
-            LastName = recipient.LastName,
-            AvatarPath = $"/recipients/{recipient.Id}/avatar",
+            Name = recipient.Name,
+            AvatarPath = recipient.AvatarPath == null ? null : $"/recipients/{recipient.Id}/avatar",
             AvatarTimestamp = recipient.AvatarTimestamp,
         };
     }

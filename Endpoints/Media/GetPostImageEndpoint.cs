@@ -31,7 +31,7 @@ namespace CherAmiAPI.Endpoints.Media
             if (userCircle != postCircle)
                 throw new NoAccessException($"User {userId} does not have access to post {request.Id}.");
 
-            string path = await ctx.Posts.Where(x => x.Id == request.Id).Select(x => x.ImagePath).SingleAsync(cancellationToken: cancellationToken);
+            string path = await ctx.Posts.Where(x => x.Id == request.Id).Select(x => x.LowResolutionImagePath).SingleAsync(cancellationToken: cancellationToken);
             MemoryStream image = await imageService.DownloadImageAsync(path);
             await Send.StreamAsync(image, cancellation: cancellationToken);
         }

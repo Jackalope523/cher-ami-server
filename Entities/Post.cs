@@ -10,7 +10,11 @@ namespace CherAmiAPI.Entities
         public long AuthorId { get; init; }
         public long IssueId { get; init; }
         public DateTimeOffset PostedAt { get; init; }
-        public string ImagePath { get; set; }
+        public string LowResolutionImagePath { get; set; }
+
+
+        public int ImageWidth { get; set; }
+        public int ImageHeight { get; set; }
         public string Caption { get; set; }
         public bool SoftDeleted { get; set; }
 

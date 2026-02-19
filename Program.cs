@@ -18,8 +18,10 @@ using Stripe;
 using User = CherAmiAPI.Entities.User;
 using CherAmiAPI.BackgroundJobs;
 using System.Net.Http;
+using CherAmiAPI.Exceptions;
 
 QuestPDF.Settings.License = LicenseType.Community;
+QuestPDF.Settings.UseEnvironmentFonts = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,14 +44,29 @@ Log.Logger = new LoggerConfiguration()
           .WriteTo.AzureApp()
           .CreateLogger();
 
-// JACKALOPE: Set up conflict. 
-builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
+KeyService keyService = new(builder.Configuration);
 
-KeyService keyService = new();
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDbContext<ApplicationDbContext, AzureSQLProductionContext>();
+}
+else if (builder.Environment.IsStaging())
+{
+    builder.Services.AddDbContext<ApplicationDbContext, AzureSQLStagingContext>();
+}
+else if (builder.Environment.IsDevelopment())
+{
+    throw new UnknownEnvironmentException("Development environment is not supported. Use staging or production on Azure.");
+}
+else
+{
+    throw new UnknownEnvironmentException($"Unrecognized environment: {builder.Environment.EnvironmentName}");
+}
 
+builder.Services.AddScoped<OneSignalService>();
 builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
-builder.Services.AddScoped<IInviteCodeService, inviteCodeService>();
+builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
 
 builder.Services.AddScoped<UserItemMapper>();
 builder.Services.AddScoped<RecipientItemMapper>();
@@ -84,9 +101,13 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
+    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
+
+    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
 
     JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
@@ -94,7 +115,7 @@ builder.Services.AddQuartz(options =>
 
     JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
     options.AddJob<KeepAliveJob>(keepAliveJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 14-23 * * ?"));
+    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 13-23 * * ?"));
     options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 0-2 * * ?"));
 
     //JobKey fixJobKey = JobKey.Create(nameof(FixJob));

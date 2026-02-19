@@ -1,13 +1,8 @@
-﻿using Azure.Security.KeyVault.Certificates;
-using CherAmiAPI.Contexts;
+﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
-using CherAmiAPI.Shared.Responses;
-using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +22,8 @@ namespace CherAmiAPI.Endpoints.Circles
         public long AuthorId { get; set; }
         public DateTimeOffset PhotoDate { get; set; }
         public string PhotoPath { get; set; }
+        public int ImageWidth { get; set; }
+        public int ImageHeight { get; set; }
         public string Caption { get; set; }
     }
 
@@ -50,6 +47,8 @@ namespace CherAmiAPI.Endpoints.Circles
                 AuthorId = post.AuthorId,
                 PhotoDate = post.PostedAt,
                 PhotoPath = $"/posts/{post.Id}/image",
+                ImageWidth = post.ImageWidth,
+                ImageHeight = post.ImageHeight,
                 Caption = post.Caption,
             };
         }

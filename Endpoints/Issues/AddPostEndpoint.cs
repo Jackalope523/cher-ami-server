@@ -22,6 +22,8 @@ namespace CherAmiAPI.Endpoints.Issues
         public DateTime Time { get; set; }
         public string Caption { get; set; }
         public IFormFile Image { get; set; }
+        public int ImageWidth { get; set; }
+        public int ImageHeight { get; set; }
     }
 
     public class CreatePostRequestValidator : Validator<CreatePostRequest>
@@ -40,7 +42,7 @@ namespace CherAmiAPI.Endpoints.Issues
         }
     }
 
-    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<CreatePostRequest, PostDTO, PostResponseMapper>
+    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<CreatePostRequest>
     {
         public override void Configure()
         {
@@ -73,6 +75,8 @@ namespace CherAmiAPI.Endpoints.Issues
                     AuthorId = userId,
                     PostedAt = request.Time,
                     Caption = request.Caption,
+                    ImageWidth = request.ImageWidth,
+                    ImageHeight = request.ImageHeight,
                 };
 
                 ctx.Posts.Add(postToAdd);
@@ -83,7 +87,7 @@ namespace CherAmiAPI.Endpoints.Issues
 
                 string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
 
-                postToAdd.ImagePath = path;
+                postToAdd.LowResolutionImagePath = path;
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 await imageService.UploadImageAsync(path, stream);

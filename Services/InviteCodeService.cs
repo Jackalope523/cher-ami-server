@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
-    public class inviteCodeService(ApplicationDbContext ctx) : IInviteCodeService
+    public class InviteCodeService(ApplicationDbContext ctx) : IInviteCodeService
     {
         public async Task<string> GenerateCodeAsync()
         {

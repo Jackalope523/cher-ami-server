@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Stripe
 {
-    public class WebhookEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
+    public class WebhookEndpoint() : EndpointWithoutRequest
     {
         public override void Configure()
         {

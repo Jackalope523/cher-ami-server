@@ -239,12 +239,18 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ImagePath")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                    b.Property<int>("ImageHeight")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageWidth")
+                        .HasColumnType("int");
 
                     b.Property<long>("IssueId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("LowResolutionImagePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<DateTimeOffset>("PostedAt")
                         .HasColumnType("datetimeoffset");
@@ -269,10 +275,18 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("AvatarTimestamp")
+                    b.Property<DateTimeOffset?>("AvatarTimestamp")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("City")
@@ -283,16 +297,12 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
 
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PostalCode")
                         .HasMaxLength(20)
@@ -308,17 +318,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<string>("Street")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
                     b.Property<string>("Title")
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
-
-                    b.Property<string>("UnitNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 

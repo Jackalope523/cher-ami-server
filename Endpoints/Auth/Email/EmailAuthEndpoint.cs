@@ -1,9 +1,10 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Contexts;
+﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -29,7 +30,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailAuthEndpoint(ApplicationDbContext ctx, IKeyService keyService, HttpClient client) : Endpoint<EmailAuthRequest>
+    public class EmailAuthEndpoint(IConfiguration config, ApplicationDbContext ctx, IKeyService keyService, HttpClient client) : Endpoint<EmailAuthRequest>
     {
         public override void Configure()
         {
@@ -57,8 +58,8 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
                 var body = new
                 {
-                    app_id = await keyService.GetSecretAsync("OneSignal-App-Id"),
-                    template_id = "3c3e59a1-adda-4fa5-ad65-916c0ccb6c4d",
+                    app_id = config["ONESIGNAL_APP_ID"],
+                    template_id = config["ONESIGNAL_VERIFY_EMAIL_TEMPLATE_ID"],
                     email_to = new string[] { request.Email },
                     custom_data = new { code },
                     include_unsubscribed = true,

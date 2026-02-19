@@ -213,20 +213,16 @@ namespace CherAmiAPI.Contexts
                .HasMaxLength(25);
 
             modelBuilder.Entity<Recipient>()
-               .Property(r => r.FirstName)
+               .Property(r => r.Name)
+               .HasMaxLength(60);
+
+            modelBuilder.Entity<Recipient>()
+               .Property(r => r.AddressLine1)
                .HasMaxLength(100);
 
             modelBuilder.Entity<Recipient>()
-               .Property(r => r.LastName)
-               .HasMaxLength(100);
-
-            modelBuilder.Entity<Recipient>()
-              .Property(r => r.UnitNumber)
-              .HasMaxLength(15);
-
-            modelBuilder.Entity<Recipient>()
-              .Property(r => r.Street)
-              .HasMaxLength(150);
+              .Property(r => r.AddressLine2)
+              .HasMaxLength(100);
 
             modelBuilder.Entity<Recipient>()
                .Property(r => r.City)
@@ -308,7 +304,7 @@ namespace CherAmiAPI.Contexts
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Post>()
-               .Property(x => x.ImagePath)
+               .Property(x => x.LowResolutionImagePath)
                .HasMaxLength(1024);
 
             modelBuilder.Entity<Post>()

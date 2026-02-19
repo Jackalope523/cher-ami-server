@@ -11,6 +11,7 @@ namespace CherAmiAPI.Shared.Mappers
         public override UserDTO FromEntity(User user) => new()
         { 
             Id = user.Id,
+            ExternalId = user.ExternalId.ToString(),
             AvatarPath = user.AvatarPath == null ? null : $"/users/{user.Id}/avatar",
             AvatarTimestamp = user.AvatarTimestamp,
             FirstName = user.FirstName,

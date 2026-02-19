@@ -13,10 +13,11 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using static CherAmiAPI.Entities.Notification;
 
 namespace CherAmiAPI.Endpoints.Users
 {
-    public class GetSelfEndpoint(ApplicationDbContext ctx, HttpClient httpClient, IKeyService keyService, CustomerService customerService) : EndpointWithoutRequest<UserDTO, UserResponseMapper>
+    public class GetSelfEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<UserDTO, UserResponseMapper>
     {
         public override void Configure()
         {
@@ -27,42 +28,6 @@ namespace CherAmiAPI.Endpoints.Users
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             User user = await ctx.Users.Where(x => x.Id == userId).Include(x => x.Recipients).SingleAsync(cancellationToken: cancellationToken);
-
-            if (user.OneSignalId == null) 
-            {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
-
-                var body = new
-                {
-                    identity = new { external_id = user.ExternalId },
-                    subscriptions = new[] { new { type = "Email", token = user.Email } },
-                };
-
-                using JsonContent jsonBody = JsonContent.Create(body);
-                string app_id = await keyService.GetSecretAsync("OneSignal-App-Id");
-
-                HttpResponseMessage response = await httpClient.PostAsync($"https://api.onesignal.com/apps/{app_id}/users", jsonBody, cancellationToken);
-                response.EnsureSuccessStatusCode();
-
-                OneSignalCreateUserResponse content = await response.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
-                user.OneSignalId = content.Identity.OneSignalId;
-
-                await ctx.SaveChangesAsync(cancellationToken);
-            }
-
-            if (user.StripeCustomerId == null)
-            {
-                var options = new CustomerCreateOptions
-                {
-                    Name = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email,
-                };
-
-                Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
-                user.StripeCustomerId = customer.Id;
-
-                await ctx.SaveChangesAsync(cancellationToken);
-            }
 
             await Send.OkAsync(Map.FromEntity(user), cancellationToken);
         }

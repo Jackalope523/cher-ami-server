@@ -4,16 +4,19 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CherAmiAPI.Migrations.AzureSQLProduction
+namespace CherAmiAPI.Migrations.AzureSQLStaging
 {
-    [DbContext(typeof(AzureSQLProductionContext))]
-    partial class AzureSQLProductionContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AzureSQLStagingContext))]
+    [Migration("20260206163947_Idk A Bunch of Edits")]
+    partial class IdkABunchofEdits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,15 +242,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("ImageHeight")
-                        .HasColumnType("int");
-
                     b.Property<string>("ImagePath")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
-
-                    b.Property<int>("ImageWidth")
-                        .HasColumnType("int");
 
                     b.Property<long>("IssueId")
                         .HasColumnType("bigint");

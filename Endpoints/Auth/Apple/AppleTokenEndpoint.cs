@@ -1,11 +1,14 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Shared.Responses;
+﻿using CherAmiAPI.Endpoints.Users;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +21,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Stripe;
 
 namespace CherAmiAPI.Endpoints.Auth.Apple
 {
@@ -54,7 +56,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
         }
     }
 
-    public class AppleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient) : Endpoint<AppleTokenRequest>
+    public class AppleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient, CustomerService customerService, OneSignalService oneSignalService) : Endpoint<AppleTokenRequest>
     {
         public override void Configure()
         {
@@ -103,21 +105,49 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                     JoinDate = DateTimeOffset.UtcNow
                 };
 
+                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+
+                var options = new CustomerCreateOptions
+                {
+                    Name = $"{user.FirstName} {user.LastName}",
+                    Email = user.Email,
+                };
+
+                Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                user.StripeCustomerId = customer.Id;
+
                 await userManager.CreateAsync(user);
             }
             else
             {
-                if (user.AppleId == null)
+                // User was partially created in Apple Callback Endpoint.
+                if (user.ExternalId == Guid.Empty)
                 {
                     user.ExternalId = Guid.NewGuid();
                     user.EmailConfirmed = email_verified;
                     user.AppleId = sub;
                     user.JoinDate = DateTimeOffset.UtcNow;
+                    user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+
+                    var options = new CustomerCreateOptions
+                    {
+                        Name = $"{user.FirstName} {user.LastName}",
+                        Email = user.Email,
+                    };
+
+                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                    user.StripeCustomerId = customer.Id;
+
+                    await userManager.UpdateAsync(user);
+                } 
+                // User was created via some other sign in but is using Apple now.
+                else if (user.AppleId == null) {
+                    user.AppleId = sub;
                     await userManager.UpdateAsync(user);
                 }
-
+                
                 onboarded = user.FirstName != null && user.LastName != null;
-            }
+            }       
 
             string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
             string jwtToken = JwtBearer.CreateToken(

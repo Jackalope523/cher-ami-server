@@ -1,11 +1,14 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Shared.Responses;
+﻿using CherAmiAPI.Endpoints.Users;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
+using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
+using Stripe;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -55,7 +58,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
         }
     }
 
-    public class GoogleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient) : Endpoint<GoogleTokenRequest>
+    public class GoogleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient, CustomerService customerService, OneSignalService oneSignalService) : Endpoint<GoogleTokenRequest>
     {
         public override void Configure()
         {
@@ -106,6 +109,18 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                     LastName = lastName,
                     JoinDate = DateTimeOffset.UtcNow
                 };
+
+                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+        
+                var options = new CustomerCreateOptions
+                {
+                    Name = $"{user.FirstName} {user.LastName}",
+                    Email = user.Email,
+                };
+
+                Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                user.StripeCustomerId = customer.Id;
+
 
                 await userManager.CreateAsync(user);
             }

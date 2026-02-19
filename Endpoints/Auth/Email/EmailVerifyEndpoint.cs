@@ -1,14 +1,19 @@
 ﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.Users;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +42,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailVerifyRequest>
+    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, CustomerService customerService, OneSignalService oneSignalService) : Endpoint<EmailVerifyRequest>
     {
         public override void Configure()
         {
@@ -78,6 +83,18 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                         EmailConfirmed = true,
                         JoinDate = DateTimeOffset.UtcNow
                     };
+              
+                    user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+
+                    var options = new CustomerCreateOptions
+                    {
+                        Name = $"{user.FirstName} {user.LastName}",
+                        Email = user.Email,
+                    };
+
+                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                    user.StripeCustomerId = customer.Id;
+
 
                     await userManager.CreateAsync(user);
                 }

@@ -1,15 +1,16 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using CherAmiAPI.Interfaces;
+using EllipticCurve.Utils;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
-    public class KeyService() : IKeyService
+    public class KeyService(IConfiguration config) : IKeyService
 	{
-        // JACKALOPE: Use config.
-        public Uri Uri = new Uri("https://kv-cherami-prod.vault.azure.net/");
+        public Uri Uri = new(config["KEY_VAULT_URI"]);
         public readonly Func<Azure.Core.TokenCredential> credentials = () => new DefaultAzureCredential();
 
         public async Task<string> GetSecretAsync(string secretName)

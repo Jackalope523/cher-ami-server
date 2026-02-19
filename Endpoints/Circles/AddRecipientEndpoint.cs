@@ -42,15 +42,20 @@ namespace CherAmiAPI.Endpoints.Circles
                 Recipient toAdd = Map.ToEntity(request);
                 ctx.Recipients.Add(toAdd);
                 toAdd.ManagerId = userId;
-                await ctx.SaveChangesAsync(cancellationToken);
 
-                string path = $"users/{userId}/recipients/{toAdd.Id}/avatar.jpg";
-                toAdd.AvatarPath = path;
-                await ctx.SaveChangesAsync(cancellationToken);
+                if (request.Avatar != null)
+                {
+                    using MemoryStream stream = new();
+                    await request.Avatar.CopyToAsync(stream, cancellationToken);
 
-                using MemoryStream memoryStream = new();
-                await request.Avatar.CopyToAsync(memoryStream);
-                await imageService.UploadImageAsync(path, memoryStream);
+                    string path = $"users/{userId}/recipients/{toAdd.Id}/avatar.jpg";
+                    toAdd.AvatarPath = path;
+                    toAdd.AvatarTimestamp = DateTimeOffset.UtcNow;
+
+                    await imageService.UploadImageAsync(path, stream);
+                }
+
+                await ctx.SaveChangesAsync(cancellationToken);
 
                 //await transaction.CommitAsync(cancellationToken);
 

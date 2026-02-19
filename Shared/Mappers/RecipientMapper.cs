@@ -11,31 +11,28 @@ namespace CherAmiAPI.Shared.Mappers
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
-            AvatarPath = $"/recipients/{recipient.Id}/avatar",
+            AvatarPath = recipient.AvatarPath == null ? null : $"/recipients/{recipient.Id}/avatar",
             AvatarTimestamp = recipient.AvatarTimestamp,
             Title = recipient.Title,
-            FirstName = recipient.FirstName,
-            LastName = recipient.LastName,
-            Street = recipient.Street,
+            Name = recipient.Name,
+            AddressLine1 = recipient.AddressLine1,
+            AddressLine2 = recipient.AddressLine2,
             City = recipient.City,
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
-            UnitNumber = recipient.UnitNumber,
         };
 
         public override Recipient ToEntity(RecipientRequest recipient) => new()
         {
             Title = recipient.Title,
-            FirstName = recipient.FirstName,
-            LastName = recipient.LastName,
-            Street = recipient.Street, 
+            Name = recipient.Name,
+            AddressLine1 = recipient.AddressLine1,
+            AddressLine2 = recipient.AddressLine2,
             City = recipient.City,
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
-            UnitNumber = recipient.UnitNumber,
-   
         };
     }
 }

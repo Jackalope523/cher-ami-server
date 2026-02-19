@@ -38,7 +38,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 using var stream = new MemoryStream();
                 await request.Image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circle.Id}/header.jpg";
+                string path = $"circles/{circle.Id}/header/header.jpg";
 
                 circle.HeaderPath = path;
                 circle.HeaderTimestamp = DateTimeOffset.UtcNow;

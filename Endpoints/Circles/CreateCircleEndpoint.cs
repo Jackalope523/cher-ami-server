@@ -80,13 +80,22 @@ namespace CherAmiAPI.Endpoints.Circles
 
                 await imageService.UploadImageAsync(path, stream);
 
+                DateTime now = DateTime.UtcNow;
+                DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
+                TimeSpan untilEnd = endOfMonth - now;
+                bool lessThan7DaysUntilMonthEnd = untilEnd.TotalDays < 7;
+
+                DateTime draftingEnd = lessThan7DaysUntilMonthEnd
+                    ? new DateTime(now.Year, now.Month, 1).AddMonths(2).AddTicks(-1)
+                    : new DateTime(now.Year, now.Month, 1).AddMonths(1).AddTicks(-1);
+
                 Issue firstIssue = new()
                 {
                     CircleId = toCreate.Id,
-                    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue 1",
+                    Title = $"{draftingEnd:MMMM yyyy} · Issue 1",
                     IssueNumber = 1,
                     DraftingStart = DateTimeOffset.UtcNow,
-                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                    DraftingEnd = new DateTimeOffset(draftingEnd, TimeSpan.Zero),
                     Status = IssueStatus.Drafting,
                     HeaderPath = null,
                 };

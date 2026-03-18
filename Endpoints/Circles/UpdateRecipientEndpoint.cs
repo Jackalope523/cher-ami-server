@@ -30,6 +30,7 @@ namespace CherAmiAPI.Endpoints.Circles
         public string ProvinceOrState { get; init; }
         public string PostalCode { get; init; }
         public string Country { get; init; }
+        public bool? IsVeteran { get; init; }
     }
 
     public class UpdateRecipientRequestValidator : Validator<UpdateRecipientRequest>
@@ -60,8 +61,6 @@ namespace CherAmiAPI.Endpoints.Circles
 
             try
             {
-
-
                 recipient.Title = request.Title;
                 recipient.Name = request.Name;
                 recipient.AddressLine1 = request.AddressLine1;
@@ -70,6 +69,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 recipient.Country = request.Country;
                 recipient.AddressLine2 = request.AddressLine2;
                 recipient.PostalCode = request.PostalCode;
+                recipient.IsVeteran = request.IsVeteran ?? recipient.IsVeteran;
 
                 if (request.Avatar != null)
                 {

@@ -308,6 +308,10 @@ namespace CherAmiAPI.Contexts
                .HasMaxLength(1024);
 
             modelBuilder.Entity<Post>()
+               .Property(x => x.HighResolutionImagePath)
+               .HasMaxLength(1024);
+
+            modelBuilder.Entity<Post>()
                 .Property(x => x.Caption)
                 .HasMaxLength(200);
 

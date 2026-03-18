@@ -1,8 +1,11 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Services;
-using CherAmiAPI;
+﻿using CherAmiAPI;
+using CherAmiAPI.BackgroundJobs;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Endpoints.Circles;
+using CherAmiAPI.Exceptions;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
+using CherAmiAPI.Shared.Mappers;
 using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FastEndpoints.Security;
@@ -15,23 +18,13 @@ using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
 using Stripe;
+using System;
 using User = CherAmiAPI.Entities.User;
-using CherAmiAPI.BackgroundJobs;
-using System.Net.Http;
-using CherAmiAPI.Exceptions;
 
 QuestPDF.Settings.License = LicenseType.Community;
 QuestPDF.Settings.UseEnvironmentFonts = false;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("_HollowSpecificOrigins", policy =>
-    {
-        policy.WithOrigins("https://almostcanary.com");
-    });
-});
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -63,16 +56,24 @@ else
     throw new UnknownEnvironmentException($"Unrecognized environment: {builder.Environment.EnvironmentName}");
 }
 
-builder.Services.AddScoped<OneSignalService>();
 builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
+builder.Services.AddScoped<INameService, NameService>();
+builder.Services.AddScoped<CircleService>();
 
 builder.Services.AddScoped<UserItemMapper>();
 builder.Services.AddScoped<RecipientItemMapper>();
 builder.Services.AddScoped<FeedPostMapper>();
 
-builder.Services.AddScoped<HttpClient>();
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<OneSignalService>(
+    async client =>
+    {
+        client.BaseAddress = new Uri($"https://api.onesignal.com/apps/{builder.Configuration["ONESIGNAL_APP_ID"]}/");
+        client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
+    }
+);
 
 StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
 builder.Services.AddScoped<CustomerService>();
@@ -101,22 +102,42 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
+    //JobKey syncTagsJobKey = JobKey.Create(nameof(SyncOneSignalTagsJob));
+    //options.AddJob<SyncOneSignalTagsJob>(syncTagsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(syncTagsJobKey).StartNow());
+
+    //JobKey removeProspectiveTagsJobKey = JobKey.Create(nameof(RemoveProspectiveJoinedAtTagsJob));
+    //options.AddJob<RemoveProspectiveJoinedAtTagsJob>(removeProspectiveTagsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(removeProspectiveTagsJobKey).StartNow());
+
+    //JobKey addEmailSubscriptionJobKey = JobKey.Create(nameof(AddEmailSubscriptionJob));
+    //options.AddJob<AddEmailSubscriptionJob>(addEmailSubscriptionJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(addEmailSubscriptionJobKey).StartNow());
+
+    //JobKey removeJoinedAtTagsJobKey = JobKey.Create(nameof(RemoveJoinedAtTagsJob));
+    //options.AddJob<RemoveJoinedAtTagsJob>(removeJoinedAtTagsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(removeJoinedAtTagsJobKey).StartNow());
+
+    //JobKey updateJoinDateJobKey = JobKey.Create(nameof(UpdateJoinDateJob));
+    //options.AddJob<UpdateJoinDateJob>(updateJoinDateJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(updateJoinDateJobKey).StartNow());
+
     //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
 
-    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
 
-    JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
-    options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 8 1 * ?"));
+    //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
+    //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 8 1 * ?"));
 
-    JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
-    options.AddJob<KeepAliveJob>(keepAliveJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 13-23 * * ?"));
-    options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 0-2 * * ?"));
+    //JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
+    //options.AddJob<KeepAliveJob>(keepAliveJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 13-23 * * ?"));
+    //options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 0-2 * * ?"));
 
     //JobKey fixJobKey = JobKey.Create(nameof(FixJob));
     //options.AddJob<FixJob>(fixJobKey);
@@ -138,8 +159,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-
-app.UseCors("_HollowSpecificOrigins");
 
 app.UseExceptionHandler();
 

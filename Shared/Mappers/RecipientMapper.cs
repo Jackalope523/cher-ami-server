@@ -2,15 +2,18 @@
 using CherAmiAPI.Entities;
 using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
+using Microsoft.Extensions.Configuration;
+using CherAmiAPI.Migrations.AzureSQLProduction;
 
 namespace CherAmiAPI.Shared.Mappers
 {
-    public class RecipientMapper : Mapper<RecipientRequest, RecipientDTO, Recipient>
+    public class RecipientMapper(IConfiguration config) : Mapper<RecipientRequest, RecipientDTO, Recipient>
     {
         public override RecipientDTO FromEntity(Recipient recipient) => new()
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
+            AvatarUrl = recipient.AvatarPath == null ? null : $"{config["APP_SERVICE_URI"]}/recipients/{recipient.Id}/avatar?timestamp={recipient.AvatarTimestamp}",
             AvatarPath = recipient.AvatarPath == null ? null : $"/recipients/{recipient.Id}/avatar",
             AvatarTimestamp = recipient.AvatarTimestamp,
             Title = recipient.Title,
@@ -21,6 +24,7 @@ namespace CherAmiAPI.Shared.Mappers
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
+            IsVeteran = recipient.IsVeteran,
         };
 
         public override Recipient ToEntity(RecipientRequest recipient) => new()
@@ -33,6 +37,7 @@ namespace CherAmiAPI.Shared.Mappers
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
+            IsVeteran = recipient.IsVeteran ?? false,
         };
     }
 }

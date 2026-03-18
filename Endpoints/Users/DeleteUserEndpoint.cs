@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Users
 {
-    public class DeleteUserEndpoint(IConfiguration config, ApplicationDbContext ctx, IImageService imageService, HttpClient httpClient, IKeyService keyService, CustomerService customerService) : EndpointWithoutRequest
+    public class DeleteUserEndpoint(IConfiguration config, ApplicationDbContext ctx, IImageService imageService, IHttpClientFactory httpClientFactory, IKeyService keyService, CustomerService customerService) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -48,6 +48,7 @@ namespace CherAmiAPI.Endpoints.Users
 
             try
             {
+                HttpClient httpClient = httpClientFactory.CreateClient();
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"key {api_key}");
                 HttpResponseMessage response = await httpClient.DeleteAsync($"https://api.onesignal.com/apps/{app_id}/users/by/external_id/{user.ExternalId}", cancellationToken);
                 response.EnsureSuccessStatusCode();

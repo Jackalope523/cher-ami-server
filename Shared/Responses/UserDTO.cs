@@ -8,6 +8,7 @@ namespace CherAmiAPI.Shared.Responses
     {
         public long Id { get; init; }
         public string ExternalId { get; init; }
+        public string AvatarUrl { get; init; }
         public string AvatarPath { get; init; }
         public DateTimeOffset? AvatarTimestamp { get; init; }
         public string Title { get; init; }

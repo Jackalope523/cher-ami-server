@@ -13,5 +13,6 @@ namespace CherAmiAPI.Shared.Requests
         public string ProvinceOrState { get; set; }
         public string PostalCode { get; set; }
         public string Country { get; set; }
+        public bool? IsVeteran { get; set; }
     }
 }

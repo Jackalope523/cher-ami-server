@@ -1,11 +1,16 @@
-﻿using FastEndpoints;
+﻿using CherAmiAPI.Contexts;
+using FastEndpoints;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Stripe;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Stripe;
 
 namespace CherAmiAPI.Endpoints.Recipients
 {
-    public class GetPriceEndpoint(PriceService priceService) : EndpointWithoutRequest
+    public class GetPriceEndpoint(IConfiguration config, ApplicationDbContext ctx, PriceService priceService) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -14,8 +19,18 @@ namespace CherAmiAPI.Endpoints.Recipients
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            Price price = await priceService.GetAsync("price_1SVdKeAAKZ0DCoddi5yarA7m", cancellationToken: cancellationToken);
-            await Send.OkAsync(price.UnitAmount, cancellationToken);
+            long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            bool isBillingExempt = await ctx.Users.Where(x => x.Id == userId).Select(x => x.IsBillingExempt).SingleAsync(cancellationToken: cancellationToken);
+
+            if (isBillingExempt)
+            {
+                await Send.OkAsync(0L, cancellationToken);
+            }
+            else
+            {
+                Price price = await priceService.GetAsync(config["MONTHLY_MAGAZINE_STANDARD_PRICE_ID"], cancellationToken: cancellationToken);
+                await Send.OkAsync(price.UnitAmount, cancellationToken);
+            }
         }
     }
 }

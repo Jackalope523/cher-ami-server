@@ -1,4 +1,5 @@
-﻿using CherAmiAPI.Endpoints.Users;
+﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.Users;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Interfaces;
 using CherAmiAPI.Services;
@@ -7,7 +8,6 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Serilog;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -16,8 +16,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,7 +54,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
         }
     }
 
-    public class AppleTokenEndpoint(UserManager<User> userManager, IKeyService keyService, HttpClient httpClient, CustomerService customerService, OneSignalService oneSignalService) : Endpoint<AppleTokenRequest>
+    public class AppleTokenEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory, CustomerService customerService, OneSignalService oneSignalService, INameService nameService, CircleService circleService) : Endpoint<AppleTokenRequest>
     {
         public override void Configure()
         {
@@ -66,6 +64,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
 
         public override async Task HandleAsync(AppleTokenRequest request, CancellationToken cancellationToken)
         {
+            HttpClient httpClient = httpClientFactory.CreateClient();
             DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://appleid.apple.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             var parameters = new Dictionary<string, string>
@@ -91,22 +90,51 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             bool email_verified = bool.Parse(idToken.Claims.FirstOrDefault(c => c.Type == "email_verified")?.Value);
 
             User user = await userManager.FindByEmailAsync(email);
-            bool onboarded = false;
 
             if (user == null)
             {
                 user = new()
                 {
-                    ExternalId = Guid.NewGuid(),
                     UserName = email,
                     Email = email,
-                    EmailConfirmed = email_verified,
-                    AppleId = sub,
-                    JoinDate = DateTimeOffset.UtcNow
                 };
 
-                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+                await userManager.CreateAsync(user);
+            }
 
+            user.EmailConfirmed = email_verified;
+            user.AppleId = sub;
+            user.AccountStatus = UserAccountStatus.Active;
+
+            if (user.FirstName == default)
+            {
+                user.FirstName = nameService.GetRandomFirstName();
+            }
+            if (user.LastName == default)
+            {
+                user.LastName = nameService.GetRandomLastName();
+            }
+            if (user.ExternalId == default)
+            {
+                user.ExternalId = Guid.NewGuid();
+            }
+            if (user.TimeOfUserAgreement == default)
+            {
+                user.TimeOfUserAgreement = DateTimeOffset.UtcNow;
+            }
+            if (user.OneSignalId == default)
+            {
+                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
+                await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
+                await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+            }
+            if (user.JoinDate == default)
+            {
+                user.JoinDate = DateTimeOffset.UtcNow;
+                await oneSignalService.AddTagAsync(user.ExternalId, "joined_at", user.JoinDate.ToUnixTimeSeconds().ToString(), cancellationToken);
+            }
+            if (user.StripeCustomerId == default)
+            {
                 var options = new CustomerCreateOptions
                 {
                     Name = $"{user.FirstName} {user.LastName}",
@@ -115,39 +143,13 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
 
                 Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
                 user.StripeCustomerId = customer.Id;
-
-                await userManager.CreateAsync(user);
             }
-            else
+            if (user.CircleId == default)
             {
-                // User was partially created in Apple Callback Endpoint.
-                if (user.ExternalId == Guid.Empty)
-                {
-                    user.ExternalId = Guid.NewGuid();
-                    user.EmailConfirmed = email_verified;
-                    user.AppleId = sub;
-                    user.JoinDate = DateTimeOffset.UtcNow;
-                    user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email);
+               await circleService.CreateCircleAsync(user.Id, $"My Circle", cancellationToken: cancellationToken);
+            }
 
-                    var options = new CustomerCreateOptions
-                    {
-                        Name = $"{user.FirstName} {user.LastName}",
-                        Email = user.Email,
-                    };
-
-                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
-                    user.StripeCustomerId = customer.Id;
-
-                    await userManager.UpdateAsync(user);
-                } 
-                // User was created via some other sign in but is using Apple now.
-                else if (user.AppleId == null) {
-                    user.AppleId = sub;
-                    await userManager.UpdateAsync(user);
-                }
-                
-                onboarded = user.FirstName != null && user.LastName != null;
-            }       
+            await ctx.SaveChangesAsync(cancellationToken);
 
             string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
             string jwtToken = JwtBearer.CreateToken(
@@ -159,7 +161,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                     o.User.Claims.Add(new Claim("Email", user.Email));
                 });
 
-            await Send.OkAsync(new { Token = jwtToken, Onboarded = onboarded }, cancellationToken);
+            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.FirstName != null && user.LastName != null }, cancellationToken);
         }
     }
 }

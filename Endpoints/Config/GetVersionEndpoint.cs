@@ -1,15 +1,17 @@
-﻿using FastEndpoints;
+﻿using CherAmiAPI.Endpoints.Info;
+using FastEndpoints;
+using Microsoft.Extensions.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CherAmiAPI.Endpoints.Info
+namespace CherAmiAPI.Endpoints.Config
 {
     public record VersionResponse
     {
         public string Version { get; set; }
     }
 
-    public class GetCurrentVersionEndpoint() : EndpointWithoutRequest
+    public class GetVersionEndpoint(IConfiguration config) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -19,7 +21,7 @@ namespace CherAmiAPI.Endpoints.Info
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            VersionResponse response = new()
+            ConfigResponse response = new()
             {
                 Version = "1.0.4",
             };

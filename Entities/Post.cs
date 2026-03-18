@@ -11,6 +11,7 @@ namespace CherAmiAPI.Entities
         public long IssueId { get; init; }
         public DateTimeOffset PostedAt { get; init; }
         public string LowResolutionImagePath { get; set; }
+        public string HighResolutionImagePath { get; set; }
 
 
         public int ImageWidth { get; set; }

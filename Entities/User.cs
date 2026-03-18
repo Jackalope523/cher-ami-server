@@ -8,11 +8,8 @@ namespace CherAmiAPI.Entities
 {
     public enum UserAccountStatus
     { 
-        Onboarding,
         Active,
-        Limited, 
-        Suspended,
-        Blacklisted 
+        Prospective,
     }
 
     public class User : IdentityUser<long>

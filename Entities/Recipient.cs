@@ -23,6 +23,7 @@ namespace CherAmiAPI.Entities
         public string Country { get; set; }
         public long ManagerId { get; set; }
         public RecipientState State { get; set; }
+        public bool IsVeteran { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Navigation Properties

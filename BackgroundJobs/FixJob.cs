@@ -26,7 +26,7 @@ namespace CherAmiAPI.BackgroundJobs
         {
             using var scope = _serviceProvider.CreateScope();
             ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            HttpClient httpClient = scope.ServiceProvider.GetRequiredService<HttpClient>();
+            HttpClient httpClient = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
             IKeyService keyService = scope.ServiceProvider.GetRequiredService<IKeyService>();
             CustomerService customerService = scope.ServiceProvider.GetRequiredService<CustomerService>();
             IImageService imageService = scope.ServiceProvider.GetRequiredService<IImageService>();

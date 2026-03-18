@@ -1,23 +1,20 @@
 ﻿using CherAmiAPI.Contexts;
-using CherAmiAPI.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
-using Serilog;
+using SQLitePCL;
 using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 using Subscription = Stripe.Subscription;
 
 namespace CherAmiAPI.BackgroundJobs
 {
     [DisallowConcurrentExecution]
-    public class UpdateSubscriptionsJob(IServiceProvider _serviceProvider) : IJob
+    public class UpdateSubscriptionsJob(IConfiguration config, IServiceProvider _serviceProvider) : IJob
     {
         public async Task Execute(IJobExecutionContext context)
         {
@@ -27,45 +24,88 @@ namespace CherAmiAPI.BackgroundJobs
             SubscriptionItemService subscriptionItemService = scope.ServiceProvider.GetRequiredService<SubscriptionItemService>();
             CustomerPaymentMethodService customerPaymentMethodService = scope.ServiceProvider.GetRequiredService<CustomerPaymentMethodService>();
 
+            List<string> priceIds = [config["MONTHLY_MAGAZINE_STANDARD_PRICE_ID"], config["MONTHLY_MAGAZINE_MILITARY_PRICE_ID"]];
+
             var data = await ctx.Users
-                        .Select(x => new { User = x, RecipientsCount = x.Recipients.Count })
-                        .ToListAsync();
+                    .Select(x => new 
+                    { 
+                        User = x, 
+                        MilitaryRecipientsCount = x.Recipients.Count(x => x.IsVeteran), 
+                        StandardRecipientsCount = x.Recipients.Count(x => !x.IsVeteran) 
+                    })
+                    .ToListAsync();
 
             foreach (var entry in data)
             {
                 bool hasSubscription = !string.IsNullOrWhiteSpace(entry.User.StripeSubscriptionId);
-                bool hasRecipients = entry.RecipientsCount > 0;
+                bool hasRecipients = entry.StandardRecipientsCount > 0 || entry.MilitaryRecipientsCount > 0;
+                List<int> itemCounts = [entry.StandardRecipientsCount, entry.MilitaryRecipientsCount];
 
                 if (hasRecipients && hasSubscription)
                 {
                     Subscription subscription = await subscriptionService.GetAsync(entry.User.StripeSubscriptionId);
+                    Dictionary<string, SubscriptionItem> subscriptionItems = subscription.Items.ToDictionary(i => i.Price.Id, i => i);
 
-                    SubscriptionItem subscriptionItem = subscription.Items.First();
-
-                    if (subscriptionItem.Quantity != entry.RecipientsCount)
+                    for (int i = 0; i < priceIds.Count; i++)
                     {
-                        SubscriptionItemUpdateOptions subscriptionItemOptions = new()
+                        bool itemExists = subscriptionItems.TryGetValue(priceIds[i], out SubscriptionItem subscriptionItem);
+                        if (itemExists && subscriptionItem.Quantity != itemCounts[i])
                         {
-                            Quantity = entry.RecipientsCount,
-                            ProrationBehavior = "none",
-                        };
+                            if (itemCounts[i] == 0)
+                            {
+                                SubscriptionItemDeleteOptions subscriptionItemOptions = new()
+                                {
+                                    ProrationBehavior = "none",
+                                };
 
-                        await subscriptionItemService.UpdateAsync(subscriptionItem.Id, subscriptionItemOptions);
+                                await subscriptionItemService.DeleteAsync(subscriptionItem.Id);
+                            }
+                            else
+                            {
+                                SubscriptionItemUpdateOptions subscriptionItemOptions = new()
+                                {
+                                    Quantity = itemCounts[i],
+                                    ProrationBehavior = "none",
+                                };
+
+                                await subscriptionItemService.UpdateAsync(subscriptionItem.Id, subscriptionItemOptions);
+                            }
+                        }
+                        if (!itemExists && itemCounts[i] > 0)
+                        {
+                            SubscriptionItemCreateOptions subscriptionItemOptions = new()
+                            {
+                                Subscription = subscription.Id,
+                                Price = priceIds[i],                 
+                                Quantity = itemCounts[i],
+                                ProrationBehavior = "none"
+                            };
+
+                            await subscriptionItemService.CreateAsync(subscriptionItemOptions);
+                        }
                     }
                 }
-                else if (hasRecipients && !hasSubscription)
+                else if (hasRecipients && !hasSubscription && !entry.User.IsBillingExempt)
                 {
+                    List<SubscriptionItemOptions> subscriptionItemOptions = [];
+                    for (int i = 0; i < priceIds.Count; i++)
+                    {
+                        if (itemCounts[i] > 0)
+                        {
+                            SubscriptionItemOptions options = new()
+                            {
+                                Price = priceIds[i],
+                                Quantity = itemCounts[i],
+                            };
+
+                            subscriptionItemOptions.Add(options);
+                        }
+                    }
+
                     SubscriptionCreateOptions subscriptionOptions = new()
                     {
                         Customer = entry.User.StripeCustomerId,
-                        Items =
-                        [
-                           new()
-                           {
-                               Price = "price_1SVdKeAAKZ0DCoddi5yarA7m",
-                               Quantity = entry.RecipientsCount,
-                           },
-                        ],
+                        Items = subscriptionItemOptions,
                         PaymentSettings = new() { SaveDefaultPaymentMethod = "on_subscription" },
                         PaymentBehavior = "default_incomplete",
                         BillingMode = new() { Type = "flexible" },
@@ -76,7 +116,7 @@ namespace CherAmiAPI.BackgroundJobs
                             Hour = 4,
                             Minute = 0,
                             Second = 0,
-                        }
+                        },
                     };
 
                     Subscription subscription = await subscriptionService.CreateAsync(subscriptionOptions);

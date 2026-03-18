@@ -58,12 +58,19 @@ namespace CherAmiAPI.BackgroundJobs
             using var scope = _serviceProvider.CreateScope();
             ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+
+
             Log.Error("Getting issues...");
+            //var issues = await ctx.Issues
+            //                      .Where(x => x.Status == IssueStatus.Drafting && x.DraftingEnd < DateTimeOffset.UtcNow)
+            //                      .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
+            //                      .ToListAsync();
+
             var issues = await ctx.Issues
-                                  .Where(x => x.Status == IssueStatus.Published)
-                                  .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
-                                  .ToListAsync();
-            
+                             .Where(x => x.CircleId == 68 || x.CircleId == 71)
+                             .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
+                             .ToListAsync();
+
             foreach (var issue in issues)
             {
                 Log.Error($"Publishing issue {issue.Issue.Id}.");
@@ -72,10 +79,16 @@ namespace CherAmiAPI.BackgroundJobs
                                                .Where(x => x.Manager.CircleId == issue.CircleId)
                                                .ToListAsync();
 
-                if (recipients.Count == 0)
+                Log.Error($"Getting posts from database...");
+                var posts = await ctx.Posts
+                                  .Where(x => x.IssueId == issue.Issue.Id)
+                                  .Select(x => new { x.LowResolutionImagePath, x.Author.AvatarPath, AuthorName = $"{x.Author.FirstName} {x.Author.LastName}", Text = x.Caption })
+                                  .ToListAsync();
+
+                if (recipients.Count == 0 || posts.Count == 0)
                 {
                     Log.Error($"Marking issue {issue.Issue.Id} as unreleased.");
-                    issue.Issue.Status = IssueStatus.Unreleased;
+                    //issue.Issue.Status = posts.Count == 0 ? IssueStatus.Empty : IssueStatus.Unreleased;
 
                     //Issue toAddAnyway = new()
                     //{
@@ -90,12 +103,6 @@ namespace CherAmiAPI.BackgroundJobs
                     //ctx.Issues.Add(toAddAnyway);
                     continue;
                 }
-
-                Log.Error($"Getting posts from database...");
-                var posts = await ctx.Posts
-                                  .Where(x => x.IssueId == issue.Issue.Id)
-                                  .Select(x => new { x.LowResolutionImagePath, x.Author.AvatarPath, AuthorName = $"{x.Author.FirstName} {x.Author.LastName}", Text = x.Caption })
-                                  .ToListAsync();
 
                 Log.Error($"Mapping posts to props...");
                 List<PostComponentProps> postComponentProps = [];
@@ -266,7 +273,7 @@ namespace CherAmiAPI.BackgroundJobs
                                           .PaddingBottom(0.5f, Unit.Inch)
                                           .PaddingLeft(1.23f, Unit.Centimetre)
                                           .Text("Recipient")
-                                          .FontColor(orange)
+                                          .FontColor(white)
                                           .FontSize(16)
                                           .FontFamily("Poppins")
                                           .Medium();
@@ -338,11 +345,11 @@ namespace CherAmiAPI.BackgroundJobs
                     }).GeneratePdf(memoryStream);
 
                     Log.Error($"Uploading PDF for {recipient.Name}.");
-                    await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Issue.Id}/{recipient.Name.Replace(" ", "-")}.pdf", memoryStream);
+                    await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Issue.Id}/{issue.Issue.Title.Replace(" ", "_")}_{recipient.Name.Replace(" ", "_")}.pdf", memoryStream);
                 }
 
-                Log.Error($"Marking issue {issue.Issue.Id} as published.");
-                issue.Issue.Status = IssueStatus.Published;
+                //Log.Error($"Marking issue {issue.Issue.Id} as published.");
+                //issue.Issue.Status = IssueStatus.Published;
 
                 //Issue toAdd = new()
                 //{

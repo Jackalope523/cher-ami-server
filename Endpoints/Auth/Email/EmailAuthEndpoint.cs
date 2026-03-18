@@ -1,6 +1,7 @@
 ﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +31,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailAuthEndpoint(IConfiguration config, ApplicationDbContext ctx, IKeyService keyService, HttpClient client) : Endpoint<EmailAuthRequest>
+    public class EmailAuthEndpoint(IConfiguration config, UserManager<User> userManager, OneSignalService oneSignalService, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory) : Endpoint<EmailAuthRequest>
     {
         public override void Configure()
         {
@@ -52,15 +53,43 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 }
 
                 ctx.EmailLogins.Add(new EmailLogin { Email = request.Email, Code = code, ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(15) });
+
+                User user = await userManager.FindByEmailAsync(request.Email);
+
+                if (user == null)
+                {
+                    user = new()
+                    {
+                        UserName = request.Email,
+                        Email = request.Email,
+                        AccountStatus = UserAccountStatus.Prospective,
+                    };
+
+                    await userManager.CreateAsync(user);
+                }
+
+                if (user.ExternalId == default)
+                {
+                    user.ExternalId = Guid.NewGuid();
+                }
+
+                if (user.OneSignalId == default)
+                {
+                    user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
+                    await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
+                    await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+                }
+
                 await ctx.SaveChangesAsync(cancellationToken);
 
+                HttpClient client = httpClientFactory.CreateClient();
                 client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
 
                 var body = new
                 {
                     app_id = config["ONESIGNAL_APP_ID"],
                     template_id = config["ONESIGNAL_VERIFY_EMAIL_TEMPLATE_ID"],
-                    email_to = new string[] { request.Email },
+                    email_to = new[] { request.Email },
                     custom_data = new { code },
                     include_unsubscribed = true,
                 };

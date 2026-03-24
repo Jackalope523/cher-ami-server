@@ -46,7 +46,6 @@ namespace CherAmiAPI.Endpoints.Website
 
         public override async Task HandleAsync(GetOrCreateProspectiveUserRequest request, CancellationToken cancellationToken)
         {
-            Log.Error("Hit Pospective Endpoint.");
             string apiKey = HttpContext.Request.Headers["Authorization"].ToString()["key ".Length..];
             if (apiKey != await keyService.GetSecretAsync("Cher-Ami-API-Key"))
             {
@@ -54,7 +53,6 @@ namespace CherAmiAPI.Endpoints.Website
                 return;
             }
 
-            Log.Error("User count before: {Count}", await ctx.Users.CountAsync(cancellationToken));
             var user = await ctx.Users
                        .Where(u => u.Email == request.Email)
                        .Select(u => new { u.ExternalId, u.OneSignalId })
@@ -63,7 +61,6 @@ namespace CherAmiAPI.Endpoints.Website
             GetOrCreateProspectiveUserResponse response;
             if (user != null)
             {
-                Log.Error("User already exists.");
                 response = new()
                 {
                     ExternalId = user.ExternalId,
@@ -72,7 +69,6 @@ namespace CherAmiAPI.Endpoints.Website
             }
             else
             {
-                Log.Error("Creating new propective user.");
                 User newUser = new()
                 {
                     UserName = request.Email,
@@ -82,8 +78,8 @@ namespace CherAmiAPI.Endpoints.Website
                 };
 
                 newUser.OneSignalId = await oneSignalService.CreateUserAsync(newUser.ExternalId, newUser.Email, cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+                await oneSignalService.AddTagAsync(newUser.ExternalId, "email_reminders", "1", cancellationToken);
+                await oneSignalService.AddTagAsync(newUser.ExternalId, "email_marketing", "1", cancellationToken);
 
                 var result = await userManager.CreateAsync(newUser);
 
@@ -102,7 +98,6 @@ namespace CherAmiAPI.Endpoints.Website
                 };
             }
 
-            Log.Error("Sending 200 OK.");
             await Send.OkAsync(response, cancellationToken);
         }
     }

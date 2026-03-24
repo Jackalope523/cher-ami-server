@@ -1,28 +1,25 @@
 ﻿using CherAmiAPI.Interfaces;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
-using CherAmiAPI.Shared.Mappers;
-using CherAmiAPI.Shared.Requests;
-using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Serilog;
 
 namespace CherAmiAPI.Endpoints.Posts
 {
     public class UploadImageDetailsRequest
     {
-        public long Id { get; set; }
+        public string UploadId { get; set; }
         public string Caption { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -39,7 +36,7 @@ namespace CherAmiAPI.Endpoints.Posts
         }
     }
 
-    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UploadImageDetailsRequest>
+    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator) : Endpoint<UploadImageDetailsRequest>
     {
         public override void Configure()
         {
@@ -48,11 +45,14 @@ namespace CherAmiAPI.Endpoints.Posts
 
         public override async Task HandleAsync(UploadImageDetailsRequest request, CancellationToken cancellationToken)
         {
+            await coordinator.WaitForUploadAsync(request.UploadId);
+
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             Post post = await ctx.Posts
                 .IgnoreQueryFilters()
                 .Include(x => x.Issue)
-                .SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+                .SingleOrDefaultAsync(x => x.UploadId == request.UploadId, cancellationToken);
 
             if (post == null || post.AuthorId != userId)
             {
@@ -62,7 +62,7 @@ namespace CherAmiAPI.Endpoints.Posts
 
             if (string.IsNullOrEmpty(post.HighResolutionImagePath))
             {
-                await Send.BadRequestAsync("High-resolution image not found. Upload it first.", cancellationToken);
+                //await Send.BadRequestAsync("High-resolution image not found. Upload it first.", cancellationToken);
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace CherAmiAPI.Endpoints.Posts
             await image.SaveAsJpegAsync(croppedStream, cancellationToken);
             croppedStream.Position = 0;
 
-            string croppedPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.Id}/cropped.jpg";
+            string croppedPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/cropped.jpg";
             await imageService.UploadImageAsync(croppedPath, croppedStream);
 
             // Create and save the low-res version (resize to 800px width for example)
@@ -92,7 +92,7 @@ namespace CherAmiAPI.Endpoints.Posts
             await image.SaveAsJpegAsync(lowResStream, cancellationToken);
             lowResStream.Position = 0;
 
-            string lowResPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.Id}/lowres.jpg";
+            string lowResPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/lowres.jpg";
             await imageService.UploadImageAsync(lowResPath, lowResStream);
 
             // Update database record
@@ -101,6 +101,7 @@ namespace CherAmiAPI.Endpoints.Posts
             post.ImageHeight = request.Height;
             post.HighResolutionImagePath = croppedPath;
             post.LowResolutionImagePath = lowResPath;
+            post.PostedAt = DateTimeOffset.UtcNow;
             post.SoftDeleted = false; // Finalize post
 
             await ctx.SaveChangesAsync(cancellationToken);

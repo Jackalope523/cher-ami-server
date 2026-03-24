@@ -50,8 +50,8 @@ namespace CherAmiAPI.Endpoints.Circles
                 PhotoDate = post.PostedAt,
                 PhotoUrl = $"{config["APP_SERVICE_URI"]}/posts/{post.Id}/image?timestamp={post.PostedAt}",
                 PhotoPath = $"/posts/{post.Id}/image",
-                ImageWidth = post.ImageWidth,
-                ImageHeight = post.ImageHeight,
+                ImageWidth = post.ImageWidth != 0 ? post.ImageWidth : 259,
+                ImageHeight = post.ImageHeight != 0 ? post.ImageHeight : 372,
                 Caption = post.Caption,
             };
         }

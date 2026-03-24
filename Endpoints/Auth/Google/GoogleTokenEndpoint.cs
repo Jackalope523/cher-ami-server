@@ -107,8 +107,8 @@ namespace CherAmiAPI.Endpoints.Auth.Google
 
             user.EmailConfirmed = email_verified;
             user.GoogleId = sub;
-            user.FirstName = firstName;
-            user.LastName = lastName;
+            user.FirstName = firstName ?? "";
+            user.LastName = lastName ?? "";
             user.AccountStatus = UserAccountStatus.Active;
 
             if (user.ExternalId == default)

@@ -304,6 +304,14 @@ namespace CherAmiAPI.Contexts
                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Post>()
+                .Property(x => x.UploadId)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Post>()
+                .HasIndex(x => x.UploadId)
+                .IsUnique();
+
+            modelBuilder.Entity<Post>()
                .Property(x => x.LowResolutionImagePath)
                .HasMaxLength(1024);
 

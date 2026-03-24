@@ -56,6 +56,7 @@ else
     throw new UnknownEnvironmentException($"Unrecognized environment: {builder.Environment.EnvironmentName}");
 }
 
+builder.Services.AddSingleton<ImageUploadCoordinator>();
 builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
@@ -126,9 +127,9 @@ builder.Services.AddQuartz(options =>
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
 
-    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
+    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
 
     //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
@@ -142,6 +143,14 @@ builder.Services.AddQuartz(options =>
     //JobKey fixJobKey = JobKey.Create(nameof(FixJob));
     //options.AddJob<FixJob>(fixJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(fixJobKey).StartNow());
+
+    //JobKey importProspectiveUsersJobKey = JobKey.Create(nameof(ImportProspectiveUsersJob));
+    //options.AddJob<ImportProspectiveUsersJob>(importProspectiveUsersJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(importProspectiveUsersJobKey).StartNow());
+
+    //JobKey addMarketingTagsJobKey = JobKey.Create(nameof(AddMarketingTagsJob));
+    //options.AddJob<AddMarketingTagsJob>(addMarketingTagsJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(addMarketingTagsJobKey).StartNow());
 });
 
 builder.Services.AddQuartzHostedService(options =>

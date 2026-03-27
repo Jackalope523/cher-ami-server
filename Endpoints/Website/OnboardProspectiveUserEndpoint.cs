@@ -45,9 +45,6 @@ namespace CherAmiAPI.Endpoints.Website
                 .NotEmpty().WithMessage("Last name is required.")
                 .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters.");
 
-            RuleFor(x => x.Image)
-                .NotNull().WithMessage("Image is required.");
-
             RuleFor(x => x.Caption)
                 .MaximumLength(200).WithMessage("Caption cannot exceed 200 characters.");
 
@@ -173,50 +170,53 @@ namespace CherAmiAPI.Endpoints.Website
 
             await ctx.SaveChangesAsync(cancellationToken);
 
-            // 5. Process and upload the post image
-            string uploadId = Guid.NewGuid().ToString();
-
-            using var originalStream = new MemoryStream();
-            await request.Image.CopyToAsync(originalStream, cancellationToken);
-            originalStream.Position = 0;
-
-            using Image image = await Image.LoadAsync(originalStream, cancellationToken);
-            int imageWidth = image.Width;
-            int imageHeight = image.Height;
-
-            originalStream.Position = 0;
-            string highResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/original.jpg";
-            await imageService.UploadImageAsync(highResPath, originalStream);
-
-            image.Mutate(x => x.Resize(new ResizeOptions
+            // 5. Optionally process and upload the post image
+            if (request.Image != null)
             {
-                Size = new Size(800, 0),
-                Mode = ResizeMode.Max
-            }));
+                string uploadId = Guid.NewGuid().ToString();
 
-            using var lowResStream = new MemoryStream();
-            await image.SaveAsJpegAsync(lowResStream, cancellationToken);
-            lowResStream.Position = 0;
+                using var originalStream = new MemoryStream();
+                await request.Image.CopyToAsync(originalStream, cancellationToken);
+                originalStream.Position = 0;
 
-            string lowResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/lowres.jpg";
-            await imageService.UploadImageAsync(lowResPath, lowResStream);
+                using Image image = await Image.LoadAsync(originalStream, cancellationToken);
+                int imageWidth = image.Width;
+                int imageHeight = image.Height;
 
-            // 6. Create the post record
-            ctx.Posts.Add(new Post
-            {
-                UploadId = uploadId,
-                AuthorId = user.Id,
-                IssueId = issueId,
-                Caption = request.Caption,
-                HighResolutionImagePath = highResPath,
-                LowResolutionImagePath = lowResPath,
-                ImageWidth = imageWidth,
-                ImageHeight = imageHeight,
-                PostedAt = DateTimeOffset.UtcNow,
-                SoftDeleted = false,
-            });
+                originalStream.Position = 0;
+                string highResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/original.jpg";
+                await imageService.UploadImageAsync(highResPath, originalStream);
 
-            await ctx.SaveChangesAsync(cancellationToken);
+                image.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new Size(800, 0),
+                    Mode = ResizeMode.Max
+                }));
+
+                using var lowResStream = new MemoryStream();
+                await image.SaveAsJpegAsync(lowResStream, cancellationToken);
+                lowResStream.Position = 0;
+
+                string lowResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/lowres.jpg";
+                await imageService.UploadImageAsync(lowResPath, lowResStream);
+
+                // 6. Create the post record
+                ctx.Posts.Add(new Post
+                {
+                    UploadId = uploadId,
+                    AuthorId = user.Id,
+                    IssueId = issueId,
+                    Caption = request.Caption,
+                    HighResolutionImagePath = highResPath,
+                    LowResolutionImagePath = lowResPath,
+                    ImageWidth = imageWidth,
+                    ImageHeight = imageHeight,
+                    PostedAt = DateTimeOffset.UtcNow,
+                    SoftDeleted = false,
+                });
+
+                await ctx.SaveChangesAsync(cancellationToken);
+            }
 
             await Send.OkAsync(new OnboardProspectiveUserResponse { ExternalId = user.ExternalId }, cancellationToken);
         }

@@ -87,42 +87,38 @@ namespace CherAmiAPI.Endpoints.Website
                 .Where(u => u.Email == request.Email)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (user == null)
+            if (user != null)
             {
-                user = new()
-                {
-                    UserName = request.Email,
-                    Email = request.Email,
-                    ExternalId = Guid.NewGuid(),
-                    AccountStatus = UserAccountStatus.Prospective,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                };
-
-                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
-
-                var result = await userManager.CreateAsync(user);
-
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                        Log.Error("Error creating user: {Error}", error.Description);
-
-                    await Send.ErrorsAsync(cancellationToken: cancellationToken);
-                    return;
-                }
+                await Send.NoContentAsync(cancellationToken);
+                return;
             }
-            // User already exists — leave their data untouched
 
-            // 2. Create circle (also creates first issue and links user)
-            if (user.CircleId.HasValue)
+            user = new()
             {
+                UserName = request.Email,
+                Email = request.Email,
+                ExternalId = Guid.NewGuid(),
+                AccountStatus = UserAccountStatus.Prospective,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+            };
+
+            user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
+            await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
+            await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+
+            var result = await userManager.CreateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    Log.Error("Error creating user: {Error}", error.Description);
+
                 await Send.ErrorsAsync(cancellationToken: cancellationToken);
                 return;
             }
 
+            // 2. Create circle (also creates first issue and links user)
             Circle circle = await circleService.CreateCircleAsync(user.Id, $"{user.FirstName}'s Circle", cancellationToken: cancellationToken);
 
             // 3. Get the first issue from the new circle
@@ -151,6 +147,7 @@ namespace CherAmiAPI.Endpoints.Website
                     friend.OneSignalId = await oneSignalService.CreateUserAsync(friend.ExternalId, friend.Email, cancellationToken);
                     await oneSignalService.AddTagAsync(friend.ExternalId, "email_reminders", "1", cancellationToken);
                     await oneSignalService.AddTagAsync(friend.ExternalId, "email_marketing", "1", cancellationToken);
+                    await oneSignalService.AddTagAsync(friend.ExternalId, "invited_by", $"{user.FirstName} {user.LastName}", cancellationToken);
 
                     var result = await userManager.CreateAsync(friend);
 

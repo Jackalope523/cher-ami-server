@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -167,51 +165,41 @@ namespace CherAmiAPI.Endpoints.Website
             await ctx.SaveChangesAsync(cancellationToken);
 
             // 5. Optionally process and upload the post image
+            // 5. Optionally create a post
             if (request.Image != null)
             {
-                string uploadId = Guid.NewGuid().ToString();
+                await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
-                using var originalStream = new MemoryStream();
-                await request.Image.CopyToAsync(originalStream, cancellationToken);
-                originalStream.Position = 0;
-
-                using Image image = await Image.LoadAsync(originalStream, cancellationToken);
-                int imageWidth = image.Width;
-                int imageHeight = image.Height;
-
-                originalStream.Position = 0;
-                string highResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/original.jpg";
-                await imageService.UploadImageAsync(highResPath, originalStream);
-
-                image.Mutate(x => x.Resize(new ResizeOptions
+                try
                 {
-                    Size = new Size(800, 0),
-                    Mode = ResizeMode.Max
-                }));
+                    Post post = new()
+                    {
+                        AuthorId = user.Id,
+                        IssueId = issueId,
+                        Caption = request.Caption,
+                        PostedAt = DateTimeOffset.UtcNow,
+                    };
 
-                using var lowResStream = new MemoryStream();
-                await image.SaveAsJpegAsync(lowResStream, cancellationToken);
-                lowResStream.Position = 0;
+                    ctx.Posts.Add(post);
+                    await ctx.SaveChangesAsync(cancellationToken);
 
-                string lowResPath = $"circles/{circle.Id}/issues/{issueId}/posts/{uploadId}/lowres.jpg";
-                await imageService.UploadImageAsync(lowResPath, lowResStream);
+                    using var stream = new MemoryStream();
+                    await request.Image.CopyToAsync(stream, cancellationToken);
 
-                // 6. Create the post record
-                ctx.Posts.Add(new Post
+                    string path = $"circles/{circle.Id}/issues/{issueId}/posts/{post.Id}/{Guid.NewGuid()}.jpg";
+                    post.HighResolutionImagePath = path;
+                    post.LowResolutionImagePath = path;
+                    await ctx.SaveChangesAsync(cancellationToken);
+
+                    await imageService.UploadImageAsync(path, stream);
+
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch (Exception)
                 {
-                    UploadId = uploadId,
-                    AuthorId = user.Id,
-                    IssueId = issueId,
-                    Caption = request.Caption,
-                    HighResolutionImagePath = highResPath,
-                    LowResolutionImagePath = lowResPath,
-                    ImageWidth = imageWidth,
-                    ImageHeight = imageHeight,
-                    PostedAt = DateTimeOffset.UtcNow,
-                    SoftDeleted = false,
-                });
-
-                await ctx.SaveChangesAsync(cancellationToken);
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
             }
 
             await Send.OkAsync(new OnboardProspectiveUserResponse { ExternalId = user.ExternalId }, cancellationToken);

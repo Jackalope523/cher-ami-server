@@ -114,8 +114,7 @@ namespace CherAmiAPI.Endpoints.Website
                 foreach (var error in result.Errors)
                     Log.Error("Error creating user: {Error}", error.Description);
 
-                await Send.ErrorsAsync(cancellationToken: cancellationToken);
-                return;
+                throw new Exception("Failed to create prospective user.");
             }
 
             // 2. Create circle (also creates first issue and links user)

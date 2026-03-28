@@ -178,6 +178,8 @@ namespace CherAmiAPI.Endpoints.Website
                         IssueId = issueId,
                         Caption = request.Caption,
                         PostedAt = DateTimeOffset.UtcNow,
+                        ImageWidth = 1088,
+                        ImageHeight = 756,
                     };
 
                     ctx.Posts.Add(post);

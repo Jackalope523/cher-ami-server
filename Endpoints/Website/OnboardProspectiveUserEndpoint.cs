@@ -125,10 +125,6 @@ namespace CherAmiAPI.Endpoints.Website
                 throw new Exception("Failed to create prospective user.");
             }
 
-            // Set up HTTP client for welcome emails
-            HttpClient client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
-
             // 2. Create circle (also creates first issue and links user)
             Circle circle = await circleService.CreateCircleAsync(user.Id, $"{user.FirstName}'s Circle", cancellationToken: cancellationToken);
 
@@ -180,9 +176,14 @@ namespace CherAmiAPI.Endpoints.Website
 
             await ctx.SaveChangesAsync(cancellationToken);
 
+            await oneSignalService.TrackEventAsync(user.ExternalId, "onboarding_started", cancellationToken);
+
             // Send welcome email to all newly invited friends
             if (newFriendEmails.Count > 0)
             {
+                HttpClient client = httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
+
                 var welcomeEmailBody = new
                 {
                     app_id = config["ONESIGNAL_APP_ID"],
@@ -240,8 +241,6 @@ namespace CherAmiAPI.Endpoints.Website
                     throw;
                 }
             }
-
-            await oneSignalService.TrackEventAsync(user.ExternalId, "onboarding_started", cancellationToken);
 
             await Send.OkAsync(new OnboardProspectiveUserResponse { ExternalId = user.ExternalId }, cancellationToken);
         }

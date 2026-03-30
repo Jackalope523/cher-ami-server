@@ -12,8 +12,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace CherAmiAPI.Endpoints.Website
 {
@@ -23,6 +27,7 @@ namespace CherAmiAPI.Endpoints.Website
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public List<string> FriendEmails { get; set; } = [];
+        public string RecipientName { get; set; }
         public string Caption { get; set; }
         public IFormFile Image { get; set; }
     }
@@ -43,6 +48,9 @@ namespace CherAmiAPI.Endpoints.Website
                 .NotEmpty().WithMessage("Last name is required.")
                 .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters.");
 
+            RuleFor(x => x.RecipientName)
+                .MaximumLength(60).WithMessage("Recipient name cannot exceed 60 characters.");
+
             RuleFor(x => x.Caption)
                 .MaximumLength(200).WithMessage("Caption cannot exceed 200 characters.");
 
@@ -58,7 +66,9 @@ namespace CherAmiAPI.Endpoints.Website
 
     public class OnboardProspectiveUserEndpoint(
         ApplicationDbContext ctx,
+        IConfiguration config,
         IKeyService keyService,
+        IHttpClientFactory httpClientFactory,
         OneSignalService oneSignalService,
         UserManager<User> userManager,
         CircleService circleService,
@@ -115,6 +125,10 @@ namespace CherAmiAPI.Endpoints.Website
                 throw new Exception("Failed to create prospective user.");
             }
 
+            // Set up HTTP client for welcome emails
+            HttpClient client = httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
+
             // 2. Create circle (also creates first issue and links user)
             Circle circle = await circleService.CreateCircleAsync(user.Id, $"{user.FirstName}'s Circle", cancellationToken: cancellationToken);
 
@@ -125,6 +139,7 @@ namespace CherAmiAPI.Endpoints.Website
                 .FirstAsync(cancellationToken);
 
             // 4. Get or create each friend and associate with circle
+            List<string> newFriendEmails = [];
             foreach (string friendEmail in request.FriendEmails)
             {
                 User friend = await ctx.Users
@@ -146,11 +161,11 @@ namespace CherAmiAPI.Endpoints.Website
                     await oneSignalService.AddTagAsync(friend.ExternalId, "email_marketing", "1", cancellationToken);
                     await oneSignalService.AddTagAsync(friend.ExternalId, "invited_by", $"{user.FirstName} {user.LastName}", cancellationToken);
 
-                    var result = await userManager.CreateAsync(friend);
+                    var friendResult = await userManager.CreateAsync(friend);
 
-                    if (!result.Succeeded)
+                    if (!friendResult.Succeeded)
                     {
-                        foreach (var error in result.Errors)
+                        foreach (var error in friendResult.Errors)
                             Log.Error("Error creating friend user {Email}: {Error}", friendEmail, error.Description);
 
                         continue;
@@ -158,11 +173,33 @@ namespace CherAmiAPI.Endpoints.Website
 
                     friend.CircleId = circle.Id;
                     friend.CircleJoinDate = DateTimeOffset.UtcNow;
+                    newFriendEmails.Add(friendEmail);
                 }
                 // Friend already exists — leave their data untouched
             }
 
             await ctx.SaveChangesAsync(cancellationToken);
+
+            // Send welcome email to all newly invited friends
+            if (newFriendEmails.Count > 0)
+            {
+                var welcomeEmailBody = new
+                {
+                    app_id = config["ONESIGNAL_APP_ID"],
+                    template_id = config["ONESIGNAL_INVITEE_WELCOME_EMAIL_TEMPLATE_ID"],
+                    email_to = newFriendEmails.ToArray(),
+                    custom_data = new
+                    {
+                        inviter = $"{user.FirstName} {user.LastName}",
+                        recipient_name = request.RecipientName,
+                    },
+                    include_unsubscribed = true,
+                };
+
+                using StringContent jsonBody = new(JsonSerializer.Serialize(welcomeEmailBody), Encoding.UTF8, "application/json");
+                using HttpResponseMessage emailResponse = await client.PostAsync("https://api.onesignal.com/notifications?c=email", jsonBody, cancellationToken);
+                emailResponse.EnsureSuccessStatusCode();
+            }
 
             // 5. Optionally process and upload the post image
             // 5. Optionally create a post

@@ -241,6 +241,8 @@ namespace CherAmiAPI.Endpoints.Website
                 }
             }
 
+            await oneSignalService.TrackEventAsync(user.ExternalId, "onboarding_started", cancellationToken);
+
             await Send.OkAsync(new OnboardProspectiveUserResponse { ExternalId = user.ExternalId }, cancellationToken);
         }
     }

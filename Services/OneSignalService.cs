@@ -55,5 +55,13 @@ namespace CherAmiAPI.Services
             HttpResponseMessage response = await httpClient.PatchAsJsonAsync($"users/by/external_id/{externalId}", payload, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task TrackEventAsync(Guid externalId, string eventName, CancellationToken cancellationToken = default)
+        {
+            var payload = new { name = eventName };
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"users/by/external_id/{externalId}/events", payload, cancellationToken);
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

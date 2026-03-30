@@ -17,6 +17,8 @@ using Microsoft.OpenApi.Models;
 using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
+using Azure.Identity;
+using Microsoft.Extensions.Configuration;
 using Stripe;
 using System;
 using User = CherAmiAPI.Entities.User;
@@ -37,7 +39,9 @@ Log.Logger = new LoggerConfiguration()
           .WriteTo.AzureApp()
           .CreateLogger();
 
-KeyService keyService = new(builder.Configuration);
+builder.Configuration.AddAzureKeyVault(
+    new Uri(builder.Configuration["KEY_VAULT_URI"]),
+    new DefaultAzureCredential());
 
 if (builder.Environment.IsProduction())
 {
@@ -69,14 +73,13 @@ builder.Services.AddScoped<FeedPostMapper>();
 
 builder.Services.AddHttpClient();
 
-string oneSignalApiKey = await keyService.GetSecretAsync("OneSignal-API-Key");
 builder.Services.AddHttpClient<OneSignalService>(client =>
 {
     client.BaseAddress = new Uri($"https://api.onesignal.com/apps/{builder.Configuration["ONESIGNAL_APP_ID"]}/");
-    client.DefaultRequestHeaders.Add("Authorization", $"key {oneSignalApiKey}");
+    client.DefaultRequestHeaders.Add("Authorization", $"key {builder.Configuration["OneSignal-API-Key"]}");
 });
 
-StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
+StripeConfiguration.ApiKey = builder.Configuration["Stripe-Secret-Key"];
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
 builder.Services.AddScoped<SubscriptionItemService>();
@@ -91,10 +94,8 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
-
 builder.Services
-    .AddAuthenticationJwtBearer(s => s.SigningKey = signingKey)
+    .AddAuthenticationJwtBearer(s => s.SigningKey = builder.Configuration["Cher-Ami-API-Signing-Key"])
     .AddAuthorization()
     .AddFastEndpoints();
 

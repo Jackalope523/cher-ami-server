@@ -58,9 +58,15 @@ namespace CherAmiAPI.Services
 
         public async Task TrackEventAsync(Guid externalId, string eventName, CancellationToken cancellationToken = default)
         {
-            var payload = new { name = eventName };
+            var payload = new
+            {
+                events = new[]
+                {
+                    new { name = eventName, external_id = externalId }
+                }
+            };
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"users/by/external_id/{externalId}/events", payload, cancellationToken);
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("custom_events", payload, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
     }

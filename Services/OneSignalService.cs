@@ -62,7 +62,7 @@ namespace CherAmiAPI.Services
             {
                 events = new[]
                 {
-                    new { name = eventName, external_id = externalId }
+                    new { name = eventName, external_id = externalId, timestamp = DateTimeOffset.UtcNow.ToString("O") }
                 }
             };
 

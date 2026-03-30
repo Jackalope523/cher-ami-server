@@ -68,13 +68,13 @@ builder.Services.AddScoped<RecipientItemMapper>();
 builder.Services.AddScoped<FeedPostMapper>();
 
 builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<OneSignalService>(
-    async client =>
-    {
-        client.BaseAddress = new Uri($"https://api.onesignal.com/apps/{builder.Configuration["ONESIGNAL_APP_ID"]}/");
-        client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
-    }
-);
+
+string oneSignalApiKey = await keyService.GetSecretAsync("OneSignal-API-Key");
+builder.Services.AddHttpClient<OneSignalService>(client =>
+{
+    client.BaseAddress = new Uri($"https://api.onesignal.com/apps/{builder.Configuration["ONESIGNAL_APP_ID"]}/");
+    client.DefaultRequestHeaders.Add("Authorization", $"key {oneSignalApiKey}");
+});
 
 StripeConfiguration.ApiKey = await keyService.GetSecretAsync("Stripe-Secret-Key");
 builder.Services.AddScoped<CustomerService>();

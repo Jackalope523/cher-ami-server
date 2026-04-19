@@ -90,19 +90,6 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasFilter("[CircleCode] IS NOT NULL");
 
                     b.ToTable("Circles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            CircleCode = "AppleGoogle",
-                            HeaderPath = "",
-                            HeaderTimestamp = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            IssueSchedule = 0,
-                            SoftDeleted = false,
-                            TimeOfCreation = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Title = "The Review Circle"
-                        });
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.EmailLogin", b =>
@@ -252,12 +239,18 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ImagePath")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                    b.Property<int>("ImageHeight")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageWidth")
+                        .HasColumnType("int");
 
                     b.Property<long>("IssueId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("LowResolutionImagePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<DateTimeOffset>("PostedAt")
                         .HasColumnType("datetimeoffset");
@@ -282,10 +275,18 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("AvatarTimestamp")
+                    b.Property<DateTimeOffset?>("AvatarTimestamp")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("City")
@@ -296,16 +297,12 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
 
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PostalCode")
                         .HasMaxLength(20)
@@ -321,17 +318,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<string>("Street")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
                     b.Property<string>("Title")
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
-
-                    b.Property<string>("UnitNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 
@@ -442,12 +431,18 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBillingExempt")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IssuePosts")
                         .ValueGeneratedOnAdd()
@@ -483,6 +478,10 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<Guid?>("NotificationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("OneSignalId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -491,9 +490,6 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProvidedPaymentDetails")
                         .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
@@ -541,18 +537,19 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             Id = 7L,
                             AccessFailedCount = 0,
                             AccountStatus = 0,
-                            CircleId = 1L,
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
-                            FirstName = "Apple Test Account",
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            FirstName = "Apple",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            LastName = "Test",
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -563,18 +560,19 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             Id = 8L,
                             AccessFailedCount = 0,
                             AccountStatus = 0,
-                            CircleId = 1L,
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
-                            FirstName = "Google Test Account",
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            FirstName = "Google",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            LastName = "Test",
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),

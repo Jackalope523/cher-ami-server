@@ -12,21 +12,13 @@ namespace CherAmiAPI.Shared.Validators
                 .MaximumLength(25).WithMessage("Title cannot exceed 25 characters.")
                 .When(x => !string.IsNullOrWhiteSpace(x.Title));
 
-            RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("First name is required.")
-                .MaximumLength(100).WithMessage("First name cannot exceed 100 characters.");
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Name is required.")
+                .MaximumLength(60).WithMessage("Name cannot exceed 60 characters.");
 
-            RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Last name is required.")
-                .MaximumLength(100).WithMessage("Last name cannot exceed 100 characters");
-
-            RuleFor(x => x.UnitNumber)
-                .NotEmpty().WithMessage("Unit number is required.")
-                .MaximumLength(15).WithMessage("Unit number cannot exceed 15 characters");
-
-            RuleFor(x => x.Street)
-                .NotEmpty().WithMessage("Street name is required.")
-                .MaximumLength(150).WithMessage("Street name cannot exceed 150 characters");
+            RuleFor(x => x.AddressLine1)
+                .NotEmpty().WithMessage("Address line 1 is required.")
+                .MaximumLength(100).WithMessage("Address line 1 name cannot exceed 100 characters");
 
             RuleFor(x => x.City)
                 .NotEmpty().WithMessage("City name is required.")

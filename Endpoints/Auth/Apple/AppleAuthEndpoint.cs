@@ -17,7 +17,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
         public string State { get; set; }
     }
 
-    public class AppleAuthEndpoint() : Endpoint<AppleAuthRequest>
+    public class AppleAuthEndpoint(IHttpClientFactory httpClientFactory) : Endpoint<AppleAuthRequest>
     {
         public override void Configure()
         {
@@ -27,7 +27,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
 
         public override async Task HandleAsync(AppleAuthRequest request, CancellationToken cancellationToken)
         {
-            using HttpClient httpClient = new();
+            HttpClient httpClient = httpClientFactory.CreateClient();
             DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://appleid.apple.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             Dictionary<string, string> queryParams = new()

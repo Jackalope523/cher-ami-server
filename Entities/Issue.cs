@@ -12,7 +12,8 @@ namespace CherAmiAPI.Entities
         Drafting,
         Published,
         Shipped,
-        Archived,
+        Unreleased,
+        Empty,
     }
 
     public class Issue

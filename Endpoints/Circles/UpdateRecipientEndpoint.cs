@@ -23,14 +23,14 @@ namespace CherAmiAPI.Endpoints.Circles
         public long Id { get; init; }
         public IFormFile Avatar { get; set; }
         public string Title { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Street { get; init; }
+        public string Name { get; set; }
+        public string AddressLine1 { get; init; }
+        public string AddressLine2 { get; init; }
         public string City { get; init; }
         public string ProvinceOrState { get; init; }
         public string PostalCode { get; init; }
         public string Country { get; init; }
-        public string UnitNumber { get; init; }
+        public bool? IsVeteran { get; init; }
     }
 
     public class UpdateRecipientRequestValidator : Validator<UpdateRecipientRequest>
@@ -61,23 +61,19 @@ namespace CherAmiAPI.Endpoints.Circles
 
             try
             {
-
-
                 recipient.Title = request.Title;
-                recipient.FirstName = request.FirstName;
-                recipient.LastName = request.LastName;
-                recipient.Street = request.Street;
+                recipient.Name = request.Name;
+                recipient.AddressLine1 = request.AddressLine1;
                 recipient.City = request.City;
                 recipient.ProvinceOrState = request.ProvinceOrState;
                 recipient.Country = request.Country;
-                recipient.UnitNumber = request.UnitNumber;
+                recipient.AddressLine2 = request.AddressLine2;
                 recipient.PostalCode = request.PostalCode;
+                recipient.IsVeteran = request.IsVeteran ?? recipient.IsVeteran;
 
                 if (request.Avatar != null)
                 {
-                    await imageService.DeleteImageAsync(recipient.AvatarPath);
-
-                    using var stream = new MemoryStream();
+                    using MemoryStream stream = new();
                     await request.Avatar.CopyToAsync(stream, cancellationToken);
 
                     string path = $"users/{userId}/recipients/{request.Id}/avatar.jpg";

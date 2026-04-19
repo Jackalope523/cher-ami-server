@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using CherAmiAPI.Interfaces;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,10 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
-    public class AzureImageService : IImageService
+    public class AzureImageService(IConfiguration config) : IImageService
     {
         private readonly Func<Azure.Core.TokenCredential> _credentials = () => new DefaultAzureCredential();
-        private readonly string storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
-        //private readonly string storageAccountUri = "https://stcheramidatastaging.blob.core.windows.net";
+        private readonly string storageAccountUri = config["STORAGE_ACCOUNT_URI"];
 
         public async Task UploadImageAsync(string path, MemoryStream blob)
         {
@@ -44,19 +44,34 @@ namespace CherAmiAPI.Services
 
         public async Task DeleteImageAsync(string path)
         {
+            if (path == null)
+            {
+                return;
+            }
+
             BlobClient blobClient = new(new Uri($"{storageAccountUri}/{path}"), _credentials());
 
             await blobClient.DeleteAsync(DeleteSnapshotsOption.IncludeSnapshots);
         }
 
         public async Task DeleteImagesAsync(List<string> paths)
-        {
+        {   
             BlobServiceClient blobServiceClient = new(new Uri(storageAccountUri), _credentials());
             BlobBatchClient blobBatchClient = blobServiceClient.GetBlobBatchClient();
 
-            if (paths.Count > 0)
+            List<Uri> toDelete = [];
+            foreach (string path in paths) {
+                if (path == null)
+                {
+                    continue;
+                }
+
+                toDelete.Add(new Uri($"{storageAccountUri}/{path}"));
+            }
+
+            if (toDelete.Count > 0)
             {
-                await blobBatchClient.DeleteBlobsAsync([.. paths.Select(x => new Uri($"{storageAccountUri}/{x}"))], DeleteSnapshotsOption.IncludeSnapshots);
+                await blobBatchClient.DeleteBlobsAsync(toDelete, DeleteSnapshotsOption.IncludeSnapshots);
             }
         }
     }

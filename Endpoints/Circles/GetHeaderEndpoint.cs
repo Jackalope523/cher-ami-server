@@ -1,7 +1,6 @@
 ﻿using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
 using CherAmiAPI.Contexts;
-using CherAmiAPI.Exceptions;
 using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc;

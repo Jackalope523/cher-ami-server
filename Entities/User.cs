@@ -8,11 +8,8 @@ namespace CherAmiAPI.Entities
 {
     public enum UserAccountStatus
     { 
-        Onboarding,
         Active,
-        Limited, 
-        Suspended,
-        Blacklisted 
+        Prospective,
     }
 
     public class User : IdentityUser<long>
@@ -25,14 +22,15 @@ namespace CherAmiAPI.Entities
         public DateTimeOffset TimeOfUserAgreement { get; set; }
         public string AvatarPath { get; set; }
         public DateTimeOffset? AvatarTimestamp { get; set; }
+        public Guid ExternalId { get; set; }
         public string OneSignalId { get; set; }
         public string StripeCustomerId { get; set; }
         public string StripeSubscriptionId { get; set; }
-        public bool ProvidedPaymentDetails { get; set; }
         public long? CircleId { get; set; }
         public DateTimeOffset? CircleJoinDate { get; set; }
         public string GoogleId { get; set; }
         public string AppleId { get; set; }
+        public bool IsBillingExempt { get; set; }
         public bool SoftDeleted { get; set; }
 
         // Notification Profile

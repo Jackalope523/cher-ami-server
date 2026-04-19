@@ -2,13 +2,15 @@
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +39,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailVerifyRequest>
+    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, CustomerService customerService, OneSignalService oneSignalService, INameService nameService, CircleService circleService) : Endpoint<EmailVerifyRequest>
     {
         public override void Configure()
         {
@@ -68,24 +70,50 @@ namespace CherAmiAPI.Endpoints.Auth.Email
             {
                 User user = await userManager.FindByEmailAsync(request.Email);
 
-                if (user == null)
+                user.EmailConfirmed = true;
+                user.AccountStatus = UserAccountStatus.Active;
+
+
+                if (user.FirstName == default)
                 {
-                    user = new()
+                    user.FirstName = nameService.GetRandomFirstName();
+                }
+                if (user.LastName == default)
+                {
+                    user.LastName = nameService.GetRandomLastName();
+                }
+                if (user.JoinDate == default)
+                {
+                    user.JoinDate = DateTimeOffset.UtcNow;
+                    await oneSignalService.AddTagAsync(user.ExternalId, "joined_at", user.JoinDate.ToUnixTimeSeconds().ToString(), cancellationToken);
+                }
+                if (user.TimeOfUserAgreement == default)
+                {
+                    user.TimeOfUserAgreement = DateTimeOffset.UtcNow;
+                }
+                if (user.StripeCustomerId == default)
+                {
+                    var options = new CustomerCreateOptions
                     {
-                        UserName = request.Email,
-                        Email = request.Email,
-                        EmailConfirmed = true,
+                        Email = user.Email,
                     };
 
-                    await userManager.CreateAsync(user);
+                    Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
+                    user.StripeCustomerId = customer.Id;
                 }
+                if (user.CircleId == default)
+                {
+                    await circleService.CreateCircleAsync(user.Id, $"{user.FirstName}'s Circle", cancellationToken: cancellationToken);
+                }
+
+                await ctx.SaveChangesAsync(cancellationToken);
 
                 string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
                 string jwtToken = JwtBearer.CreateToken(
                     o =>
                     {
                         o.SigningKey = signingKey;
-                        o.ExpireAt = DateTime.UtcNow.AddDays(1);
+                        o.ExpireAt = DateTime.UtcNow.AddDays(10);
                         o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
                         o.User.Claims.Add(new Claim("Email", user.Email));
                     }

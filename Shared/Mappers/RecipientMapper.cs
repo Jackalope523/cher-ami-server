@@ -2,40 +2,42 @@
 using CherAmiAPI.Entities;
 using CherAmiAPI.Shared.Requests;
 using FastEndpoints;
+using Microsoft.Extensions.Configuration;
+using CherAmiAPI.Migrations.AzureSQLProduction;
 
 namespace CherAmiAPI.Shared.Mappers
 {
-    public class RecipientMapper : Mapper<RecipientRequest, RecipientDTO, Recipient>
+    public class RecipientMapper(IConfiguration config) : Mapper<RecipientRequest, RecipientDTO, Recipient>
     {
         public override RecipientDTO FromEntity(Recipient recipient) => new()
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
-            AvatarPath = $"/recipients/{recipient.Id}/avatar",
+            AvatarUrl = recipient.AvatarPath == null ? null : $"{config["APP_SERVICE_URI"]}/recipients/{recipient.Id}/avatar?timestamp={recipient.AvatarTimestamp}",
+            AvatarPath = recipient.AvatarPath == null ? null : $"/recipients/{recipient.Id}/avatar",
             AvatarTimestamp = recipient.AvatarTimestamp,
             Title = recipient.Title,
-            FirstName = recipient.FirstName,
-            LastName = recipient.LastName,
-            Street = recipient.Street,
+            Name = recipient.Name,
+            AddressLine1 = recipient.AddressLine1,
+            AddressLine2 = recipient.AddressLine2,
             City = recipient.City,
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
-            UnitNumber = recipient.UnitNumber,
+            IsVeteran = recipient.IsVeteran,
         };
 
         public override Recipient ToEntity(RecipientRequest recipient) => new()
         {
             Title = recipient.Title,
-            FirstName = recipient.FirstName,
-            LastName = recipient.LastName,
-            Street = recipient.Street, 
+            Name = recipient.Name,
+            AddressLine1 = recipient.AddressLine1,
+            AddressLine2 = recipient.AddressLine2,
             City = recipient.City,
             ProvinceOrState = recipient.ProvinceOrState,
             PostalCode = recipient.PostalCode,
             Country = recipient.Country,
-            UnitNumber = recipient.UnitNumber,
-   
+            IsVeteran = recipient.IsVeteran ?? false,
         };
     }
 }

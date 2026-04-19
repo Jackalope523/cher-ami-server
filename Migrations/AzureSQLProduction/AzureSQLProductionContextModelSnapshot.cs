@@ -48,7 +48,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("BlockerId");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Circle", b =>
@@ -89,7 +89,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .IsUnique()
                         .HasFilter("[CircleCode] IS NOT NULL");
 
-                    b.ToTable("Circles");
+                    b.ToTable("Circles", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.EmailLogin", b =>
@@ -116,7 +116,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailLogins");
+                    b.ToTable("EmailLogins", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Feedback", b =>
@@ -144,7 +144,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Issue", b =>
@@ -185,7 +185,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("CircleId");
 
-                    b.ToTable("Issues");
+                    b.ToTable("Issues", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Notification", b =>
@@ -221,7 +221,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Post", b =>
@@ -239,12 +239,22 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ImagePath")
+                    b.Property<string>("HighResolutionImagePath")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<int>("ImageHeight")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageWidth")
+                        .HasColumnType("int");
+
                     b.Property<long>("IssueId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("LowResolutionImagePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<DateTimeOffset>("PostedAt")
                         .HasColumnType("datetimeoffset");
@@ -252,13 +262,21 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UploadId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("IssueId");
 
-                    b.ToTable("Posts");
+                    b.HasIndex("UploadId")
+                        .IsUnique()
+                        .HasFilter("[UploadId] IS NOT NULL");
+
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Recipient", b =>
@@ -269,10 +287,18 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("AvatarPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("AvatarTimestamp")
+                    b.Property<DateTimeOffset?>("AvatarTimestamp")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("City")
@@ -283,16 +309,15 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
 
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<bool>("IsVeteran")
+                        .HasColumnType("bit");
 
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PostalCode")
                         .HasMaxLength(20)
@@ -308,23 +333,15 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<string>("Street")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
                     b.Property<string>("Title")
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
-
-                    b.Property<string>("UnitNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Recipients");
+                    b.ToTable("Recipients", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Reports.Report", b =>
@@ -353,7 +370,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
 
                     b.HasDiscriminator();
 
@@ -382,7 +399,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.User", b =>
@@ -429,12 +446,18 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("ExternalId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBillingExempt")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IssuePosts")
                         .ValueGeneratedOnAdd()
@@ -482,9 +505,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProvidedPaymentDetails")
                         .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
@@ -535,7 +555,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -543,7 +565,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -557,7 +578,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
+                            IsBillingExempt = false,
                             IssuePosts = true,
                             IssueReminders = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -565,7 +588,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
-                            ProvidedPaymentDetails = false,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -593,7 +615,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("Words");
+                    b.ToTable("Words", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>

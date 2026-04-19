@@ -1,4 +1,5 @@
 ﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Endpoints.Users;
 using CherAmiAPI.Entities;
 using FastEndpoints;
 using FluentValidation;
@@ -7,9 +8,13 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
 using Serilog;
+using Stripe;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,17 +72,26 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
 
         public override async Task HandleAsync(AppleCallbackRequest request, CancellationToken cancellationToken)
         {
-            if (request.User != null && !await ctx.Users.AnyAsync(x => x.Email == request.User.Email && x.FirstName != null && x.LastName != null, cancellationToken: cancellationToken))
+            if (request.User != null)
             {
-                User user = new()
-                {
-                    UserName = request.User.Email,
-                    Email = request.User.Email,
-                    FirstName = request.User.Name.FirstName,
-                    LastName = request.User.Name.LastName,
-                };
+                User user = await userManager.FindByEmailAsync(request.User.Email);
 
-                await userManager.CreateAsync(user);
+                if (user == null)
+                {
+                    user = new()
+                    {
+                        UserName = request.User.Email,
+                        Email = request.User.Email,
+                        AccountStatus = UserAccountStatus.Prospective,
+                    };
+
+                    await userManager.CreateAsync(user);
+                }
+
+                user.FirstName = request.User.Name.FirstName;
+                user.LastName = request.User.Name.LastName;
+
+                await ctx.SaveChangesAsync(cancellationToken);
             }
 
 

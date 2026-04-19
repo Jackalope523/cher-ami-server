@@ -1,14 +1,18 @@
 ﻿using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using CherAmiAPI.Components;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Interfaces;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,11 +25,14 @@ namespace CherAmiAPI.BackgroundJobs
     public class PublishMagazinesJob(IServiceProvider _serviceProvider) : IJob
     {
         private readonly TokenCredential _credentials = new DefaultAzureCredential();
-        private readonly string _storageAccountUri = "";
+        private readonly string _storageAccountUri = "https://stcheramidataprod.blob.core.windows.net";
+        string charcoal800 = "#242832";
+        string orange = "#C15F3C";
+        string white = "#FFFFFF";
 
         private async Task UploadBlobAsync(string path, MemoryStream blob)
         {
-            string[] parts = path.Split(new[] { '/' }, 2);
+            string[] parts = path.Split(['/'], 2);
             var (containerName, blobName) = (parts[0], parts[1]);
 
             BlobContainerClient containerClient = new(new Uri($"{_storageAccountUri}/{containerName}"), _credentials);
@@ -51,47 +58,310 @@ namespace CherAmiAPI.BackgroundJobs
             using var scope = _serviceProvider.CreateScope();
             ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            List<Issue> issues = await ctx.Issues.Where(x => x.Status == IssueStatus.Drafting).Include(x => x.Posts).ToListAsync();
 
-            foreach (Issue issue in issues)
+
+            Log.Error("Getting issues...");
+            //var issues = await ctx.Issues
+            //                      .Where(x => x.Status == IssueStatus.Drafting && x.DraftingEnd < DateTimeOffset.UtcNow)
+            //                      .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
+            //                      .ToListAsync();
+
+            var issues = await ctx.Issues
+                             .Where(x => x.CircleId == 68 || x.CircleId == 71)
+                             .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
+                             .ToListAsync();
+
+            foreach (var issue in issues)
             {
-                using MemoryStream memoryStream = new();
+                Log.Error($"Publishing issue {issue.Issue.Id}.");
 
-                Document.Create(container =>
+                List<Recipient> recipients = await ctx.Recipients
+                                               .Where(x => x.Manager.CircleId == issue.CircleId)
+                                               .ToListAsync();
+
+                Log.Error($"Getting posts from database...");
+                var posts = await ctx.Posts
+                                  .Where(x => x.IssueId == issue.Issue.Id)
+                                  .Select(x => new { x.LowResolutionImagePath, x.Author.AvatarPath, AuthorName = $"{x.Author.FirstName} {x.Author.LastName}", Text = x.Caption })
+                                  .ToListAsync();
+
+                if (recipients.Count == 0 || posts.Count == 0)
                 {
-                    container.Page(page =>
+                    Log.Error($"Marking issue {issue.Issue.Id} as unreleased.");
+                    //issue.Issue.Status = posts.Count == 0 ? IssueStatus.Empty : IssueStatus.Unreleased;
+
+                    //Issue toAddAnyway = new()
+                    //{
+                    //    CircleId = issue.CircleId,
+                    //    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
+                    //    IssueNumber = issue.Issue.IssueNumber + 1,
+                    //    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
+                    //    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                    //    Status = IssueStatus.Drafting,
+                    //};
+
+                    //ctx.Issues.Add(toAddAnyway);
+                    continue;
+                }
+
+                Log.Error($"Mapping posts to props...");
+                List<PostComponentProps> postComponentProps = [];
+                foreach (var post in posts)
+                {
+                    Log.Error($"Mapping post by {post.AuthorName}");
+
+                    PostComponentProps props = new()
                     {
-                        page.Size(PageSizes.A4);
-                        page.Margin(2, Unit.Centimetre);
-                        page.PageColor(Colors.White);
-                        page.DefaultTextStyle(x => x.FontSize(20));
+                        Image = await DownloadBlobAsync(post.LowResolutionImagePath),
+                        AuthorAvatar = post.AvatarPath != null ? await DownloadBlobAsync(post.AvatarPath) : null,
+                        AuthorName = post.AuthorName,
+                        Text = post.Text
+                    };
 
-                        page.Header()
-                            .Text("Hello PDF!")
-                            .SemiBold().FontSize(36).FontColor(Colors.Blue.Medium);
+                    postComponentProps.Add(props);
+                }
 
-                        page.Content()
-                            .PaddingVertical(1, Unit.Centimetre)
-                            .Column(x =>
+                Log.Error($"Making PDFs...");
+                foreach (Recipient recipient in recipients) 
+                {
+                    Log.Error($"Making pdf for {recipient.Name}.");
+                    MemoryStream memoryStream = new();
+
+                    Document.Create(container =>
+                    {
+                        container.Page(page =>
+                        {
+                            page.Size(PageSizes.Letter);
+                            page.Margin(0.5f, Unit.Inch);
+                            page.PageColor(white);
+
+                            page.Header()
+                                .Row(row =>
+                                {
+                                    row.RelativeItem()
+                                       .Text(issue.Issue.Title)
+                                       .FontFamily("Poppins")
+                                       .FontSize(18)
+                                       .FontColor(orange)
+                                       .Medium();
+
+                                    row.RelativeItem()
+                                       .Text(issue.CircleTitle)
+                                       .FontFamily("Damion")
+                                       .FontSize(18)
+                                       .FontColor(orange)
+                                       .Medium()
+                                       .AlignRight();
+                                });
+
+                            page.Content()
+                                .Column(column =>
+                                {
+                                    column.Spacing(0.5f, Unit.Inch);
+
+                                    column.Item()
+                                          .PaddingTop(0.5f, Unit.Inch)
+                                          .Height(1.6776f, Unit.Inch)
+                                          .Image("Assets\\Images\\logo.png")
+                                          .FitArea();
+
+                                    column.Item()
+                                          .AlignCenter()
+                                          .PaddingTop(0.5f, Unit.Inch)
+                                          .Height(4.9797f, Unit.Inch)
+                                          .Image("Assets\\Images\\hedgehog.png")
+                                          .FitArea();
+                                });
+
+                            page.Footer()
+                                .Row(row =>
+                                {
+                                    row.Spacing(0.25f, Unit.Inch);
+
+                                    row.RelativeItem()
+                                       .AlignMiddle()
+                                       .LineHorizontal(3)
+                                       .LineColor(orange);
+
+                                    row.AutoItem()
+                                       .Text(recipient.Name)
+                                       .FontSize(32)
+                                       .FontFamily("Damion")
+                                       .FontColor(orange);
+                                });
+                        });
+
+                        for (int i = 0; i < postComponentProps.Count; i+=4)
+                        {
+                            container.Page(page =>
                             {
-                                x.Spacing(20);
+                                page.Size(PageSizes.Letter);
+                                page.Margin(0.5f, Unit.Inch);
+                                page.PageColor(white);
 
-                                x.Item().Text(Placeholders.LoremIpsum());
-                                x.Item().Image(Placeholders.Image(200, 100));
+                                page.Content()
+                                    .Column(column =>
+                                    {
+                                        column.Spacing(0.5f, Unit.Inch);
+
+                                        column.Item().Row(row =>
+                                        {
+                                            row.Spacing(0.25f, Unit.Inch);
+
+                                            row.ConstantItem(3.5f, Unit.Inch)
+                                               .Component(new PostComponent(postComponentProps[i]));
+
+                                            if (i + 1 < postComponentProps.Count)
+                                            {
+                                                row.ConstantItem(3.5f, Unit.Inch)
+                                                   .Component(new PostComponent(postComponentProps[i + 1]));
+                                            }
+                                        });
+
+                                        column.Item().Row(row =>
+                                        {
+                                            row.Spacing(0.25f, Unit.Inch);
+
+                                            if (i + 2 < postComponentProps.Count)
+                                            {
+                                                row.ConstantItem(3.5f, Unit.Inch)
+                                                   .Component(new PostComponent(postComponentProps[i + 2]));
+                                            }
+
+                                            if (i + 3 < postComponentProps.Count)
+                                            {
+                                                row.ConstantItem(3.5f, Unit.Inch)
+                                                   .Component(new PostComponent(postComponentProps[i + 3]));
+                                            }
+                                        });
+                                    });
+
+                                page.Footer().Dynamic(new PageFooterComponent(new PageFooterComponentProps { Date = $"{issue.Issue.DraftingEnd:MMMM yyyy}" }));
                             });
+                        }
 
-                        page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
+                        int pages = (int)Math.Ceiling(postComponentProps.Count / 4.0) + 2;
+                        int remainder = pages % 4;
+
+                        if (remainder != 0)
+                        {
+                            Log.Error("Need filler pages.");
+                            for (int i = 0; i < 4 - remainder; i++)
                             {
-                                x.Span("Page ");
-                                x.CurrentPageNumber();
-                            });
-                    });
-                }).GeneratePdf(memoryStream);
+                                Log.Error("Adding filler page...");
+                                container.Page(page =>
+                                {
+                                    page.Size(PageSizes.Letter);
+                                    page.Margin(0.5f, Unit.Inch);
+                                    page.PageColor(white);
+                                    page.Footer().Dynamic(new PageFooterComponent(new PageFooterComponentProps { Date = $"{issue.Issue.DraftingEnd:MMMM yyyy}" }));
+                                });
+                            }
+                        }
 
-                await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Id}/magazine.pdf", memoryStream);
-                issue.Status = IssueStatus.Published;
+                        container.Page(page =>
+                        {
+                            page.Size(PageSizes.Letter);
+                            page.Margin(0.5f, Unit.Inch);
+                            page.PageColor(white);
+
+                            page.Content()
+                                .Column(column =>
+                                {
+                                    column.Item()
+                                          .PaddingTop(3.76f, Unit.Centimetre)
+                                          .PaddingBottom(0.5f, Unit.Inch)
+                                          .PaddingLeft(1.23f, Unit.Centimetre)
+                                          .Text("Recipient")
+                                          .FontColor(white)
+                                          .FontSize(16)
+                                          .FontFamily("Poppins")
+                                          .Medium();
+
+                                    column.Item()
+                                          .PaddingLeft(1.23f, Unit.Centimetre)
+                                          .Text(recipient.Name)
+                                          .FontColor(charcoal800)
+                                          .FontSize(12)
+                                          .FontFamily("Poppins");
+
+                                    column.Item()
+                                          .PaddingLeft(1.23f, Unit.Centimetre)
+                                          .Text(string.IsNullOrWhiteSpace(recipient.AddressLine2) ? recipient.AddressLine1 : $"{recipient.AddressLine1} {recipient.AddressLine2}")
+                                          .FontColor(charcoal800)
+                                          .FontSize(12)
+                                          .FontFamily("Poppins");
+
+                                    column.Item()
+                                          .PaddingLeft(1.23f, Unit.Centimetre)
+                                          .Text($"{recipient.City}, {recipient.ProvinceOrState} {recipient.PostalCode}")
+                                          .FontColor(charcoal800)
+                                          .FontSize(12)
+                                          .FontFamily("Poppins");
+
+                                    column.Item()
+                                          .PaddingLeft(1.23f, Unit.Centimetre)
+                                          .Text("USA")
+                                          .FontColor(charcoal800)
+                                          .FontSize(12)
+                                          .FontFamily("Poppins");
+                                });
+
+                            page.Footer()
+                                .Row(row =>
+                                {
+                                    row.RelativeItem()
+                                       .AlignBottom()
+                                       .Column(column =>
+                                       {
+                                           column.Item()
+                                                 .PaddingBottom(0.05f, Unit.Inch)
+                                                 .Height(0.5316f, Unit.Inch)
+                                                 .Image("Assets\\Images\\logo.png")
+                                                 .FitArea();
+
+                                           column.Item()
+                                                 .PaddingBottom(0.3f, Unit.Inch)
+                                                 .Text("Standard copy")
+                                                 .FontColor(orange)
+                                                 .FontSize(18)
+                                                 .FontFamily("Poppins")
+                                                 .Medium();
+
+                                           column.Item()
+                                                 .Text("Copyright Hollow Inc.")
+                                                 .FontColor("#868581")
+                                                 .FontSize(12)
+                                                 .FontFamily("Poppins");
+                                       });
+
+                                    row.RelativeItem()
+                                       .AlignRight()
+                                       .Height(2.5563f, Unit.Inch)
+                                       .Image("Assets\\Images\\mouse.png")
+                                       .FitArea();
+                                });
+                        });
+                    }).GeneratePdf(memoryStream);
+
+                    Log.Error($"Uploading PDF for {recipient.Name}.");
+                    await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Issue.Id}/{issue.Issue.Title.Replace(" ", "_")}_{recipient.Name.Replace(" ", "_")}.pdf", memoryStream);
+                }
+
+                //Log.Error($"Marking issue {issue.Issue.Id} as published.");
+                //issue.Issue.Status = IssueStatus.Published;
+
+                //Issue toAdd = new()
+                //{
+                //    CircleId = issue.CircleId,
+                //    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
+                //    IssueNumber = issue.Issue.IssueNumber + 1,
+                //    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
+                //    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                //    Status = IssueStatus.Drafting,
+                //};
+
+                //ctx.Issues.Add(toAdd);
             }
 
             await ctx.SaveChangesAsync();

@@ -16,7 +16,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
         public string State { get; set; }
     }
 
-    public class GoogleAuthEndpoint(IKeyService keyService) : Endpoint<GoogleAuthRequest>
+    public class GoogleAuthEndpoint(IKeyService keyService, IHttpClientFactory httpClientFactory) : Endpoint<GoogleAuthRequest>
     {
         public override void Configure()
         {
@@ -26,7 +26,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
 
         public override async Task HandleAsync(GoogleAuthRequest request, CancellationToken cancellationToken)
         {
-            using HttpClient httpClient = new();
+            HttpClient httpClient = httpClientFactory.CreateClient();
             DiscoveryDocument discoveryDocument = await httpClient.GetFromJsonAsync<DiscoveryDocument>("https://accounts.google.com/.well-known/openid-configuration", cancellationToken: cancellationToken);
 
             Dictionary<string, string> queryParams = new()

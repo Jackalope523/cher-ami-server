@@ -31,7 +31,7 @@ namespace CherAmiAPI.Endpoints.Issues
 
             try
             {
-                await imageService.DeleteImageAsync(post.ImagePath);
+                await imageService.DeleteImageAsync(post.LowResolutionImagePath);
 
                 ctx.Posts.Remove(post);
                 await ctx.SaveChangesAsync(cancellationToken);

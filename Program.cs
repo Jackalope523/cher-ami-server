@@ -99,6 +99,16 @@ builder.Services
     .AddAuthorization()
     .AddFastEndpoints();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Website", policy =>
+    {
+        policy.WithOrigins("https://www.thecherami.com", "https://thecherami.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddProblemDetails();
 
@@ -128,9 +138,9 @@ builder.Services.AddQuartz(options =>
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
     //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
 
-    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
 
     //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
     //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
@@ -169,6 +179,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+
+app.UseCors("Website");
 
 app.UseExceptionHandler();
 

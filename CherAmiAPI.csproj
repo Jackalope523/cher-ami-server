@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="Assets\Fonts\Damion-Regular.ttf" />
+    <None Remove="Assets\Fonts\NotoEmoji-VariableFont_wght.ttf" />
     <None Remove="Assets\Fonts\Poppins-Medium.ttf" />
     <None Remove="Assets\Fonts\Poppins-Regular.ttf" />
     <None Remove="Assets\Fonts\Poppins-SemiBold.ttf" />
@@ -19,6 +20,9 @@
 
   <ItemGroup>
     <Content Include="Assets\Fonts\Damion-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Fonts\NotoEmoji-VariableFont_wght.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Fonts\Poppins-Medium.ttf">

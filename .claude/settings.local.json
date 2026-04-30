@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:annaozola.com)"
+      "WebFetch(domain:annaozola.com)",
+      "WebFetch(domain:documentation.onesignal.com)",
+      "Bash(xargs grep:*)",
+      "Bash(xargs cat:*)",
+      "Bash(dotnet build:*)"
     ]
   }
 }

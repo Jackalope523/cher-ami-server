@@ -8,6 +8,7 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Serilog;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -79,6 +80,11 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             using FormUrlEncodedContent formContent = new(parameters);
 
             using HttpResponseMessage response = await httpClient.PostAsync(discoveryDocument.TokenEndpoint, formContent, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                Log.Error("Apple token exchange failed. Status: {Status}, Body: {Body}, RedirectUri: {RedirectUri}", response.StatusCode, errorBody, parameters["redirect_uri"]);
+            }
             response.EnsureSuccessStatusCode();
 
             AppleTokenResponse content = await response.Content.ReadFromJsonAsync<AppleTokenResponse>(cancellationToken: cancellationToken);
@@ -102,6 +108,16 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                 await userManager.CreateAsync(user);
             }
 
+            if (user.OneSignalId == default)
+            {
+                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
+            }
+            if (user.AccountStatus == UserAccountStatus.Prospective)
+            {
+                await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
+                await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+            }
+
             user.EmailConfirmed = email_verified;
             user.AppleId = sub;
             user.AccountStatus = UserAccountStatus.Active;
@@ -121,12 +137,6 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
             if (user.TimeOfUserAgreement == default)
             {
                 user.TimeOfUserAgreement = DateTimeOffset.UtcNow;
-            }
-            if (user.OneSignalId == default)
-            {
-                user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
-                await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
             }
             if (user.JoinDate == default)
             {

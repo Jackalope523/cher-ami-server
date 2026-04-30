@@ -153,8 +153,8 @@ namespace CherAmiAPI.Endpoints.Website
                     };
 
                     friend.OneSignalId = await oneSignalService.CreateUserAsync(friend.ExternalId, friend.Email, cancellationToken);
-                    await oneSignalService.AddTagAsync(friend.ExternalId, "email_reminders", "1", cancellationToken);
-                    await oneSignalService.AddTagAsync(friend.ExternalId, "email_marketing", "1", cancellationToken);
+                    await oneSignalService.AddTagAsync(friend.ExternalId, "email_reminders", "0", cancellationToken);
+                    await oneSignalService.AddTagAsync(friend.ExternalId, "email_marketing", "0", cancellationToken);
                     await oneSignalService.AddTagAsync(friend.ExternalId, "invited_by", $"{user.FirstName} {user.LastName}", cancellationToken);
 
                     var friendResult = await userManager.CreateAsync(friend);

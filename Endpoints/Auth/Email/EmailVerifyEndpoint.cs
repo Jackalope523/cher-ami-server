@@ -70,6 +70,12 @@ namespace CherAmiAPI.Endpoints.Auth.Email
             {
                 User user = await userManager.FindByEmailAsync(request.Email);
 
+                if (user.AccountStatus == UserAccountStatus.Prospective)
+                {
+                    await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
+                    await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+                }
+
                 user.EmailConfirmed = true;
                 user.AccountStatus = UserAccountStatus.Active;
 

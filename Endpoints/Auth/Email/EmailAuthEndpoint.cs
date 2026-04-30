@@ -76,8 +76,6 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 if (user.OneSignalId == default)
                 {
                     user.OneSignalId = await oneSignalService.CreateUserAsync(user.ExternalId, user.Email, cancellationToken);
-                    await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
-                    await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
                 }
 
                 await ctx.SaveChangesAsync(cancellationToken);

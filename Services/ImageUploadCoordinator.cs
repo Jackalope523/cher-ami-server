@@ -12,7 +12,6 @@ namespace CherAmiAPI.Services
 
         public Task WaitForUploadAsync(string imageId)
         {
-            Log.Error($"Waiting for upload of {imageId}.");
             var tcs = _uploads.GetOrAdd(imageId, id => 
             {
                 var newTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -24,7 +23,6 @@ namespace CherAmiAPI.Services
 
         public void MarkUploaded(string imageId)
         {
-            Log.Error($"Marking {imageId} as uploaded.");
             var tcs = _uploads.GetOrAdd(imageId, id => 
             {
                 var newTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -38,11 +36,7 @@ namespace CherAmiAPI.Services
         {
             try
             {
-                Log.Error($"Scheduling clean up {imageId}.");
-
                 await Task.Delay(CleanupDelay);
-
-                Log.Error($"Cleaning up {imageId}.");
 
                 if (_uploads.TryRemove(imageId, out var tcs))
                 {

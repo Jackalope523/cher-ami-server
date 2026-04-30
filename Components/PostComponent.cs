@@ -1,29 +1,37 @@
 ﻿using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
 using System.IO;
 
 namespace CherAmiAPI.Components
 {
-    public class PostComponentProps
+    public record PostComponentProps
     {
-        public MemoryStream Image { get; set; }
-        public MemoryStream AuthorAvatar { get; set; }
-        public string AuthorName { get; set; }
-        public string Text { get; set; }
+        public MemoryStream Image { get; init; }
+        public int ImageWidth { get; init; }
+        public int ImageHeight { get; init; }
+        public MemoryStream AuthorAvatar { get; init; }
+        public string AuthorName { get; init; }
+        public string Text { get; init; }
     }
 
     public class PostComponent(PostComponentProps props) : IComponent
     {
         readonly string charcoal800 = "#242832";
 
-        private static string GetInitials(string name)
+        protected string GetInitials(string name)
         {
             string[] parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
+            if (parts.Length == 0)
+                return "";
+
             char first = char.ToUpper(parts[0][0]);
-            char last = char.ToUpper(parts[1][0]);
+
+            if (parts.Length < 2)
+                return $"{first}";
+
+            char last = char.ToUpper(parts[^1][0]);
 
             return $"{first}{last}";
         }
@@ -66,7 +74,7 @@ namespace CherAmiAPI.Components
                           row.RelativeItem()
                            .AlignMiddle()
                            .Text(props.AuthorName)
-                           .FontFamily("Poppins")
+                           .FontFamily("Poppins", "Noto Emoji")
                            .FontSize(12)
                            .FontColor(charcoal800)
                            .SemiBold();
@@ -74,11 +82,10 @@ namespace CherAmiAPI.Components
 
                 column.Item()
                       .Text(props.Text)
-                      .FontFamily("Poppins")
+                      .FontFamily("Poppins", "Noto Emoji")
                       .FontSize(12)
                       .FontColor(charcoal800);
             });
         }
-
     }
 }

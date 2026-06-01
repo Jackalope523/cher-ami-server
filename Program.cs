@@ -136,7 +136,7 @@ builder.Services.AddQuartz(options =>
 
     //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 0 6 1 * ?"));
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
 
     JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);

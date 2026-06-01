@@ -214,7 +214,7 @@ namespace CherAmiAPI.Endpoints.Website
                     {
                         AuthorId = user.Id,
                         IssueId = issueId,
-                        Caption = request.Caption,
+                        Caption = request.Caption ?? "",
                         PostedAt = DateTimeOffset.UtcNow,
                         ImageWidth = 1088,
                         ImageHeight = 756,

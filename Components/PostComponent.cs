@@ -7,10 +7,10 @@ namespace CherAmiAPI.Components
 {
     public record PostComponentProps
     {
-        public MemoryStream Image { get; init; }
+        public byte[] Image { get; init; }
         public int ImageWidth { get; init; }
         public int ImageHeight { get; init; }
-        public MemoryStream AuthorAvatar { get; init; }
+        public byte[] AuthorAvatar { get; init; }
         public string AuthorName { get; init; }
         public string Text { get; init; }
     }

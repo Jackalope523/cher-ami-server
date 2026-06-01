@@ -6,11 +6,8 @@ using CherAmiAPI.Components.Layouts;
 using CherAmiAPI.Components.Pages;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
-using CherAmiAPI.Interfaces;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Client;
 using Quartz;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -46,14 +43,13 @@ namespace CherAmiAPI.BackgroundJobs
             await containerClient.GetBlobClient(blobName).UploadAsync(blob, overwrite: true);
         }
 
-        private async Task<MemoryStream> DownloadBlobAsync(string path)
+        private async Task<byte[]> DownloadBlobAsync(string path)
         {
-            MemoryStream stream = new();
+            using MemoryStream stream = new();
             BlobClient blobClient = new(new Uri($"{_storageAccountUri}/{path}"), _credentials);
 
             await blobClient.DownloadToAsync(stream);
-            stream.Position = 0;
-            return stream;
+            return stream.ToArray();
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -62,24 +58,12 @@ namespace CherAmiAPI.BackgroundJobs
             ApplicationDbContext ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
 
-
-            //Log.Error("Getting issues...");
-            //var issues = await ctx.Issues
-            //                      .Where(x => x.Status == IssueStatus.Drafting && x.DraftingEnd < DateTimeOffset.UtcNow)
-            //                      .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
-            //                      .ToListAsync();
-
             Log.Error("Getting issues...");
             var issues = await ctx.Issues
-                                  .Where(x => x.Status == IssueStatus.Drafting)
+                                  .Where(x => x.Status == IssueStatus.Drafting && x.DraftingEnd < DateTimeOffset.UtcNow)
                                   .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
                                   .ToListAsync();
 
-            //Log.Error("Getting issues...");
-            //var issues = await ctx.Issues
-            //                      .Where(x => x.Id == 180)
-            //                      .Select(x => new { Issue = x, CircleId = x.Circle.Id, CircleTitle = x.Circle.Title })
-            //                      .ToListAsync();
 
             foreach (var issue in issues)
             {
@@ -97,20 +81,20 @@ namespace CherAmiAPI.BackgroundJobs
 
                 if (recipients.Count == 0 || posts.Count == 0)
                 {
-                    //Log.Error($"Marking issue {issue.Issue.Id} as unreleased.");
-                    //issue.Issue.Status = posts.Count == 0 ? IssueStatus.Empty : IssueStatus.Unreleased;
+                    Log.Error($"Marking issue {issue.Issue.Id} as unreleased.");
+                    issue.Issue.Status = posts.Count == 0 ? IssueStatus.Empty : IssueStatus.Unreleased;
 
-                    //Issue toAddAnyway = new()
-                    //{
-                    //    CircleId = issue.CircleId,
-                    //    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
-                    //    IssueNumber = issue.Issue.IssueNumber + 1,
-                    //    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
-                    //    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
-                    //    Status = IssueStatus.Drafting,
-                    //};
+                    Issue toAddAnyway = new()
+                    {
+                        CircleId = issue.CircleId,
+                        Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
+                        IssueNumber = issue.Issue.IssueNumber + 1,
+                        DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
+                        DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                        Status = IssueStatus.Drafting,
+                    };
 
-                    //ctx.Issues.Add(toAddAnyway);
+                    ctx.Issues.Add(toAddAnyway);
                     continue;
                 }
 
@@ -340,24 +324,30 @@ namespace CherAmiAPI.BackgroundJobs
                     }).GeneratePdf(memoryStream);
 
                     Log.Error($"Uploading PDF for {recipient.Name}.");
-                    //await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Issue.Id}/{issue.Issue.Title.Replace(" ", "_")}_{recipient.Name.Replace(" ", "_")}.pdf", memoryStream);
-                    await UploadBlobAsync($"circles/delete_me/{issue.Issue.Title.Replace(" ", "_")}_{recipient.Name.Replace(" ", "_")}.pdf", memoryStream);
+      
+                    var shipMonth = DateTime.UtcNow.ToString("yyyy-MM");
+                    var fileName = $"{issue.Issue.Title.Replace(" ", "_")}_{recipient.Name.Replace(" ", "_")}.pdf";
+
+                    await UploadBlobAsync($"circles/{issue.CircleId}/issues/{issue.Issue.Id}/{fileName}", memoryStream);
+                    Log.Error($"Uploaded to storage.");
+                    await UploadBlobAsync($"shipping/{shipMonth}/{fileName}", memoryStream);
+                    Log.Error($"Uploaded to shipping.");
                 }
 
-                //Log.Error($"Marking issue {issue.Issue.Id} as published.");
-                //issue.Issue.Status = IssueStatus.Published;
+                Log.Error($"Marking issue {issue.Issue.Id} as published.");
+                issue.Issue.Status = IssueStatus.Published;
 
-                //Issue toAdd = new()
-                //{
-                //    CircleId = issue.CircleId,
-                //    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
-                //    IssueNumber = issue.Issue.IssueNumber + 1,
-                //    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
-                //    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
-                //    Status = IssueStatus.Drafting,
-                //};
+                Issue toAdd = new()
+                {
+                    CircleId = issue.CircleId,
+                    Title = $"{DateTime.UtcNow:MMMM yyyy} · Issue {issue.Issue.IssueNumber + 1}",
+                    IssueNumber = issue.Issue.IssueNumber + 1,
+                    DraftingStart = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1), TimeSpan.Zero),
+                    DraftingEnd = new DateTimeOffset(new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(1).AddTicks(-1), TimeSpan.Zero),
+                    Status = IssueStatus.Drafting,
+                };
 
-                //ctx.Issues.Add(toAdd);
+                ctx.Issues.Add(toAdd);
             }
 
             await ctx.SaveChangesAsync();

@@ -76,7 +76,6 @@ src/CherAmiAPI/
   Program.cs       Composition root: DI, auth, CORS, Quartz, Swagger
 
 tests/
-  CherAmiAPI.Tests/             Service-layer tests (xUnit + NSubstitute)
   CherAmiAPI.UnitTests/         Unit tests (xUnit + Moq)
   CherAmiAPI.IntegrationTests/  Repository / end-to-end integration tests
 ```

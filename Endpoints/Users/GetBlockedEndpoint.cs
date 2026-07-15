@@ -1,4 +1,6 @@
 ﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Users
 {
-    public class GetBlockedEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<List<UserItem>>
+    public class GetBlockedEndpoint(UserService userService) : EndpointWithoutRequest<List<UserItem>>
     {
         public override void Configure()
         {
@@ -20,25 +22,10 @@ namespace CherAmiAPI.Endpoints.Users
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            List<UserItem> response = await ctx.Blocks
-                                      .Where(x => x.BlockerId == userId)
-                                      .Select(x => new UserItem() 
-                                      { 
-                                          Id = x.Blocked.Id, 
-                                          FirstName = x.Blocked.FirstName,
-                                          LastName = x.Blocked.LastName,
-                                          AvatarPath = x.Blocked.AvatarPath,
-                                          AvatarTimestamp = x.Blocked.AvatarTimestamp,
 
-                                      })
-                                      .ToListAsync();
+            List<UserItem> blockedUsers = await userService.GetBlockedUsersAsync(userId, cancellationToken);
 
-            for(int i = 0; i < response.Count; i++)
-            {
-                response[i] = response[i] with { AvatarPath = response[i].AvatarPath == null ? null : $"/users/{response[i].Id}/avatar" };
-            }
-
-            await Send.OkAsync(response, cancellationToken);
+            await Send.OkAsync(blockedUsers, cancellationToken);
         }
     }
 }

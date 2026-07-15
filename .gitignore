@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Apple's gift from God
 .DS_Store
+
+# Six Labors ImageSharp license key (do not commit)
+sixlabors.lic

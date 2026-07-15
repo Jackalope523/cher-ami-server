@@ -4,6 +4,7 @@ using CherAmiAPI.Contexts;
 using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Repositories;
 using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Mappers;
 using CherAmiAPI.Shared.SharedMappers;
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Quartz;
 using QuestPDF.Infrastructure;
 using Serilog;
@@ -66,6 +67,9 @@ builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
 builder.Services.AddScoped<INameService, NameService>();
 builder.Services.AddScoped<CircleService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddScoped<UserItemMapper>();
 builder.Services.AddScoped<RecipientItemMapper>();

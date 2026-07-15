@@ -1,19 +1,9 @@
-﻿using CherAmiAPI.Interfaces;
-using CherAmiAPI.Contexts;
-using CherAmiAPI.Entities;
 using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using Serilog;
 
 namespace CherAmiAPI.Endpoints.Posts
 {
@@ -36,7 +26,7 @@ namespace CherAmiAPI.Endpoints.Posts
         }
     }
 
-    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator) : Endpoint<UploadImageDetailsRequest>
+    public class UploadImageDetailsEndpoint(PostService postService) : Endpoint<UploadImageDetailsRequest>
     {
         public override void Configure()
         {
@@ -45,66 +35,12 @@ namespace CherAmiAPI.Endpoints.Posts
 
         public override async Task HandleAsync(UploadImageDetailsRequest request, CancellationToken cancellationToken)
         {
-            await coordinator.WaitForUploadAsync(request.UploadId);
-
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            Post post = await ctx.Posts
-                .IgnoreQueryFilters()
-                .Include(x => x.Issue)
-                .SingleOrDefaultAsync(x => x.UploadId == request.UploadId, cancellationToken);
+            bool processed = await postService.ProcessImageDetailsAsync(userId, request.UploadId, request.Caption, request.X, request.Y, request.Width, request.Height, cancellationToken);
 
-            if (post == null || post.AuthorId != userId)
-            {
-                await Send.NotFoundAsync(cancellationToken);
+            if (!processed)
                 return;
-            }
-
-            if (string.IsNullOrEmpty(post.HighResolutionImagePath))
-            {
-                //await Send.BadRequestAsync("High-resolution image not found. Upload it first.", cancellationToken);
-                return;
-            }
-
-            // Download and process the image
-            using var originalStream = await imageService.DownloadImageAsync(post.HighResolutionImagePath);
-            using Image image = await Image.LoadAsync(originalStream, cancellationToken);
-
-            // Crop the image
-            image.Mutate(x => x.Crop(new Rectangle(request.X, request.Y, request.Width, request.Height)));
-
-            // Save the cropped high-res image
-            using var croppedStream = new MemoryStream();
-            await image.SaveAsJpegAsync(croppedStream, cancellationToken);
-            croppedStream.Position = 0;
-
-            string croppedPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/cropped.jpg";
-            await imageService.UploadImageAsync(croppedPath, croppedStream);
-
-            // Create and save the low-res version (resize to 800px width for example)
-            image.Mutate(x => x.Resize(new ResizeOptions
-            {
-                Size = new Size(800, 0), // Aspect ratio maintained
-                Mode = ResizeMode.Max
-            }));
-
-            using var lowResStream = new MemoryStream();
-            await image.SaveAsJpegAsync(lowResStream, cancellationToken);
-            lowResStream.Position = 0;
-
-            string lowResPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/lowres.jpg";
-            await imageService.UploadImageAsync(lowResPath, lowResStream);
-
-            // Update database record
-            post.Caption = request.Caption;
-            post.ImageWidth = request.Width;
-            post.ImageHeight = request.Height;
-            post.HighResolutionImagePath = croppedPath;
-            post.LowResolutionImagePath = lowResPath;
-            post.PostedAt = DateTimeOffset.UtcNow;
-            post.SoftDeleted = false; // Finalize post
-
-            await ctx.SaveChangesAsync(cancellationToken);
 
             await Send.NoContentAsync(cancellationToken);
         }

@@ -1,15 +1,8 @@
-using CherAmiAPI.Contexts;
-using CherAmiAPI.Entities;
-using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
 using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,7 +29,7 @@ namespace CherAmiAPI.Endpoints.Website
         public string OneSignalId { get; set; }
     }
 
-    public class GetOrCreateProspectiveUserEndpoint(ApplicationDbContext ctx, IKeyService keyService, OneSignalService oneSignalService, UserManager<User> userManager) : Endpoint<GetOrCreateProspectiveUserRequest, GetOrCreateProspectiveUserResponse>
+    public class GetOrCreateProspectiveUserEndpoint(IKeyService keyService, OnboardingService onboardingService) : Endpoint<GetOrCreateProspectiveUserRequest, GetOrCreateProspectiveUserResponse>
     {
         public override void Configure()
         {
@@ -53,50 +46,13 @@ namespace CherAmiAPI.Endpoints.Website
                 return;
             }
 
-            var user = await ctx.Users
-                       .Where(u => u.Email == request.Email)
-                       .Select(u => new { u.ExternalId, u.OneSignalId })
-                       .FirstOrDefaultAsync(cancellationToken);
+            (Guid externalId, string oneSignalId) = await onboardingService.GetOrCreateProspectiveUserAsync(request.Email, cancellationToken);
 
-            GetOrCreateProspectiveUserResponse response;
-            if (user != null)
+            GetOrCreateProspectiveUserResponse response = new()
             {
-                response = new()
-                {
-                    ExternalId = user.ExternalId,
-                    OneSignalId = user.OneSignalId
-                };
-            }
-            else
-            {
-                User newUser = new()
-                {
-                    UserName = request.Email,
-                    Email = request.Email,
-                    ExternalId = Guid.NewGuid(),
-                    AccountStatus = UserAccountStatus.Prospective,
-                };
-
-                newUser.OneSignalId = await oneSignalService.CreateUserAsync(newUser.ExternalId, newUser.Email, cancellationToken);
-                await oneSignalService.AddTagAsync(newUser.ExternalId, "email_reminders", "1", cancellationToken);
-                await oneSignalService.AddTagAsync(newUser.ExternalId, "email_marketing", "1", cancellationToken);
-
-                var result = await userManager.CreateAsync(newUser);
-
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        Log.Error("Error creating user: {Error}", error.Description);
-                    }
-                }
-
-                response = new()
-                {
-                    ExternalId = newUser.ExternalId,
-                    OneSignalId = newUser.OneSignalId
-                };
-            }
+                ExternalId = externalId,
+                OneSignalId = oneSignalId
+            };
 
             await Send.OkAsync(response, cancellationToken);
         }

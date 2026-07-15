@@ -1,26 +1,17 @@
-﻿using CherAmiAPI.Contexts;
-using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Entities;
-using CherAmiAPI.Exceptions;
-using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Mappers;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using Stripe;
-using System;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Circles
 {
-    
-    public class AddRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService, CustomerPaymentMethodService customerPaymentMethodService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
+
+    public class AddRecipientEndpoint(RecipientService recipientService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
     {
         public override void Configure()
         {
@@ -31,46 +22,17 @@ namespace CherAmiAPI.Endpoints.Circles
         public override async Task HandleAsync(RecipientRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await ctx.Users.Where(x => x.Id == userId).Select(x => new { x.StripeCustomerId, x.IsBillingExempt}).SingleAsync(cancellationToken: cancellationToken);
 
-            if (!result.IsBillingExempt && (await customerPaymentMethodService.ListAsync(result.StripeCustomerId, cancellationToken: cancellationToken)).Data.Count == 0)
-                throw new NoPermissionException($"User {userId} has not provided a payment method.");
+            Recipient toAdd = Map.ToEntity(request);
 
-            //await using var transaction = await ctx.Database.BeginTransactionAsync();
-            try
-            {
-                Recipient toAdd = Map.ToEntity(request);
-                ctx.Recipients.Add(toAdd);
-                toAdd.ManagerId = userId;
+            await recipientService.AddRecipientAsync(userId, toAdd, request.Avatar, cancellationToken);
 
-                if (request.Avatar != null)
-                {
-                    using MemoryStream stream = new();
-                    await request.Avatar.CopyToAsync(stream, cancellationToken);
-
-                    string path = $"users/{userId}/recipients/{toAdd.Id}/avatar.jpg";
-                    toAdd.AvatarPath = path;
-                    toAdd.AvatarTimestamp = DateTimeOffset.UtcNow;
-
-                    await imageService.UploadImageAsync(path, stream);
-                }
-
-                await ctx.SaveChangesAsync(cancellationToken);
-
-                //await transaction.CommitAsync(cancellationToken);
-
-                await Send.CreatedAtAsync<GetRecipientEndpoint>
-                (
-                    new IdRequest() { Id =  toAdd.Id },
-                    Map.FromEntity(toAdd),
-                    cancellation: cancellationToken
-                );
-            }
-            catch (Exception)
-            {
-                //await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            await Send.CreatedAtAsync<GetRecipientEndpoint>
+            (
+                new IdRequest() { Id = toAdd.Id },
+                Map.FromEntity(toAdd),
+                cancellation: cancellationToken
+            );
         }
     }
 }

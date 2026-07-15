@@ -22,6 +22,7 @@ using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using System;
+using BillingService = CherAmiAPI.Services.BillingService;
 using User = CherAmiAPI.Entities.User;
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -66,10 +67,21 @@ builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
 builder.Services.AddScoped<INameService, NameService>();
-builder.Services.AddScoped<CircleService>();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICircleRepository, CircleRepository>();
+builder.Services.AddScoped<IRecipientRepository, RecipientRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CircleService>();
+builder.Services.AddScoped<RecipientService>();
+builder.Services.AddScoped<PostService>();
+builder.Services.AddScoped<BillingService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<OnboardingService>();
 
 builder.Services.AddScoped<UserItemMapper>();
 builder.Services.AddScoped<RecipientItemMapper>();

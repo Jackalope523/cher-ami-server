@@ -1,17 +1,12 @@
-﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Services;
 using FastEndpoints;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CherAmiAPI.Exceptions;
-using Serilog;
 
 namespace CherAmiAPI.Endpoints.Issues
 {
-    public class PostCountEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
+    public class PostCountEndpoint(PostService postService) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -22,16 +17,7 @@ namespace CherAmiAPI.Endpoints.Issues
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            long circleId = await ctx.Users
-                            .Where(u => u.Id == userId)
-                            .Select(u => u.CircleId)
-                            .SingleAsync(cancellationToken) ?? throw new NotFoundException("User does not belong to a circle.");
-
-            int count = await ctx.Issues
-                        .Where(x => x.CircleId == circleId)
-                        .OrderByDescending(x => x.IssueNumber)
-                        .Select(x => x.Posts.Count)
-                        .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            int count = await postService.GetLatestIssuePostCountAsync(userId, cancellationToken);
 
             await Send.OkAsync(count, cancellationToken);
         }

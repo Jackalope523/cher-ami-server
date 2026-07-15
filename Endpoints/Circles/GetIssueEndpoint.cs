@@ -1,8 +1,6 @@
-﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
-using CherAmiAPI.Exceptions;
+using CherAmiAPI.Services;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -83,7 +81,7 @@ namespace CherAmiAPI.Endpoints.Circles
         }
     }
 
-    public class GetIssueEndpoint(ApplicationDbContext ctx) : Endpoint<FeedPageRequest, FeedPageResponse, FeedPageResponseMapper>
+    public class GetIssueEndpoint(PostService postService) : Endpoint<FeedPageRequest, FeedPageResponse, FeedPageResponseMapper>
     {
         public override void Configure()
         {
@@ -94,33 +92,13 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            long circleId = await ctx.Users.Where(x => x.Id == userId).Select(x => x.CircleId).SingleAsync(cancellationToken: cancellationToken) ?? throw new NotFoundException("User does not have a circle.");
-
-            List<long> blockedIds = await ctx.Blocks
-                                    .Where(x => x.BlockerId == userId)
-                                    .Select(x => x.BlockedId)
-                                    .ToListAsync(cancellationToken: cancellationToken);
-
-            List<long> blockedByIds = await ctx.Blocks
-                                      .Where(x => x.BlockedId == userId)
-                                      .Select(x => x.BlockerId)
-                                      .ToListAsync(cancellationToken: cancellationToken);
-
-            List<long> blacklist = [.. blockedIds, .. blockedByIds];
-
-            Issue issue = await ctx.Issues
-                            .Where(x => x.CircleId == circleId)
-                            .Include(x => x.Posts.Where(x => !blacklist.Contains(x.AuthorId)))
-                            .OrderByDescending(x => x.IssueNumber)
-                            .Skip(request.PageParam)
-                            .Take(1)
-                            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+            (Issue issue, int? nextPage) = await postService.GetFeedPageAsync(userId, request.PageParam, cancellationToken);
 
             FeedPageResponse response = Map.FromEntity(issue);
 
-            if (issue != null) {
-                int count = await ctx.Issues.CountAsync(cancellationToken: cancellationToken);
-                response.NextPage = count > request.PageParam ? request.PageParam + 1 : null;
+            if (issue != null)
+            {
+                response.NextPage = nextPage;
             }
 
             await Send.OkAsync(response, cancellationToken);

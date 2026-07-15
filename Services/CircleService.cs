@@ -1,27 +1,32 @@
-using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
-    public class CircleService(ApplicationDbContext ctx, IImageService imageService, IInviteCodeService inviteCodeService)
+    public class CircleService(
+        ICircleRepository circleRepository,
+        IRecipientRepository recipientRepository,
+        IUserRepository userRepository,
+        IImageService imageService,
+        IInviteCodeService inviteCodeService,
+        IUnitOfWork unitOfWork)
     {
         public async Task<Circle> CreateCircleAsync(long userId, string title, IFormFile headerImage = null, CancellationToken cancellationToken = default)
         {
-            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
+            Circle toCreate = null;
 
-            try
+            await unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 string code = await inviteCodeService.GenerateCodeAsync();
 
-                Circle toCreate = new()
+                toCreate = new Circle
                 {
                     Title = title,
                     TimeOfCreation = DateTimeOffset.UtcNow,
@@ -29,8 +34,7 @@ namespace CherAmiAPI.Services
                     IssueSchedule = IssueSchedule.Monthly,
                 };
 
-                ctx.Circles.Add(toCreate);
-                await ctx.SaveChangesAsync(cancellationToken);
+                await circleRepository.AddCircleAsync(toCreate, cancellationToken);
 
                 if (headerImage != null)
                 {
@@ -39,12 +43,11 @@ namespace CherAmiAPI.Services
                     using var stream = new MemoryStream();
                     await headerImage.CopyToAsync(stream, cancellationToken);
 
-                    toCreate.HeaderPath = path;
-                    toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
+                    await circleRepository.SetHeaderAsync(toCreate.Id, path, DateTimeOffset.UtcNow, cancellationToken);
 
                     await imageService.UploadImageAsync(path, stream);
                 }
-               
+
                 DateTime now = DateTime.UtcNow;
                 DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
                 TimeSpan untilEnd = endOfMonth - now;
@@ -65,23 +68,107 @@ namespace CherAmiAPI.Services
                     HeaderPath = null,
                 };
 
-                ctx.Issues.Add(firstIssue);
+                await circleRepository.AddIssueAsync(firstIssue, cancellationToken);
+                await circleRepository.AddUserToCircleAsync(userId, toCreate.Id, cancellationToken);
+            }, cancellationToken);
 
-                User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync(cancellationToken: cancellationToken);
-                user.CircleId = toCreate.Id;
-                user.CircleJoinDate = DateTimeOffset.UtcNow;
+            return toCreate;
+        }
 
-                await ctx.SaveChangesAsync(cancellationToken);
+        public async Task<Circle> GetCircleAsync(long userId, CancellationToken cancellationToken = default)
+        {
+            long? circleId = await circleRepository.GetCircleIdOfUserAsync(userId, cancellationToken);
 
-                await transaction.CommitAsync(cancellationToken);
+            if (circleId == null)
+                return null;
 
-                return toCreate;
-            }
-            catch (Exception)
+            List<long> blacklist = await userRepository.GetBlacklistedUserIdsAsync(userId, cancellationToken);
+
+            return await circleRepository.GetCircleWithContributorsAsync(circleId.Value, blacklist, cancellationToken);
+        }
+
+        public async Task UpdateCircleAsync(long userId, string title, IFormFile header = null, CancellationToken cancellationToken = default)
+        {
+            Circle circle = await circleRepository.GetCircleOfUserAsync(userId, cancellationToken);
+
+            string headerPath = null;
+            DateTimeOffset? headerTimestamp = null;
+
+            if (header != null)
             {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
+                using MemoryStream stream = new();
+                await header.CopyToAsync(stream, cancellationToken);
+
+                headerPath = $"circles/{circle.Id}/header/header.jpg";
+                headerTimestamp = DateTimeOffset.UtcNow;
+
+                await imageService.UploadImageAsync(headerPath, stream);
             }
+
+            await circleRepository.UpdateCircleAsync(circle.Id, title, headerPath, headerTimestamp, cancellationToken);
+        }
+
+        public async Task UpdateHeaderAsync(long userId, IFormFile image, CancellationToken cancellationToken = default)
+        {
+            Circle circle = await circleRepository.GetCircleOfUserAsync(userId, cancellationToken);
+
+            using var stream = new MemoryStream();
+            await image.CopyToAsync(stream, cancellationToken);
+
+            string path = $"circles/{circle.Id}/header/header.jpg";
+
+            await imageService.UploadImageAsync(path, stream);
+            await circleRepository.SetHeaderAsync(circle.Id, path, DateTimeOffset.UtcNow, cancellationToken);
+        }
+
+        public async Task<MemoryStream> GetHeaderAsync(long userId, long circleId, CancellationToken cancellationToken = default)
+        {
+            if (!await circleRepository.IsUserInCircleAsync(userId, circleId, cancellationToken))
+                throw new NoAccessException($"User {userId} can not access this header.");
+
+            string path = await circleRepository.GetHeaderPathAsync(circleId, cancellationToken);
+
+            return await imageService.DownloadImageAsync(path);
+        }
+
+        public async Task<string> GetCodeAsync(long userId, CancellationToken cancellationToken = default)
+        {
+            return await circleRepository.GetCircleCodeOfUserAsync(userId, cancellationToken);
+        }
+
+        public async Task<string> RerollCodeAsync(long userId, CancellationToken cancellationToken = default)
+        {
+            Circle circle = await circleRepository.GetCircleOfUserAsync(userId, cancellationToken);
+
+            string code = await inviteCodeService.GenerateCodeAsync();
+            await circleRepository.SetCircleCodeAsync(circle.Id, code, cancellationToken);
+
+            return code;
+        }
+
+        public async Task JoinCircleAsync(long userId, string code, CancellationToken cancellationToken = default)
+        {
+            long? currentCircleId = await circleRepository.GetCircleIdOfUserAsync(userId, cancellationToken);
+
+            if (currentCircleId != null)
+                throw new NoPermissionException($"User {userId} already has a circle.");
+
+            long circleId = await circleRepository.GetCircleIdByCodeAsync(code, cancellationToken);
+
+            if (circleId == 0)
+                throw new NotFoundException($"Invalid invite code.");
+
+            await circleRepository.AddUserToCircleAsync(userId, circleId, cancellationToken);
+        }
+
+        public async Task LeaveCircleAsync(long userId, CancellationToken cancellationToken = default)
+        {
+            await circleRepository.RemoveUserFromCircleAsync(userId, cancellationToken);
+
+            List<string> recipientAvatars = await recipientRepository.GetAvatarPathsByManagerAsync(userId, cancellationToken);
+            await imageService.DeleteImagesAsync(recipientAvatars);
+
+            await recipientRepository.DeleteRecipientsOfManagerAsync(userId, cancellationToken);
         }
     }
 }

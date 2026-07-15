@@ -1,9 +1,8 @@
-using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Mappers;
 using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Recipients
 {
-    public class GetRecipientsEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<List<RecipientItem>, RecipientItemMapper>
+    public class GetRecipientsEndpoint(RecipientService recipientService) : EndpointWithoutRequest<List<RecipientItem>, RecipientItemMapper>
     {
         public override void Configure()
         {
@@ -23,9 +22,7 @@ namespace CherAmiAPI.Endpoints.Recipients
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            List<Recipient> recipients = await ctx.Recipients
-                .Where(x => x.ManagerId == userId && !x.SoftDeleted)
-                .ToListAsync(cancellationToken: cancellationToken);
+            List<Recipient> recipients = await recipientService.GetRecipientsAsync(userId, cancellationToken);
 
             await Send.OkAsync([.. recipients.Select(Map.FromEntity)], cancellationToken);
         }

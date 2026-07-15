@@ -1,13 +1,7 @@
-using CherAmiAPI.Contexts;
-using CherAmiAPI.Entities;
-using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +30,7 @@ namespace CherAmiAPI.Endpoints.Circles
         }
     }
 
-    public class UpdateCircleEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateCircleRequest>
+    public class UpdateCircleEndpoint(CircleService circleService) : Endpoint<UpdateCircleRequest>
     {
         public override void Configure()
         {
@@ -48,40 +42,9 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            Circle circle = await ctx.Users
-                .Where(x => x.Id == userId)
-                .Select(x => x.Circle)
-                .SingleAsync(cancellationToken: cancellationToken);
+            await circleService.UpdateCircleAsync(userId, request.Title, request.Header, cancellationToken);
 
-            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
-
-            try
-            {
-                circle.Title = request.Title;
-
-                if (request.Header != null)
-                {
-                    using MemoryStream stream = new();
-                    await request.Header.CopyToAsync(stream, cancellationToken);
-
-                    string path = $"circles/{circle.Id}/header/header.jpg";
-
-                    circle.HeaderPath = path;
-                    circle.HeaderTimestamp = DateTimeOffset.UtcNow;
-
-                    await imageService.UploadImageAsync(path, stream);
-                }
-
-                await ctx.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-
-                await Send.NoContentAsync(cancellationToken);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

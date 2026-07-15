@@ -1,14 +1,12 @@
-﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Interfaces;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints
 {
-    public class PingEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest
+    public class PingEndpoint(IUserRepository userRepository) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -20,7 +18,7 @@ namespace CherAmiAPI.Endpoints
         {
             try
             {
-                await ctx.Users.AnyAsync();
+                await userRepository.AnyUsersAsync(cancellationToken);
                 await Send.NoContentAsync(cancellationToken);
             }
             catch (Exception)

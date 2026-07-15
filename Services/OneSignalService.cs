@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
@@ -26,6 +27,12 @@ namespace CherAmiAPI.Services
 
             OneSignalCreateUserResponse oneSignalContent = await oneSignalResponse.Content.ReadFromJsonAsync<OneSignalCreateUserResponse>(cancellationToken: cancellationToken);
             return oneSignalContent.Identity.OneSignalId;
+        }
+
+        public async Task DeleteUserAsync(Guid externalId, CancellationToken cancellationToken = default)
+        {
+            HttpResponseMessage response = await httpClient.DeleteAsync($"users/by/external_id/{externalId}", cancellationToken);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task AddTagAsync(Guid externalId, string key, string value, CancellationToken cancellationToken = default)
@@ -53,6 +60,21 @@ namespace CherAmiAPI.Services
             };
 
             HttpResponseMessage response = await httpClient.PatchAsJsonAsync($"users/by/external_id/{externalId}", payload, cancellationToken);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task SendTemplatedEmailAsync(string templateId, IEnumerable<string> emailTo, object customData, CancellationToken cancellationToken = default)
+        {
+            var payload = new
+            {
+                app_id = config["ONESIGNAL_APP_ID"],
+                template_id = templateId,
+                email_to = emailTo.ToArray(),
+                custom_data = customData,
+                include_unsubscribed = true,
+            };
+
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("https://api.onesignal.com/notifications?c=email", payload, cancellationToken);
             response.EnsureSuccessStatusCode();
         }
 

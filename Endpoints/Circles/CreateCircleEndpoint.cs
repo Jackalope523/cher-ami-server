@@ -1,23 +1,14 @@
-﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
-using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
 using CherAmiAPI.Shared.SharedMappers;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Rewrite;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-
 
 namespace CherAmiAPI.Endpoints.Circles
 {
@@ -40,7 +31,7 @@ namespace CherAmiAPI.Endpoints.Circles
         }
     }
 
-    public class CreateCircleEndpoint(ApplicationDbContext ctx, IImageService imageService, IInviteCodeService inviteCodeService) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
+    public class CreateCircleEndpoint(CircleService circleService) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
@@ -51,69 +42,10 @@ namespace CherAmiAPI.Endpoints.Circles
         public override async Task HandleAsync(CreateCircleRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync(cancellationToken: cancellationToken);
 
-            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
+            Circle created = await circleService.CreateCircleAsync(userId, request.Title, request.Image, cancellationToken);
 
-            try
-            {
-                string code = await inviteCodeService.GenerateCodeAsync();
-
-                Circle toCreate = new()
-                {
-                    Title = request.Title,
-                    TimeOfCreation = DateTimeOffset.UtcNow,
-                    CircleCode = code,
-                    IssueSchedule = IssueSchedule.Monthly,
-                };
-
-                ctx.Circles.Add(toCreate);
-                await ctx.SaveChangesAsync(cancellationToken);
-
-                string path = $"circles/{toCreate.Id}/header/header.jpg";
-
-                using var stream = new MemoryStream();
-                await request.Image.CopyToAsync(stream, cancellationToken);
-
-                toCreate.HeaderPath = path;
-                toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
-
-                await imageService.UploadImageAsync(path, stream);
-
-                DateTime now = DateTime.UtcNow;
-                DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
-                TimeSpan untilEnd = endOfMonth - now;
-                bool lessThan7DaysUntilMonthEnd = untilEnd.TotalDays < 7;
-
-                DateTime draftingEnd = lessThan7DaysUntilMonthEnd
-                    ? new DateTime(now.Year, now.Month, 1).AddMonths(2).AddTicks(-1)
-                    : new DateTime(now.Year, now.Month, 1).AddMonths(1).AddTicks(-1);
-
-                Issue firstIssue = new()
-                {
-                    CircleId = toCreate.Id,
-                    Title = $"{draftingEnd:MMMM yyyy} · Issue 1",
-                    IssueNumber = 1,
-                    DraftingStart = DateTimeOffset.UtcNow,
-                    DraftingEnd = new DateTimeOffset(draftingEnd, TimeSpan.Zero),
-                    Status = IssueStatus.Drafting,
-                    HeaderPath = null,
-                };
-
-                ctx.Issues.Add(firstIssue);
-                user.CircleId = toCreate.Id;
-                user.CircleJoinDate = DateTimeOffset.UtcNow;
-                await ctx.SaveChangesAsync(cancellationToken);
-
-                await transaction.CommitAsync(cancellationToken);
-
-                await Send.CreatedAtAsync<GetCircleEndpoint>(new IdRequest() { Id = toCreate.Id }, Map.FromEntity(toCreate), cancellation: cancellationToken);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            await Send.CreatedAtAsync<GetCircleEndpoint>(new IdRequest() { Id = created.Id }, Map.FromEntity(created), cancellation: cancellationToken);
         }
     }
 }

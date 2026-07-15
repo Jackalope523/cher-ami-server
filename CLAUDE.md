@@ -21,6 +21,8 @@ Swagger UI is available at `/swagger` when running locally.
 ### Key patterns
 
 - **FastEndpoints**: Each endpoint inherits from `Endpoint<TRequest, TResponse>`. Route, auth policy, and validation are declared inside the endpoint class.
+- **Endpoints → services → repositories**: Endpoints contain no EF Core access — they parse claims/route values, call a service class in `/Services/`, and map/send the response. Services hold the business flows and depend on repository interfaces (in `/Interfaces/`, implemented in `/Repositories/`) for all EF Core queries. Repository methods are named after the domain question (`ShareCommonCircleAsync`), not the query mechanics. Multi-step atomic flows (e.g. circle creation) run inside `IUnitOfWork.ExecuteInTransactionAsync`. Services are concrete classes registered scoped in `Program.cs`; repositories are the mockable seam for tests.
+- **Stripe SDK name collisions**: Stripe.net declares `BillingService`, `CustomerService`, `PaymentMethodService`, etc. Files that use both the `Stripe` and `CherAmiAPI.Services` namespaces need a using alias (see `Program.cs`).
 - **EF Core + multiple DB contexts**: `ApplicationDbContext` is the main context; `AzureSQLProductionContext` and `AzureSQLStagingContext` extend it for environment-specific configuration. Supports SQL Server, PostgreSQL, and SQLite.
 - **Soft deletes**: Entities use a soft-delete pattern enforced via EF Core query filters — deleted records are filtered out automatically.
 - **JWT authentication**: Tokens are signed with a key fetched from Azure Key Vault via `IKeyService`. Multi-provider login: Apple ID, Google, and email/password.

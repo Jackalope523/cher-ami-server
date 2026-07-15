@@ -1,17 +1,7 @@
-﻿using CherAmiAPI.Exceptions;
-using CherAmiAPI.Interfaces;
-using CherAmiAPI.Contexts;
-using CherAmiAPI.Endpoints.Media;
-using CherAmiAPI.Entities;
-using CherAmiAPI.Shared.Mappers;
-using CherAmiAPI.Shared.Responses;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,11 +27,11 @@ namespace CherAmiAPI.Endpoints.Circles
     {
         public UpdateRecipientRequestValidator()
         {
-  
+
         }
     }
 
-    public class UpdateRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateRecipientRequest>
+    public class UpdateRecipientEndpoint(RecipientService recipientService) : Endpoint<UpdateRecipientRequest>
     {
         public override void Configure()
         {
@@ -52,48 +42,23 @@ namespace CherAmiAPI.Endpoints.Circles
         public override async Task HandleAsync(UpdateRecipientRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            Recipient recipient = await ctx.Recipients.Where(x => x.Id == request.Id).SingleAsync(cancellationToken: cancellationToken);
 
-            if (recipient.ManagerId != userId) 
-                throw new NoAccessException();
+            await recipientService.UpdateRecipientAsync(
+                userId,
+                request.Id,
+                request.Title,
+                request.Name,
+                request.AddressLine1,
+                request.AddressLine2,
+                request.City,
+                request.ProvinceOrState,
+                request.PostalCode,
+                request.Country,
+                request.IsVeteran,
+                request.Avatar,
+                cancellationToken);
 
-            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
-
-            try
-            {
-                recipient.Title = request.Title;
-                recipient.Name = request.Name;
-                recipient.AddressLine1 = request.AddressLine1;
-                recipient.City = request.City;
-                recipient.ProvinceOrState = request.ProvinceOrState;
-                recipient.Country = request.Country;
-                recipient.AddressLine2 = request.AddressLine2;
-                recipient.PostalCode = request.PostalCode;
-                recipient.IsVeteran = request.IsVeteran ?? recipient.IsVeteran;
-
-                if (request.Avatar != null)
-                {
-                    using MemoryStream stream = new();
-                    await request.Avatar.CopyToAsync(stream, cancellationToken);
-
-                    string path = $"users/{userId}/recipients/{request.Id}/avatar.jpg";
-
-                    recipient.AvatarPath = path;
-                    recipient.AvatarTimestamp = DateTimeOffset.UtcNow;
-
-                    await imageService.UploadImageAsync(path, stream);
-                }
-
-                await ctx.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-
-                await Send.NoContentAsync(cancellationToken);
-            }
-            catch (Exception)
-            {
-               await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

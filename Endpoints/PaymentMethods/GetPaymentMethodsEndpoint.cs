@@ -1,12 +1,11 @@
-﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Services;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using Stripe;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using PaymentMethod = Stripe.PaymentMethod;
 
 namespace CherAmiAPI.Endpoints.PaymentMethods
 {
@@ -31,7 +30,7 @@ namespace CherAmiAPI.Endpoints.PaymentMethods
     }
 
 
-    public class GetPaymentMethodsEndpoint(ApplicationDbContext ctx, CustomerPaymentMethodService customerPaymentMethodService) : EndpointWithoutRequest<List<CardDTO>, CardDTOMapper>
+    public class GetPaymentMethodsEndpoint(BillingService billingService) : EndpointWithoutRequest<List<CardDTO>, CardDTOMapper>
     {
         public override void Configure()
         {
@@ -42,12 +41,7 @@ namespace CherAmiAPI.Endpoints.PaymentMethods
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            string stripeCustomerId = await ctx.Users
-                                      .Where(x => x.Id == userId)
-                                      .Select(x => x.StripeCustomerId)
-                                      .SingleAsync(cancellationToken: cancellationToken);
-
-            List<PaymentMethod> paymentMethods = (await customerPaymentMethodService.ListAsync(stripeCustomerId, cancellationToken: cancellationToken)).Data;
+            List<PaymentMethod> paymentMethods = await billingService.GetPaymentMethodsAsync(userId, cancellationToken);
 
             await Send.OkAsync([.. paymentMethods.Select(Map.FromEntity)], cancellationToken);
         }

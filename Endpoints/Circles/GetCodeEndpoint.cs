@@ -1,15 +1,13 @@
-﻿using CherAmiAPI.Contexts;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Circles
 {
-    public class GetCodeEndpoint(ApplicationDbContext ctx) : EndpointWithoutRequest<CodeResponse>
+    public class GetCodeEndpoint(CircleService circleService) : EndpointWithoutRequest<CodeResponse>
     {
         public override void Configure()
         {
@@ -20,7 +18,7 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            string circleCode = await ctx.Users.Where(x => x.Id == userId).Select(x => x.Circle.CircleCode).SingleAsync(cancellationToken: cancellationToken);
+            string circleCode = await circleService.GetCodeAsync(userId, cancellationToken);
 
             CodeResponse response = new()
             {

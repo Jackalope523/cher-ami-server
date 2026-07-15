@@ -1,18 +1,7 @@
-﻿using CherAmiAPI.Contexts;
-using CherAmiAPI.Endpoints.Auth.Apple;
-using CherAmiAPI.Entities;
-using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using Stripe;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -59,7 +48,7 @@ namespace CherAmiAPI.Endpoints.Users
         }
     }
 
-    public class UpdateUserEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<UpdateUserRequest>
+    public class UpdateUserEndpoint(UserService userService) : Endpoint<UpdateUserRequest>
     {
         public override void Configure()
         {
@@ -70,38 +59,10 @@ namespace CherAmiAPI.Endpoints.Users
         public override async Task HandleAsync(UpdateUserRequest request, CancellationToken cancellationToken)
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 
-            try
-            {
-                User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync(cancellationToken: cancellationToken);
+            await userService.UpdateUserAsync(userId, request.FirstName, request.LastName, request.Avatar, cancellationToken);
 
-                user.FirstName = request.FirstName;
-                user.LastName = request.LastName;
-
-                if (request.Avatar != null)
-                {
-                    using MemoryStream stream = new();
-                    await request.Avatar.CopyToAsync(stream, cancellationToken);
-
-                    string path = $"users/{user.Id}/avatar.jpg";
-
-                    user.AvatarPath = path;
-                    user.AvatarTimestamp = DateTimeOffset.UtcNow;
-
-                    await imageService.UploadImageAsync(path, stream);
-                }
-
-                await ctx.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-
-                await Send.NoContentAsync(cancellationToken);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            await Send.NoContentAsync(cancellationToken);
         }
     }
 }

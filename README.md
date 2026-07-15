@@ -1,4 +1,4 @@
-# Cher Ami — Server
+# Cher Ami API
 
 Back-end REST API for **[Cher Ami](https://www.thecherami.com)**, a social platform that turns private group sharing into a physical keepsake. Members post text and photos inside private **Circles**; each Circle's posts are automatically compiled into a monthly **Issue** and rendered as a print-ready magazine delivered to that Circle's recipients.
 

@@ -1,6 +1,6 @@
 # Cher Ami API
 
-Back-end REST API for **[Cher Ami](https://www.thecherami.com)**, a social platform that turns private group sharing into a physical keepsake. Members post text and photos inside private **Circles**; each Circle's posts are automatically compiled into a monthly **Issue** and rendered as a print-ready magazine delivered to that Circle's recipients.
+Back-end REST API for **[Cher Ami](https://www.thecherami.com)**, a mobile app that turns digital photos into a physical keepsake. Members post text and photos inside private **Circles**; each Circle's posts are automatically compiled into a monthly **Issue** and rendered as a print-ready magazine delivered to that Circle's recipients.
 
 Built with **ASP.NET Core 9.0 (.NET 9)** and hosted on Azure.
 
@@ -12,12 +12,12 @@ Built with **ASP.NET Core 9.0 (.NET 9)** and hosted on Azure.
 
 | Capability | Detail |
 |---|---|
-| **Multi-provider authentication** | Sign in with Apple, Google, or email/password — all issuing JWTs signed with a private key stored in Azure Key Vault. |
+| **Multi-provider authentication** | Sign in with Apple, Google, or email/password all issuing JWTs signed with a private key stored in Azure Key Vault. |
 | **Circles** | Create and manage private groups, invite members with rerollable invite codes, and manage the list of postal recipients. |
 | **Posts & Issues** | Members upload posts (text + images); posts are gathered into monthly issues per Circle. |
 | **Magazine publishing** | A scheduled background job renders each issue into a print-ready PDF magazine. |
-| **Subscriptions & billing** | Full Stripe integration — subscription pricing, saved payment methods, and webhook-driven state updates. |
-| **Notifications & email** | Push notifications via OneSignal, transactional email via SendGrid. |
+| **Subscriptions & billing** | Full Stripe integration with subscription pricing, saved payment methods, and webhook-driven state updates. |
+| **Notifications & email** | Push notifications and transactional email via OneSignal. |
 | **Trust & safety** | User blocking plus post and user reporting for moderation. |
 
 ---
@@ -26,21 +26,21 @@ Built with **ASP.NET Core 9.0 (.NET 9)** and hosted on Azure.
 
 | Concern | Technology |
 |---|---|
-| Framework | ASP.NET Core 9.0 (.NET 9) |
+| Framework | ASP.NET Core 9.0 |
 | API style | [FastEndpoints](https://fast-endpoints.com/) — one class per endpoint, no controllers |
 | Data access | Entity Framework Core 9 (SQL Server / Azure SQL, PostgreSQL, and SQLite providers) |
 | Identity & auth | ASP.NET Core Identity + JWT bearer tokens |
 | Secrets | Azure Key Vault |
-| Cloud storage | Azure Blob Storage, Tables, Queues, and File Shares |
-| Scheduling | Quartz.NET background jobs |
-| PDF generation | QuestPDF |
-| Payments | Stripe |
-| Email | SendGrid |
-| Push notifications | OneSignal |
-| Image processing | SixLabors.ImageSharp |
-| Logging | Serilog (console + Azure App Service sinks) |
+| Cloud storage | Azure Blob Storage |
+| Scheduling | [Quartz.NET](https://www.quartz-scheduler.net/) background jobs |
+| PDF generation | [QuestPDF](https://www.questpdf.com/) |
+| Payments | [Stripe](https://stripe.com/) |
+| Email | [OneSignal](https://onesignal.com/) |
+| Push notifications | [OneSignal](https://onesignal.com/) |
+| Image processing | [ImageSharp](https://sixlabors.com/products/imagesharp/) |
+| Logging | [Serilog](https://serilog.net/) (console + Azure App Service sinks) |
 | API docs | Swagger / Swashbuckle |
-| Testing | xUnit, Moq, and NSubstitute across service, unit, and integration test projects |
+| Testing | xUnit and Moq across unit and integration test projects |
 
 ---
 

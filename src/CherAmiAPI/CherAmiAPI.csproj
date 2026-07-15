@@ -3,6 +3,7 @@
   <PropertyGroup>
 	<TargetFramework>net10.0</TargetFramework>
     <UserSecretsId>79588733-8746-49d2-a899-27b0df99893b</UserSecretsId>
+    <SixLaborsLicenseFile>$(MSBuildProjectDirectory)\sixlabors.lic</SixLaborsLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Web' " />

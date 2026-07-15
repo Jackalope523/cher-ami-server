@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Services
 {
-    public class OneSignalService(HttpClient httpClient, IConfiguration config, IKeyService keyService)
+    public class OneSignalService(HttpClient httpClient, IConfiguration config, IKeyService keyService) : IOneSignalService
     {
         public async Task<string> CreateUserAsync(Guid externalId, string email, CancellationToken cancellationToken = default)
         {

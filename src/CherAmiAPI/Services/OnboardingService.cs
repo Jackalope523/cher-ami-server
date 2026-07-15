@@ -16,10 +16,9 @@ namespace CherAmiAPI.Services
         IUserRepository userRepository,
         IPostRepository postRepository,
         UserManager<User> userManager,
-        OneSignalService oneSignalService,
+        IOneSignalService oneSignalService,
         CircleService circleService,
         IImageService imageService,
-        IUnitOfWork unitOfWork,
         IConfiguration config)
     {
         public async Task<(Guid ExternalId, string OneSignalId)> GetOrCreateProspectiveUserAsync(string email, CancellationToken cancellationToken = default)
@@ -156,30 +155,30 @@ namespace CherAmiAPI.Services
             // Optionally create a post
             if (image != null)
             {
-                await unitOfWork.ExecuteInTransactionAsync(async () =>
+                // Soft-deleted until the image is in blob storage, so a failed upload never leaves a broken post in the feed
+                Post post = new()
                 {
-                    Post post = new()
-                    {
-                        AuthorId = user.Id,
-                        IssueId = issueId,
-                        Caption = caption ?? "",
-                        PostedAt = DateTimeOffset.UtcNow,
-                        ImageWidth = 1088,
-                        ImageHeight = 756,
-                    };
+                    AuthorId = user.Id,
+                    IssueId = issueId,
+                    Caption = caption ?? "",
+                    PostedAt = DateTimeOffset.UtcNow,
+                    ImageWidth = 1088,
+                    ImageHeight = 756,
+                    SoftDeleted = true,
+                };
 
-                    await postRepository.AddPostAsync(post, cancellationToken);
+                await postRepository.AddPostAsync(post, cancellationToken);
 
-                    using var stream = new MemoryStream();
-                    await image.CopyToAsync(stream, cancellationToken);
+                using var stream = new MemoryStream();
+                await image.CopyToAsync(stream, cancellationToken);
 
-                    string path = $"circles/{circle.Id}/issues/{issueId}/posts/{post.Id}/{Guid.NewGuid()}.jpg";
-                    post.HighResolutionImagePath = path;
-                    post.LowResolutionImagePath = path;
-                    await postRepository.SavePostAsync(post, cancellationToken);
+                string path = $"circles/{circle.Id}/issues/{issueId}/posts/{post.Id}/{Guid.NewGuid()}.jpg";
+                await imageService.UploadImageAsync(path, stream);
 
-                    await imageService.UploadImageAsync(path, stream);
-                }, cancellationToken);
+                post.HighResolutionImagePath = path;
+                post.LowResolutionImagePath = path;
+                post.SoftDeleted = false;
+                await postRepository.SavePostAsync(post, cancellationToken);
             }
 
             return user.ExternalId;

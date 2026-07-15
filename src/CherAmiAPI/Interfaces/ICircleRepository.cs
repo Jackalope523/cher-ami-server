@@ -15,8 +15,7 @@ namespace CherAmiAPI.Interfaces
         Task<long> GetCircleIdByCodeAsync(string code, CancellationToken cancellationToken = default);
         Task<bool> IsUserInCircleAsync(long userId, long circleId, CancellationToken cancellationToken = default);
         Task<string> GetHeaderPathAsync(long circleId, CancellationToken cancellationToken = default);
-        Task AddCircleAsync(Circle circle, CancellationToken cancellationToken = default);
-        Task AddIssueAsync(Issue issue, CancellationToken cancellationToken = default);
+        Task CreateCircleAsync(Circle circle, Issue firstIssue, long ownerId, CancellationToken cancellationToken = default);
         Task UpdateCircleAsync(long circleId, string title, string headerPath = null, DateTimeOffset? headerTimestamp = null, CancellationToken cancellationToken = default);
         Task SetHeaderAsync(long circleId, string headerPath, DateTimeOffset headerTimestamp, CancellationToken cancellationToken = default);
         Task SetCircleCodeAsync(long circleId, string code, CancellationToken cancellationToken = default);

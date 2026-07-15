@@ -18,7 +18,6 @@ namespace CherAmiAPI.Services
         ICircleRepository circleRepository,
         IUserRepository userRepository,
         IImageService imageService,
-        IUnitOfWork unitOfWork,
         ImageUploadCoordinator coordinator)
     {
         public async Task AddPostAsync(long userId, DateTime time, string caption, IFormFile image, int imageWidth, int imageHeight, CancellationToken cancellationToken = default)
@@ -26,30 +25,29 @@ namespace CherAmiAPI.Services
             long? circleId = await circleRepository.GetCircleIdOfUserAsync(userId, cancellationToken);
             long currentIssueId = await postRepository.GetCurrentIssueIdAsync(circleId.Value, cancellationToken);
 
-            await unitOfWork.ExecuteInTransactionAsync(async () =>
+            // Soft-deleted until the image is in blob storage, so a failed upload never leaves a broken post in the feed
+            Post postToAdd = new()
             {
-                Post postToAdd = new()
-                {
-                    IssueId = currentIssueId,
-                    AuthorId = userId,
-                    PostedAt = time,
-                    Caption = caption,
-                    ImageWidth = imageWidth,
-                    ImageHeight = imageHeight,
-                };
+                IssueId = currentIssueId,
+                AuthorId = userId,
+                PostedAt = time,
+                Caption = caption,
+                ImageWidth = imageWidth,
+                ImageHeight = imageHeight,
+                SoftDeleted = true,
+            };
 
-                await postRepository.AddPostAsync(postToAdd, cancellationToken);
+            await postRepository.AddPostAsync(postToAdd, cancellationToken);
 
-                using var stream = new MemoryStream();
-                await image.CopyToAsync(stream, cancellationToken);
+            using var stream = new MemoryStream();
+            await image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
+            string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
+            await imageService.UploadImageAsync(path, stream);
 
-                postToAdd.LowResolutionImagePath = path;
-                await postRepository.SavePostAsync(postToAdd, cancellationToken);
-
-                await imageService.UploadImageAsync(path, stream);
-            }, cancellationToken);
+            postToAdd.LowResolutionImagePath = path;
+            postToAdd.SoftDeleted = false;
+            await postRepository.SavePostAsync(postToAdd, cancellationToken);
         }
 
         public async Task DeletePostAsync(long userId, long postId, CancellationToken cancellationToken = default)

@@ -66,15 +66,17 @@ namespace CherAmiAPI.Repositories
                 .SingleAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task AddCircleAsync(Circle circle, CancellationToken cancellationToken = default)
+        public async Task CreateCircleAsync(Circle circle, Issue firstIssue, long ownerId, CancellationToken cancellationToken = default)
         {
-            ctx.Circles.Add(circle);
-            await ctx.SaveChangesAsync(cancellationToken);
-        }
+            User owner = await ctx.Users.Where(x => x.Id == ownerId).SingleAsync(cancellationToken: cancellationToken);
 
-        public async Task AddIssueAsync(Issue issue, CancellationToken cancellationToken = default)
-        {
-            ctx.Issues.Add(issue);
+            circle.Issues.Add(firstIssue);
+            ctx.Circles.Add(circle);
+
+            owner.Circle = circle;
+            owner.CircleJoinDate = DateTimeOffset.UtcNow;
+
+            // Single SaveChanges so the circle, its first issue, and the owner's membership commit atomically
             await ctx.SaveChangesAsync(cancellationToken);
         }
 

@@ -20,7 +20,7 @@ namespace CherAmiAPI.Services
         IPostRepository postRepository,
         UserItemMapper userItemMapper,
         IImageService imageService,
-        OneSignalService oneSignalService,
+        IOneSignalService oneSignalService,
         CustomerService customerService)
     {
         public async Task<User> GetUserAsync(long requesterId, long targetId, CancellationToken cancellationToken = default)

@@ -15,7 +15,6 @@ namespace CherAmiAPI.Services
         IRecipientRepository recipientRepository,
         IUserRepository userRepository,
         IImageService imageService,
-        IUnitOfWork unitOfWork,
         CustomerPaymentMethodService customerPaymentMethodService)
     {
         public async Task<Recipient> AddRecipientAsync(long managerId, Recipient toAdd, IFormFile avatar = null, CancellationToken cancellationToken = default)
@@ -27,25 +26,23 @@ namespace CherAmiAPI.Services
 
             toAdd.ManagerId = managerId;
 
-            await unitOfWork.ExecuteInTransactionAsync(async () =>
+            // Save first so the avatar path is built from the database-assigned id
+            await recipientRepository.AddRecipientAsync(toAdd, cancellationToken);
+
+            if (avatar != null)
             {
-                // Save first so the avatar path is built from the database-assigned id
-                await recipientRepository.AddRecipientAsync(toAdd, cancellationToken);
+                using MemoryStream stream = new();
+                await avatar.CopyToAsync(stream, cancellationToken);
 
-                if (avatar != null)
-                {
-                    using MemoryStream stream = new();
-                    await avatar.CopyToAsync(stream, cancellationToken);
+                string path = $"users/{managerId}/recipients/{toAdd.Id}/avatar.jpg";
 
-                    string path = $"users/{managerId}/recipients/{toAdd.Id}/avatar.jpg";
-                    toAdd.AvatarPath = path;
-                    toAdd.AvatarTimestamp = DateTimeOffset.UtcNow;
+                // Upload before recording the path so the database never references a missing blob
+                await imageService.UploadImageAsync(path, stream);
 
-                    await recipientRepository.SaveRecipientAsync(toAdd, cancellationToken);
-
-                    await imageService.UploadImageAsync(path, stream);
-                }
-            }, cancellationToken);
+                toAdd.AvatarPath = path;
+                toAdd.AvatarTimestamp = DateTimeOffset.UtcNow;
+                await recipientRepository.SaveRecipientAsync(toAdd, cancellationToken);
+            }
 
             return toAdd;
         }

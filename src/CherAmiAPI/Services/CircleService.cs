@@ -15,62 +15,52 @@ namespace CherAmiAPI.Services
         IRecipientRepository recipientRepository,
         IUserRepository userRepository,
         IImageService imageService,
-        IInviteCodeService inviteCodeService,
-        IUnitOfWork unitOfWork)
+        IInviteCodeService inviteCodeService)
     {
         public async Task<Circle> CreateCircleAsync(long userId, string title, IFormFile headerImage = null, CancellationToken cancellationToken = default)
         {
-            Circle toCreate = null;
+            string code = await inviteCodeService.GenerateCodeAsync();
 
-            await unitOfWork.ExecuteInTransactionAsync(async () =>
+            Circle toCreate = new()
             {
-                string code = await inviteCodeService.GenerateCodeAsync();
+                Title = title,
+                TimeOfCreation = DateTimeOffset.UtcNow,
+                CircleCode = code,
+                IssueSchedule = IssueSchedule.Monthly,
+            };
 
-                toCreate = new Circle
-                {
-                    Title = title,
-                    TimeOfCreation = DateTimeOffset.UtcNow,
-                    CircleCode = code,
-                    IssueSchedule = IssueSchedule.Monthly,
-                };
+            DateTime now = DateTime.UtcNow;
+            DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
+            TimeSpan untilEnd = endOfMonth - now;
+            bool lessThan7DaysUntilMonthEnd = untilEnd.TotalDays < 7;
 
-                await circleRepository.AddCircleAsync(toCreate, cancellationToken);
+            DateTime draftingEnd = lessThan7DaysUntilMonthEnd
+                ? new DateTime(now.Year, now.Month, 1).AddMonths(2).AddTicks(-1)
+                : new DateTime(now.Year, now.Month, 1).AddMonths(1).AddTicks(-1);
 
-                if (headerImage != null)
-                {
-                    string path = $"circles/{toCreate.Id}/header/header.jpg";
+            Issue firstIssue = new()
+            {
+                Title = $"{draftingEnd:MMMM yyyy} · Issue 1",
+                IssueNumber = 1,
+                DraftingStart = DateTimeOffset.UtcNow,
+                DraftingEnd = new DateTimeOffset(draftingEnd, TimeSpan.Zero),
+                Status = IssueStatus.Drafting,
+                HeaderPath = null,
+            };
 
-                    using var stream = new MemoryStream();
-                    await headerImage.CopyToAsync(stream, cancellationToken);
+            await circleRepository.CreateCircleAsync(toCreate, firstIssue, userId, cancellationToken);
 
-                    await circleRepository.SetHeaderAsync(toCreate.Id, path, DateTimeOffset.UtcNow, cancellationToken);
+            if (headerImage != null)
+            {
+                using var stream = new MemoryStream();
+                await headerImage.CopyToAsync(stream, cancellationToken);
 
-                    await imageService.UploadImageAsync(path, stream);
-                }
+                string path = $"circles/{toCreate.Id}/header/header.jpg";
 
-                DateTime now = DateTime.UtcNow;
-                DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
-                TimeSpan untilEnd = endOfMonth - now;
-                bool lessThan7DaysUntilMonthEnd = untilEnd.TotalDays < 7;
-
-                DateTime draftingEnd = lessThan7DaysUntilMonthEnd
-                    ? new DateTime(now.Year, now.Month, 1).AddMonths(2).AddTicks(-1)
-                    : new DateTime(now.Year, now.Month, 1).AddMonths(1).AddTicks(-1);
-
-                Issue firstIssue = new()
-                {
-                    CircleId = toCreate.Id,
-                    Title = $"{draftingEnd:MMMM yyyy} · Issue 1",
-                    IssueNumber = 1,
-                    DraftingStart = DateTimeOffset.UtcNow,
-                    DraftingEnd = new DateTimeOffset(draftingEnd, TimeSpan.Zero),
-                    Status = IssueStatus.Drafting,
-                    HeaderPath = null,
-                };
-
-                await circleRepository.AddIssueAsync(firstIssue, cancellationToken);
-                await circleRepository.AddUserToCircleAsync(userId, toCreate.Id, cancellationToken);
-            }, cancellationToken);
+                // Upload before recording the path so the database never references a missing blob
+                await imageService.UploadImageAsync(path, stream);
+                await circleRepository.SetHeaderAsync(toCreate.Id, path, DateTimeOffset.UtcNow, cancellationToken);
+            }
 
             return toCreate;
         }

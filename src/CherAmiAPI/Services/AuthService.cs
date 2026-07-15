@@ -1,12 +1,10 @@
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
-using FastEndpoints.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using System;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using User = CherAmiAPI.Entities.User;
@@ -17,11 +15,12 @@ namespace CherAmiAPI.Services
         UserManager<User> userManager,
         IUserRepository userRepository,
         IAuthRepository authRepository,
-        OneSignalService oneSignalService,
+        IOneSignalService oneSignalService,
         INameService nameService,
         CustomerService customerService,
         CircleService circleService,
         IKeyService keyService,
+        ILoginTokenService loginTokenService,
         IConfiguration config)
     {
         public async Task SendEmailLoginCodeAsync(string email, CancellationToken cancellationToken = default)
@@ -135,7 +134,7 @@ namespace CherAmiAPI.Services
 
             await userRepository.SaveUserAsync(user, cancellationToken);
 
-            string token = await CreateLoginTokenAsync(user);
+            string token = await loginTokenService.CreateLoginTokenAsync(user);
 
             return (token, user.FirstName != null && user.LastName != null);
         }
@@ -208,7 +207,7 @@ namespace CherAmiAPI.Services
 
             await userRepository.SaveUserAsync(user, cancellationToken);
 
-            string token = await CreateLoginTokenAsync(user);
+            string token = await loginTokenService.CreateLoginTokenAsync(user);
 
             return (token, user.FirstName != null && user.LastName != null);
         }
@@ -275,7 +274,7 @@ namespace CherAmiAPI.Services
 
             await userRepository.SaveUserAsync(user, cancellationToken);
 
-            string token = await CreateLoginTokenAsync(user);
+            string token = await loginTokenService.CreateLoginTokenAsync(user);
 
             return (token, user.FirstName != null && user.LastName != null);
         }
@@ -302,17 +301,5 @@ namespace CherAmiAPI.Services
             await userRepository.SaveUserAsync(user, cancellationToken);
         }
 
-        private async Task<string> CreateLoginTokenAsync(User user)
-        {
-            string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
-
-            return JwtBearer.CreateToken(o =>
-            {
-                o.SigningKey = signingKey;
-                o.ExpireAt = DateTime.UtcNow.AddDays(10);
-                o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                o.User.Claims.Add(new Claim("Email", user.Email));
-            });
-        }
     }
 }

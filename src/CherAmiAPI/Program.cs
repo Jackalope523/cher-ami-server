@@ -67,8 +67,8 @@ builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
 builder.Services.AddScoped<INameService, NameService>();
+builder.Services.AddScoped<ILoginTokenService, LoginTokenService>();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICircleRepository, CircleRepository>();
 builder.Services.AddScoped<IRecipientRepository, RecipientRepository>();
@@ -94,6 +94,8 @@ builder.Services.AddHttpClient<OneSignalService>(client =>
     client.BaseAddress = new Uri($"https://api.onesignal.com/apps/{builder.Configuration["ONESIGNAL_APP_ID"]}/");
     client.DefaultRequestHeaders.Add("Authorization", $"key {builder.Configuration["OneSignal-API-Key"]}");
 });
+
+builder.Services.AddTransient<IOneSignalService>(sp => sp.GetRequiredService<OneSignalService>());
 
 StripeConfiguration.ApiKey = builder.Configuration["Stripe-Secret-Key"];
 builder.Services.AddScoped<CustomerService>();

@@ -34,6 +34,7 @@ namespace CherAmiAPI.Endpoints.Circles
         public long? Id { get; set; }
         public string IssueTitle { get; set; }
         public DateTimeOffset? IssueDate { get; set; }
+        public DateTimeOffset? IssueCloseDate { get; set; }
         public List<FeedPost> Posts { get; set; }
         public int? NextPage { get; set; }
 
@@ -68,6 +69,7 @@ namespace CherAmiAPI.Endpoints.Circles
                     Id = null,
                     IssueTitle = null,
                     IssueDate = null,
+                    IssueCloseDate = null,
                     NextPage = null,
                     Posts = [],
                 };
@@ -78,6 +80,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 Id = issue.Id,
                 IssueTitle = issue.Title,
                 IssueDate = issue.DraftingStart,
+                IssueCloseDate = issue.DraftingEnd,
                 Posts = [.. issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity)],
             };
         }

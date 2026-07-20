@@ -12,8 +12,6 @@ namespace CherAmiAPI.Entities
         public long IssueId { get; set; }
         public DateTimeOffset PostedAt { get; set; }
 
-        // When the photo was taken (EXIF-derived or user-set), constrained to
-        // [Issue.DraftingStart, now]. PostedAt remains the upload timestamp.
         public DateTimeOffset PhotoDate { get; set; }
         public string LowResolutionImagePath { get; set; }
         public string HighResolutionImagePath { get; set; }

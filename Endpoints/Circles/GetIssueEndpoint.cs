@@ -49,7 +49,6 @@ namespace CherAmiAPI.Endpoints.Circles
             {
                 Id = post.Id,
                 AuthorId = post.AuthorId,
-                // Legacy posts predate the PhotoDate column; fall back to the upload time.
                 PhotoDate = post.PhotoDate == default ? post.PostedAt : post.PhotoDate,
                 PhotoUrl = $"{config["APP_SERVICE_URI"]}/posts/{post.Id}/image?timestamp={post.PostedAt}",
                 PhotoPath = $"/posts/{post.Id}/image",

@@ -21,6 +21,7 @@ namespace CherAmiAPI.Endpoints.Posts
     {
         public string UploadId { get; set; }
         public string Caption { get; set; }
+        public DateTimeOffset? PhotoDate { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }
@@ -102,6 +103,7 @@ namespace CherAmiAPI.Endpoints.Posts
             post.HighResolutionImagePath = croppedPath;
             post.LowResolutionImagePath = lowResPath;
             post.PostedAt = DateTimeOffset.UtcNow;
+            post.PhotoDate = Shared.PhotoDates.Normalize(request.PhotoDate, post.Issue.DraftingStart);
             post.SoftDeleted = false; // Finalize post
 
             await ctx.SaveChangesAsync(cancellationToken);

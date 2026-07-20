@@ -58,11 +58,10 @@ namespace CherAmiAPI.Endpoints.Issues
             //JACKALOPE: Fucking  SQLITE DATE ORDERING SHIT.
             //long issueId = await ctx.Issues.OrderByDescending(x => x.DraftingEnd).Select(x => x.Id).FirstAsync(cancellationToken: cancellationToken);
 
-            long currentIssueId = (await ctx.Issues
+            Issue currentIssue = (await ctx.Issues
                             .Where(x => x.CircleId == circleId)
                             .ToListAsync(cancellationToken: cancellationToken))
                             .OrderByDescending(x => x.DraftingEnd)
-                            .Select(x => x.Id)
                             .First();
 
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
@@ -71,9 +70,10 @@ namespace CherAmiAPI.Endpoints.Issues
             {
                 Post postToAdd = new()
                 {
-                    IssueId = currentIssueId,
+                    IssueId = currentIssue.Id,
                     AuthorId = userId,
                     PostedAt = request.Time,
+                    PhotoDate = Shared.PhotoDates.Normalize(request.Time, currentIssue.DraftingStart),
                     Caption = request.Caption,
                     ImageWidth = request.ImageWidth,
                     ImageHeight = request.ImageHeight,
@@ -85,7 +85,7 @@ namespace CherAmiAPI.Endpoints.Issues
                 using var stream = new MemoryStream();
                 await request.Image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
+                string path = $"circles/{circleId}/issues/{currentIssue.Id}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
 
                 postToAdd.LowResolutionImagePath = path;
                 await ctx.SaveChangesAsync(cancellationToken);

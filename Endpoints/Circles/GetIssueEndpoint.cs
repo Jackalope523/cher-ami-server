@@ -35,6 +35,7 @@ namespace CherAmiAPI.Endpoints.Circles
         public string IssueTitle { get; set; }
         public DateTimeOffset? IssueDate { get; set; }
         public DateTimeOffset? IssueCloseDate { get; set; }
+        public IssueStatus? Status { get; set; }
         public List<FeedPost> Posts { get; set; }
         public int? NextPage { get; set; }
 
@@ -48,7 +49,8 @@ namespace CherAmiAPI.Endpoints.Circles
             {
                 Id = post.Id,
                 AuthorId = post.AuthorId,
-                PhotoDate = post.PostedAt,
+                // Legacy posts predate the PhotoDate column; fall back to the upload time.
+                PhotoDate = post.PhotoDate == default ? post.PostedAt : post.PhotoDate,
                 PhotoUrl = $"{config["APP_SERVICE_URI"]}/posts/{post.Id}/image?timestamp={post.PostedAt}",
                 PhotoPath = $"/posts/{post.Id}/image",
                 ImageWidth = post.ImageWidth != 0 ? post.ImageWidth : 259,
@@ -70,6 +72,7 @@ namespace CherAmiAPI.Endpoints.Circles
                     IssueTitle = null,
                     IssueDate = null,
                     IssueCloseDate = null,
+                    Status = null,
                     NextPage = null,
                     Posts = [],
                 };
@@ -81,7 +84,11 @@ namespace CherAmiAPI.Endpoints.Circles
                 IssueTitle = issue.Title,
                 IssueDate = issue.DraftingStart,
                 IssueCloseDate = issue.DraftingEnd,
-                Posts = [.. issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity)],
+                Status = issue.Status,
+                Posts = [.. issue.Posts
+                    .OrderByDescending(x => x.PhotoDate == default ? x.PostedAt : x.PhotoDate)
+                    .ThenByDescending(x => x.PostedAt)
+                    .Select(feedPostMapper.FromEntity)],
             };
         }
     }

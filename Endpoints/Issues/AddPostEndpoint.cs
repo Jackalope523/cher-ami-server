@@ -42,7 +42,7 @@ namespace CherAmiAPI.Endpoints.Issues
         }
     }
 
-    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<CreatePostRequest>
+    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService, IPhotoDateService photoDateService) : Endpoint<CreatePostRequest>
     {
         public override void Configure()
         {
@@ -58,8 +58,9 @@ namespace CherAmiAPI.Endpoints.Issues
             //JACKALOPE: Fucking  SQLITE DATE ORDERING SHIT.
             //long issueId = await ctx.Issues.OrderByDescending(x => x.DraftingEnd).Select(x => x.Id).FirstAsync(cancellationToken: cancellationToken);
 
-            Issue currentIssue = (await ctx.Issues
+            var currentIssue = (await ctx.Issues
                             .Where(x => x.CircleId == circleId)
+                            .Select(x => new { x.Id, x.DraftingStart, x.DraftingEnd })
                             .ToListAsync(cancellationToken: cancellationToken))
                             .OrderByDescending(x => x.DraftingEnd)
                             .First();
@@ -73,7 +74,7 @@ namespace CherAmiAPI.Endpoints.Issues
                     IssueId = currentIssue.Id,
                     AuthorId = userId,
                     PostedAt = request.Time,
-                    PhotoDate = Shared.PhotoDates.Normalize(request.Time, currentIssue.DraftingStart),
+                    PhotoDate = photoDateService.Normalize(request.Time, currentIssue.DraftingStart),
                     Caption = request.Caption,
                     ImageWidth = request.ImageWidth,
                     ImageHeight = request.ImageHeight,

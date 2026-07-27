@@ -65,6 +65,7 @@ builder.Services.AddScoped<IKeyService, KeyService>();
 builder.Services.AddScoped<IImageService, AzureImageService>();
 builder.Services.AddScoped<IInviteCodeService, InviteCodeService>();
 builder.Services.AddScoped<INameService, NameService>();
+builder.Services.AddScoped<IPhotoDateService, PhotoDateService>();
 builder.Services.AddScoped<CircleService>();
 
 builder.Services.AddScoped<UserItemMapper>();

@@ -1,17 +1,14 @@
+using CherAmiAPI.Interfaces;
 using System;
 
-namespace CherAmiAPI.Shared
+namespace CherAmiAPI.Services
 {
-    public static class PhotoDates
+    public class PhotoDateService : IPhotoDateService
     {
         // Small allowance for client clock skew when comparing against "now".
         private static readonly TimeSpan FutureTolerance = TimeSpan.FromMinutes(5);
 
-        /// <summary>
-        /// A photo date must fall within its issue's drafting window and may not
-        /// be in the future. Anything missing or out of range falls back to now.
-        /// </summary>
-        public static DateTimeOffset Normalize(DateTimeOffset? requested, DateTimeOffset draftingStart)
+        public DateTimeOffset Normalize(DateTimeOffset? requested, DateTimeOffset draftingStart)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 

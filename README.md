@@ -35,7 +35,9 @@ Built with **ASP.NET Core 9.0** and [FastEndpoints](https://fast-endpoints.com/)
 
 ## Project structure
 
-The project lives at the repository root (`CherAmiAPI.csproj`).
+The solution follows the standard `src` + `tests` layout: the API project lives in `src/CherAmiAPI/`, and test projects live in `tests/` (`CherAmiAPI.Tests`, `CherAmiAPI.UnitTests`, `CherAmiAPI.IntegrationTests`).
+
+Inside `src/CherAmiAPI/`:
 
 ```
 Endpoints/         API endpoints, one class per route, grouped by feature:
@@ -78,8 +80,8 @@ ExceptionHandler.cs Global error handler returning RFC 7807 problem details
 
 ```bash
 dotnet restore
-dotnet build
-dotnet run          # Web profile: https://localhost:5001, http://localhost:5000
+dotnet build CherAmiAPI.sln
+dotnet run --project src/CherAmiAPI    # Web profile: https://localhost:5001, http://localhost:5000
 ```
 
 Swagger UI is available at `/swagger`.
@@ -89,11 +91,11 @@ Launch profiles are defined in `Properties/launchSettings.json`: **IIS Express**
 ### Database migrations
 
 ```bash
-dotnet ef migrations add <MigrationName>   # create a migration
-dotnet ef database update                  # apply pending migrations
+dotnet ef migrations add <MigrationName> --project src/CherAmiAPI   # create a migration
+dotnet ef database update --project src/CherAmiAPI                  # apply pending migrations
 ```
 
-Migrations are kept per database target under `Migrations/`.
+Migrations are kept per database target under `src/CherAmiAPI/Migrations/`.
 
 ## Conventions
 

@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 dotnet restore                                    # Restore NuGet packages
-dotnet build CherAmiAPI.csproj                    # Build the API (bare `dotnet build` breaks on a stray .proj file at the root)
-dotnet run --project CherAmiAPI                   # Run the API (https://localhost:5001)
-dotnet test CherAmiAPI.Tests/CherAmiAPI.Tests.csproj  # Run the service-layer unit tests
-dotnet ef migrations add <MigrationName>          # Create a new EF Core migration
-dotnet ef database update                         # Apply pending migrations
+dotnet build CherAmiAPI.sln                       # Build the API and all test projects
+dotnet run --project src/CherAmiAPI               # Run the API (https://localhost:5001)
+dotnet test CherAmiAPI.sln                        # Run all test projects
+dotnet ef migrations add <MigrationName> --project src/CherAmiAPI  # Create a new EF Core migration
+dotnet ef database update --project src/CherAmiAPI                 # Apply pending migrations
 ```
 
 Swagger UI is available at `/swagger` when running locally.
@@ -51,4 +51,4 @@ Per the project README, the codebase follows Uncle Bob's Clean Code naming princ
 
 - `Development` environment is not supported — the app expects either `Staging` or `Production` (Azure-hosted).
 - Launch profiles are defined in `Properties/launchSettings.json`: `IIS Express` (local IIS) and `Web` (direct .NET on ports 5001/5000).
-- Unit tests live in `CherAmiAPI.Tests/` (xUnit + NSubstitute), a subfolder of the API project root — the API csproj explicitly excludes `CherAmiAPI.Tests\**` from its own compile globs. Tests cover the service layer by mocking the repository and integration interfaces (`IImageService`, `IOneSignalService`, `IKeyService`, `ILoginTokenService`); the repository layer is reserved for integration tests. Stripe SDK service classes are substituted directly (their methods are virtual). `UserManager<User>` is substituted with the 9-argument constructor incantation.
+- The solution uses a `src` + `tests` layout: the API project is `src/CherAmiAPI/`; test projects live under `tests/` — `CherAmiAPI.Tests` (xUnit + NSubstitute, service-layer tests), `CherAmiAPI.UnitTests` (xUnit v3 + Moq), and `CherAmiAPI.IntegrationTests`. Tests cover the service layer by mocking the repository and integration interfaces (`IImageService`, `IOneSignalService`, `IKeyService`, `ILoginTokenService`); the repository layer is reserved for integration tests. Stripe SDK service classes are substituted directly (their methods are virtual). `UserManager<User>` is substituted with the 9-argument constructor incantation.

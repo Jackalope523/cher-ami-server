@@ -76,6 +76,8 @@ namespace CherAmiAPI.BackgroundJobs
                 Log.Error($"Getting posts from database...");
                 var posts = await ctx.Posts
                                       .Where(x => x.IssueId == issue.Issue.Id)
+                                      .OrderBy(x => x.PhotoDate)
+                                      .ThenBy(x => x.PostedAt)
                                       .Select(x => new { x.LowResolutionImagePath, x.ImageWidth, x.ImageHeight, x.Author.AvatarPath, AuthorName = $"{x.Author.FirstName} {x.Author.LastName}", Text = x.Caption })
                                       .ToListAsync();
 

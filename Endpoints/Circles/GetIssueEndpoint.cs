@@ -34,20 +34,47 @@ namespace CherAmiAPI.Endpoints.Circles
         public long? Id { get; set; }
         public string IssueTitle { get; set; }
         public DateTimeOffset? IssueDate { get; set; }
+        public DateTimeOffset? IssueCloseDate { get; set; }
+        public IssueStatus? Status { get; set; }
         public List<FeedPost> Posts { get; set; }
         public int? NextPage { get; set; }
 
     }
 
-    public class FeedPostMapper(IConfiguration config) : ResponseMapper<FeedPost, Post>
+    /// <summary>
+    /// The columns the feed actually needs — the Post entity also carries image
+    /// paths and upload bookkeeping the response never exposes.
+    /// </summary>
+    public class FeedPostData
     {
-        public override FeedPost FromEntity(Post post)
+        public long Id { get; set; }
+        public long AuthorId { get; set; }
+        public DateTimeOffset PhotoDate { get; set; }
+        public DateTimeOffset PostedAt { get; set; }
+        public int ImageWidth { get; set; }
+        public int ImageHeight { get; set; }
+        public string Caption { get; set; }
+    }
+
+    public class FeedIssueData
+    {
+        public long Id { get; set; }
+        public string Title { get; set; }
+        public DateTimeOffset DraftingStart { get; set; }
+        public DateTimeOffset DraftingEnd { get; set; }
+        public IssueStatus Status { get; set; }
+        public List<FeedPostData> Posts { get; set; }
+    }
+
+    public class FeedPostMapper(IConfiguration config) : ResponseMapper<FeedPost, FeedPostData>
+    {
+        public override FeedPost FromEntity(FeedPostData post)
         {
             return new()
             {
                 Id = post.Id,
                 AuthorId = post.AuthorId,
-                PhotoDate = post.PostedAt,
+                PhotoDate = post.PhotoDate == default ? post.PostedAt : post.PhotoDate,
                 PhotoUrl = $"{config["APP_SERVICE_URI"]}/posts/{post.Id}/image?timestamp={post.PostedAt}",
                 PhotoPath = $"/posts/{post.Id}/image",
                 ImageWidth = post.ImageWidth != 0 ? post.ImageWidth : 259,
@@ -57,9 +84,9 @@ namespace CherAmiAPI.Endpoints.Circles
         }
     }
 
-    public class FeedPageResponseMapper(FeedPostMapper feedPostMapper) : ResponseMapper<FeedPageResponse, Issue>
+    public class FeedPageResponseMapper(FeedPostMapper feedPostMapper) : ResponseMapper<FeedPageResponse, FeedIssueData>
     {
-        public override FeedPageResponse FromEntity(Issue issue)
+        public override FeedPageResponse FromEntity(FeedIssueData issue)
         {
             if (issue == null)
             {
@@ -68,6 +95,8 @@ namespace CherAmiAPI.Endpoints.Circles
                     Id = null,
                     IssueTitle = null,
                     IssueDate = null,
+                    IssueCloseDate = null,
+                    Status = null,
                     NextPage = null,
                     Posts = [],
                 };
@@ -78,7 +107,13 @@ namespace CherAmiAPI.Endpoints.Circles
                 Id = issue.Id,
                 IssueTitle = issue.Title,
                 IssueDate = issue.DraftingStart,
-                Posts = [.. issue.Posts.OrderByDescending(x => x.PostedAt).Select(feedPostMapper.FromEntity)],
+                IssueCloseDate = issue.DraftingEnd,
+                Status = issue.Status,
+                // Legacy posts predate the PhotoDate column; fall back to upload time.
+                Posts = [.. issue.Posts
+                    .OrderByDescending(x => x.PhotoDate == default ? x.PostedAt : x.PhotoDate)
+                    .ThenByDescending(x => x.PostedAt)
+                    .Select(feedPostMapper.FromEntity)],
             };
         }
     }
@@ -108,12 +143,32 @@ namespace CherAmiAPI.Endpoints.Circles
 
             List<long> blacklist = [.. blockedIds, .. blockedByIds];
 
-            Issue issue = await ctx.Issues
+            FeedIssueData issue = await ctx.Issues
                             .Where(x => x.CircleId == circleId)
-                            .Include(x => x.Posts.Where(x => !blacklist.Contains(x.AuthorId)))
                             .OrderByDescending(x => x.IssueNumber)
                             .Skip(request.PageParam)
                             .Take(1)
+                            .Select(x => new FeedIssueData
+                            {
+                                Id = x.Id,
+                                Title = x.Title,
+                                DraftingStart = x.DraftingStart,
+                                DraftingEnd = x.DraftingEnd,
+                                Status = x.Status,
+                                Posts = x.Posts
+                                    .Where(p => !blacklist.Contains(p.AuthorId))
+                                    .Select(p => new FeedPostData
+                                    {
+                                        Id = p.Id,
+                                        AuthorId = p.AuthorId,
+                                        PhotoDate = p.PhotoDate,
+                                        PostedAt = p.PostedAt,
+                                        ImageWidth = p.ImageWidth,
+                                        ImageHeight = p.ImageHeight,
+                                        Caption = p.Caption,
+                                    })
+                                    .ToList(),
+                            })
                             .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
             FeedPageResponse response = Map.FromEntity(issue);

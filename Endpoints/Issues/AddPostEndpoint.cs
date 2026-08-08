@@ -42,7 +42,7 @@ namespace CherAmiAPI.Endpoints.Issues
         }
     }
 
-    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<CreatePostRequest>
+    public class AddPostEndpoint(ApplicationDbContext ctx, IImageService imageService, IPhotoDateService photoDateService) : Endpoint<CreatePostRequest>
     {
         public override void Configure()
         {
@@ -58,11 +58,11 @@ namespace CherAmiAPI.Endpoints.Issues
             //JACKALOPE: Fucking  SQLITE DATE ORDERING SHIT.
             //long issueId = await ctx.Issues.OrderByDescending(x => x.DraftingEnd).Select(x => x.Id).FirstAsync(cancellationToken: cancellationToken);
 
-            long currentIssueId = (await ctx.Issues
+            var currentIssue = (await ctx.Issues
                             .Where(x => x.CircleId == circleId)
+                            .Select(x => new { x.Id, x.DraftingStart, x.DraftingEnd })
                             .ToListAsync(cancellationToken: cancellationToken))
                             .OrderByDescending(x => x.DraftingEnd)
-                            .Select(x => x.Id)
                             .First();
 
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
@@ -71,9 +71,10 @@ namespace CherAmiAPI.Endpoints.Issues
             {
                 Post postToAdd = new()
                 {
-                    IssueId = currentIssueId,
+                    IssueId = currentIssue.Id,
                     AuthorId = userId,
                     PostedAt = request.Time,
+                    PhotoDate = photoDateService.Normalize(request.Time, currentIssue.DraftingStart),
                     Caption = request.Caption,
                     ImageWidth = request.ImageWidth,
                     ImageHeight = request.ImageHeight,
@@ -85,7 +86,7 @@ namespace CherAmiAPI.Endpoints.Issues
                 using var stream = new MemoryStream();
                 await request.Image.CopyToAsync(stream, cancellationToken);
 
-                string path = $"circles/{circleId}/issues/{currentIssueId}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
+                string path = $"circles/{circleId}/issues/{currentIssue.Id}/posts/{postToAdd.Id}/{Guid.NewGuid()}.jpg";
 
                 postToAdd.LowResolutionImagePath = path;
                 await ctx.SaveChangesAsync(cancellationToken);

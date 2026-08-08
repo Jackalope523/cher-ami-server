@@ -4,6 +4,7 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CherAmiAPI.Migrations.AzureSQLProduction
 {
     [DbContext(typeof(AzureSQLProductionContext))]
-    partial class AzureSQLProductionContextModelSnapshot : ModelSnapshot
+    [Migration("20260720110000_Add Post PhotoDate")]
+    partial class AddPostPhotoDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

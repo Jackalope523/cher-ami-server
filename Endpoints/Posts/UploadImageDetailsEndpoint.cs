@@ -7,6 +7,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace CherAmiAPI.Endpoints.Posts
     {
         public string UploadId { get; set; }
         public string Caption { get; set; }
+        public DateTimeOffset? PhotoDate { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }
@@ -36,7 +38,7 @@ namespace CherAmiAPI.Endpoints.Posts
         }
     }
 
-    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator) : Endpoint<UploadImageDetailsRequest>
+    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator, IPhotoDateService photoDateService) : Endpoint<UploadImageDetailsRequest>
     {
         public override void Configure()
         {
@@ -49,10 +51,19 @@ namespace CherAmiAPI.Endpoints.Posts
 
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            Post post = await ctx.Posts
+            var post = await ctx.Posts
                 .IgnoreQueryFilters()
-                .Include(x => x.Issue)
-                .SingleOrDefaultAsync(x => x.UploadId == request.UploadId, cancellationToken);
+                .Where(x => x.UploadId == request.UploadId)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.AuthorId,
+                    x.IssueId,
+                    x.HighResolutionImagePath,
+                    x.Issue.CircleId,
+                    x.Issue.DraftingStart,
+                })
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (post == null || post.AuthorId != userId)
             {
@@ -78,7 +89,7 @@ namespace CherAmiAPI.Endpoints.Posts
             await image.SaveAsJpegAsync(croppedStream, cancellationToken);
             croppedStream.Position = 0;
 
-            string croppedPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/cropped.jpg";
+            string croppedPath = $"circles/{post.CircleId}/issues/{post.IssueId}/posts/{request.UploadId}/cropped.jpg";
             await imageService.UploadImageAsync(croppedPath, croppedStream);
 
             // Create and save the low-res version (resize to 800px width for example)
@@ -92,19 +103,25 @@ namespace CherAmiAPI.Endpoints.Posts
             await image.SaveAsJpegAsync(lowResStream, cancellationToken);
             lowResStream.Position = 0;
 
-            string lowResPath = $"circles/{post.Issue.CircleId}/issues/{post.IssueId}/posts/{post.UploadId}/lowres.jpg";
+            string lowResPath = $"circles/{post.CircleId}/issues/{post.IssueId}/posts/{request.UploadId}/lowres.jpg";
             await imageService.UploadImageAsync(lowResPath, lowResStream);
 
             // Update database record
-            post.Caption = request.Caption;
-            post.ImageWidth = request.Width;
-            post.ImageHeight = request.Height;
-            post.HighResolutionImagePath = croppedPath;
-            post.LowResolutionImagePath = lowResPath;
-            post.PostedAt = DateTimeOffset.UtcNow;
-            post.SoftDeleted = false; // Finalize post
+            DateTimeOffset photoDate = photoDateService.Normalize(request.PhotoDate, post.DraftingStart);
+            DateTimeOffset postedAt = DateTimeOffset.UtcNow;
 
-            await ctx.SaveChangesAsync(cancellationToken);
+            await ctx.Posts
+                .IgnoreQueryFilters()
+                .Where(x => x.Id == post.Id)
+                .ExecuteUpdateAsync(x => x
+                    .SetProperty(p => p.Caption, request.Caption)
+                    .SetProperty(p => p.ImageWidth, request.Width)
+                    .SetProperty(p => p.ImageHeight, request.Height)
+                    .SetProperty(p => p.HighResolutionImagePath, croppedPath)
+                    .SetProperty(p => p.LowResolutionImagePath, lowResPath)
+                    .SetProperty(p => p.PostedAt, postedAt)
+                    .SetProperty(p => p.PhotoDate, photoDate)
+                    .SetProperty(p => p.SoftDeleted, false), cancellationToken); // Finalize post
 
             await Send.NoContentAsync(cancellationToken);
         }

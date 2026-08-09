@@ -24,6 +24,7 @@ namespace CherAmiAPI.Endpoints.Users
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
         public IFormFile Avatar { get; set; }
     }
 
@@ -50,6 +51,11 @@ namespace CherAmiAPI.Endpoints.Users
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage("Last name is required.")
                 .MaximumLength(100).WithMessage("Last name cannot exceed 50 characters.");
+
+            RuleFor(x => x.DateOfBirth)
+                .Must(date => date.Value <= DateOnly.FromDateTime(DateTime.UtcNow))
+                .WithMessage("Date of birth cannot be in the future.")
+                .When(x => x.DateOfBirth != null);
 
             RuleFor(x => x.Avatar)
                 .Must(x => x.ContentType == "image/jpeg" || x.ContentType == "image/jpg").WithMessage("Image must be a jpeg.")
@@ -78,6 +84,15 @@ namespace CherAmiAPI.Endpoints.Users
 
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
+                // The name is now the user's own, not a sign-in placeholder.
+                user.NameProvidedByUser = true;
+
+                // Optional, and only ever set — never cleared by an update that
+                // simply omits it.
+                if (request.DateOfBirth != null)
+                {
+                    user.DateOfBirth = request.DateOfBirth;
+                }
 
                 if (request.Avatar != null)
                 {

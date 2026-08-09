@@ -35,8 +35,10 @@ namespace CherAmiAPI.Endpoints.Circles
                 .NotEmpty().WithMessage("Title is required.")
                 .MaximumLength(100).WithMessage("Title cannot exceed 100 characters.");
 
+            // The cover photo is optional — onboarding lets it be skipped.
             RuleFor(x => x.Image)
-                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.");
+                    .Must(file => file.Length > 0).WithMessage("Image cannot be empty.")
+                    .When(x => x.Image != null);
         }
     }
 
@@ -70,15 +72,18 @@ namespace CherAmiAPI.Endpoints.Circles
                 ctx.Circles.Add(toCreate);
                 await ctx.SaveChangesAsync(cancellationToken);
 
-                string path = $"circles/{toCreate.Id}/header/header.jpg";
+                if (request.Image != null)
+                {
+                    string path = $"circles/{toCreate.Id}/header/header.jpg";
 
-                using var stream = new MemoryStream();
-                await request.Image.CopyToAsync(stream, cancellationToken);
+                    using var stream = new MemoryStream();
+                    await request.Image.CopyToAsync(stream, cancellationToken);
 
-                toCreate.HeaderPath = path;
-                toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
+                    toCreate.HeaderPath = path;
+                    toCreate.HeaderTimestamp = DateTimeOffset.UtcNow;
 
-                await imageService.UploadImageAsync(path, stream);
+                    await imageService.UploadImageAsync(path, stream);
+                }
 
                 DateTime now = DateTime.UtcNow;
                 DateTime endOfMonth = new(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));

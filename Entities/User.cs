@@ -33,6 +33,12 @@ namespace CherAmiAPI.Entities
         public bool IsBillingExempt { get; set; }
         public bool SoftDeleted { get; set; }
 
+        // Onboarding. NameProvidedByUser distinguishes a real name from the
+        // placeholder assigned at sign-in; OnboardingCompleted gates the app's
+        // first-run flow. Both are backfilled to true for accounts that predate it.
+        public bool NameProvidedByUser { get; set; }
+        public bool OnboardingCompleted { get; set; }
+
         // Notification Profile
         public Guid? NotificationId { get; set; }
         public bool IssuePosts { get; set; } = DefaultIssuePosts;

@@ -55,7 +55,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
         }
     }
 
-    public class AppleTokenEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory, CustomerService customerService, OneSignalService oneSignalService, INameService nameService, CircleService circleService) : Endpoint<AppleTokenRequest>
+    public class AppleTokenEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory, CustomerService customerService, OneSignalService oneSignalService, INameService nameService) : Endpoint<AppleTokenRequest>
     {
         public override void Configure()
         {
@@ -154,10 +154,9 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                 Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
                 user.StripeCustomerId = customer.Id;
             }
-            if (user.CircleId == default)
-            {
-               await circleService.CreateCircleAsync(user.Id, $"My Circle", cancellationToken: cancellationToken);
-            }
+            // No circle is created here on purpose: onboarding asks whether the
+            // user is starting their own family circle or joining someone's.
+            // Users invited from the website already have a CircleId.
 
             await ctx.SaveChangesAsync(cancellationToken);
 
@@ -171,7 +170,7 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                     o.User.Claims.Add(new Claim("Email", user.Email));
                 });
 
-            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.FirstName != null && user.LastName != null }, cancellationToken);
+            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.OnboardingCompleted }, cancellationToken);
         }
     }
 }

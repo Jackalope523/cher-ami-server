@@ -20,6 +20,8 @@ namespace CherAmiAPI.Shared.Mappers
             DateOfBirth = user.DateOfBirth,
             JoinDate = user.JoinDate,
             IsBillingExempt = user.IsBillingExempt,
+            NameProvidedByUser = user.NameProvidedByUser,
+            OnboardingCompleted = user.OnboardingCompleted,
             Recipients = [.. user.Recipients.Select(mapper.FromEntity)],
         };
     }

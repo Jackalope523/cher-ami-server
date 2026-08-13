@@ -55,7 +55,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
         }
     }
 
-    public class GoogleTokenEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory, CustomerService customerService, OneSignalService oneSignalService, CircleService circleService) : Endpoint<GoogleTokenRequest>
+    public class GoogleTokenEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory, CustomerService customerService, OneSignalService oneSignalService, INameService nameService) : Endpoint<GoogleTokenRequest>
     {
         public override void Configure()
         {
@@ -117,9 +117,21 @@ namespace CherAmiAPI.Endpoints.Auth.Google
 
             user.EmailConfirmed = email_verified;
             user.GoogleId = sub;
-            user.FirstName = firstName ?? "";
-            user.LastName = lastName ?? "";
             user.AccountStatus = UserAccountStatus.Active;
+
+            // Google usually gives us a real name — when it does, onboarding
+            // doesn't need to ask for one.
+            if (!string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
+            {
+                user.FirstName = firstName;
+                user.LastName = lastName;
+                user.NameProvidedByUser = true;
+            }
+            else
+            {
+                user.FirstName ??= nameService.GetRandomFirstName();
+                user.LastName ??= nameService.GetRandomLastName();
+            }
 
             if (user.ExternalId == default)
             {
@@ -145,10 +157,9 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                 Customer customer = await customerService.CreateAsync(options, cancellationToken: cancellationToken);
                 user.StripeCustomerId = customer.Id;
             }
-            if (user.CircleId == default)
-            {
-                await circleService.CreateCircleAsync(user.Id, $"{user.FirstName}'s Circle", cancellationToken: cancellationToken);
-            }
+            // No circle is created here on purpose: onboarding asks whether the
+            // user is starting their own family circle or joining someone's.
+            // Users invited from the website already have a CircleId.
 
             await ctx.SaveChangesAsync(cancellationToken);
 
@@ -163,7 +174,7 @@ namespace CherAmiAPI.Endpoints.Auth.Google
                 }
             );
 
-            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.FirstName != null && user.LastName != null }, cancellationToken);
+            await Send.OkAsync(new { Token = jwtToken, Onboarded = user.OnboardingCompleted }, cancellationToken);
         }
     }
 }

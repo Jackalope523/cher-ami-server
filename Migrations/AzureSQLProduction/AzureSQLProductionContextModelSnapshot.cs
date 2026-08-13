@@ -485,6 +485,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("NameProvidedByUser")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -495,6 +498,9 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.Property<Guid?>("NotificationId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("OnboardingCompleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("OneSignalId")
                         .HasMaxLength(50)

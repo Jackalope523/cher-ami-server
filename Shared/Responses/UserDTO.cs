@@ -17,6 +17,8 @@ namespace CherAmiAPI.Shared.Responses
         public DateOnly? DateOfBirth { get; init; }
         public DateTimeOffset JoinDate { get; init; }
         public bool IsBillingExempt { get; init; }
+        public bool NameProvidedByUser { get; init; }
+        public bool OnboardingCompleted { get; init; }
         public List<RecipientItem> Recipients { get; init; }
     }
 }

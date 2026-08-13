@@ -4,16 +4,19 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace CherAmiAPI.Migrations.AzureSQLStaging
+namespace CherAmiAPI.Migrations.AzureSQLProduction
 {
-    [DbContext(typeof(AzureSQLStagingContext))]
-    partial class AzureSQLStagingContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AzureSQLProductionContext))]
+    [Migration("20260720120000_Add User Onboarding Flags")]
+    partial class AddUserOnboardingFlags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("BlockerId");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Circle", b =>
@@ -89,7 +92,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .IsUnique()
                         .HasFilter("[CircleCode] IS NOT NULL");
 
-                    b.ToTable("Circles");
+                    b.ToTable("Circles", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.EmailLogin", b =>
@@ -116,7 +119,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailLogins");
+                    b.ToTable("EmailLogins", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Feedback", b =>
@@ -144,7 +147,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Issue", b =>
@@ -185,7 +188,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("CircleId");
 
-                    b.ToTable("Issues");
+                    b.ToTable("Issues", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Notification", b =>
@@ -221,7 +224,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Post", b =>
@@ -239,6 +242,10 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("HighResolutionImagePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
                     b.Property<int>("ImageHeight")
                         .HasColumnType("int");
 
@@ -252,14 +259,15 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
-                    b.Property<DateTimeOffset>("PhotoDate")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<DateTimeOffset>("PostedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("UploadId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -267,7 +275,11 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("IssueId");
 
-                    b.ToTable("Posts");
+                    b.HasIndex("UploadId")
+                        .IsUnique()
+                        .HasFilter("[UploadId] IS NOT NULL");
+
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Recipient", b =>
@@ -300,6 +312,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
 
+                    b.Property<bool>("IsVeteran")
+                        .HasColumnType("bit");
+
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
 
@@ -329,7 +344,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Recipients");
+                    b.ToTable("Recipients", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Reports.Report", b =>
@@ -358,7 +373,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
 
                     b.HasDiscriminator();
 
@@ -387,7 +402,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.User", b =>
@@ -609,7 +624,7 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
 
                     b.HasKey("Id");
 
-                    b.ToTable("Words");
+                    b.ToTable("Words", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>

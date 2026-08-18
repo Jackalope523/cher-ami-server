@@ -24,7 +24,7 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            Recipient recipient = await ctx.Recipients.Where(x => x.Id == request.Id).SingleAsync(cancellationToken: cancellationToken);
+            Recipient recipient = await ctx.Recipients.Where(x => x.Id == request.Id).Include(x => x.Manager).SingleAsync(cancellationToken: cancellationToken);
 
             if (userId != recipient.ManagerId)
             {

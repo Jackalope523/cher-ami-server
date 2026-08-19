@@ -107,6 +107,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Endpoints\Stripe\" />
     <Folder Include="Migrations\AzureSQLProduction\" />
     <Folder Include="Migrations\AzureSQLStaging\" />
   </ItemGroup>

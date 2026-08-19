@@ -1,5 +1,4 @@
 ﻿using CherAmiAPI.Contexts;
-using CherAmiAPI.Endpoints.Stripe;
 using CherAmiAPI.Shared.Responses;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;

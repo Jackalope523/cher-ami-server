@@ -115,54 +115,9 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    //JobKey syncTagsJobKey = JobKey.Create(nameof(SyncOneSignalTagsJob));
-    //options.AddJob<SyncOneSignalTagsJob>(syncTagsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(syncTagsJobKey).StartNow());
-
-    //JobKey removeProspectiveTagsJobKey = JobKey.Create(nameof(RemoveProspectiveJoinedAtTagsJob));
-    //options.AddJob<RemoveProspectiveJoinedAtTagsJob>(removeProspectiveTagsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(removeProspectiveTagsJobKey).StartNow());
-
-    //JobKey addEmailSubscriptionJobKey = JobKey.Create(nameof(AddEmailSubscriptionJob));
-    //options.AddJob<AddEmailSubscriptionJob>(addEmailSubscriptionJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(addEmailSubscriptionJobKey).StartNow());
-
-    //JobKey removeJoinedAtTagsJobKey = JobKey.Create(nameof(RemoveJoinedAtTagsJob));
-    //options.AddJob<RemoveJoinedAtTagsJob>(removeJoinedAtTagsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(removeJoinedAtTagsJobKey).StartNow());
-
-    //JobKey updateJoinDateJobKey = JobKey.Create(nameof(UpdateJoinDateJob));
-    //options.AddJob<UpdateJoinDateJob>(updateJoinDateJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(updateJoinDateJobKey).StartNow());
-
     //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
-
-    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
-
-    //JobKey updateSubscriptionsJobKey = JobKey.Create(nameof(UpdateSubscriptionsJob));
-    //options.AddJob<UpdateSubscriptionsJob>(updateSubscriptionsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(updateSubscriptionsJobKey).WithCronSchedule("0 0 8 1 * ?"));
-
-    //JobKey keepAliveJobKey = JobKey.Create(nameof(KeepAliveJob));
-    //options.AddJob<KeepAliveJob>(keepAliveJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 13-23 * * ?"));
-    //options.AddTrigger(trigger => trigger.ForJob(keepAliveJobKey).WithCronSchedule("0 0/15 0-2 * * ?"));
-
-    //JobKey fixJobKey = JobKey.Create(nameof(FixJob));
-    //options.AddJob<FixJob>(fixJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(fixJobKey).StartNow());
-
-    //JobKey importProspectiveUsersJobKey = JobKey.Create(nameof(ImportProspectiveUsersJob));
-    //options.AddJob<ImportProspectiveUsersJob>(importProspectiveUsersJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(importProspectiveUsersJobKey).StartNow());
-
-    //JobKey addMarketingTagsJobKey = JobKey.Create(nameof(AddMarketingTagsJob));
-    //options.AddJob<AddMarketingTagsJob>(addMarketingTagsJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(addMarketingTagsJobKey).StartNow());
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
 });
 
 builder.Services.AddQuartzHostedService(options =>

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Stripe;
 using System.Text;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace CherAmiAPI.UnitTests.Services
 {
@@ -289,6 +290,198 @@ namespace CherAmiAPI.UnitTests.Services
                     It.Is<DateTimeOffset?>(x => x.HasValue),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateAvatarAsync_WithAvatar()
+        {
+            const long userId = 5;
+            const string avatarPath = "users/5/avatar.jpg";
+
+            using MemoryStream stream = new(Encoding.UTF8.GetBytes("fake image content"));
+
+            FormFile avatar = new(
+               stream,
+               0,
+               stream.Length,
+               "avatar",
+               "avatar.jpg")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/jpeg"
+            };
+   
+            _imageService
+                .Setup(r => r.UploadImageAsync(avatarPath, It.IsAny<MemoryStream>()))
+                .Returns(Task.CompletedTask);
+
+            _userRepository
+                .Setup(r => r.SetAvatarAsync(userId, avatarPath, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var sut = CreateSut();
+
+            await sut.UpdateAvatarAsync(userId, avatar, CancellationToken.None);
+
+            _imageService.Verify(r => r.UploadImageAsync(avatarPath, It.IsAny<MemoryStream>()), Times.Once);
+            _userRepository.Verify(r => r.SetAvatarAsync(userId, avatarPath, It.IsAny<DateTimeOffset>(), CancellationToken.None), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenUserHasAvatarAndRequesterSharesCircle_ReturnsAvatar()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string avatarPath = "users/6/avatar.jpg";
+
+            _userRepository
+               .Setup(r => r.ShareCommonCircleAsync(It.IsAny<CancellationToken>(), requesterId, targetId))
+               .ReturnsAsync(true);
+
+            _userRepository
+                .Setup(r => r.GetAvatarPathAsync(targetId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(avatarPath);
+
+            _imageService
+                .Setup(r => r.DownloadImageAsync(avatarPath))
+                .ReturnsAsync(new MemoryStream());
+
+            var sut = CreateSut();
+
+            MemoryStream avatar = await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.ShareCommonCircleAsync(CancellationToken.None, requesterId, targetId), Times.Once);
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+
+            Assert.NotNull(avatar);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenUserHasNoAvatarAndRequesterSharesCircle_ReturnsNull()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string? avatarPath = null;
+
+            _userRepository
+               .Setup(r => r.ShareCommonCircleAsync(It.IsAny<CancellationToken>(), requesterId, targetId))
+               .ReturnsAsync(true);
+
+            _userRepository
+                .Setup(r => r.GetAvatarPathAsync(targetId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(avatarPath);
+
+            _imageService
+                .Setup(r => r.DownloadImageAsync(avatarPath))
+                .ReturnsAsync(new MemoryStream());
+
+            var sut = CreateSut();
+
+            MemoryStream avatar = await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+
+            Assert.NotNull(avatar);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenTargetUserDoesNotExist_ThrowsInvalidOperationException()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string avatarPath = "users/6/avatar.jpg";
+
+            _userRepository
+                .Setup(r => r.ShareCommonCircleAsync(It.IsAny<CancellationToken>(), requesterId, targetId))
+                .ReturnsAsync(true);
+
+            _userRepository
+                .Setup(r => r.GetAvatarPathAsync(targetId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(avatarPath);
+
+            _imageService
+                .Setup(r => r.DownloadImageAsync(avatarPath))
+                .ReturnsAsync(new MemoryStream());
+
+            var sut = CreateSut();
+
+            MemoryStream avatar = await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+
+            Assert.NotNull(avatar);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenRequesterDoesNotShareCircle_ThrowsNoAccessException()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string avatarPath = "users/6/avatar.jpg";
+
+            _userRepository
+                .Setup(r => r.ShareCommonCircleAsync(It.IsAny<CancellationToken>(), requesterId, targetId))
+                .ReturnsAsync(false);
+
+            var sut = CreateSut();
+
+            await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenRequesterIsTargetAndHasAvatar_ReturnsAvatar()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string avatarPath = "users/6/avatar.jpg";
+
+            _userRepository
+                .Setup(r => r.GetAvatarPathAsync(targetId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(avatarPath);
+
+            _imageService
+                .Setup(r => r.DownloadImageAsync(avatarPath))
+                .ReturnsAsync(new MemoryStream());
+
+            var sut = CreateSut();
+
+            MemoryStream avatar = await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+
+            Assert.NotNull(avatar);
+        }
+
+        [Fact]
+        public async Task GetAvatarAsync_WhenRequesterIsTargetAndHasNoAvatar_ReturnsNull()
+        {
+            const long requesterId = 5;
+            const long targetId = 6;
+            const string avatarPath = "users/6/avatar.jpg";
+
+            _userRepository
+                .Setup(r => r.GetAvatarPathAsync(targetId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(avatarPath);
+
+            _imageService
+                .Setup(r => r.DownloadImageAsync(avatarPath))
+                .ReturnsAsync(new MemoryStream());
+
+            var sut = CreateSut();
+
+            MemoryStream avatar = await sut.GetAvatarAsync(requesterId, targetId, CancellationToken.None);
+
+            _userRepository.Verify(r => r.GetAvatarPathAsync(targetId, CancellationToken.None), Times.Once);
+            _imageService.Verify(r => r.DownloadImageAsync(avatarPath), Times.Once);
+
+            Assert.NotNull(avatar);
         }
     }
 }

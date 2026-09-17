@@ -6,6 +6,7 @@ namespace CherAmiAPI.Shared.Responses
     {
         public long Id { get; init; }
         public long ManagerId { get; init; }
+        public string ManagerName { get; init; }
         public string AvatarUrl { get; init; }
         public string AvatarPath { get; init; }
         public DateTimeOffset? AvatarTimestamp { get; init; }

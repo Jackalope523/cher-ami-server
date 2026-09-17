@@ -88,8 +88,14 @@ namespace CherAmiAPI.Endpoints.Auth.Apple
                     await userManager.CreateAsync(user);
                 }
 
-                user.FirstName = request.User.Name.FirstName;
-                user.LastName = request.User.Name.LastName;
+                if (!string.IsNullOrWhiteSpace(request.User.Name?.FirstName)
+                    && !string.IsNullOrWhiteSpace(request.User.Name?.LastName))
+                {
+                    user.FirstName = request.User.Name.FirstName;
+                    user.LastName = request.User.Name.LastName;
+
+                    user.NameProvidedByUser = true;
+                }
 
                 await ctx.SaveChangesAsync(cancellationToken);
             }

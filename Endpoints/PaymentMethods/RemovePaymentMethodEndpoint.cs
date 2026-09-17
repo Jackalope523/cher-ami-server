@@ -25,17 +25,20 @@ namespace CherAmiAPI.Endpoints.PaymentMethods
 
             var result = await ctx.Users
                             .Where(u => u.Id == userId)
-                            .Select(u => new { u.StripeCustomerId, RecipientCount = u.Recipients.Count })
+                            .Select(u => new { u.StripeCustomerId, u.IsBillingExempt, RecipientCount = u.Recipients.Count })
                             .SingleAsync(cancellationToken);
 
-            if (result.RecipientCount != 0)
+            if (result.RecipientCount != 0 && !result.IsBillingExempt)
             {
                 throw new ConflictException($"User {userId} still has {result.RecipientCount} recipients.");
             }
 
             List<PaymentMethod> paymentMethods = (await customerPaymentMethodService.ListAsync(result.StripeCustomerId, cancellationToken: cancellationToken)).Data;
 
-            await paymentMethodService.DetachAsync(paymentMethods[0].Id, cancellationToken: cancellationToken);
+            foreach (PaymentMethod paymentMethod in paymentMethods)
+            {
+                await paymentMethodService.DetachAsync(paymentMethod.Id, cancellationToken: cancellationToken);
+            }
 
             await Send.NoContentAsync(cancellationToken);
         }

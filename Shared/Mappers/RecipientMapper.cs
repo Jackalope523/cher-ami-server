@@ -13,6 +13,7 @@ namespace CherAmiAPI.Shared.Mappers
         {
             Id = recipient.Id,
             ManagerId = recipient.ManagerId,
+            ManagerName = recipient.Manager == null ? null : $"{recipient.Manager.FirstName} {recipient.Manager.LastName}".Trim(),
             AvatarUrl = recipient.AvatarPath == null ? null : $"{config["APP_SERVICE_URI"]}/recipients/{recipient.Id}/avatar?timestamp={recipient.AvatarTimestamp}",
             AvatarPath = recipient.AvatarPath == null ? null : $"/recipients/{recipient.Id}/avatar",
             AvatarTimestamp = recipient.AvatarTimestamp,

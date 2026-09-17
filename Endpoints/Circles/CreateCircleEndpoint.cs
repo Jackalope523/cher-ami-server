@@ -1,5 +1,6 @@
 ﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
+using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
@@ -54,6 +55,12 @@ namespace CherAmiAPI.Endpoints.Circles
         {
             long userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             User user = await ctx.Users.Where(x => x.Id == userId).SingleAsync(cancellationToken: cancellationToken);
+
+            // Creating a second circle reassigns CircleId, which leaves the caller's
+            // existing posts behind in the circle they left with no way back but an
+            // invite code. JoinCircleEndpoint refuses the same state.
+            if (user.CircleId != null)
+                throw new ConflictException($"User {userId} already has a circle.");
 
             await using var transaction = await ctx.Database.BeginTransactionAsync(cancellationToken);
 

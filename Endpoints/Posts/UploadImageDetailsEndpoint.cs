@@ -38,7 +38,7 @@ namespace CherAmiAPI.Endpoints.Posts
         }
     }
 
-    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator, IPhotoDateService photoDateService) : Endpoint<UploadImageDetailsRequest>
+    public class UploadImageDetailsEndpoint(ApplicationDbContext ctx, IImageService imageService, ImageUploadCoordinator coordinator, IPhotoDateService photoDateService, NotificationService notificationService) : Endpoint<UploadImageDetailsRequest>
     {
         public override void Configure()
         {
@@ -122,6 +122,9 @@ namespace CherAmiAPI.Endpoints.Posts
                     .SetProperty(p => p.PostedAt, postedAt)
                     .SetProperty(p => p.PhotoDate, photoDate)
                     .SetProperty(p => p.SoftDeleted, false), cancellationToken); // Finalize post
+
+            await notificationService.MarkPostedAsync(userId, cancellationToken);
+            await notificationService.SyncCircleTagsAsync(post.CircleId, cancellationToken);
 
             await Send.NoContentAsync(cancellationToken);
         }

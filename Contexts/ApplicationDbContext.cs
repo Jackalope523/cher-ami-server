@@ -101,11 +101,23 @@ namespace CherAmiAPI.Contexts
                 .HasMaxLength(50);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.IssuePosts)
+                .Property(u => u.PushNewPosts)
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
-                .Property(u => u.IssueReminders)
+                .Property(u => u.PushIssueReminders)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.PushNewMembers)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.EmailIssueReminders)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.EmailMarketing)
                 .HasDefaultValue(true);
 
             modelBuilder.Entity<User>()

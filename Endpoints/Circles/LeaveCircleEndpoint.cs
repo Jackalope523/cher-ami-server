@@ -1,6 +1,7 @@
 ﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CherAmiAPI.Endpoints.Circles
 {
-    public class LeaveCircleEndpoint(ApplicationDbContext ctx, IImageService imageService) : EndpointWithoutRequest
+    public class LeaveCircleEndpoint(ApplicationDbContext ctx, IImageService imageService, NotificationService notificationService) : EndpointWithoutRequest
     {
         public override void Configure()
         {
@@ -32,7 +33,10 @@ namespace CherAmiAPI.Endpoints.Circles
             await imageService.DeleteImagesAsync(recipientAvatars);
 
             await ctx.Recipients.Where(x => x.ManagerId == user.Id).ExecuteDeleteAsync(cancellationToken);
-            
+
+            await notificationService.SyncTagsAsync(userId, cancellationToken);
+            await notificationService.SyncSubscriptionStatusAsync(userId, cancellationToken);
+
             await Send.NoContentAsync(cancellationToken);
         }
     }

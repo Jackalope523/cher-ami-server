@@ -25,7 +25,7 @@ Swagger UI is available at `/swagger` when running locally.
 - **Soft deletes**: Entities use a soft-delete pattern enforced via EF Core query filters — deleted records are filtered out automatically.
 - **JWT authentication**: Tokens are signed with a key fetched from Azure Key Vault via `IKeyService`. Multi-provider login: Apple ID, Google, and email/password.
 - **Azure-heavy**: Blob Storage (images), Tables, Queues, Key Vault secrets, and File Shares are all used. Local development requires Azure Key Vault access.
-- **Background jobs**: Quartz scheduler is wired up in `Program.cs`, though most jobs are commented out. Jobs live in `/BackgroundJobs/`.
+- **Background jobs**: Quartz scheduler is wired up in `Program.cs`; most one-off migration jobs are commented out. Scheduled today: `PublishMagazinesJob` (1st of the month) and `IssueRemindersJob` (daily). Jobs live in `/BackgroundJobs/`.
 - **Global error handling**: `ExceptionHandler.cs` maps custom exception types (in `/Exceptions/`) to HTTP status codes and returns RFC 7807 problem details.
 
 ### External integrations
@@ -33,8 +33,7 @@ Swagger UI is available at `/swagger` when running locally.
 | Service | Purpose |
 |---|---|
 | Stripe | Subscription billing |
-| SendGrid | Transactional email |
-| OneSignal | Push notifications |
+| OneSignal | Push notifications **and all email** — transactional and lifecycle, sent as templates (`OneSignalService`) |
 | QuestPDF | PDF generation (magazines) |
 | Azure Key Vault | Secret management |
 | Azure Blob Storage | Image/media storage |

@@ -7,9 +7,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +28,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailAuthEndpoint(IConfiguration config, UserManager<User> userManager, OneSignalService oneSignalService, ApplicationDbContext ctx, IKeyService keyService, IHttpClientFactory httpClientFactory) : Endpoint<EmailAuthRequest>
+    public class EmailAuthEndpoint(IConfiguration config, UserManager<User> userManager, OneSignalService oneSignalService, ApplicationDbContext ctx, IKeyService keyService) : Endpoint<EmailAuthRequest>
     {
         public override void Configure()
         {
@@ -80,22 +77,12 @@ namespace CherAmiAPI.Endpoints.Auth.Email
 
                 await ctx.SaveChangesAsync(cancellationToken);
 
-                HttpClient client = httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
-
-                var body = new
-                {
-                    app_id = config["ONESIGNAL_APP_ID"],
-                    template_id = config["ONESIGNAL_VERIFY_EMAIL_TEMPLATE_ID"],
-                    email_to = new[] { request.Email },
-                    custom_data = new { code },
-                    include_unsubscribed = true,
-                };
-
-                using StringContent jsonBody = new(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-
-                using HttpResponseMessage response = await client.PostAsync("https://api.onesignal.com/notifications?c=email", jsonBody, cancellationToken);
-                response.EnsureSuccessStatusCode();
+                await oneSignalService.SendTemplatedEmailAsync(
+                    config["ONESIGNAL_VERIFY_EMAIL_TEMPLATE_ID"],
+                    [request.Email],
+                    customData: new { code },
+                    includeUnsubscribed: true,
+                    cancellationToken: cancellationToken);
             }
 
             await Send.NoContentAsync(cancellationToken);

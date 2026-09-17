@@ -449,6 +449,16 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("EmailIssueReminders")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("EmailMarketing")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<Guid>("ExternalId")
                         .HasColumnType("uniqueidentifier");
 
@@ -461,16 +471,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.Property<bool>("IsBillingExempt")
                         .HasColumnType("bit");
-
-                    b.Property<bool>("IssuePosts")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IssueReminders")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
 
                     b.Property<DateTimeOffset>("JoinDate")
                         .HasColumnType("datetimeoffset");
@@ -515,6 +515,21 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("PushIssueReminders")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("PushNewMembers")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("PushNewPosts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(50)
@@ -567,13 +582,16 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
                             IsBillingExempt = false,
-                            IssuePosts = true,
-                            IssueReminders = true,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
+                            PushIssueReminders = true,
+                            PushNewMembers = true,
+                            PushNewPosts = true,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -590,13 +608,16 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
                             IsBillingExempt = false,
-                            IssuePosts = true,
-                            IssueReminders = true,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
+                            PushIssueReminders = true,
+                            PushNewMembers = true,
+                            PushNewPosts = true,
                             SecurityStamp = "b1f4e3c2-1234-4567-8901-abcdefabcdef",
                             SoftDeleted = false,
                             TimeOfUserAgreement = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),

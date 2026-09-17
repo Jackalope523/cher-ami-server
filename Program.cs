@@ -80,6 +80,8 @@ builder.Services.AddHttpClient<OneSignalService>(client =>
     client.DefaultRequestHeaders.Add("Authorization", $"key {builder.Configuration["OneSignal-API-Key"]}");
 });
 
+builder.Services.AddScoped<NotificationService>();
+
 StripeConfiguration.ApiKey = builder.Configuration["Stripe-Secret-Key"];
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
@@ -117,7 +119,11 @@ builder.Services.AddQuartz(options =>
 {
     //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
     //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
+    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
+
+    //JobKey issueRemindersJobKey = JobKey.Create(nameof(IssueRemindersJob));
+    //options.AddJob<IssueRemindersJob>(issueRemindersJobKey);
+    //options.AddTrigger(trigger => trigger.ForJob(issueRemindersJobKey).WithCronSchedule("0 0 17 * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

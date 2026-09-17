@@ -3,6 +3,7 @@ using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Mappers;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
@@ -20,7 +21,7 @@ using System.Threading.Tasks;
 namespace CherAmiAPI.Endpoints.Circles
 {
     
-    public class AddRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService, CustomerPaymentMethodService customerPaymentMethodService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
+    public class AddRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService, CustomerPaymentMethodService customerPaymentMethodService, NotificationService notificationService) : Endpoint<RecipientRequest, RecipientDTO, RecipientMapper>
     {
         public override void Configure()
         {
@@ -58,6 +59,9 @@ namespace CherAmiAPI.Endpoints.Circles
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 //await transaction.CommitAsync(cancellationToken);
+
+                await notificationService.SyncTagsAsync(userId, cancellationToken);
+                await notificationService.SyncSubscriptionStatusAsync(userId, cancellationToken);
 
                 await Send.CreatedAtAsync<GetRecipientEndpoint>
                 (

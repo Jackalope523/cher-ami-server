@@ -103,21 +103,28 @@ namespace CherAmiAPI.Services
 
         public async Task SyncSubscriptionStatusAsync(long userId, CancellationToken cancellationToken = default)
         {
-            var user = await ctx.Users
-                .AsNoTracking()
-                .Where(x => x.Id == userId)
-                .Select(x => new { x.StripeSubscriptionId })
-                .SingleOrDefaultAsync(cancellationToken);
+            try
+            {
+                var user = await ctx.Users
+                    .AsNoTracking()
+                    .Where(x => x.Id == userId)
+                    .Select(x => new { x.StripeSubscriptionId })
+                    .SingleOrDefaultAsync(cancellationToken);
 
-            if (user == null) return;
+                if (user == null) return;
 
-            bool hasRecipient = await ctx.Recipients.AnyAsync(x => x.ManagerId == userId, cancellationToken);
+                bool hasRecipient = await ctx.Recipients.AnyAsync(x => x.ManagerId == userId, cancellationToken);
 
-            string status = !hasRecipient ? "none"
-                          : string.IsNullOrEmpty(user.StripeSubscriptionId) ? "free_first"
-                          : "active";
+                string status = !hasRecipient ? "none"
+                              : string.IsNullOrEmpty(user.StripeSubscriptionId) ? "free_first"
+                              : "active";
 
-            await SetSubscriptionStatusAsync(userId, status, cancellationToken);
+                await SetSubscriptionStatusAsync(userId, status, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to sync subscription_status for user {UserId}", userId);
+            }
         }
 
         public async Task SyncEmailPreferencesAsync(long userId, CancellationToken cancellationToken = default)

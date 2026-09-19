@@ -9,6 +9,7 @@ namespace CherAmiAPI.Endpoints.Config
     public record VersionResponse
     {
         public string Version { get; set; }
+        public string MinimumVersion { get; set; }
     }
 
     public class GetVersionEndpoint(IConfiguration config) : EndpointWithoutRequest
@@ -21,9 +22,10 @@ namespace CherAmiAPI.Endpoints.Config
 
         public override async Task HandleAsync(CancellationToken cancellationToken)
         {
-            ConfigResponse response = new()
+            VersionResponse response = new()
             {
-                Version = "1.0.4",
+                Version = "1.0.11",
+                MinimumVersion = "1.0.10",
             };
 
             await Send.OkAsync(response, cancellationToken);

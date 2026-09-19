@@ -39,7 +39,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
         }
     }
 
-    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, CustomerService customerService, OneSignalService oneSignalService, INameService nameService) : Endpoint<EmailVerifyRequest>
+    public class EmailVerifyEndpoint(UserManager<User> userManager, ApplicationDbContext ctx, IKeyService keyService, CustomerService customerService, OneSignalService oneSignalService, INameService nameService, NotificationService notificationService) : Endpoint<EmailVerifyRequest>
     {
         public override void Configure()
         {
@@ -70,10 +70,14 @@ namespace CherAmiAPI.Endpoints.Auth.Email
             {
                 User user = await userManager.FindByEmailAsync(request.Email);
 
-                if (user.AccountStatus == UserAccountStatus.Prospective)
+                bool wasProspective = user.AccountStatus == UserAccountStatus.Prospective;
+
+                // Signing up is the opt-in an invited friend never gave. The columns are the
+                // record; the OneSignal tags are projected from them after the save.
+                if (wasProspective)
                 {
-                    await oneSignalService.AddTagAsync(user.ExternalId, "email_reminders", "1", cancellationToken);
-                    await oneSignalService.AddTagAsync(user.ExternalId, "email_marketing", "1", cancellationToken);
+                    user.EmailIssueReminders = true;
+                    user.EmailMarketing = true;
                 }
 
                 user.EmailConfirmed = true;
@@ -112,6 +116,17 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 // someone's. Users invited from the website already have a CircleId.
 
                 await ctx.SaveChangesAsync(cancellationToken);
+
+                if (wasProspective)
+                {
+                    await notificationService.SyncEmailPreferencesAsync(user.Id, cancellationToken);
+                }
+
+                // A website invitee already has a CircleId, so this is the moment they actually arrive.
+                if (wasProspective && user.CircleId != null)
+                {
+                    await notificationService.SendNewMemberAsync(user.CircleId.Value, user.Id, cancellationToken);
+                }
 
                 string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
                 string jwtToken = JwtBearer.CreateToken(

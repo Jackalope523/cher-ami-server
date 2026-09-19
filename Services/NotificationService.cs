@@ -205,6 +205,83 @@ namespace CherAmiAPI.Services
             }
         }
 
+        public async Task SendPhotoActivityAsync(
+            long circleId,
+            List<long> authorIds,
+            string heading,
+            string content,
+            string idempotencySeed,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                List<Guid> externalIds = await ctx.Users
+                    .AsNoTracking()
+                    .Where(x => x.CircleId == circleId && x.PushNewPosts && x.ExternalId != default && !authorIds.Contains(x.Id))
+                    .Select(x => x.ExternalId)
+                    .ToListAsync(cancellationToken);
+
+                if (externalIds.Count == 0) return;
+
+                await oneSignalService.SendPushAsync(
+                    externalIds,
+                    heading,
+                    content,
+                    data: new Dictionary<string, string> { ["route"] = "/feed" },
+                    idempotencyKey: OneSignalService.IdempotencyKeyFor(idempotencySeed),
+                    cancellationToken: cancellationToken);
+
+                Log.Information("Sent photo activity to circle {CircleId}: {Heading}", circleId, heading);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to send photo activity to circle {CircleId}", circleId);
+            }
+        }
+
+        public async Task SendNewMemberAsync(long circleId, long joinedUserId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                string firstName = await ctx.Users
+                    .AsNoTracking()
+                    .Where(x => x.Id == joinedUserId)
+                    .Select(x => x.FirstName)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                string circleTitle = await ctx.Circles
+                    .AsNoTracking()
+                    .Where(x => x.Id == circleId)
+                    .Select(x => x.Title)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                List<Guid> externalIds = await ctx.Users
+                    .AsNoTracking()
+                    .Where(x => x.CircleId == circleId && x.Id != joinedUserId && x.PushNewMembers && x.ExternalId != default)
+                    .Select(x => x.ExternalId)
+                    .ToListAsync(cancellationToken);
+
+                if (externalIds.Count == 0) return;
+
+                string name = string.IsNullOrWhiteSpace(firstName) ? "Someone new" : firstName;
+                string circle = string.IsNullOrWhiteSpace(circleTitle) ? "the family" : circleTitle;
+
+                await oneSignalService.SendPushAsync(
+                    externalIds,
+                    $"{name} joined {circle}!",
+                    "Say hello, and see what they add to this month's magazine.",
+                    data: new Dictionary<string, string> { ["route"] = "/manage" },
+                    idempotencyKey: OneSignalService.IdempotencyKeyFor($"member-joined:{circleId}:{joinedUserId}"),
+                    cancellationToken: cancellationToken);
+
+                Log.Information("Sent new member push to circle {CircleId} for user {UserId}", circleId, joinedUserId);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to send new member push to circle {CircleId}", circleId);
+            }
+        }
+
         private async Task<Dictionary<string, string>> CurrentIssueTagsAsync(long? circleId, CancellationToken cancellationToken)
         {
             Dictionary<string, string> none = new() { ["magazine_state"] = "empty", ["issue_close_at"] = "" };

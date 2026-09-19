@@ -117,13 +117,17 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
 
-    //JobKey issueRemindersJobKey = JobKey.Create(nameof(IssueRemindersJob));
-    //options.AddJob<IssueRemindersJob>(issueRemindersJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(issueRemindersJobKey).WithCronSchedule("0 0 17 * * ?"));
+    JobKey issueRemindersJobKey = JobKey.Create(nameof(IssueRemindersJob));
+    options.AddJob<IssueRemindersJob>(issueRemindersJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(issueRemindersJobKey).WithCronSchedule("0 0 17 * * ?"));
+
+    JobKey photoActivityJobKey = JobKey.Create(nameof(PhotoActivityJob));
+    options.AddJob<PhotoActivityJob>(photoActivityJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(photoActivityJobKey).WithCronSchedule("0 0/15 * * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(options =>

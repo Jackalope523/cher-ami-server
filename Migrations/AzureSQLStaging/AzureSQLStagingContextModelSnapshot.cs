@@ -73,6 +73,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<int>("IssueSchedule")
                         .HasColumnType("int");
 
+                    b.Property<DateTimeOffset?>("LastPhotoPushAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("bit");
 
@@ -239,6 +242,10 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("HighResolutionImagePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
                     b.Property<int>("ImageHeight")
                         .HasColumnType("int");
 
@@ -261,11 +268,19 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UploadId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("IssueId");
+
+                    b.HasIndex("UploadId")
+                        .IsUnique()
+                        .HasFilter("[UploadId] IS NOT NULL");
 
                     b.ToTable("Posts");
                 });
@@ -299,6 +314,9 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                     b.Property<string>("Country")
                         .HasMaxLength(56)
                         .HasColumnType("nvarchar(56)");
+
+                    b.Property<bool>("IsVeteran")
+                        .HasColumnType("bit");
 
                     b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
@@ -564,14 +582,16 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
                             IsBillingExempt = false,
-                            EmailIssueReminders = true,
-                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
+                            NameProvidedByUser = false,
+                            OnboardingCompleted = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
                             PushIssueReminders = true,
@@ -590,14 +610,16 @@ namespace CherAmiAPI.Migrations.AzureSQLStaging
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
                             IsBillingExempt = false,
-                            EmailIssueReminders = true,
-                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
+                            NameProvidedByUser = false,
+                            OnboardingCompleted = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
                             PushIssueReminders = true,

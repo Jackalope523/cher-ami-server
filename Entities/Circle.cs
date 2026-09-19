@@ -12,6 +12,7 @@ namespace CherAmiAPI.Entities
         public IssueSchedule IssueSchedule { get; set; }
         public string HeaderPath { get; set; } = DefaultHeaderPath;
         public DateTimeOffset HeaderTimestamp { get; set; }
+        public DateTimeOffset? LastPhotoPushAt { get; set; }
         public bool SoftDeleted { get; set; }
 
 

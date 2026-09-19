@@ -52,6 +52,7 @@ namespace CherAmiAPI.Endpoints.Circles
             await ctx.SaveChangesAsync(cancellationToken);
 
             await notificationService.SyncTagsAsync(userId, cancellationToken);
+            await notificationService.SendNewMemberAsync(circleId, userId, cancellationToken);
 
             await Send.NoContentAsync(cancellationToken);
         }

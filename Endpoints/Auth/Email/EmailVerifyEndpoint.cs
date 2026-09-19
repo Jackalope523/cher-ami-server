@@ -129,15 +129,7 @@ namespace CherAmiAPI.Endpoints.Auth.Email
                 }
 
                 string signingKey = await keyService.GetSecretAsync("Cher-Ami-API-Signing-Key");
-                string jwtToken = JwtBearer.CreateToken(
-                    o =>
-                    {
-                        o.SigningKey = signingKey;
-                        o.ExpireAt = DateTime.UtcNow.AddDays(10);
-                        o.User.Claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                        o.User.Claims.Add(new Claim("Email", user.Email));
-                    }
-                );
+                string jwtToken = AuthTokens.Create(signingKey, user.Id, user.Email);
 
                 await Send.OkAsync(new { Token = jwtToken, Onboarded = user.OnboardingCompleted }, cancellationToken);
             }

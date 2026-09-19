@@ -1,5 +1,6 @@
 ﻿using CherAmiAPI;
 using CherAmiAPI.BackgroundJobs;
+using CherAmiAPI.Middleware;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Exceptions;
@@ -108,7 +109,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("https://www.thecherami.com", "https://thecherami.com")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .WithExposedHeaders(AuthTokens.RefreshedHeader);
     });
 });
 
@@ -151,7 +153,10 @@ app.UseCors("Website");
 app.UseExceptionHandler();
 
 app.UseAuthentication()
-   .UseAuthorization()
-   .UseFastEndpoints();
+   .UseAuthorization();
+
+app.UseMiddleware<SlidingTokenMiddleware>();
+
+app.UseFastEndpoints();
 
 app.Run();

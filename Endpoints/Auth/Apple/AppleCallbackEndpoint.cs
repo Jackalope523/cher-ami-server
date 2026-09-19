@@ -6,7 +6,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using SendGrid.Helpers.Mail;
 using Serilog;
 using Stripe;
 using System;

@@ -19,6 +19,13 @@ namespace CherAmiAPI.Shared.Responses
         public bool IsBillingExempt { get; init; }
         public bool NameProvidedByUser { get; init; }
         public bool OnboardingCompleted { get; init; }
+
+        public bool PushNewPosts { get; init; }
+        public bool PushIssueReminders { get; init; }
+        public bool PushNewMembers { get; init; }
+        public bool EmailIssueReminders { get; init; }
+        public bool EmailMarketing { get; init; }
+        
         public List<RecipientItem> Recipients { get; init; }
     }
 }

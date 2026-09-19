@@ -1,4 +1,5 @@
 ﻿using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Shared.Requests;
@@ -11,7 +12,7 @@ using CherAmiAPI.Exceptions;
 
 namespace CherAmiAPI.Endpoints.Issues
 {
-    public class DeleteRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService) : Endpoint<IdRequest>
+    public class DeleteRecipientEndpoint(ApplicationDbContext ctx, IImageService imageService, NotificationService notificationService) : Endpoint<IdRequest>
     {
         public override void Configure()
         {
@@ -36,6 +37,9 @@ namespace CherAmiAPI.Endpoints.Issues
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
+
+                await notificationService.SyncTagsAsync(userId, cancellationToken);
+                await notificationService.SyncSubscriptionStatusAsync(userId, cancellationToken);
 
                 await Send.NoContentAsync(cancellationToken);
             }

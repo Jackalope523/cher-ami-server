@@ -2,7 +2,6 @@
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using CherAmiAPI.Interfaces;
-using EllipticCurve.Utils;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;

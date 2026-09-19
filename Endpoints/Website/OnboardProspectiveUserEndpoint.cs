@@ -12,9 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -68,7 +65,6 @@ namespace CherAmiAPI.Endpoints.Website
         ApplicationDbContext ctx,
         IConfiguration config,
         IKeyService keyService,
-        IHttpClientFactory httpClientFactory,
         OneSignalService oneSignalService,
         UserManager<User> userManager,
         CircleService circleService,
@@ -150,6 +146,10 @@ namespace CherAmiAPI.Endpoints.Website
                         Email = friendEmail,
                         ExternalId = Guid.NewGuid(),
                         AccountStatus = UserAccountStatus.Prospective,
+                        // Named by a friend, not opted in by themselves. The columns have to
+                        // match the tags below, or a later sync would opt them in for them.
+                        EmailIssueReminders = false,
+                        EmailMarketing = false,
                     };
 
                     friend.OneSignalId = await oneSignalService.CreateUserAsync(friend.ExternalId, friend.Email, cancellationToken);
@@ -181,25 +181,16 @@ namespace CherAmiAPI.Endpoints.Website
             // Send welcome email to all newly invited friends
             if (newFriendEmails.Count > 0)
             {
-                HttpClient client = httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("Authorization", $"key {await keyService.GetSecretAsync("OneSignal-API-Key")}");
-
-                var welcomeEmailBody = new
-                {
-                    app_id = config["ONESIGNAL_APP_ID"],
-                    template_id = config["ONESIGNAL_INVITEE_WELCOME_EMAIL_TEMPLATE_ID"],
-                    email_to = newFriendEmails.ToArray(),
-                    custom_data = new
+                await oneSignalService.SendTemplatedEmailAsync(
+                    config["ONESIGNAL_INVITEE_WELCOME_EMAIL_TEMPLATE_ID"],
+                    newFriendEmails,
+                    customData: new
                     {
                         inviter = $"{user.FirstName} {user.LastName}",
                         recipient_name = request.RecipientName,
                     },
-                    include_unsubscribed = true,
-                };
-
-                using StringContent jsonBody = new(JsonSerializer.Serialize(welcomeEmailBody), Encoding.UTF8, "application/json");
-                using HttpResponseMessage emailResponse = await client.PostAsync("https://api.onesignal.com/notifications?c=email", jsonBody, cancellationToken);
-                emailResponse.EnsureSuccessStatusCode();
+                    includeUnsubscribed: true,
+                    cancellationToken: cancellationToken);
             }
 
             // 5. Optionally process and upload the post image

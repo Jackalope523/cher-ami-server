@@ -79,7 +79,6 @@
 	  <PackageReference Include="Quartz" Version="3.15.0" />
 	  <PackageReference Include="Quartz.Extensions.Hosting" Version="3.15.0" />
 	  <PackageReference Include="QuestPDF" Version="2025.7.2" />
-    <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.AzureApp" Version="3.1.0" />

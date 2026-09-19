@@ -39,8 +39,11 @@ namespace CherAmiAPI.Entities
 
         // Notification Profile
         public Guid? NotificationId { get; set; }
-        public bool IssuePosts { get; set; } = DefaultIssuePosts;
-        public bool IssueReminders { get; set; } = DefaultIssueReminders;
+        public bool PushNewPosts { get; set; } = DefaultPushNewPosts;
+        public bool PushIssueReminders { get; set; } = DefaultPushIssueReminders;
+        public bool PushNewMembers { get; set; } = DefaultPushNewMembers;
+        public bool EmailIssueReminders { get; set; } = DefaultEmailIssueReminders;
+        public bool EmailMarketing { get; set; } = DefaultEmailMarketing;
 
         // Navigation Properties
         public Circle Circle { get; set; }
@@ -58,8 +61,11 @@ namespace CherAmiAPI.Entities
         // Default Values
 
         // Notification Profile
-        public static bool DefaultIssuePosts { get; set; } = true;
-        public static bool DefaultIssueReminders { get; set; } = true;
+        public static bool DefaultPushNewPosts { get; set; } = true;
+        public static bool DefaultPushIssueReminders { get; set; } = true;
+        public static bool DefaultPushNewMembers { get; set; } = true;
+        public static bool DefaultEmailIssueReminders { get; set; } = true;
+        public static bool DefaultEmailMarketing { get; set; } = true;
         public static bool DefaultGatheringReminders { get; set; } = true;
         public static bool DefaultGatheringActivity { get; set; } = true;
         public static bool DefaultGatheringDiscovery { get; set; } = true;

@@ -12,8 +12,11 @@ namespace CherAmiAPI.Services
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
+            // A new circle's DraftingStart is its creation time, but its magazine covers the whole month.
+            DateTimeOffset earliest = new(new DateTime(draftingStart.Year, draftingStart.Month, 1), TimeSpan.Zero);
+
             if (requested == null) return now;
-            if (requested < draftingStart) return now;
+            if (requested < earliest) return now;
             if (requested > now + FutureTolerance) return now;
 
             return requested.Value;

@@ -1,6 +1,7 @@
 ﻿using CherAmiAPI.Contexts;
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
+using CherAmiAPI.Services;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace CherAmiAPI.Endpoints.Circles
                 .MaximumLength(100).WithMessage("Invite code cannot exceed 100 characters.");
         }
     }
-    public class JoinCircleEndpoint(ApplicationDbContext ctx) : Endpoint<JoinCircleRequest>
+    public class JoinCircleEndpoint(ApplicationDbContext ctx, NotificationService notificationService) : Endpoint<JoinCircleRequest>
     {
         public override void Configure()
         {
@@ -49,7 +50,10 @@ namespace CherAmiAPI.Endpoints.Circles
             user.CircleId = circleId;
             user.CircleJoinDate = DateTimeOffset.UtcNow;
             await ctx.SaveChangesAsync(cancellationToken);
-            
+
+            await notificationService.SyncTagsAsync(userId, cancellationToken);
+            await notificationService.SendNewMemberAsync(circleId, userId, cancellationToken);
+
             await Send.NoContentAsync(cancellationToken);
         }
     }

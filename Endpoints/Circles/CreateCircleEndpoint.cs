@@ -2,6 +2,7 @@
 using CherAmiAPI.Entities;
 using CherAmiAPI.Exceptions;
 using CherAmiAPI.Interfaces;
+using CherAmiAPI.Services;
 using CherAmiAPI.Shared.Requests;
 using CherAmiAPI.Shared.Responses;
 using CherAmiAPI.Shared.SharedMappers;
@@ -43,7 +44,7 @@ namespace CherAmiAPI.Endpoints.Circles
         }
     }
 
-    public class CreateCircleEndpoint(ApplicationDbContext ctx, IImageService imageService, IInviteCodeService inviteCodeService) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
+    public class CreateCircleEndpoint(ApplicationDbContext ctx, IImageService imageService, IInviteCodeService inviteCodeService, NotificationService notificationService) : Endpoint<CreateCircleRequest, CircleDTO, CircleResponseMapper>
     {
         public override void Configure()
         {
@@ -118,6 +119,8 @@ namespace CherAmiAPI.Endpoints.Circles
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
+
+                await notificationService.SyncTagsAsync(userId, cancellationToken);
 
                 await Send.CreatedAtAsync<GetCircleEndpoint>(new IdRequest() { Id = toCreate.Id }, Map.FromEntity(toCreate), cancellation: cancellationToken);
             }

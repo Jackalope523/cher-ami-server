@@ -174,7 +174,7 @@ namespace CherAmiAPI.Endpoints.Circles
             FeedPageResponse response = Map.FromEntity(issue);
 
             if (issue != null) {
-                int count = await ctx.Issues.CountAsync(cancellationToken: cancellationToken);
+                int count = await ctx.Issues.CountAsync(x => x.CircleId == circleId, cancellationToken: cancellationToken);
                 response.NextPage = count > request.PageParam ? request.PageParam + 1 : null;
             }
 

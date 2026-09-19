@@ -1,5 +1,6 @@
 ﻿using CherAmiAPI;
 using CherAmiAPI.BackgroundJobs;
+using CherAmiAPI.Middleware;
 using CherAmiAPI.Contexts;
 using CherAmiAPI.Endpoints.Circles;
 using CherAmiAPI.Exceptions;
@@ -80,6 +81,8 @@ builder.Services.AddHttpClient<OneSignalService>(client =>
     client.DefaultRequestHeaders.Add("Authorization", $"key {builder.Configuration["OneSignal-API-Key"]}");
 });
 
+builder.Services.AddScoped<NotificationService>();
+
 StripeConfiguration.ApiKey = builder.Configuration["Stripe-Secret-Key"];
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SubscriptionService>();
@@ -106,7 +109,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("https://www.thecherami.com", "https://thecherami.com")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .WithExposedHeaders(AuthTokens.RefreshedHeader);
     });
 });
 
@@ -115,9 +119,17 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddQuartz(options =>
 {
-    //JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
-    //options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
-    //options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).StartNow());
+    JobKey publishMagazineJobKey = JobKey.Create(nameof(PublishMagazinesJob));
+    options.AddJob<PublishMagazinesJob>(publishMagazineJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(publishMagazineJobKey).WithCronSchedule("0 5 5 1 * ?"));
+
+    JobKey issueRemindersJobKey = JobKey.Create(nameof(IssueRemindersJob));
+    options.AddJob<IssueRemindersJob>(issueRemindersJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(issueRemindersJobKey).WithCronSchedule("0 0 17 * * ?"));
+
+    JobKey photoActivityJobKey = JobKey.Create(nameof(PhotoActivityJob));
+    options.AddJob<PhotoActivityJob>(photoActivityJobKey);
+    options.AddTrigger(trigger => trigger.ForJob(photoActivityJobKey).WithCronSchedule("0 0/15 * * * ?"));
 });
 
 builder.Services.AddQuartzHostedService(options =>
@@ -141,7 +153,10 @@ app.UseCors("Website");
 app.UseExceptionHandler();
 
 app.UseAuthentication()
-   .UseAuthorization()
-   .UseFastEndpoints();
+   .UseAuthorization();
+
+app.UseMiddleware<SlidingTokenMiddleware>();
+
+app.UseFastEndpoints();
 
 app.Run();

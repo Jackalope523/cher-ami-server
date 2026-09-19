@@ -4,6 +4,7 @@ using CherAmiAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CherAmiAPI.Migrations.AzureSQLProduction
 {
     [DbContext(typeof(AzureSQLProductionContext))]
-    partial class AzureSQLProductionContextModelSnapshot : ModelSnapshot
+    [Migration("20260819120000_Add Notification Preferences")]
+    partial class AddNotificationPreferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,7 +51,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("BlockerId");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Circle", b =>
@@ -73,9 +76,6 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                     b.Property<int>("IssueSchedule")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("LastPhotoPushAt")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<bool>("SoftDeleted")
                         .HasColumnType("bit");
 
@@ -92,7 +92,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .IsUnique()
                         .HasFilter("[CircleCode] IS NOT NULL");
 
-                    b.ToTable("Circles");
+                    b.ToTable("Circles", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.EmailLogin", b =>
@@ -119,7 +119,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailLogins");
+                    b.ToTable("EmailLogins", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Feedback", b =>
@@ -147,7 +147,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedback");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Issue", b =>
@@ -188,7 +188,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("CircleId");
 
-                    b.ToTable("Issues");
+                    b.ToTable("Issues", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Notification", b =>
@@ -224,7 +224,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Post", b =>
@@ -282,7 +282,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                         .IsUnique()
                         .HasFilter("[UploadId] IS NOT NULL");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Recipient", b =>
@@ -347,7 +347,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Recipients");
+                    b.ToTable("Recipients", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.Reports.Report", b =>
@@ -376,7 +376,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Reports", (string)null);
 
                     b.HasDiscriminator();
 
@@ -405,7 +405,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("CherAmiAPI.Entities.User", b =>
@@ -582,16 +582,14 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
-                            EmailIssueReminders = true,
-                            EmailMarketing = true,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Apple",
                             IsBillingExempt = false,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
-                            NameProvidedByUser = false,
-                            OnboardingCompleted = false,
                             PhoneNumber = "+11002003007",
                             PhoneNumberConfirmed = false,
                             PushIssueReminders = true,
@@ -610,16 +608,14 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
                             ConcurrencyStamp = "d4a1c1e2-7f42-4f9c-b9c0-fd6bce2a1d55",
                             DateOfBirth = new DateOnly(1995, 12, 24),
                             EmailConfirmed = false,
-                            EmailIssueReminders = true,
-                            EmailMarketing = true,
                             ExternalId = new Guid("00000000-0000-0000-0000-000000000000"),
                             FirstName = "Google",
                             IsBillingExempt = false,
+                            EmailIssueReminders = true,
+                            EmailMarketing = true,
                             JoinDate = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             LastName = "Test",
                             LockoutEnabled = false,
-                            NameProvidedByUser = false,
-                            OnboardingCompleted = false,
                             PhoneNumber = "+11002003008",
                             PhoneNumberConfirmed = false,
                             PushIssueReminders = true,
@@ -652,7 +648,7 @@ namespace CherAmiAPI.Migrations.AzureSQLProduction
 
                     b.HasKey("Id");
 
-                    b.ToTable("Words");
+                    b.ToTable("Words", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<long>", b =>

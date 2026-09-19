@@ -22,6 +22,11 @@ namespace CherAmiAPI.Shared.Mappers
             IsBillingExempt = user.IsBillingExempt,
             NameProvidedByUser = user.NameProvidedByUser,
             OnboardingCompleted = user.OnboardingCompleted,
+            PushNewPosts = user.PushNewPosts,
+            PushIssueReminders = user.PushIssueReminders,
+            PushNewMembers = user.PushNewMembers,
+            EmailIssueReminders = user.EmailIssueReminders,
+            EmailMarketing = user.EmailMarketing,
             Recipients = [.. user.Recipients.Select(mapper.FromEntity)],
         };
     }

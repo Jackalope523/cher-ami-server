@@ -146,6 +146,10 @@ namespace CherAmiAPI.Endpoints.Website
                         Email = friendEmail,
                         ExternalId = Guid.NewGuid(),
                         AccountStatus = UserAccountStatus.Prospective,
+                        // Named by a friend, not opted in by themselves. The columns have to
+                        // match the tags below, or a later sync would opt them in for them.
+                        EmailIssueReminders = false,
+                        EmailMarketing = false,
                     };
 
                     friend.OneSignalId = await oneSignalService.CreateUserAsync(friend.ExternalId, friend.Email, cancellationToken);
